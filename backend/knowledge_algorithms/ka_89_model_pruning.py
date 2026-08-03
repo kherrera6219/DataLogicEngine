@@ -1,116 +1,117 @@
-"""
-KA-089: Model Pruning
-Purpose: Reduce model size and inference latency by removing less significant weights (sparsification) while maintaining accuracy.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List, Optional
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+"""KA-089: bounded model-pruning proposals without artifact mutation."""
 
-from pydantic import BaseModel, Field
+from __future__ import annotations
+
+import hashlib
+import json
+import logging
+import math
+from pathlib import Path
+from typing import Any, Literal
+
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
 
 class KA089PruningInput(BaseModel):
-    model_id: str = Field("latest", description="The identifier for the model to prune")
-    parameter_count: int = Field(0, ge=0, description="Number of model parameters before pruning")
-    target_sparsity: Any = Field(None, description="Desired fraction of parameters to prune")
-    importance_scores: List[float] = Field(default_factory=list, description="Optional per-weight or per-block importance scores")
-    baseline_accuracy: Any = Field(None, description="Baseline model accuracy before pruning")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "artifact_name": "qualified.onnx",
+                    "artifact_sha256": "a" * 64,
+                    "parameter_count": 1_000,
+                    "target_sparsity": 0.2,
+                }
+            ]
+        },
+    )
+
+    artifact_name: str = Field(min_length=1, max_length=200)
+    artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    parameter_count: int = Field(ge=1, le=10_000_000_000_000)
+    target_sparsity: float = Field(gt=0.0, le=0.95)
+    method: Literal["magnitude_unstructured", "structured_channel"] = (
+        "magnitude_unstructured"
+    )
+    importance_profile_sha256: str | None = Field(
+        default=None,
+        pattern=r"^[0-9a-f]{64}$",
+    )
+
+    @field_validator("artifact_name")
+    @classmethod
+    def _file_name_only(cls, value: str) -> str:
+        if Path(value).name != value:
+            raise ValueError("artifact_name must be a file name")
+        return value
+
+    @field_validator("target_sparsity")
+    @classmethod
+    def _finite_sparsity(cls, value: float) -> float:
+        if not math.isfinite(value):
+            raise ValueError("target_sparsity must be finite")
+        return value
+
 
 class KA089ModelPruning(KnowledgeAlgorithm):
-    """
-    KA-089: Model weight sparsification and pruning engine for efficiency.
-    """
+    """Propose a pruning target without changing weights or estimating quality."""
+
     input_schema = KA089PruningInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-089"
-        self.config = {**self._load_config(), **context}
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_89_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA089PruningInput) -> Dict[str, Any]:
-        model_id = input_data.model_id
-        self.log_execution_step("Pruning Model Weights", {"model": model_id, "method": self.config.get("pruning_method", "magnitude")})
-        
-        target_sparsity = input_data.target_sparsity
-        if target_sparsity is None:
-            target_sparsity = self.config.get("target_sparsity", 0.1)
-        target_sparsity = self._as_float(target_sparsity, 0.1, 0.0, 0.95)
-
-        params_before = input_data.parameter_count or self.config.get("default_parameter_count", 0)
-        params_after = self._remaining_parameters(params_before, target_sparsity, input_data.importance_scores)
-        params_removed = params_before - params_after
-        accuracy_estimate = self._accuracy_after_pruning(
-            self._as_float(input_data.baseline_accuracy, None, 0.0, 1.0),
-            target_sparsity,
-            input_data.importance_scores,
+    def _run_logic(self, input_data: KA089PruningInput) -> dict[str, Any]:
+        planned_removal = int(
+            input_data.parameter_count * input_data.target_sparsity
         )
-        
+        request = {
+            "artifact_name": input_data.artifact_name,
+            "artifact_sha256": input_data.artifact_sha256,
+            "parameter_count": input_data.parameter_count,
+            "target_sparsity": input_data.target_sparsity,
+            "method": input_data.method,
+            "importance_profile_sha256": input_data.importance_profile_sha256,
+            "planned_parameter_removal": planned_removal,
+        }
+        plan_sha256 = hashlib.sha256(
+            json.dumps(
+                request,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        self.log_execution_step(
+            "Proposing Model Pruning",
+            {
+                "artifact_name": input_data.artifact_name,
+                "planned_parameter_removal": planned_removal,
+            },
+        )
         return {
             "success": True,
-            "pruned_model_id": f"{model_id}_pruned",
-            "sparsity_achieved": round(target_sparsity, 4),
-            "params_before": params_before,
-            "params_after": params_after,
-            "params_removed": params_removed,
-            "estimated_accuracy": accuracy_estimate,
-            "compression_ratio": f"{(params_before / max(1, params_after)):.2f}x"
+            "schema_version": "dle.model-pruning-proposal.v1",
+            "status": "PROPOSED",
+            "plan_sha256": plan_sha256,
+            "request": request,
+            "planned_parameter_removal": planned_removal,
+            "quality_measurement_required": True,
+            "pruning_applied": False,
+            "weights_changed": False,
+            "artifact_created": False,
+            "retraining_applied": False,
+            "provider_calls_applied": 0,
         }
 
-    @staticmethod
-    def _remaining_parameters(params_before: int, target_sparsity: float, importance_scores: List[float]) -> int:
-        if params_before <= 0:
-            return 0
-        if importance_scores:
-            prune_count = min(len(importance_scores), int(round(len(importance_scores) * target_sparsity)))
-            return max(0, params_before - prune_count)
-        return int(round(params_before * (1.0 - target_sparsity)))
 
-    @staticmethod
-    def _accuracy_after_pruning(
-        baseline_accuracy: Optional[float],
-        target_sparsity: float,
-        importance_scores: List[float],
-    ) -> Optional[float]:
-        if baseline_accuracy is None:
-            return None
-        if importance_scores:
-            sorted_scores = sorted(max(0.0, min(1.0, score)) for score in importance_scores)
-            prune_count = int(round(len(sorted_scores) * target_sparsity))
-            pruned_scores = sorted_scores[:prune_count]
-            average_importance = sum(pruned_scores) / max(1, len(pruned_scores))
-        else:
-            average_importance = 0.5
-        estimated_loss = target_sparsity * average_importance * 0.2
-        return round(max(0.0, baseline_accuracy - estimated_loss), 4)
-
-    @staticmethod
-    def _as_float(value: Any, default: Optional[float], minimum: float, maximum: float) -> Optional[float]:
-        if value is None:
-            return default
-        try:
-            parsed = float(value)
-        except (TypeError, ValueError):
-            return default
-        return max(minimum, min(maximum, parsed))
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
+def run(context: dict[str, Any]) -> dict[str, Any]:
     try:
-        algo = KA089ModelPruning(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-089 Failed: {e}")
-        return {"success": False, "error": str(e)}
+        return KA089ModelPruning(context).run(context)
+    except Exception as exc:  # pragma: no cover - legacy adapter boundary
+        logger.error("KA-089 failed: %s", exc)
+        return {"success": False, "error": str(exc)}

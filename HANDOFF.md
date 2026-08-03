@@ -312,7 +312,7 @@ KA-082 evaluates only supplied predictions/labels, and KA-081 consumes the
 feature/tuning dependencies before the owner writes an idempotent admission
 record. The admission explicitly starts no training and creates no provider
 call, epoch, checkpoint, worker assignment, deployment, or model artifact.
-Batch 11 (`KA-083`, `KA-087`, `KA-088`, `KA-089`, and `KA-090`) is next.
+Batch 11 closes release preparation through the provider-owned model lifecycle (`KA-083`, `KA-087`, `KA-088`, `KA-089`, and `KA-090`). Semantic versioning, A/B analysis, pruning, and quantization are recorded as explicit proposals with zero applied deployment effects. `KA-083` recommends admission after consuming all four preparation plans and measured health. Batch 12 is next.
 
 The same pass remediated all 31 dependency alerts visible before publication.
 `pypdf==6.14.2`, `web3==7.15.0`, Next 16.2.12, Electron Builder 26.15.3, and

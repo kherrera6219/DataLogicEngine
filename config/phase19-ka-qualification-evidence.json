@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.02-cp19k.3",
+  "manifest_version": "2026.08.02-cp19k.4",
   "status": "cp19_k_in_progress",
   "batches": [
     {
@@ -119,6 +119,18 @@
         "KA-086"
       ],
       "scope": "App-owned dataset profiling, measured feature construction, measured tuning and evaluation, and an idempotent provider-owned training-admission record that explicitly applies no training"
+    },
+    {
+      "batch_id": "cp19-k-batch-11-provider-model-release",
+      "completed_on": "2026-08-02",
+      "canonical_ids": [
+        "KA-083",
+        "KA-087",
+        "KA-088",
+        "KA-089",
+        "KA-090"
+      ],
+      "scope": "App-owned model-artifact profiling, causal version/experiment/pruning/quantization proposals, measured health admission, and an idempotent release-preparation record that explicitly applies no deployment"
     }
   ],
   "qualifications": {
@@ -909,6 +921,92 @@
         "rationale": "KA-086 returns a bounded candidate and ranking proposal with zero provider calls and no tuning effect."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_086_semantic_contract"
+    },
+    "KA-083": {
+      "batch_id": "cp19-k-batch-11-provider-model-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_083_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_083_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_083_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_model_release.py::test_release_preparation_rejects_tampered_ka_claim_before_write",
+        "rationale": "The provider owner contains artifacts to an app-owned model root, rejects unhealthy measurements and tampered effect claims before persistence, and verifies receipt integrity on replay."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_083_owning_path",
+        "rationale": "KA-083 remains proposal-only. ProviderModelLifecycleService writes an idempotent release-preparation record and receipt while explicitly applying no deployment, traffic, rollback, provider, or artifact effect."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_083_semantic_contract"
+    },
+    "KA-087": {
+      "batch_id": "cp19-k-batch-11-provider-model-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_087_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_087_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_087_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_model_release.py::test_release_preparation_rejects_path_escape_without_write",
+        "rationale": "Version proposals consume the owner-measured SHA-256 identity of a contained app-owned artifact and accept no caller path, registry target, tag, or fabricated commit."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-087 proposes semantic version progression and applies no registry write, tag, version assignment, or artifact creation."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_087_semantic_contract"
+    },
+    "KA-088": {
+      "batch_id": "cp19-k-batch-11-provider-model-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_088_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_088_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_088_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_088_semantic_contract",
+        "rationale": "Assignment accepts only a caller-supplied subject hash, validates an exact two-variant 100-percent split, and analyzes only bounded measured counts."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-088 creates an experiment plan and optional measured analysis while leaving activation, persistence, provider calls, assignment, and traffic routing unapplied."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_088_semantic_contract"
+    },
+    "KA-089": {
+      "batch_id": "cp19-k-batch-11-provider-model-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_089_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_089_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_089_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_model_release.py::test_release_preparation_preserves_bounded_dependency_proposals",
+        "rationale": "The proposal binds a contained artifact digest, bounded parameter count, target sparsity, method, and optional content-free importance-profile digest without loading or changing model weights."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-089 reports a requested removal count only and explicitly performs no pruning, weight change, retraining, provider call, quality claim, or artifact creation."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_089_semantic_contract"
+    },
+    "KA-090": {
+      "batch_id": "cp19-k-batch-11-provider-model-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_090_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_090_owning_path",
+      "trace_test": "tests/integration/phase19/test_provider_gateway.py::test_ka_090_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_provider_model_release.py::test_release_preparation_preserves_bounded_dependency_proposals",
+        "rationale": "The proposal consumes the owner-measured artifact size and digest, restricts bit depths and formats, and treats the arithmetic size as a theoretical bound requiring later measurement."
+      },
+      "effect_evidence": {
+        "applicability": "not_applicable",
+        "rationale": "KA-090 applies no quantization, calibration, weight change, provider call, or artifact creation and reports no quantized path or measured size."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_090_semantic_contract"
     }
   }
 }

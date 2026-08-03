@@ -231,8 +231,14 @@ Phase 18 source baseline while completing the whole-application wiring.
         owner records an idempotent training admission. The durable record and
         receipt explicitly apply no training, provider call, epoch, checkpoint,
         worker assignment, deployment, or model artifact.
-      - The generated matrix and integrity verifier pass at 46/213 qualified
-        and 167 incomplete; rebuild authorization remains false. Runtime
+       - Batch 11 passed 2026-08-02: `KA-083`, `KA-087`, `KA-088`, `KA-089`, and
+        `KA-090` now close through `ProviderModelLifecycleService`. Semantic
+        versioning, A/B analysis, pruning, and quantization are recorded as
+        explicit proposals with zero applied deployment effects. `KA-083`
+        recommends admission after consuming all four preparation plans and
+        measured health.
+      - The generated matrix and integrity verifier pass at 51/213 qualified
+        and 162 incomplete; rebuild authorization remains false. Runtime
         manifest `2026.08.02-cp19k.3` retains 213 capabilities, 149 production-
         enabled capabilities, and a 138-edge zero-cycle graph. The 820-test KA
         suite, 215 governed/TruthCore/Phase-19/simulation integration tests,
@@ -241,21 +247,17 @@ Phase 18 source baseline while completing the whole-application wiring.
       - Parallel candidate training-dataset exporter review passed after
         hardening: owner-authenticated API, app-owned output containment,
         mandatory redaction, explicit release evidence, real persisted trace
-        fields, and 22 backend/4 frontend focused tests. SFT and status-derived
+        fields, and 26 backend/3 frontend focused tests. SFT and status-derived
         PRM are available as candidate exports; database/UI DPO stays disabled
         until real rejected-candidate provenance is persisted. This tooling
-        remains supporting tooling; Batch 10 qualification comes from the new
-        provider-owned model-lifecycle path and closes no installed acceptance
+        remains supporting tooling; Batch 10 and 11 qualification comes from the
+        new provider-owned model-lifecycle path and closes no installed acceptance
         gate.
       - Dependency review: all 31 open GitHub alerts were remediated in the
         Python and Node authorities. Local `pip-audit` and `npm audit` report
         zero known vulnerabilities, both lockfile-governance gates pass, and
         GitHub now reports zero open Dependabot alerts after its rescan.
-      - Next: execute grouped Batch 11 for provider model release (`KA-083`,
-        `KA-087`, `KA-088`, `KA-089`, and `KA-090`) through the real provider
-        owner. The Batch 10 admission record is not proof of training or
-        deployment. Keep every later batch open until its named
-        individual and owner/effect evidence passes.
+      - Next: execute grouped Batch 12 through the real production owner. Keep every later batch open until its named individual and owner/effect evidence passes.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.

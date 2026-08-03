@@ -218,3 +218,73 @@ def evaluate_model_endpoint():
                 "message": "Measured model evaluation failed.",
             }
         ), 500
+
+
+@dataset_bp.route("/release-preparations", methods=["POST"])
+@api_admin_required
+def create_release_preparation_endpoint():
+    """Record bounded model release preparation without claiming deployment."""
+    try:
+        body = request.get_json(silent=True)
+        if not isinstance(body, dict):
+            raise ProviderModelLifecycleError(
+                "Request body must be a JSON object"
+            )
+        idempotency_key = str(
+            request.headers.get("Idempotency-Key") or ""
+        ).strip()
+        request_id = str(
+            request.headers.get("X-Request-ID") or uuid4()
+        ).strip()
+        preparation = _model_lifecycle_service().submit_release_preparation(
+            artifact_name=str(body.get("artifact_name") or ""),
+            current_version=str(body.get("current_version") or ""),
+            increment=str(body.get("increment") or "patch"),
+            source_commit=(
+                str(body["source_commit"])
+                if body.get("source_commit") is not None
+                else None
+            ),
+            release_channel=str(body.get("release_channel") or "candidate"),
+            target_environment=str(body.get("target_environment") or ""),
+            parameter_count=body.get("parameter_count"),
+            target_sparsity=body.get("target_sparsity"),
+            pruning_method=str(
+                body.get("pruning_method") or "magnitude_unstructured"
+            ),
+            importance_profile_sha256=body.get("importance_profile_sha256"),
+            source_bit_depth=body.get("source_bit_depth", 32),
+            target_bit_depth=body.get("target_bit_depth", 8),
+            target_format=str(body.get("target_format") or "onnx"),
+            calibration_profile_sha256=body.get(
+                "calibration_profile_sha256"
+            ),
+            experiment_id=str(body.get("experiment_id") or ""),
+            traffic_split_percent=body.get("traffic_split_percent") or {},
+            experiment_observations=(
+                body.get("experiment_observations") or {}
+            ),
+            min_sample_size=body.get("min_sample_size", 1_000),
+            health_observation=body.get("health_observation") or {},
+            idempotency_key=idempotency_key,
+            request_id=request_id,
+            principal_id=_principal_id(),
+        )
+        return jsonify(preparation), 201
+    except (ProviderModelLifecycleError, TypeError, ValueError) as exc:
+        return jsonify(
+            {
+                "status": "error",
+                "error": "release_preparation_rejected",
+                "message": str(exc),
+            }
+        ), 400
+    except Exception:
+        logger.exception("Model release preparation failed")
+        return jsonify(
+            {
+                "status": "error",
+                "error": "release_preparation_failed",
+                "message": "Model release preparation failed.",
+            }
+        ), 500

@@ -1,14 +1,14 @@
 # CP19-K per-KA qualification matrix
 
-**Matrix version:** `2026.08.02-cp19k.8`
+**Matrix version:** `2026.08.02-cp19k.9`
 **Status:** `cp19_k_in_progress`
 **Release decision:** NO-GO; rebuild not authorized
 
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 46 rows are fully
-qualified and 167 remain open. A row closes
+canonical capabilities. 51 rows are fully
+qualified and 162 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -30,6 +30,7 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-08-operations-observability` | 2026-08-02 | 7 | Authenticated content-free diagnostics visualization, dashboard, report planning, alerting, profiling, debugging, and optimization recommendations |
 | `cp19-k-batch-09-ingestion-pipeline` | 2026-08-02 | 8 | Causal local-file ingestion admission, cleaning, transformation, validation, mapping, exact identity resolution, no-egress enrichment, archive eligibility, and transaction-bound owner receipt |
 | `cp19-k-batch-10-provider-model-preparation` | 2026-08-02 | 4 | App-owned dataset profiling, measured feature construction, measured tuning and evaluation, and an idempotent provider-owned training-admission record that explicitly applies no training |
+| `cp19-k-batch-11-provider-model-release` | 2026-08-02 | 5 | App-owned model-artifact profiling, causal version/experiment/pruning/quantization proposals, measured health admission, and an idempotent release-preparation record that explicitly applies no deployment |
 
 ## Gate decision
 

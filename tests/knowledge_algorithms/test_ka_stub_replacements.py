@@ -692,19 +692,61 @@ def test_ka085_applies_measured_feature_transformations():
     assert len(result["output"]["engineered_records"]) == 3
 
 
-def test_ka083_deployment_recommends_rollback_on_unhealthy_signal():
+def test_ka083_blocks_deployment_admission_on_unhealthy_measurement():
+    artifact_sha256 = "a" * 64
+    dependencies = {
+        "KA-087": KA087ModelVersioning({}).run(
+            KA087VersioningInput(
+                artifact_name="model.onnx",
+                artifact_sha256=artifact_sha256,
+                current_version="v1.9.0",
+            )
+        )["output"],
+        "KA-088": KA088ABTesting({}).run(
+            KA088ABInput(
+                experiment_id="release-v2",
+                traffic_split_percent={"control": 90, "candidate": 10},
+            )
+        )["output"],
+        "KA-089": KA089ModelPruning({}).run(
+            KA089PruningInput(
+                artifact_name="model.onnx",
+                artifact_sha256=artifact_sha256,
+                parameter_count=1_000,
+                target_sparsity=0.25,
+            )
+        )["output"],
+        "KA-090": KA090ModelQuantization({}).run(
+            KA090QuantizationInput(
+                artifact_name="model.onnx",
+                artifact_sha256=artifact_sha256,
+                original_size_bytes=1_024,
+                source_bit_depth=32,
+                target_bit_depth=8,
+            )
+        )["output"],
+    }
     result = KA083ModelDeployment({}).run(
         KA083DeploymentInput(
-            version="v2.0.0",
-            env="production",
-            current_version="v1.9.0",
-            health_signals={"failures_per_hour": 8, "p95_latency_ms": 1200},
+            artifact_name="model.onnx",
+            artifact_sha256=artifact_sha256,
+            target_environment="production",
+            health_observation={
+                "sample_count": 100,
+                "failure_count": 8,
+                "p95_latency_ms": 1_200,
+                "maximum_failure_rate": 0.05,
+                "maximum_p95_latency_ms": 1_000,
+            },
+            dependency_results=dependencies,
         )
     )
 
-    assert result["success"] is False
-    assert result["output"]["status"] == "ROLLBACK_RECOMMENDED"
-    assert result["output"]["rollback_plan"]["target_version"] == "v1.9.0"
+    assert result["success"] is True
+    assert result["output"]["status"] == "BLOCKED"
+    assert result["output"]["admission_recommended"] is False
+    assert result["output"]["deployment_applied"] is False
+    assert result["output"]["rollback_applied"] is False
 
 
 def test_ka084_monitors_relative_metric_drift():
@@ -750,65 +792,73 @@ def test_ka086_tunes_hyperparameters_deterministically():
     assert first["output"]["tuning_applied"] is False
 
 
-def test_ka087_versions_artifact_from_hash_and_current_version():
-    result = KA087ModelVersioning({"artifact_registry_path": "/registry"}).run(
+def test_ka087_proposes_version_without_registry_write():
+    result = KA087ModelVersioning({}).run(
         KA087VersioningInput(
-            artifact="/models/model.bin",
+            artifact_name="model.onnx",
+            artifact_sha256="a" * 64,
             current_version="v2.4.9",
-            artifact_hash="abcdef1234567890",
         )
     )
 
     assert result["success"] is True
-    assert result["output"]["version_assigned"] == "v2.4.10"
-    assert result["output"]["artifact_hash"] == "abcdef1234567890"
-    assert result["output"]["git_commit"] == "abcdef1"
-    assert result["output"]["registry_path"] == "/registry"
+    assert result["output"]["proposed_version"] == "v2.4.10"
+    assert result["output"]["version_assigned"] is False
+    assert result["output"]["registry_write_applied"] is False
 
 
-def test_ka088_assigns_ab_variant_with_stable_hash_and_metrics():
+def test_ka088_proposes_stable_assignment_and_measured_analysis():
     ka = KA088ABTesting({})
     result = ka.run(
         KA088ABInput(
-            request_id="req-1",
-            subject_id="user-42",
-            experiment_metrics={
-                "control": {"n": 1200, "conversions": 120},
-                "variant_a": {"n": 1200, "conversions": 180},
+            experiment_id="release-v2",
+            traffic_split_percent={"control": 50, "candidate": 50},
+            subject_sha256="b" * 64,
+            observations={
+                "control": {"sample_count": 1200, "success_count": 120},
+                "candidate": {"sample_count": 1200, "success_count": 180},
             },
         )
     )
-    repeat = ka.run(KA088ABInput(request_id="req-2", subject_id="user-42"))
+    repeat = ka.run(
+        KA088ABInput(
+            experiment_id="release-v2",
+            traffic_split_percent={"control": 50, "candidate": 50},
+            subject_sha256="b" * 64,
+        )
+    )
 
     assert result["success"] is True
     assert result["output"]["assigned_variant"] == repeat["output"]["assigned_variant"]
     assert result["output"]["analysis"]["sufficient_data"] is True
-    assert result["output"]["analysis"]["lift"] == 0.05
+    assert result["output"]["analysis"]["absolute_lift"] == 0.05
+    assert result["output"]["experiment_active"] is False
+    assert result["output"]["routing_applied"] is False
 
 
-def test_ka089_prunes_from_parameter_metadata():
+def test_ka089_proposes_pruning_without_changing_weights():
     result = KA089ModelPruning({}).run(
         KA089PruningInput(
-            model_id="classifier",
+            artifact_name="model.onnx",
+            artifact_sha256="a" * 64,
             parameter_count=1000,
             target_sparsity=0.25,
-            baseline_accuracy=0.92,
-            importance_scores=[0.1, 0.2, 0.8, 0.9],
         )
     )
 
     assert result["success"] is True
-    assert result["output"]["params_before"] == 1000
-    assert result["output"]["params_removed"] == 1
-    assert result["output"]["estimated_accuracy"] == 0.915
-    assert result["output"]["compression_ratio"] == "1.00x"
+    assert result["output"]["planned_parameter_removal"] == 250
+    assert result["output"]["quality_measurement_required"] is True
+    assert result["output"]["pruning_applied"] is False
+    assert result["output"]["artifact_created"] is False
 
 
-def test_ka090_quantizes_from_size_and_precision_metadata():
+def test_ka090_proposes_theoretical_quantization_without_artifact():
     result = KA090ModelQuantization({}).run(
         KA090QuantizationInput(
-            model_id="classifier",
-            original_size_mb=512,
+            artifact_name="model.onnx",
+            artifact_sha256="a" * 64,
+            original_size_bytes=512,
             source_bit_depth=32,
             target_bit_depth=8,
             target_format="onnx",
@@ -816,9 +866,10 @@ def test_ka090_quantizes_from_size_and_precision_metadata():
     )
 
     assert result["success"] is True
-    assert result["output"]["quantized_model_path"] == "/models/classifier_int8.onnx"
-    assert result["output"]["quantized_size_mb"] == 128
-    assert result["output"]["reduction_percent"] == "75.0%"
+    assert result["output"]["theoretical_size_upper_bound_bytes"] == 128
+    assert result["output"]["actual_size_measurement_required"] is True
+    assert result["output"]["quantization_applied"] is False
+    assert result["output"]["artifact_created"] is False
 
 
 def test_ka106_uses_deterministic_circuit_breaker_policy():

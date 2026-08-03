@@ -1,10 +1,7 @@
 {
-    "experiment_duration_days": 14,
-    "traffic_split_percent": {
-        "control": 50,
-        "variant_a": 50
-    },
-    "metrics_to_track": ["click_through_rate", "conversion", "latency"],
-    "statistical_significance_alpha": 0.05,
-    "min_sample_size": 1000
+  "proposal_only": true,
+  "variant_count": 2,
+  "statistical_significance_z": 1.96,
+  "default_min_sample_size": 1000,
+  "routing_applied": false
 }

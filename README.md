@@ -40,8 +40,8 @@ SDKs.
 | Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
 | Runtime authority | One generated manifest/controller; 138-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 46/213; 167 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batches 08-10 complete, Batch 11 next, 33 remain |
+| Individually qualified KAs | 51/213; 162 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batches 08-11 complete, Batch 12 next, 32 remain |
 | Latest source validation | 2,698 passed, 18 skipped, 35 known warnings |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 

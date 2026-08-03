@@ -147,9 +147,16 @@ def _assert_model_trace(job: dict, canonical_id: str) -> None:
     assert states[:2] == ["planned", "candidate"]
     assert "selected" in states
     assert "executed" in states
-    if canonical_id in {"KA-085", "KA-086"}:
+    if canonical_id in {
+        "KA-085",
+        "KA-086",
+        "KA-087",
+        "KA-088",
+        "KA-089",
+        "KA-090",
+    }:
         assert "dependency" in states
-    if canonical_id == "KA-081":
+    if canonical_id in {"KA-081", "KA-083"}:
         assert states[-1] == "effect_proposed"
 
 
@@ -225,3 +232,95 @@ def test_ka_086_owning_path(tmp_path):
     assert len(job["tuning_plan_sha256"]) == 64
     assert job["provider_calls_applied"] == 0
     _assert_model_trace(job, "KA-086")
+
+
+def _release_preparation(tmp_path):
+    model_root = tmp_path / "models"
+    model_root.mkdir(exist_ok=True)
+    (model_root / "qualified.onnx").write_bytes(b"bounded-model-artifact")
+    service = ProviderModelLifecycleService(
+        dataset_root=tmp_path / "datasets",
+        admission_root=tmp_path / "training-admissions",
+        model_root=model_root,
+        release_root=tmp_path / "release-preparations",
+    )
+    record = service.submit_release_preparation(
+        artifact_name="qualified.onnx",
+        current_version="v1.2.3",
+        increment="patch",
+        source_commit="a" * 40,
+        release_channel="candidate",
+        target_environment="staging",
+        parameter_count=1_000_000,
+        target_sparsity=0.2,
+        pruning_method="magnitude_unstructured",
+        importance_profile_sha256="b" * 64,
+        source_bit_depth=32,
+        target_bit_depth=8,
+        target_format="onnx",
+        calibration_profile_sha256="c" * 64,
+        experiment_id="release-candidate-v1-2-4",
+        traffic_split_percent={"control": 90, "candidate": 10},
+        experiment_observations={},
+        min_sample_size=1_000,
+        health_observation={
+            "sample_count": 10_000,
+            "failure_count": 5,
+            "p95_latency_ms": 180.0,
+            "maximum_failure_rate": 0.01,
+            "maximum_p95_latency_ms": 500.0,
+        },
+        idempotency_key="provider-release-preparation",
+        request_id="provider-release-request",
+        principal_id="owner-1",
+    )
+    return service, record
+
+
+def test_ka_083_owning_path(tmp_path):
+    _service, record = _release_preparation(tmp_path)
+
+    assert record["status"] == "RELEASE_PREPARATION_RECORDED"
+    assert record["deployment_started"] is False
+    assert record["traffic_routing_applied"] is False
+    assert record["provider_calls_applied"] == 0
+    assert record["authoritative_effect_receipt"]["operation"] == (
+        "record_model_release_preparation"
+    )
+    _assert_model_trace(record, "KA-083")
+
+
+def test_ka_087_owning_path(tmp_path):
+    _service, record = _release_preparation(tmp_path)
+
+    assert record["proposed_version"] == "v1.2.4"
+    assert record["version_proposal"]["registry_write_applied"] is False
+    _assert_model_trace(record, "KA-087")
+
+
+def test_ka_088_owning_path(tmp_path):
+    _service, record = _release_preparation(tmp_path)
+
+    assert record["experiment_proposal"]["analysis_status"] == (
+        "MEASUREMENT_REQUIRED"
+    )
+    assert record["experiment_proposal"]["routing_applied"] is False
+    _assert_model_trace(record, "KA-088")
+
+
+def test_ka_089_owning_path(tmp_path):
+    _service, record = _release_preparation(tmp_path)
+
+    assert record["pruning_proposal"]["planned_parameter_removal"] == 200_000
+    assert record["pruning_proposal"]["pruning_applied"] is False
+    _assert_model_trace(record, "KA-089")
+
+
+def test_ka_090_owning_path(tmp_path):
+    _service, record = _release_preparation(tmp_path)
+
+    assert record["quantization_proposal"][
+        "actual_size_measurement_required"
+    ] is True
+    assert record["quantization_proposal"]["quantization_applied"] is False
+    _assert_model_trace(record, "KA-090")

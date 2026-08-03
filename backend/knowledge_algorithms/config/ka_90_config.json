@@ -1,7 +1,7 @@
 {
-    "quantization_type": "post_training_integer",
-    "target_bit_depth": 8,
-    "optimization_target": "latency",
-    "per_channel": true,
-    "calibration_dataset_size": 100
+  "proposal_only": true,
+  "allowed_target_bit_depths": [4, 8, 16],
+  "allowed_target_formats": ["onnx", "safetensors", "tflite"],
+  "quantization_applied": false,
+  "artifact_created": false
 }

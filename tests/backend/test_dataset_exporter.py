@@ -574,3 +574,59 @@ def test_model_evaluation_route_passes_measured_outcomes(
         "request_id": "route-evaluation-1",
         "principal_id": "7",
     }
+
+
+def test_release_preparation_route_passes_bounded_owner_request(
+    dataset_app: Flask,
+):
+    prepared = {
+        "schema_version": "dle.provider-model-release-preparation.v1",
+        "status": "RELEASE_PREPARATION_RECORDED",
+        "deployment_started": False,
+    }
+    service = MagicMock()
+    service.submit_release_preparation.return_value = prepared
+    principal = SimpleNamespace(id=7)
+    with (
+        patch(
+            "backend.auth.api_decorators.check_desktop_request_auth",
+            return_value=(True, principal),
+        ),
+        patch(
+            "backend.routes.dataset_routes._model_lifecycle_service",
+            return_value=service,
+        ),
+    ):
+        response = dataset_app.test_client().post(
+            "/api/v1/dataset/release-preparations",
+            headers={
+                "Idempotency-Key": "route-release-preparation",
+                "X-Request-ID": "route-release-request",
+            },
+            json={
+                "artifact_name": "qualified.onnx",
+                "current_version": "v1.2.3",
+                "target_environment": "staging",
+                "parameter_count": 1_000_000,
+                "target_sparsity": 0.2,
+                "experiment_id": "release-v1-2-4",
+                "traffic_split_percent": {"control": 90, "candidate": 10},
+                "health_observation": {
+                    "sample_count": 1_000,
+                    "failure_count": 0,
+                    "p95_latency_ms": 180,
+                    "maximum_failure_rate": 0.01,
+                    "maximum_p95_latency_ms": 500,
+                },
+            },
+        )
+
+    assert response.status_code == 201
+    assert response.get_json() == prepared
+    kwargs = service.submit_release_preparation.call_args.kwargs
+    assert kwargs["idempotency_key"] == "route-release-preparation"
+    assert kwargs["request_id"] == "route-release-request"
+    assert kwargs["principal_id"] == "7"
+    assert kwargs["target_environment"] == "staging"
+    assert kwargs["target_bit_depth"] == 8
+    assert kwargs["experiment_observations"] == {}

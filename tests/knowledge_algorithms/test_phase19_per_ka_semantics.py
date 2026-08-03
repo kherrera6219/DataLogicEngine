@@ -1330,3 +1330,165 @@ def test_ka_086_semantic_contract():
     assert unmeasured.output["status"] == "MEASUREMENT_REQUIRED"
     assert unmeasured.output["best_params"] is None
     assert unmeasured.output["best_score"] is None
+
+
+def _model_release_dependencies():
+    artifact_sha256 = "d" * 64
+    version = _execute(
+        "KA-087",
+        {
+            "artifact_name": "qualified.onnx",
+            "artifact_sha256": artifact_sha256,
+            "current_version": "v1.2.3",
+        },
+    )
+    experiment = _execute(
+        "KA-088",
+        {
+            "experiment_id": "release-v1-2-4",
+            "traffic_split_percent": {"control": 90, "candidate": 10},
+        },
+    )
+    pruning = _execute(
+        "KA-089",
+        {
+            "artifact_name": "qualified.onnx",
+            "artifact_sha256": artifact_sha256,
+            "parameter_count": 1_000_000,
+            "target_sparsity": 0.2,
+        },
+    )
+    quantization = _execute(
+        "KA-090",
+        {
+            "artifact_name": "qualified.onnx",
+            "artifact_sha256": artifact_sha256,
+            "original_size_bytes": 1_024,
+            "source_bit_depth": 32,
+            "target_bit_depth": 8,
+        },
+    )
+    for result in (version, experiment, pruning, quantization):
+        assert result.success
+    return artifact_sha256, {
+        "KA-087": version.output,
+        "KA-088": experiment.output,
+        "KA-089": pruning.output,
+        "KA-090": quantization.output,
+    }
+
+
+def test_ka_083_semantic_contract():
+    artifact_sha256, dependencies = _model_release_dependencies()
+    payload = {
+        "artifact_name": "qualified.onnx",
+        "artifact_sha256": artifact_sha256,
+        "target_environment": "staging",
+        "health_observation": {
+            "sample_count": 1_000,
+            "failure_count": 1,
+            "p95_latency_ms": 150.0,
+            "maximum_failure_rate": 0.01,
+            "maximum_p95_latency_ms": 500.0,
+        },
+        "dependency_results": dependencies,
+    }
+    proposed = _execute("KA-083", payload)
+    repeated = _execute("KA-083", payload)
+
+    _assert_bounded_result("KA-083", proposed)
+    assert proposed.output == repeated.output
+    assert proposed.output["status"] == "PROPOSED"
+    assert proposed.output["admission_recommended"] is True
+    assert proposed.output["deployment_applied"] is False
+    assert proposed.output["traffic_routing_applied"] is False
+    assert proposed.output["rollback_applied"] is False
+    assert proposed.output["provider_calls_applied"] == 0
+
+
+def test_ka_087_semantic_contract():
+    payload = {
+        "artifact_name": "qualified.onnx",
+        "artifact_sha256": "d" * 64,
+        "current_version": "v1.2.3",
+        "increment": "minor",
+    }
+    proposed = _execute("KA-087", payload)
+    repeated = _execute("KA-087", payload)
+
+    _assert_pure_bounded_result("KA-087", proposed)
+    assert proposed.output == repeated.output
+    assert proposed.output["proposed_version"] == "v1.3.0"
+    assert proposed.output["version_assigned"] is False
+    assert proposed.output["registry_write_applied"] is False
+    assert proposed.output["artifact_created"] is False
+
+
+def test_ka_088_semantic_contract():
+    measured = _execute(
+        "KA-088",
+        {
+            "experiment_id": "release-v1-2-4",
+            "traffic_split_percent": {"control": 50, "candidate": 50},
+            "subject_sha256": "e" * 64,
+            "observations": {
+                "control": {"sample_count": 1_000, "success_count": 100},
+                "candidate": {"sample_count": 1_000, "success_count": 125},
+            },
+        },
+    )
+    unmeasured = _execute(
+        "KA-088",
+        {
+            "experiment_id": "release-v1-2-4",
+            "traffic_split_percent": {"control": 90, "candidate": 10},
+        },
+    )
+
+    _assert_pure_bounded_result("KA-088", measured)
+    _assert_pure_bounded_result("KA-088", unmeasured)
+    assert measured.output["analysis"]["status"] == "MEASURED"
+    assert measured.output["analysis"]["absolute_lift"] == 0.025
+    assert measured.output["experiment_active"] is False
+    assert measured.output["routing_applied"] is False
+    assert unmeasured.output["analysis"]["status"] == "MEASUREMENT_REQUIRED"
+
+
+def test_ka_089_semantic_contract():
+    proposed = _execute(
+        "KA-089",
+        {
+            "artifact_name": "qualified.onnx",
+            "artifact_sha256": "d" * 64,
+            "parameter_count": 1_000_000,
+            "target_sparsity": 0.2,
+        },
+    )
+
+    _assert_pure_bounded_result("KA-089", proposed)
+    assert proposed.output["planned_parameter_removal"] == 200_000
+    assert proposed.output["quality_measurement_required"] is True
+    assert proposed.output["pruning_applied"] is False
+    assert proposed.output["weights_changed"] is False
+    assert proposed.output["artifact_created"] is False
+
+
+def test_ka_090_semantic_contract():
+    proposed = _execute(
+        "KA-090",
+        {
+            "artifact_name": "qualified.onnx",
+            "artifact_sha256": "d" * 64,
+            "original_size_bytes": 1_024,
+            "source_bit_depth": 32,
+            "target_bit_depth": 8,
+            "target_format": "onnx",
+        },
+    )
+
+    _assert_pure_bounded_result("KA-090", proposed)
+    assert proposed.output["theoretical_size_upper_bound_bytes"] == 256
+    assert proposed.output["actual_size_measurement_required"] is True
+    assert proposed.output["quantization_applied"] is False
+    assert proposed.output["weights_changed"] is False
+    assert proposed.output["artifact_created"] is False

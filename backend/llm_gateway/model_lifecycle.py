@@ -54,6 +54,25 @@ class DatasetArtifactProfile:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class ModelArtifactProfile:
+    """Content-free identity of one app-owned model artifact."""
+
+    artifact_name: str
+    path: Path
+    format: str
+    sha256: str
+    size_bytes: int
+
+    def evidence(self) -> dict[str, Any]:
+        return {
+            "artifact_name": self.artifact_name,
+            "format": self.format,
+            "sha256": self.sha256,
+            "size_bytes": self.size_bytes,
+        }
+
+
 class ProviderModelLifecycleService:
     """Own model-preparation effects and consume measured KA decisions."""
 
@@ -62,10 +81,22 @@ class ProviderModelLifecycleService:
         *,
         dataset_root: str | os.PathLike[str],
         admission_root: str | os.PathLike[str],
+        model_root: str | os.PathLike[str] | None = None,
+        release_root: str | os.PathLike[str] | None = None,
         coordinator: ExtendedSubsystemCoordinator | None = None,
     ) -> None:
         self.dataset_root = Path(dataset_root).resolve()
         self.admission_root = Path(admission_root).resolve()
+        self.model_root = Path(
+            model_root
+            if model_root is not None
+            else self.dataset_root.parent / "model-artifacts"
+        ).resolve()
+        self.release_root = Path(
+            release_root
+            if release_root is not None
+            else self.admission_root.parent / "model-release-preparations"
+        ).resolve()
         self.coordinator = coordinator or ExtendedSubsystemCoordinator()
 
     def submit_training_admission(
@@ -211,6 +242,190 @@ class ProviderModelLifecycleService:
         job["authoritative_effect_receipt"] = receipt
         return self._write_once(target, job)
 
+    def submit_release_preparation(
+        self,
+        *,
+        artifact_name: str,
+        current_version: str,
+        increment: str,
+        source_commit: str | None,
+        release_channel: str,
+        target_environment: str,
+        parameter_count: int,
+        target_sparsity: float,
+        pruning_method: str,
+        importance_profile_sha256: str | None,
+        source_bit_depth: int,
+        target_bit_depth: int,
+        target_format: str,
+        calibration_profile_sha256: str | None,
+        experiment_id: str,
+        traffic_split_percent: dict[str, float],
+        experiment_observations: dict[str, dict[str, int]],
+        min_sample_size: int,
+        health_observation: dict[str, Any],
+        idempotency_key: str,
+        request_id: str,
+        principal_id: str,
+    ) -> dict[str, Any]:
+        """Record a release-preparation admission without deploying a model."""
+        self._validate_identity(
+            idempotency_key=idempotency_key,
+            request_id=request_id,
+            principal_id=principal_id,
+        )
+        artifact = self._profile_model_artifact(artifact_name)
+        ka_inputs = {
+            "KA-087": {
+                "artifact_name": artifact.artifact_name,
+                "artifact_sha256": artifact.sha256,
+                "current_version": current_version,
+                "increment": increment,
+                "source_commit": source_commit,
+                "release_channel": release_channel,
+            },
+            "KA-088": {
+                "experiment_id": experiment_id,
+                "traffic_split_percent": traffic_split_percent,
+                "observations": experiment_observations,
+                "min_sample_size": min_sample_size,
+            },
+            "KA-089": {
+                "artifact_name": artifact.artifact_name,
+                "artifact_sha256": artifact.sha256,
+                "parameter_count": parameter_count,
+                "target_sparsity": target_sparsity,
+                "method": pruning_method,
+                "importance_profile_sha256": importance_profile_sha256,
+            },
+            "KA-090": {
+                "artifact_name": artifact.artifact_name,
+                "artifact_sha256": artifact.sha256,
+                "original_size_bytes": artifact.size_bytes,
+                "source_bit_depth": source_bit_depth,
+                "target_bit_depth": target_bit_depth,
+                "target_format": target_format,
+                "calibration_profile_sha256": calibration_profile_sha256,
+            },
+            "KA-083": {
+                "artifact_name": artifact.artifact_name,
+                "artifact_sha256": artifact.sha256,
+                "target_environment": target_environment,
+                "health_observation": health_observation,
+            },
+        }
+        execution = self._execute_required(
+            owner="provider_gateway",
+            operation="model_lifecycle",
+            requested_ids=["KA-083"],
+            ka_inputs=ka_inputs,
+            request_id=request_id,
+            run_id=f"model-release-preparation:{request_id}",
+            max_effects=1,
+            session_id=request_id,
+            principal_id=principal_id,
+            tier="provider_gateway",
+            layer="model_release",
+            service_capabilities={"provider_gateway_service"},
+            required=True,
+        )
+        outputs = self._validate_release_execution(
+            execution,
+            artifact=artifact,
+        )
+        deployment = outputs["KA-083"]
+        if deployment.get("admission_recommended") is not True:
+            raise ProviderModelLifecycleError(
+                "Measured model health blocks release preparation"
+            )
+        request_payload = {
+            "artifact": artifact.evidence(),
+            "target_environment": target_environment,
+            "proposed_version": outputs["KA-087"]["proposed_version"],
+            "dependency_plans": deployment["request"][
+                "dependency_plan_sha256"
+            ],
+            "health": deployment["request"]["health"],
+            "principal_sha256": self._sha256_text(principal_id),
+        }
+        request_sha256 = self.coordinator.sha256_payload(request_payload)
+        preparation_id = (
+            "model-release-preparation-"
+            + self._sha256_text(idempotency_key)[:24]
+        )
+        target = self.release_root / f"{preparation_id}.json"
+        existing = self._read_existing_release(
+            target,
+            request_sha256=request_sha256,
+        )
+        if existing is not None:
+            return existing
+
+        record = {
+            "schema_version": "dle.provider-model-release-preparation.v1",
+            "preparation_id": preparation_id,
+            "status": "RELEASE_PREPARATION_RECORDED",
+            "request_sha256": request_sha256,
+            "artifact": artifact.evidence(),
+            "proposed_version": outputs["KA-087"]["proposed_version"],
+            "target_environment": target_environment,
+            "deployment_proposal_id": deployment["proposal_id"],
+            "dependency_plan_sha256": deployment["request"][
+                "dependency_plan_sha256"
+            ],
+            "version_proposal": {
+                "plan_sha256": outputs["KA-087"]["plan_sha256"],
+                "proposed_version": outputs["KA-087"]["proposed_version"],
+                "registry_write_applied": False,
+            },
+            "experiment_proposal": {
+                "plan_sha256": outputs["KA-088"]["plan_sha256"],
+                "experiment_id": outputs["KA-088"]["experiment_id"],
+                "analysis_status": outputs["KA-088"]["analysis"]["status"],
+                "experiment_active": False,
+                "routing_applied": False,
+            },
+            "pruning_proposal": {
+                "plan_sha256": outputs["KA-089"]["plan_sha256"],
+                "planned_parameter_removal": outputs["KA-089"][
+                    "planned_parameter_removal"
+                ],
+                "quality_measurement_required": True,
+                "pruning_applied": False,
+            },
+            "quantization_proposal": {
+                "plan_sha256": outputs["KA-090"]["plan_sha256"],
+                "theoretical_size_upper_bound_bytes": outputs["KA-090"][
+                    "theoretical_size_upper_bound_bytes"
+                ],
+                "actual_size_measurement_required": True,
+                "quantization_applied": False,
+            },
+            "deployment_execution_available": False,
+            "deployment_started": False,
+            "model_registry_write_applied": False,
+            "experiment_activated": False,
+            "traffic_routing_applied": False,
+            "pruning_applied": False,
+            "quantization_applied": False,
+            "rollback_applied": False,
+            "provider_calls_applied": 0,
+            "model_artifact_created": False,
+            "lifecycle": self._lifecycle_evidence(execution),
+        }
+        receipt = self.coordinator.bind_effect_receipt(
+            service=self.__class__.__name__,
+            operation="record_model_release_preparation",
+            resource_id=preparation_id,
+            request_payload=request_payload,
+            result_payload=record,
+            idempotency_key=idempotency_key,
+            ka_execution=execution,
+            proposal_ids=[deployment["proposal_id"]],
+        ).to_dict()
+        record["authoritative_effect_receipt"] = receipt
+        return self._write_release_once(target, record)
+
     def evaluate_model(
         self,
         *,
@@ -331,6 +546,44 @@ class ProviderModelLifecycleService:
             size_bytes=size_bytes,
             row_count=row_count,
             feature_records=features,
+        )
+
+    def _profile_model_artifact(
+        self,
+        artifact_name: str,
+    ) -> ModelArtifactProfile:
+        artifact_name = str(artifact_name or "").strip()
+        if not artifact_name or Path(artifact_name).name != artifact_name:
+            raise ProviderModelLifecycleError(
+                "Model artifact must be an app-owned file name"
+            )
+        path = (self.model_root / artifact_name).resolve()
+        try:
+            path.relative_to(self.model_root)
+        except ValueError as exc:
+            raise ProviderModelLifecycleError(
+                "Model artifact escapes the app-owned model root"
+            ) from exc
+        if not path.is_file():
+            raise ProviderModelLifecycleError("Model artifact does not exist")
+        suffix = path.suffix.lower()
+        if suffix not in {".onnx", ".safetensors", ".tflite"}:
+            raise ProviderModelLifecycleError(
+                "Model artifact format is not release-preparation eligible"
+            )
+        size_bytes = path.stat().st_size
+        if size_bytes <= 0 or size_bytes > MAX_PREPARATION_ARTIFACT_BYTES:
+            raise ProviderModelLifecycleError("Model artifact size is invalid")
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return ModelArtifactProfile(
+            artifact_name=artifact_name,
+            path=path,
+            format=suffix.lstrip("."),
+            sha256=digest.hexdigest(),
+            size_bytes=size_bytes,
         )
 
     @staticmethod
@@ -511,6 +764,38 @@ class ProviderModelLifecycleService:
         return outputs
 
     @staticmethod
+    def _validate_release_execution(
+        execution: Any,
+        *,
+        artifact: ModelArtifactProfile,
+    ) -> dict[str, dict[str, Any]]:
+        expected = {"KA-083", "KA-087", "KA-088", "KA-089", "KA-090"}
+        outputs = ExtendedSubsystemCoordinator.execution_outputs(execution)
+        if set(outputs) != expected:
+            raise ProviderModelLifecycleError(
+                "Model release preparation omitted required canonical decisions"
+            )
+        deployment = outputs["KA-083"]
+        if (
+            deployment.get("schema_version")
+            != "dle.model-deployment-proposal.v1"
+            or deployment.get("deployment_applied") is not False
+            or deployment.get("traffic_routing_applied") is not False
+            or deployment.get("provider_calls_applied") != 0
+            or deployment.get("artifact_created") is not False
+            or deployment.get("request", {}).get("artifact_sha256")
+            != artifact.sha256
+            or outputs["KA-087"].get("registry_write_applied") is not False
+            or outputs["KA-088"].get("routing_applied") is not False
+            or outputs["KA-089"].get("pruning_applied") is not False
+            or outputs["KA-090"].get("quantization_applied") is not False
+        ):
+            raise ProviderModelLifecycleError(
+                "Model release preparation returned an unsupported effect claim"
+            )
+        return outputs
+
+    @staticmethod
     def _lifecycle_evidence(execution: Any) -> dict[str, Any]:
         evidence = ExtendedSubsystemCoordinator.lifecycle_evidence(execution)
         evidence["trace_states"] = {
@@ -601,6 +886,63 @@ class ProviderModelLifecycleService:
                 "Existing training admission record failed integrity validation"
             )
 
+    def _read_existing_release(
+        self,
+        target: Path,
+        *,
+        request_sha256: str,
+    ) -> dict[str, Any] | None:
+        if not target.exists():
+            return None
+        try:
+            payload = json.loads(target.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ProviderModelLifecycleError(
+                "Existing model release preparation is unreadable"
+            ) from exc
+        if payload.get("request_sha256") != request_sha256:
+            raise ProviderModelLifecycleError(
+                "Idempotency key was already used for a different release request"
+            )
+        self._validate_existing_release_receipt(target, payload)
+        return payload
+
+    def _validate_existing_release_receipt(
+        self,
+        target: Path,
+        payload: dict[str, Any],
+    ) -> None:
+        receipt = payload.get("authoritative_effect_receipt")
+        preparation_id = str(payload.get("preparation_id") or "")
+        base_payload = dict(payload)
+        base_payload.pop("authoritative_effect_receipt", None)
+        valid = bool(
+            payload.get("schema_version")
+            == "dle.provider-model-release-preparation.v1"
+            and payload.get("status") == "RELEASE_PREPARATION_RECORDED"
+            and preparation_id == target.stem
+            and isinstance(receipt, dict)
+            and receipt.get("schema_version")
+            == "dle.authoritative-effect-receipt.v1"
+            and receipt.get("status") == "applied"
+            and receipt.get("service") == self.__class__.__name__
+            and receipt.get("operation")
+            == "record_model_release_preparation"
+            and receipt.get("resource_id") == preparation_id
+            and receipt.get("request_sha256") == payload.get("request_sha256")
+            and preparation_id
+            == "model-release-preparation-"
+            + self._sha256_text(str(receipt.get("idempotency_key") or ""))[:24]
+            and hmac.compare_digest(
+                str(receipt.get("result_sha256") or ""),
+                self.coordinator.sha256_payload(base_payload),
+            )
+        )
+        if not valid:
+            raise ProviderModelLifecycleError(
+                "Existing model release preparation failed integrity validation"
+            )
+
     def _write_once(
         self,
         target: Path,
@@ -622,6 +964,30 @@ class ProviderModelLifecycleService:
             if existing is None:
                 raise ProviderModelLifecycleError(
                     "Training admission write conflicted"
+                )
+            return existing
+
+    def _write_release_once(
+        self,
+        target: Path,
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        self.release_root.mkdir(parents=True, exist_ok=True)
+        try:
+            with target.open("x", encoding="utf-8", newline="\n") as stream:
+                json.dump(payload, stream, indent=2, sort_keys=True)
+                stream.write("\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            return payload
+        except FileExistsError:
+            existing = self._read_existing_release(
+                target,
+                request_sha256=str(payload["request_sha256"]),
+            )
+            if existing is None:
+                raise ProviderModelLifecycleError(
+                    "Model release preparation write conflicted"
                 )
             return existing
 

@@ -1,100 +1,124 @@
-"""
-KA-087: Model Versioning
-Purpose: Manage and track different versions of machine learning models, ensuring reproducibility and artifact integrity.
-"""
-import logging
-import json
-import os
-import hashlib
-from typing import Dict, Any, Optional
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+"""KA-087: deterministic model-version registration proposals."""
 
-from pydantic import BaseModel, Field
+from __future__ import annotations
+
+import hashlib
+import json
+import logging
+from pathlib import Path
+import re
+from typing import Any, Literal
+
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
+_SEMVER = re.compile(r"^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
+
 
 class KA087VersioningInput(BaseModel):
-    artifact: str = Field(..., description="The path to the model artifact to version")
-    current_version: str = Field("0.0.0", description="Current semantic version to increment")
-    artifact_hash: Optional[str] = Field(None, description="Precomputed artifact digest")
-    source_commit: Optional[str] = Field(None, description="Source commit associated with the artifact")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Artifact metadata that participates in fallback hashing")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "artifact_name": "qualified.onnx",
+                    "artifact_sha256": "a" * 64,
+                    "current_version": "v1.0.0",
+                }
+            ]
+        },
+    )
+
+    artifact_name: str = Field(min_length=1, max_length=200)
+    artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    current_version: str = Field(pattern=_SEMVER.pattern)
+    increment: Literal["patch", "minor", "major"] = "patch"
+    source_commit: str | None = Field(
+        default=None,
+        pattern=r"^[0-9a-f]{7,64}$",
+    )
+    release_channel: Literal["candidate", "staging", "production"] = (
+        "candidate"
+    )
+
+    @field_validator("artifact_name")
+    @classmethod
+    def _file_name_only(cls, value: str) -> str:
+        if Path(value).name != value:
+            raise ValueError("artifact_name must be a file name")
+        return value
+
 
 class KA087ModelVersioning(KnowledgeAlgorithm):
-    """
-    KA-087: ML artifact versioning and registry tracking engine.
-    """
+    """Propose a semantic version without writing a registry or tag."""
+
     input_schema = KA087VersioningInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-087"
-        self.config = {**self._load_config(), **context}
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_87_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA087VersioningInput) -> Dict[str, Any]:
-        artifact_path = input_data.artifact
-        self.log_execution_step("Versioning Model Artifact", {"path": artifact_path})
-        
-        scheme = self.config.get("versioning_scheme", "semver")
-        artifact_digest = input_data.artifact_hash or self._artifact_digest(artifact_path, input_data.metadata)
-        new_version = self._next_version(input_data.current_version)
-        
+    def _run_logic(self, input_data: KA087VersioningInput) -> dict[str, Any]:
+        proposed_version = self._next_version(
+            input_data.current_version,
+            input_data.increment,
+        )
+        request = {
+            "artifact_name": input_data.artifact_name,
+            "artifact_sha256": input_data.artifact_sha256,
+            "current_version": input_data.current_version,
+            "proposed_version": proposed_version,
+            "increment": input_data.increment,
+            "source_commit": input_data.source_commit,
+            "release_channel": input_data.release_channel,
+        }
+        plan_sha256 = hashlib.sha256(
+            json.dumps(
+                request,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        self.log_execution_step(
+            "Proposing Model Version Registration",
+            {
+                "artifact_name": input_data.artifact_name,
+                "proposed_version": proposed_version,
+            },
+        )
         return {
             "success": True,
-            "version_assigned": new_version,
-            "scheme_used": scheme,
-            "registry_path": self.config.get("artifact_registry_path", "/mnt/registry"),
-            "artifact_hash": artifact_digest,
-            "git_commit": input_data.source_commit or artifact_digest[:7],
-            "artifact_exists": os.path.exists(artifact_path),
+            "schema_version": "dle.model-version-proposal.v1",
+            "status": "PROPOSED",
+            "plan_sha256": plan_sha256,
+            "proposed_version": proposed_version,
+            "request": request,
+            "version_assigned": False,
+            "registry_write_applied": False,
+            "tag_write_applied": False,
+            "artifact_created": False,
         }
 
     @staticmethod
-    def _next_version(current_version: str) -> str:
-        version = current_version.strip().lstrip("v")
-        parts = version.split(".")
-        numeric = []
-        for part in parts[:3]:
-            try:
-                numeric.append(int(part))
-            except ValueError:
-                numeric.append(0)
-        while len(numeric) < 3:
-            numeric.append(0)
-        numeric[2] += 1
-        return f"v{numeric[0]}.{numeric[1]}.{numeric[2]}"
+    def _next_version(current_version: str, increment: str) -> str:
+        match = _SEMVER.fullmatch(current_version)
+        if match is None:  # pragma: no cover - Pydantic enforces the shape
+            raise ValueError("current_version must be semantic versioning")
+        major, minor, patch = (int(value) for value in match.groups())
+        if increment == "major":
+            major, minor, patch = major + 1, 0, 0
+        elif increment == "minor":
+            minor, patch = minor + 1, 0
+        else:
+            patch += 1
+        return f"v{major}.{minor}.{patch}"
 
-    @staticmethod
-    def _artifact_digest(artifact_path: str, metadata: Dict[str, Any]) -> str:
-        if os.path.exists(artifact_path) and os.path.isfile(artifact_path):
-            digest = hashlib.sha256()
-            with open(artifact_path, "rb") as artifact_file:
-                for chunk in iter(lambda: artifact_file.read(1024 * 1024), b""):
-                    digest.update(chunk)
-            return digest.hexdigest()
 
-        fallback_payload = json.dumps(
-            {"artifact": artifact_path, "metadata": metadata},
-            sort_keys=True,
-            default=str,
-        )
-        return hashlib.sha256(fallback_payload.encode("utf-8")).hexdigest()
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
+def run(context: dict[str, Any]) -> dict[str, Any]:
     try:
-        algo = KA087ModelVersioning(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-087 Failed: {e}")
-        return {"success": False, "error": str(e)}
+        return KA087ModelVersioning(context).run(context)
+    except Exception as exc:  # pragma: no cover - legacy adapter boundary
+        logger.error("KA-087 failed: %s", exc)
+        return {"success": False, "error": str(exc)}

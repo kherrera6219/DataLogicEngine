@@ -52,7 +52,6 @@ _OVERRIDES: dict[str, tuple[RiskTier, str]] = {
     "KA-031": (RiskTier.WRITE, "Updates compliance records"),
     "KA-050": (RiskTier.WRITE, "Stores model routing policy"),
     "KA-060": (RiskTier.WRITE, "Persists external API credentials"),
-    "KA-090": (RiskTier.WRITE, "Updates user knowledge profile"),
     "KA-100": (RiskTier.WRITE, "Records truth consensus result"),
     # Destructive-tier KAs
     "KA-013": (RiskTier.DESTRUCTIVE, "Deletes knowledge-graph nodes and their edges"),

@@ -1,7 +1,7 @@
 {
-    "pruning_method": "magnitude_based_unstructured",
-    "target_sparsity": 0.4,
-    "pruning_schedule": "polynomial_decay",
-    "retrain_after_pruning": true,
-    "ignored_layers": ["embedding", "output_projection"]
+  "proposal_only": true,
+  "allowed_methods": ["magnitude_unstructured", "structured_channel"],
+  "maximum_target_sparsity": 0.95,
+  "pruning_applied": false,
+  "artifact_created": false
 }

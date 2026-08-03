@@ -7,7 +7,7 @@ info:
     sessions, CSRF protection, and copy-once client keys for the explicitly
     versioned gateway surface. Removed web login/register/MFA/SSO routes are intentionally
     not part of this contract.
-  version: 3.5.1
+  version: 3.5.2
   contact:
     name: DataLogicEngine Support
     url: https://github.com/kherrera6219/DataLogicEngine/issues
@@ -172,6 +172,135 @@ components:
           minimum: 0
           maximum: 1
           default: 0.8
+    ModelReleasePreparationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - artifact_name
+        - current_version
+        - target_environment
+        - parameter_count
+        - target_sparsity
+        - experiment_id
+        - traffic_split_percent
+        - health_observation
+      properties:
+        artifact_name:
+          type: string
+          description: File name of an ONNX, SafeTensors, or TFLite artifact below the app-owned model-artifact directory.
+        current_version:
+          type: string
+          pattern: '^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+        increment:
+          type: string
+          enum: [patch, minor, major]
+          default: patch
+        source_commit:
+          type: string
+          pattern: '^[0-9a-f]{7,64}$'
+        release_channel:
+          type: string
+          enum: [candidate, staging, production]
+          default: candidate
+        target_environment:
+          type: string
+          enum: [staging, production]
+        parameter_count:
+          type: integer
+          minimum: 1
+          maximum: 10000000000000
+        target_sparsity:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 0.95
+        pruning_method:
+          type: string
+          enum: [magnitude_unstructured, structured_channel]
+          default: magnitude_unstructured
+        importance_profile_sha256:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+        source_bit_depth:
+          type: integer
+          enum: [16, 32]
+          default: 32
+        target_bit_depth:
+          type: integer
+          enum: [4, 8, 16]
+          default: 8
+        target_format:
+          type: string
+          enum: [onnx, safetensors, tflite]
+          default: onnx
+        calibration_profile_sha256:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+        experiment_id:
+          type: string
+          minLength: 1
+          maxLength: 200
+        traffic_split_percent:
+          type: object
+          additionalProperties: false
+          required: [control, candidate]
+          properties:
+            control:
+              type: number
+              exclusiveMinimum: 0
+            candidate:
+              type: number
+              exclusiveMinimum: 0
+          description: Control and candidate percentages must total 100.
+        experiment_observations:
+          type: object
+          additionalProperties: false
+          properties:
+            control:
+              $ref: '#/components/schemas/ModelExperimentObservation'
+            candidate:
+              $ref: '#/components/schemas/ModelExperimentObservation'
+        min_sample_size:
+          type: integer
+          minimum: 1
+          maximum: 10000000
+          default: 1000
+        health_observation:
+          type: object
+          additionalProperties: false
+          required:
+            - sample_count
+            - failure_count
+            - p95_latency_ms
+            - maximum_failure_rate
+            - maximum_p95_latency_ms
+          properties:
+            sample_count:
+              type: integer
+              minimum: 1
+            failure_count:
+              type: integer
+              minimum: 0
+            p95_latency_ms:
+              type: number
+              minimum: 0
+            maximum_failure_rate:
+              type: number
+              minimum: 0
+              maximum: 1
+            maximum_p95_latency_ms:
+              type: number
+              exclusiveMinimum: 0
+    ModelExperimentObservation:
+      type: object
+      additionalProperties: false
+      required: [sample_count, success_count]
+      properties:
+        sample_count:
+          type: integer
+          minimum: 1
+        success_count:
+          type: integer
+          minimum: 0
     KAProductRun:
       type: object
       additionalProperties: false
@@ -2228,6 +2357,46 @@ paths:
           description: Measured KA-082 evaluation with zero effects.
         "400":
           description: Evaluation evidence was invalid or incomplete.
+
+  /dataset/release-preparations:
+    post:
+      summary: Record model release preparation
+      description: >
+        Profiles a contained app-owned model artifact, executes KA-087 through
+        KA-090 before KA-083, validates caller-supplied health measurements,
+        and writes one idempotent preparation receipt. It does not assign a
+        registry version, activate an experiment, route traffic, prune or
+        quantize weights, call a provider, deploy, rollback, or create a model
+        artifact.
+      tags: [Dataset Preparation]
+      security:
+        - sessionCookie: []
+          csrfToken: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 200
+        - name: X-Request-ID
+          in: header
+          required: false
+          schema:
+            type: string
+            maxLength: 200
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModelReleasePreparationRequest"
+      responses:
+        "201":
+          description: Idempotent provider-owned release-preparation record with deployment_started false.
+        "400":
+          description: Artifact, health, plan, idempotency, path, or KA evidence was rejected.
 
   /memory/review:
     get:

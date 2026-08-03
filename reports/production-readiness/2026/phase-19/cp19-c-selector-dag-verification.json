@@ -1,9 +1,9 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.08.02-cp19k.3",
+  "manifest_version": "2026.08.02-cp19k.4",
   "canonical_capabilities": 213,
-  "dependency_edges": 138,
+  "dependency_edges": 142,
   "dependency_cycles": 0,
   "dependency_result_contract": "dle.ka-execution-result.v1#output",
   "dependency_input_field": "dependency_results",
@@ -226,6 +226,16 @@
       ],
       "matches_approved_order": true,
       "rationale": "Capability escalation consumes the system-introspection record; experimental emergence research is not a production prerequisite."
+    },
+    "KA-083": {
+      "dependencies": [
+        "KA-087",
+        "KA-088",
+        "KA-089",
+        "KA-090"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Deployment admission consumes version, experiment, pruning, and quantization proposals before the provider owner may record a release-preparation receipt."
     },
     "KA-081": {
       "dependencies": [
