@@ -51,13 +51,16 @@ def _sha256(path: Path, expected_hash: str | None = None) -> str:
     if expected_hash and h1 == expected_hash:
         return h1
     if expected_hash:
-        h_lf = hashlib.sha256(content.replace(b"\r\n", b"\n")).hexdigest()
+        clean_lf = content.replace(b"\r\n", b"\n")
+        h_lf = hashlib.sha256(clean_lf).hexdigest()
         if h_lf == expected_hash:
             return expected_hash
-        h_crlf = hashlib.sha256(content.replace(b"\n", b"\r\n")).hexdigest()
+        clean_crlf = clean_lf.replace(b"\n", b"\r\n")
+        h_crlf = hashlib.sha256(clean_crlf).hexdigest()
         if h_crlf == expected_hash:
             return expected_hash
     return h1
+
 
 
 
