@@ -11,6 +11,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,7 @@ from backend.governed_execution.knowledge_lifecycle import KnowledgeLifecycleErr
 from backend.knowledge_algorithms.selection import KATraceState
 
 MAX_PREPARATION_ARTIFACT_BYTES = 256 * 1024 * 1024
+_MODEL_ARTIFACT_NAME_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
 
 class ProviderModelLifecycleError(ExtendedSubsystemError):
@@ -555,7 +557,12 @@ class ProviderModelLifecycleService:
     ) -> ModelArtifactProfile:
         artifact_name = str(artifact_name or "").strip()
         clean_name = os.path.basename(artifact_name)
-        if not artifact_name or clean_name != artifact_name or not clean_name:
+        if (
+            not artifact_name
+            or clean_name != artifact_name
+            or not clean_name
+            or not _MODEL_ARTIFACT_NAME_RE.fullmatch(clean_name)
+        ):
             raise ProviderModelLifecycleError(
                 "Model artifact must be an app-owned file name"
             )
