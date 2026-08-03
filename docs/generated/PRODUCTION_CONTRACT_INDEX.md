@@ -38,8 +38,8 @@ Status: `engineering_candidates_not_production_approved`. Runtime: `podman 6.0.1
 |---|---|
 | OpenAPI format | `3.0.3` |
 | OpenAPI title | `DataLogicEngine API` |
-| OpenAPI document version | `3.5.1` |
-| OpenAPI path count | `66` |
+| OpenAPI document version | `3.5.2` |
+| OpenAPI path count | `67` |
 | Live Flask route count | `506` |
 | Unclassified live routes | `0` |
 | GraphQL operations | `12` |
