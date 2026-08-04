@@ -1492,3 +1492,182 @@ def test_ka_090_semantic_contract():
     assert proposed.output["quantization_applied"] is False
     assert proposed.output["weights_changed"] is False
     assert proposed.output["artifact_created"] is False
+
+
+def _temporal_health_dependencies():
+    drift = _execute(
+        "KA-1082",
+        {
+            "series": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "observations": [
+                        {"observed_at": "2026-01-01T00:00:00Z", "confidence": 0.9},
+                        {"observed_at": "2026-07-01T00:00:00Z", "confidence": 0.6},
+                    ],
+                }
+            ],
+            "degradation_threshold": 0.1,
+        },
+    )
+    scheduler = _execute(
+        "KA-1083",
+        {
+            "reference_date": "2026-07-25",
+            "candidates": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "last_validated_on": "2026-01-01",
+                    "risk_class": "high",
+                    "confidence": 0.6,
+                }
+            ],
+            "dependency_results": {"KA-1082": drift.output},
+        },
+    )
+    return drift, scheduler
+
+
+def test_ka_023_semantic_contract():
+    payload = {
+        "reference_time": "2026-07-25T00:00:00Z",
+        "knowledge_items": [
+            {
+                "knowledge_id": "knowledge-1",
+                "current_confidence": 0.9,
+                "observed_at": "2026-06-25T00:00:00Z",
+                "domain": "general",
+                "category": "knowledge",
+            }
+        ],
+    }
+    first = _execute("KA-023", payload)
+    second = _execute("KA-023", payload)
+
+    _assert_bounded_result("KA-023", first)
+    assert first.output == second.output
+    assert first.output["status"] == "belief_decay_proposed"
+    assert first.output["proposals"][0]["proposed_confidence"] < 0.9
+    assert first.output["proposals"][0]["decay_applied"] is False
+    assert first.output["confidence_updates_applied"] is False
+
+
+def test_ka_052_semantic_contract():
+    _drift, scheduler = _temporal_health_dependencies()
+    proposed = _execute(
+        "KA-052",
+        {
+            "reference_date": "2026-07-25",
+            "records": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "last_validated_on": "2026-01-01",
+                    "current_version": 10,
+                    "protected": False,
+                }
+            ],
+            "dependency_results": {"KA-1083": scheduler.output},
+        },
+    )
+
+    _assert_bounded_result("KA-052", proposed)
+    assert proposed.output["proposals"][0]["action"] == "retirement_review"
+    assert proposed.output["dependency_consumed"] == "KA-1083"
+    assert proposed.output["versions_created"] == 0
+    assert proposed.output["retirements_applied"] == 0
+    assert proposed.output["knowledge_updated"] is False
+
+
+def test_ka_064_semantic_contract():
+    measured = _execute(
+        "KA-064",
+        {
+            "failure_events": [
+                {
+                    "occurrence_id": f"event-{index}",
+                    "failure_code": "deletion_failed",
+                    "component": "neo4j",
+                }
+                for index in range(3)
+            ],
+            "minimum_occurrences": 3,
+        },
+    )
+
+    _assert_bounded_result("KA-064", measured)
+    assert measured.output["patterns"][0]["occurrence_count"] == 3
+    assert len(measured.output["patterns"][0]["signature_sha256"]) == 64
+    assert measured.output["log_content_scanned"] is False
+    assert measured.output["alerts_dispatched"] == 0
+    assert measured.output["blacklisting_applied"] is False
+
+
+def test_ka_1082_semantic_contract():
+    drift, _scheduler = _temporal_health_dependencies()
+
+    _assert_bounded_result("KA-1082", drift)
+    assert drift.output["measurements"][0]["degradation_detected"] is True
+    assert drift.output["measurement_status"] == "observational"
+
+
+def test_ka_1083_semantic_contract():
+    _drift, scheduler = _temporal_health_dependencies()
+
+    _assert_bounded_result("KA-1083", scheduler)
+    assert scheduler.output["dependency_consumed"] == "KA-1082"
+    assert scheduler.output["schedule"][0]["interval_days"] == 0
+    assert scheduler.output["jobs_scheduled"] == 0
+
+
+def test_ka_1093_semantic_contract():
+    proposed = _execute(
+        "KA-1093",
+        {
+            "reference_date": "2026-07-25",
+            "half_life_days": 100,
+            "records": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "current_trust": 0.8,
+                    "last_used_on": "2026-04-16",
+                    "risk_class": "medium",
+                    "active_evidence_count": 0,
+                }
+            ],
+        },
+    )
+
+    _assert_bounded_result("KA-1093", proposed)
+    assert proposed.output["proposals"][0]["proposed_trust"] == 0.4
+    assert proposed.output["trust_updates_applied"] is False
+
+
+def test_ka_1105_semantic_contract():
+    drift, scheduler = _temporal_health_dependencies()
+    proposed = _execute(
+        "KA-1105",
+        {
+            "concepts": [
+                {
+                    "concept_id": "knowledge-1",
+                    "baseline_contradiction_rate": 0.1,
+                    "current_contradiction_rate": 0.7,
+                    "active_citation_count": 0,
+                    "superseding_policy_refs": ["policy-v2"],
+                    "paradigm_replacement_refs": ["model-v2"],
+                }
+            ],
+            "dependency_results": {
+                "KA-1082": drift.output,
+                "KA-1083": scheduler.output,
+            },
+        },
+    )
+
+    _assert_bounded_result("KA-1105", proposed)
+    assert proposed.output["assessments"][0]["classification"] == (
+        "obsolescence_candidate"
+    )
+    assert proposed.output["dependencies_consumed"] == ["KA-1082", "KA-1083"]
+    assert proposed.output["requests_dispatched"] == 0
+    assert proposed.output["knowledge_updated"] is False

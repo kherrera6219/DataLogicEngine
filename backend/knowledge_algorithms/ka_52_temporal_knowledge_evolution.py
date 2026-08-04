@@ -1,80 +1,162 @@
-"""
-KA-052: Temporal Knowledge Evolution
-Purpose: Maintain time-versioned knowledge, handle fact retirement, and track the evolution of the knowledge base.
-"""
-import logging
+"""KA-052: deterministic temporal knowledge-maintenance proposals."""
+
+from __future__ import annotations
+
+import hashlib
 import json
-import os
-from datetime import datetime, timedelta
-from typing import Dict, Any, List
+from datetime import date
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
 
-logger = logging.getLogger(__name__)
+class TemporalKnowledgeRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    knowledge_id: str = Field(min_length=1, max_length=200)
+    last_validated_on: date
+    current_version: int = Field(ge=1, le=1_000_000)
+    protected: bool = False
 
 
 class KA052Input(BaseModel):
-    kb_nodes: List[Dict[str, Any]] = Field(default_factory=list, description="Knowledge nodes to evaluate for temporal evolution")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "reference_date": "2026-07-25",
+                    "records": [
+                        {
+                            "knowledge_id": "knowledge-1",
+                            "last_validated_on": "2026-01-01",
+                            "current_version": 10,
+                            "protected": False,
+                        }
+                    ],
+                    "dependency_results": {
+                        "KA-1083": {
+                            "status": "revalidation_schedule_planned",
+                            "schedule": [
+                                {
+                                    "knowledge_id": "knowledge-1",
+                                    "due_on": "2026-01-31",
+                                    "overdue": True,
+                                    "interval_days": 30,
+                                    "reasons": ["risk:high"],
+                                }
+                            ],
+                        }
+                    },
+                }
+            ]
+        },
+    )
+
+    reference_date: date
+    records: list[TemporalKnowledgeRecord] = Field(min_length=1, max_length=20_000)
+    dependency_results: dict[str, dict[str, Any]]
+    retirement_review_age_days: int = Field(default=30, ge=1, le=100_000)
+    version_review_limit: int = Field(default=10, ge=1, le=1_000_000)
+
+    @model_validator(mode="after")
+    def validate_records(self) -> KA052Input:
+        identifiers = [item.knowledge_id for item in self.records]
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError("knowledge IDs must be unique")
+        if any(item.last_validated_on > self.reference_date for item in self.records):
+            raise ValueError("validation dates cannot be after the reference date")
+        if set(self.dependency_results) != {"KA-1083"}:
+            raise ValueError("KA-052 requires the exact KA-1083 dependency result")
+        scheduler = self.dependency_results["KA-1083"]
+        if scheduler.get("status") != "revalidation_schedule_planned":
+            raise ValueError("KA-1083 dependency status is invalid")
+        schedule = scheduler.get("schedule")
+        if not isinstance(schedule, list):
+            raise TypeError("KA-1083 schedule is required")
+        scheduled_ids = {
+            str(item.get("knowledge_id"))
+            for item in schedule
+            if isinstance(item, dict) and item.get("knowledge_id")
+        }
+        if scheduled_ids != set(identifiers):
+            raise ValueError("KA-1083 schedule must cover the exact knowledge IDs")
+        return self
+
 
 class KA052TemporalKnowledgeEvolution(KnowledgeAlgorithm):
-    """
-    KA-052: Fact versioning and temporal lifecycle management engine.
-    """
+    """Propose version or retirement review without mutating the knowledge base."""
+
     input_schema = KA052Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-052"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_52_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA052Input) -> Dict[str, Any]:
-        kb_nodes = input_data.kb_nodes
-        current_time = datetime.now()
-        self.log_execution_step("Managing Temporal Evolution", {"node_count": len(kb_nodes)})
-        
-        expired_nodes = []
-        updated_nodes = []
-        expiry_days = self.config.get("expiry_days", 30)
-        automatic_retirement = self.config.get("automatic_retirement", True)
-        version_limit = self.config.get("version_limit", 10)
-        
-        for node in kb_nodes:
-            ts_str = node.get("timestamp")
-            if ts_str:
-                ts = datetime.fromisoformat(ts_str)
-                if automatic_retirement and (current_time - ts) > timedelta(days=expiry_days):
-                    expired_nodes.append(node.get("id"))
-                    continue
-            v = node.get("version", 1)
-            if v < version_limit:
-                 updated_nodes.append({
-                     "id": node.get("id"),
-                     "new_version": v + 1,
-                     "evolution_status": "MONITORED"
-                 })
-                 
+    def _run_logic(self, input_data: KA052Input) -> dict[str, Any]:
+        schedule = {
+            str(item["knowledge_id"]): item
+            for item in input_data.dependency_results["KA-1083"]["schedule"]
+        }
+        proposals = []
+        for item in sorted(input_data.records, key=lambda row: row.knowledge_id):
+            scheduled = schedule[item.knowledge_id]
+            age_days = (input_data.reference_date - item.last_validated_on).days
+            overdue = bool(scheduled.get("overdue"))
+            if not overdue:
+                action = "retain"
+                reasons = ["revalidation_not_due"]
+            elif (
+                not item.protected
+                and age_days >= input_data.retirement_review_age_days
+                and item.current_version >= input_data.version_review_limit
+            ):
+                action = "retirement_review"
+                reasons = [
+                    "revalidation_overdue",
+                    "age_threshold_met",
+                    "version_limit_met",
+                ]
+            else:
+                action = "version_review"
+                reasons = ["revalidation_overdue"]
+                if item.protected:
+                    reasons.append("protected_from_retirement")
+            proposals.append(
+                {
+                    "knowledge_id": item.knowledge_id,
+                    "current_version": item.current_version,
+                    "age_days": age_days,
+                    "action": action,
+                    "reasons": reasons,
+                    "change_applied": False,
+                }
+            )
+        plan_sha256 = hashlib.sha256(
+            json.dumps(
+                proposals,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
         return {
             "success": True,
-            "expired_nodes": expired_nodes,
-            "evolution_map": updated_nodes,
-            "retirement_count": len(expired_nodes)
+            "status": "temporal_maintenance_proposed",
+            "proposals": proposals,
+            "plan_sha256": plan_sha256,
+            "dependency_consumed": "KA-1083",
+            "versions_created": 0,
+            "retirements_applied": 0,
+            "knowledge_updated": False,
+            "deterministic": True,
+            "limitations": (
+                "The result converts an owner-supplied revalidation schedule into "
+                "review proposals only; it neither creates versions nor retires facts."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA052TemporalKnowledgeEvolution(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-052 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA052TemporalKnowledgeEvolution(context).run(context)

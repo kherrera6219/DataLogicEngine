@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-04 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.59.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.60.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release decision | Production/public release: **NO-GO** |
@@ -239,13 +239,22 @@ Phase 18 source baseline while completing the whole-application wiring.
         measured health. The owner writes one idempotent release-preparation
         record and receipt while applying no deployment, traffic, registry,
         rollback, weight, artifact, or provider effect.
-      - The generated matrix and integrity verifier pass at 51/213 qualified
-        and 162 incomplete; rebuild authorization remains false. Runtime
+      - Batch 12 passed 2026-08-04: `KA-023`, `KA-052`, `KA-064`, `KA-1082`,
+        `KA-1083`, `KA-1093`, and `KA-1105` now close through
+        `KnowledgeTemporalHealthService`. Drift measurements causally feed
+        scheduling; scheduling feeds temporal review; drift and scheduling feed
+        obsolescence review. Legacy nondeterministic timestamps, raw-log regex
+        scanning, and false applied decay/version/retirement/alert claims are
+        removed. The owner persists only a content-free idempotent review and
+        receipt with zero applied knowledge, confidence, trust, version,
+        retirement, alert, blacklist, job, request, provider, or egress effects.
+      - The generated matrix and integrity verifier pass at 58/213 qualified
+        and 155 incomplete; rebuild authorization remains false. Runtime
         manifest `2026.08.02-cp19k.4` retains 213 capabilities, 149 production-
-        enabled capabilities, and a 142-edge zero-cycle graph. The 826-test KA
-        suite, 227 governed/TruthCore/Phase-19/simulation integration tests,
-        and 2,716-test full source suite pass; the source suite has 19 skipped
-        and 35 known warnings.
+        enabled capabilities, and a 143-edge zero-cycle graph. The 833-test KA
+        suite, 245 governed/TruthCore/Phase-19/simulation integration tests, and
+        2,742-test full source suite pass; the source suite has 18 skipped and
+        35 known warnings.
       - Parallel candidate training-dataset exporter review passed after
         hardening: owner-authenticated API, app-owned output containment,
         mandatory redaction, explicit release evidence, real persisted trace
@@ -259,9 +268,11 @@ Phase 18 source baseline while completing the whole-application wiring.
         Ten newly published alerts reported on 2026-08-04 across `aiohttp`,
         `undici`, and `ip-address`, plus one local `socket.io-parser` and three
         `cryptography` advisories, are remediated in the governed locks. Local
-        `pip-audit` and `npm audit` report zero vulnerabilities; the GitHub
-        Dependabot rescan is pending.
-      - Next: execute grouped Batch 12 through the real production owner. Keep every later batch open until its named individual and owner/effect evidence passes.
+        `pip-audit` and `npm audit` report zero vulnerabilities; the 2026-08-04
+        live GitHub query reports zero open Dependabot alerts.
+      - Next: execute grouped Batch 13 (`KA-002`, `KA-003`, `KA-006`, and
+        `KA-007`) through the real TruthCore L1-L5 owner. Keep every later batch
+        open until its named individual and owner/effect evidence passes.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.
@@ -989,7 +1000,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-11 qualify 51/213 rows, 162 remain open in 32 grouped batches, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-12 qualify 58/213 rows, 155 remain open in 31 grouped batches, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases

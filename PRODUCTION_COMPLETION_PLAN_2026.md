@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.59.0 |
+| Document version | v1.60.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5544,7 +5544,7 @@ A post-push live scan found ten newly published GitHub alerts across `aiohttp`,
 `undici`, and `ip-address`. The governed locks now use patched versions and
 also remediate one `socket.io-parser` plus three `cryptography` advisories found
 by local audits. Local `pip-audit` and `npm audit` report zero vulnerabilities;
-the GitHub Dependabot rescan is pending.
+the subsequent 2026-08-04 live GitHub query reports zero open Dependabot alerts.
 
 Evidence:
 
@@ -5555,6 +5555,51 @@ Evidence:
 - `tests/integration/phase19/test_provider_model_release.py`;
 - `tests/integration/phase19/test_provider_gateway.py`; and
 - `backend/llm_gateway/model_lifecycle.py`.
+
+### CP19-K batch 12 passed 2026-08-04
+
+Batch 12 closes `KA-023`, `KA-052`, `KA-064`, `KA-1082`, `KA-1083`,
+`KA-1093`, and `KA-1105` through the real TruthMemory/TruthLink/FROST
+maintenance owner. The review removed three unsafe legacy behaviors: implicit
+wall-clock defaults, raw-log regular-expression scanning, and outputs that
+claimed confidence, version, retirement, or alert effects were already applied.
+
+All seven algorithms now use bounded structured inputs and deterministic
+caller-supplied time. KA-1082 confidence drift causally feeds KA-1083 scheduling;
+that schedule feeds KA-052 temporal maintenance; and both drift and scheduling
+feed KA-1105 conceptual-obsolescence review. KA-023 and KA-1093 produce decay
+proposals only, and KA-064 counts exact content-free failure codes without
+reading raw log messages.
+
+`KnowledgeTemporalHealthService` validates every result and causal trace before
+writing one app-owned, idempotent, content-free maintenance-review record. Its
+integrity-checked authoritative receipt records the review effect only. The
+service applies no knowledge or confidence update, trust change, version,
+retirement, alert, blacklist, scheduler job, revalidation request, provider call,
+or external egress. Tampered KA effect claims, receipt replay, and idempotency-key
+reuse fail closed.
+
+The matrix and verifier pass at 58/213 qualified and 155 incomplete. Grouped
+Batches 08 through 12 are complete; 31 planned batches remain and Batch 13, L1
+context dependencies (`KA-002`, `KA-003`, `KA-006`, and `KA-007`), is next. The
+runtime manifest retains 213 capabilities and 149 production-enabled
+capabilities with a 143-edge zero-cycle dependency graph.
+The KA suite passes 833 tests, the governed/TruthCore/Phase-19/simulation
+integration set passes 245, and the full source suite passes 2,742 with 18
+skipped and 35 known warnings. All rebuilt-installed,
+accessibility, provider, independent-review, pilot, and soak gates remain open;
+this source qualification does not authorize CP19-L, rebuilding, installation,
+or release.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-12-validation.json`;
+- `config/phase19-ka-qualification-evidence.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_truthmemory_truthlink_frost.py`;
+- `tests/integration/phase19/test_knowledge_temporal_health.py`; and
+- `backend/truth_engine/knowledge_temporal_health.py`.
 
 Retained CP19-B evidence:
 
@@ -6002,17 +6047,18 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-11 now truthfully
-qualify 51 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-12 now truthfully
+qualify 58 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
 measured provider monitoring, content-free authenticated observability, causal
 secure ingestion, measured provider model preparation, and bounded provider
-model release preparation, leaving 162 of 213 rows open. The
+model release preparation and content-free knowledge temporal-health review,
+leaving 155 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, current 142-edge acyclic dependency graph, bounded structured
+fixtures, current 143-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
@@ -6026,11 +6072,11 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batches 08 through 11 are complete and 32 remain. Continue
-CP19-K with Batch 12, knowledge temporal health (`KA-023`, `KA-052`, `KA-064`, `KA-1082`, `KA-1083`,
-`KA-1093`, and `KA-1105`), through the real TruthMemory/TruthLink/FROST owner
-without treating the Batch 11 preparation record as deployment or model-mutation
-evidence. Keep every later row
+batches (08-43); Batches 08 through 12 are complete and 31 remain. Continue
+CP19-K with Batch 13, L1 context dependencies (`KA-002`, `KA-003`, `KA-006`,
+and `KA-007`), through the real TruthCore L1-L5 owner without treating the Batch
+12 maintenance-review record as a knowledge, trust, confidence, scheduling, or
+retirement effect. Keep every later row
 incomplete until its individual owner/effect evidence exists.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve

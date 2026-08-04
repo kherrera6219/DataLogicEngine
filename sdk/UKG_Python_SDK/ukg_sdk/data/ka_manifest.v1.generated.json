@@ -237,6 +237,25 @@
           "KA-1099"
         ],
         "rationale": "Chaos admission consumes the simulation budget decision and system-integrity state before an authoritative fault service may consider the proposal."
+      },
+      "KA-1083": {
+        "dependencies": [
+          "KA-1082"
+        ],
+        "rationale": "Revalidation scheduling consumes committed confidence-drift measurements instead of trusting a duplicated caller claim."
+      },
+      "KA-052": {
+        "dependencies": [
+          "KA-1083"
+        ],
+        "rationale": "Temporal maintenance proposals consume the committed revalidation schedule and never infer or apply retirement independently."
+      },
+      "KA-1105": {
+        "dependencies": [
+          "KA-1082",
+          "KA-1083"
+        ],
+        "rationale": "Obsolescence review consumes both committed drift measurements and the derived revalidation schedule before proposing review."
       }
     },
     "production_admission_checkpoint": "CP19-I",
@@ -12937,7 +12956,9 @@
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [],
+        "dependencies": [
+          "KA-1082"
+        ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [

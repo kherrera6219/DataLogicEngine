@@ -9,23 +9,23 @@
   "evidence_source": "config/phase19-ka-qualification-evidence.json",
   "invariants": {
     "canonical_capabilities": 213,
-    "qualified_capabilities": 51,
-    "incomplete_capabilities": 162,
-    "reviewed_capabilities": 51,
+    "qualified_capabilities": 58,
+    "incomplete_capabilities": 155,
+    "reviewed_capabilities": 58,
     "runtime_registries_added": 0,
     "findings_waived": false,
     "rebuild_authorized": false
   },
   "evidence_counts": {
-    "semantic_test": 51,
+    "semantic_test": 58,
     "positive_selector": 213,
     "negative_selector": 213,
-    "owning_path_test": 51,
-    "limitation_review": 51,
-    "trace_proof": 51,
-    "security_review": 51,
-    "effect_review": 51,
-    "performance_evidence": 51
+    "owning_path_test": 58,
+    "limitation_review": 58,
+    "trace_proof": 58,
+    "security_review": 58,
+    "effect_review": 58,
+    "performance_evidence": 58
   },
   "batches": [
     {
@@ -155,6 +155,20 @@
         "KA-090"
       ],
       "scope": "App-owned model-artifact profiling, causal version/experiment/pruning/quantization proposals, measured health admission, and an idempotent release-preparation record that explicitly applies no deployment"
+    },
+    {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "completed_on": "2026-08-04",
+      "canonical_ids": [
+        "KA-023",
+        "KA-052",
+        "KA-064",
+        "KA-1082",
+        "KA-1083",
+        "KA-1093",
+        "KA-1105"
+      ],
+      "scope": "Causal confidence-drift, revalidation scheduling, temporal maintenance, trust-decay, failure-pattern, and obsolescence review with a content-free idempotent owner receipt and no knowledge lifecycle effect"
     }
   ],
   "canonical_capabilities": [
@@ -1866,12 +1880,12 @@
       "effect_port": "knowledge_lifecycle_service",
       "limitation": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
       "performance_budget_ms": 750,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_023_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -1884,18 +1898,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_023_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_023_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -1906,34 +1920,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_temporal_health_rejects_tampered_ka_claim_before_write",
+          "rationale": "Strict bounded observations require an explicit reference time, reject future or duplicate records, and the owner rejects any unsupported persistence claim before writing a content-free review."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_023_owning_path",
+          "rationale": "KA-023 proposes confidence values only. KnowledgeTemporalHealthService records their digest and an idempotent receipt while applying no confidence or knowledge update."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_023_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-024",
@@ -4125,12 +4131,12 @@
       "effect_port": "knowledge_lifecycle_service",
       "limitation": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
       "performance_budget_ms": 750,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_052_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -4143,18 +4149,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_052_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_052_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -4165,34 +4171,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_temporal_health_rejects_tampered_ka_claim_before_write",
+          "rationale": "Temporal maintenance accepts the exact committed KA-1083 schedule, requires complete identifier coverage, and the owner fails closed if a KA claims a version or retirement effect."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_052_owning_path",
+          "rationale": "KA-052 returns review proposals only. The owner records a content-free receipt with zero versions created, retirements applied, or knowledge updates."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_052_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-053",
@@ -5065,12 +5063,12 @@
       "effect_port": "knowledge_lifecycle_service",
       "limitation": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
       "performance_budget_ms": 750,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_064_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -5083,18 +5081,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_064_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_064_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -5105,34 +5103,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_064_semantic_contract",
+          "rationale": "Failure detection counts bounded content-free codes and components, rejects raw message fields, uses no configurable regular expression, and stores only pattern counts and result digests."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_064_owning_path",
+          "rationale": "KA-064 measures recurring signatures only; the owner records zero dispatched alerts, blacklists, mitigations, provider calls, and external egress."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_064_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-065",
@@ -10339,12 +10329,12 @@
       "effect_port": "knowledge_lifecycle_service",
       "limitation": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
       "performance_budget_ms": 750,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1082_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -10357,18 +10347,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1082_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1082_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -10379,34 +10369,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1082_semantic_contract",
+          "rationale": "Drift is calculated only from bounded unique caller-supplied observations and remains explicitly observational without inferring cause or correctness."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_1082_owning_path",
+          "rationale": "The drift measurement is consumed causally by KA-1083 and KA-1105 and is recorded by digest without applying a confidence update."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1082_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1083",
@@ -10418,12 +10400,12 @@
       "effect_port": "knowledge_lifecycle_service",
       "limitation": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
       "performance_budget_ms": 750,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1083_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -10436,18 +10418,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1083_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1083_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -10458,34 +10440,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_temporal_health_owner_records_only_content_free_review",
+          "rationale": "The scheduler consumes exact KA-1082 identifiers, deterministic caller-supplied dates, bounded risk inputs, and creates no scheduler job or external request."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_1083_owning_path",
+          "rationale": "KA-1083 plans due dates only. The owner records zero scheduled jobs and binds the unapplied proposal chain to one maintenance-review receipt."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1083_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1084",
@@ -11279,12 +11253,12 @@
       "effect_port": "knowledge_lifecycle_service",
       "limitation": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
       "performance_budget_ms": 750,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1093_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -11297,18 +11271,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1093_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1093_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -11319,34 +11293,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1093_semantic_contract",
+          "rationale": "Trust decay accepts bounded unique records and explicit dates, calculates a deterministic proposal, and makes no truth, correctness, or evidence-quality claim."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_1093_owning_path",
+          "rationale": "KA-1093 proposes trust scores only; the owner records their digest and explicitly applies no trust or knowledge update."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1093_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1094",
@@ -12306,12 +12272,12 @@
       "effect_port": "knowledge_lifecycle_service",
       "limitation": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
       "performance_budget_ms": 750,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1105_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -12324,18 +12290,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1105_owning_path",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1105_owning_path",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -12346,34 +12312,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_temporal_health_owner_records_only_content_free_review",
+          "rationale": "Obsolescence classification requires exact drift and scheduler dependency coverage plus declared contradiction, citation, and policy signals; it cannot establish falsity or safe deletion."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_1105_owning_path",
+          "rationale": "KA-1105 proposes revalidation only. The owner dispatches no request, updates no concept, and records only counts, digests, lifecycle states, and an integrity-checked receipt."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1105_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1106",

@@ -3,7 +3,7 @@
   "status": "pass",
   "manifest_version": "2026.08.02-cp19k.4",
   "canonical_capabilities": 213,
-  "dependency_edges": 142,
+  "dependency_edges": 143,
   "dependency_cycles": 0,
   "dependency_result_contract": "dle.ka-execution-result.v1#output",
   "dependency_input_field": "dependency_results",
@@ -274,6 +274,28 @@
       ],
       "matches_approved_order": true,
       "rationale": "Chaos admission consumes the simulation budget decision and system-integrity state before an authoritative fault service may consider the proposal."
+    },
+    "KA-1083": {
+      "dependencies": [
+        "KA-1082"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Revalidation scheduling consumes committed confidence-drift measurements instead of trusting a duplicated caller claim."
+    },
+    "KA-052": {
+      "dependencies": [
+        "KA-1083"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Temporal maintenance proposals consume the committed revalidation schedule and never infer or apply retirement independently."
+    },
+    "KA-1105": {
+      "dependencies": [
+        "KA-1082",
+        "KA-1083"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Obsolescence review consumes both committed drift measurements and the derived revalidation schedule before proposing review."
     }
   },
   "structured_execution": {

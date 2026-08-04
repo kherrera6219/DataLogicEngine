@@ -17,6 +17,9 @@ from backend.storage.retention import (
     DeletionSubject,
     RetentionDeleteCoordinator,
 )
+from backend.truth_engine.knowledge_temporal_health import (
+    KnowledgeTemporalHealthService,
+)
 from extensions import db
 
 
@@ -140,9 +143,143 @@ def test_cp19h_deletion_and_recovery_dispatch_owned_maintenance_kas(app):
         )
         tombstone = coordinator.run(DeletionSubject("user", "owner-1"))
         assert tombstone.status == "completed"
-    assert coordinator.lifecycle_evidence["cache_invalidation"][
-        "executed_ids"
-    ] == ["KA-080"]
-    assert coordinator.lifecycle_evidence["failure_recovery"][
-        "executed_ids"
-    ] == ["KA-064"]
+    assert coordinator.lifecycle_evidence["cache_invalidation"]["executed_ids"] == [
+        "KA-080"
+    ]
+    assert coordinator.lifecycle_evidence["failure_recovery"]["executed_ids"] == [
+        "KA-064"
+    ]
+
+
+def _temporal_health_inputs():
+    knowledge_id = "knowledge-1"
+    return {
+        "KA-023": {
+            "reference_time": "2026-07-25T00:00:00Z",
+            "knowledge_items": [
+                {
+                    "knowledge_id": knowledge_id,
+                    "current_confidence": 0.9,
+                    "observed_at": "2026-01-01T00:00:00Z",
+                    "domain": "general",
+                    "category": "knowledge",
+                }
+            ],
+        },
+        "KA-052": {
+            "reference_date": "2026-07-25",
+            "records": [
+                {
+                    "knowledge_id": knowledge_id,
+                    "last_validated_on": "2026-01-01",
+                    "current_version": 10,
+                    "protected": False,
+                }
+            ],
+        },
+        "KA-064": {
+            "failure_events": [
+                {
+                    "occurrence_id": f"event-{index}",
+                    "failure_code": "revalidation_failed",
+                    "component": "truthmemory",
+                }
+                for index in range(3)
+            ],
+            "minimum_occurrences": 3,
+        },
+        "KA-1082": {
+            "series": [
+                {
+                    "knowledge_id": knowledge_id,
+                    "observations": [
+                        {"observed_at": "2026-01-01T00:00:00Z", "confidence": 0.9},
+                        {"observed_at": "2026-07-01T00:00:00Z", "confidence": 0.6},
+                    ],
+                }
+            ],
+            "degradation_threshold": 0.1,
+        },
+        "KA-1083": {
+            "reference_date": "2026-07-25",
+            "candidates": [
+                {
+                    "knowledge_id": knowledge_id,
+                    "last_validated_on": "2026-01-01",
+                    "risk_class": "high",
+                    "confidence": 0.6,
+                }
+            ],
+        },
+        "KA-1093": {
+            "reference_date": "2026-07-25",
+            "records": [
+                {
+                    "knowledge_id": knowledge_id,
+                    "current_trust": 0.8,
+                    "last_used_on": "2026-01-01",
+                    "risk_class": "high",
+                    "active_evidence_count": 0,
+                }
+            ],
+        },
+        "KA-1105": {
+            "concepts": [
+                {
+                    "concept_id": knowledge_id,
+                    "baseline_contradiction_rate": 0.1,
+                    "current_contradiction_rate": 0.7,
+                    "active_citation_count": 0,
+                    "superseding_policy_refs": ["policy-v2"],
+                    "paradigm_replacement_refs": ["model-v2"],
+                }
+            ],
+        },
+    }
+
+
+def _assert_temporal_health_owner_path(tmp_path, canonical_id):
+    record = KnowledgeTemporalHealthService(
+        review_root=tmp_path / "reviews"
+    ).record_review(
+        ka_inputs=_temporal_health_inputs(),
+        idempotency_key=f"temporal-health-{canonical_id}",
+        request_id=f"batch-12-{canonical_id}",
+        principal_id="owner-1",
+    )
+    states = record["lifecycle"]["trace_states"][canonical_id]
+    assert states[:2] == ["planned", "candidate"]
+    assert "selected" in states
+    assert "admitted" in states
+    assert "executing" in states
+    assert "executed" in states
+    assert states[-1] == "effect_proposed"
+    assert record["authoritative_effect_receipt"]["status"] == "applied"
+
+
+def test_ka_023_owning_path(tmp_path):
+    _assert_temporal_health_owner_path(tmp_path, "KA-023")
+
+
+def test_ka_052_owning_path(tmp_path):
+    _assert_temporal_health_owner_path(tmp_path, "KA-052")
+
+
+def test_ka_064_owning_path(tmp_path):
+    _assert_temporal_health_owner_path(tmp_path, "KA-064")
+
+
+def test_ka_1082_owning_path(tmp_path):
+    _assert_temporal_health_owner_path(tmp_path, "KA-1082")
+
+
+def test_ka_1083_owning_path(tmp_path):
+    _assert_temporal_health_owner_path(tmp_path, "KA-1083")
+
+
+def test_ka_1093_owning_path(tmp_path):
+    _assert_temporal_health_owner_path(tmp_path, "KA-1093")
+
+
+def test_ka_1105_owning_path(tmp_path):
+    _assert_temporal_health_owner_path(tmp_path, "KA-1105")

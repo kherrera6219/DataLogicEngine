@@ -166,14 +166,16 @@ class RetentionDeleteCoordinator:
             requested_ids=["KA-064"],
             ka_inputs={
                 "KA-064": {
-                    "error_logs": [
+                    "failure_events": [
                         {
-                            "message": f"{store}_deletion_failed",
-                            "store": store,
+                            "occurrence_id": f"{store}:deletion",
+                            "failure_code": "deletion_failed",
+                            "component": store,
                         }
                         for store, status in statuses.items()
                         if status.get("status") == "failed"
-                    ]
+                    ],
+                    "minimum_occurrences": 1,
                 }
             },
             request_id=f"deletion:{normalized_type}:{normalized_id}:recovery",

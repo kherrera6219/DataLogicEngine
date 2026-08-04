@@ -1,16 +1,16 @@
 {
   "schema_version": "dle.cp19-k-grouped-batches.v1",
-  "plan_version": "2026.08.02-cp19k-grouped.4",
+  "plan_version": "2026.08.04-cp19k-grouped.5",
   "status": "active",
   "baseline_matrix_version": "2026.08.02-cp19k.9",
   "baseline_qualified_capabilities": 27,
   "planned_capabilities": 186,
   "planned_batch_count": 36,
   "batch_number_range": [8, 43],
-  "completed_batch_numbers": [8, 9, 10, 11],
-  "next_batch_number": 12,
-  "current_qualified_capabilities": 51,
-  "current_open_capabilities": 162,
+  "completed_batch_numbers": [8, 9, 10, 11, 12],
+  "next_batch_number": 13,
+  "current_qualified_capabilities": 58,
+  "current_open_capabilities": 155,
   "rules": [
     "Every open canonical KA appears in exactly one planned batch.",
     "Every batch has one primary production owner and one cohesive caller or transaction boundary.",
@@ -56,7 +56,7 @@
       "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
       "owner": "truthmemory_truthlink_frost",
       "cohesion": "Temporal decay, drift, scheduling, failure-pattern, and obsolescence maintenance",
-      "effect_boundary": "KnowledgeLifecycleService applies only verified maintenance proposals with receipts",
+      "effect_boundary": "KnowledgeTemporalHealthService records verified maintenance-review proposals with receipts; no knowledge, trust, alert, job, version, retirement, or obsolescence effect is applied",
       "canonical_ids": ["KA-023", "KA-052", "KA-064", "KA-1082", "KA-1083", "KA-1093", "KA-1105"]
     },
     {

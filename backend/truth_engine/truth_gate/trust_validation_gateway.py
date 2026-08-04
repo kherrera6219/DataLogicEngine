@@ -575,13 +575,14 @@ class TrustValidationGateway:
         # KA-023: Belief Decay (overconfidence protection)
         if self.ka_controller:
             try:
-                # Format evidence as knowledge_items with timestamps
+                reference_time = datetime.now(UTC)
+                # Format evidence as bounded belief observations.
                 knowledge_items = [
                     {
-                        "id": str(i),
-                        "confidence": base_confidence,
-                        "timestamp": datetime.now(UTC).isoformat(),
-                        "category": "evidence"
+                        "knowledge_id": str(i),
+                        "current_confidence": base_confidence,
+                        "observed_at": reference_time.isoformat(),
+                        "category": "evidence",
                     }
                     for i, _ in enumerate(input_data.evidence[:10])
                 ]
@@ -589,21 +590,21 @@ class TrustValidationGateway:
                     "KA-023",
                     {
                         "knowledge_items": knowledge_items,
-                        "reference_time": datetime.now(UTC).isoformat(),
+                        "reference_time": reference_time.isoformat(),
                     },
                     kas_invoked,
                 )
                 # Calculate decay from processed items
-                processed = require_output_field(result, "processed_items")
-                if processed:
-                    if any("confidence" not in item for item in processed):
+                proposals = require_output_field(result, "proposals")
+                if proposals:
+                    if any("proposed_confidence" not in item for item in proposals):
                         raise RuntimeError(
-                            "KA-023 processed item is missing confidence"
+                            "KA-023 proposal is missing proposed confidence"
                         )
                     avg_conf = sum(
-                        float(item["confidence"])
-                        for item in processed
-                    ) / len(processed)
+                        float(item["proposed_confidence"])
+                        for item in proposals
+                    ) / len(proposals)
                     base_confidence = avg_conf
             except Exception as exc:
                 raise RuntimeError(

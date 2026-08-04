@@ -8,7 +8,7 @@
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batches 08-11 passed; 51/213 qualified, 162 open; Batch 12 next
+**Current checkpoint:** Batches 08-12 passed; 58/213 qualified, 155 open; Batch 13 next
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 

@@ -47,12 +47,31 @@ class KA1083Input(BaseModel):
         min_length=1,
         max_length=20_000,
     )
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_ids(self) -> KA1083Input:
         identifiers = [item.knowledge_id for item in self.candidates]
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("knowledge IDs must be unique")
+        if self.dependency_results:
+            if set(self.dependency_results) != {"KA-1082"}:
+                raise ValueError("KA-1083 accepts only the KA-1082 dependency result")
+            drift = self.dependency_results["KA-1082"]
+            if drift.get("status") != "confidence_drift_measured":
+                raise ValueError("KA-1082 dependency status is invalid")
+            measurements = drift.get("measurements")
+            if not isinstance(measurements, list):
+                raise ValueError("KA-1082 measurements are required")
+            measured_ids = {
+                str(item.get("knowledge_id"))
+                for item in measurements
+                if isinstance(item, dict) and item.get("knowledge_id")
+            }
+            if measured_ids != set(identifiers):
+                raise ValueError(
+                    "KA-1082 measurements must cover the exact knowledge IDs"
+                )
         return self
 
 
@@ -67,6 +86,12 @@ class KA1083KnowledgeRevalidationScheduler(KnowledgeAlgorithm):
 
     def _run_logic(self, input_data: KA1083Input) -> dict[str, Any]:
         base_intervals = {"low": 180, "medium": 90, "high": 30, "critical": 7}
+        drift_by_id = {
+            str(item["knowledge_id"]): bool(item.get("degradation_detected"))
+            for item in input_data.dependency_results.get("KA-1082", {}).get(
+                "measurements", []
+            )
+        }
         schedule = []
         for item in sorted(input_data.candidates, key=lambda row: row.knowledge_id):
             interval = base_intervals[item.risk_class]
@@ -74,7 +99,11 @@ class KA1083KnowledgeRevalidationScheduler(KnowledgeAlgorithm):
             if item.confidence < 0.7:
                 interval = min(interval, 14)
                 reasons.append("low_confidence")
-            if item.drift_detected:
+            drift_detected = item.drift_detected or drift_by_id.get(
+                item.knowledge_id,
+                False,
+            )
+            if drift_detected:
                 interval = 0
                 reasons.append("drift_detected")
             if item.incident_open:
@@ -96,6 +125,9 @@ class KA1083KnowledgeRevalidationScheduler(KnowledgeAlgorithm):
             "status": "revalidation_schedule_planned",
             "reference_date": input_data.reference_date.isoformat(),
             "schedule": schedule,
+            "dependency_consumed": (
+                "KA-1082" if input_data.dependency_results else None
+            ),
             "jobs_scheduled": 0,
             "effect_service_required": True,
             "deterministic": True,

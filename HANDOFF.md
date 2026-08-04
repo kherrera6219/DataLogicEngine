@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-04 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.59.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.60.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -240,7 +240,7 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batches 01 through 11 are complete for `KA-001`, `KA-004`, `KA-005`,
+CP19-K batches 01 through 12 are complete for `KA-001`, `KA-004`, `KA-005`,
 `KA-010`, `KA-022`, `KA-024`,
 `KA-032`, `KA-037`, `KA-042`, `KA-061`, `KA-070`, `KA-084`, `KA-096`, `KA-097`,
 `KA-106`, `KA-113`, `KA-1080`, `KA-1081`, `KA-1091`, `KA-136`, `KA-137`,
@@ -248,8 +248,9 @@ CP19-K batches 01 through 11 are complete for `KA-001`, `KA-004`, `KA-005`,
 `KA-092`, `KA-094`, `KA-095`, `KA-098`, `KA-099`, `KA-100`, `KA-071`,
 `KA-072`, `KA-073`, `KA-074`, `KA-075`, `KA-076`, `KA-077`, `KA-078`,
 `KA-081`, `KA-082`, `KA-085`, `KA-086`, `KA-083`, `KA-087`, `KA-088`,
-`KA-089`, and `KA-090`.
-The generated 213-row matrix and verifier report 51 qualified and 162
+`KA-089`, `KA-090`, `KA-023`, `KA-052`, `KA-064`, `KA-1082`, `KA-1083`,
+`KA-1093`, and `KA-1105`.
+The generated 213-row matrix and verifier report 58 qualified and 155
 incomplete, with rebuild authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
@@ -257,8 +258,8 @@ KA-1081 admission, KA-037 limits provider tokens, KA-042 feeds KA-070, and the
 bounded counterfactual projection changes the provider prompt through the real
 job. SimulationJobRunner alone applies the plan/context/artifact effects and
 binds each to an authoritative receipt. Runtime manifest
-`2026.08.02-cp19k.3` retains 213 capabilities, 149 production-enabled
-capabilities, and 138 dependency edges with zero cycles. `KA-1101` and
+`2026.08.02-cp19k.4` retains 213 capabilities, 149 production-enabled
+capabilities, and 143 dependency edges with zero cycles. `KA-1101` and
 `KA-1103` remain unqualified because no production chaos or rollback action
 consumes their registry operations.
 
@@ -318,18 +319,25 @@ release preparation through the provider-owned model lifecycle. Versioning, A/B
 analysis, pruning, and quantization remain bounded proposals; KA-083 consumes all
 four plans plus measured health. The owner writes one idempotent preparation
 record and receipt while applying no deployment, routing, registry, rollback,
-weight, artifact, or provider effect. Batch 12 is next.
+weight, artifact, or provider effect. Batch 12 closes the seven-KA knowledge
+temporal-health group through `KnowledgeTemporalHealthService`. Confidence drift
+now causally feeds scheduling; scheduling feeds temporal maintenance; drift and
+scheduling feed obsolescence review. The owner writes one idempotent,
+content-free maintenance-review record and receipt while applying no confidence,
+trust, knowledge, version, retirement, alert, blacklist, job, revalidation,
+provider, or external-egress effect. Batch 13 is next.
 
 The earlier 31 dependency alerts remain remediated. Ten newly published GitHub
 alerts reported on 2026-08-04 across `aiohttp`, `undici`, and `ip-address`, plus
 one local `socket.io-parser` and three `cryptography` advisories, are remediated
 by the governed locks. Local Python and Node audits report zero vulnerabilities;
-lock governance passes and the GitHub Dependabot rescan is pending.
-The KA suite passes 826 tests; governed execution, TruthCore, Phase 19, and
-simulation integration pass 227; frontend type checking and all seven
+lock governance passes and the 2026-08-04 live GitHub query reports zero open
+Dependabot alerts.
+The KA suite passes 833 tests; governed execution, TruthCore, Phase 19, and
+simulation integration pass 245; frontend type checking and all seven
 TypeScript SDK tests pass; the retained 430 frontend tests and production/
-Electron builds remain green; and the full source suite passes 2,716 tests with
-19 skipped and 35 known warnings. Read:
+Electron builds remain green; and the full source suite passes 2,742 tests with
+18 skipped and 35 known warnings. Read:
 
 A parallel candidate training-dataset exporter was reviewed before publication
 and hardened into an explicit owner-operated tool. Its API is owner-authenticated,
@@ -385,7 +393,10 @@ frontend suites pass 22 and 4 tests respectively.
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-08-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-09-validation.json`;
   and
-- `reports/production-readiness/2026/phase-19/cp19-k-batch-10-validation.json`.
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-10-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-11-validation.json`;
+  and
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-12-validation.json`.
 
 ## Approved product boundary
 
@@ -1002,11 +1013,11 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 51/213 with grouped Batch 12, knowledge temporal health
-   (`KA-023`, `KA-052`, `KA-064`, `KA-1082`, `KA-1083`, `KA-1093`, and
-   `KA-1105`), through the real TruthMemory/TruthLink/FROST owner. Do not count
-   Batch 11's preparation record as deployment or model mutation.
-2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 162 open
+1. Continue CP19-K from 58/213 with grouped Batch 13, L1 context dependencies
+   (`KA-002`, `KA-003`, `KA-006`, and `KA-007`), through the real TruthCore
+   L1-L5 owner. Do not count Batch 12's maintenance-review receipt as a
+   confidence, trust, knowledge, scheduling, or retirement effect.
+2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 155 open
    rows unqualified until each named semantic, owning-path, trace, limitation,
    security, effect, and performance proof passes; direct tests or registry
    membership do not qualify an owning path.

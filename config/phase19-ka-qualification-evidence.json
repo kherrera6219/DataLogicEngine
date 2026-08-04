@@ -131,6 +131,20 @@
         "KA-090"
       ],
       "scope": "App-owned model-artifact profiling, causal version/experiment/pruning/quantization proposals, measured health admission, and an idempotent release-preparation record that explicitly applies no deployment"
+    },
+    {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "completed_on": "2026-08-04",
+      "canonical_ids": [
+        "KA-023",
+        "KA-052",
+        "KA-064",
+        "KA-1082",
+        "KA-1083",
+        "KA-1093",
+        "KA-1105"
+      ],
+      "scope": "Causal confidence-drift, revalidation scheduling, temporal maintenance, trust-decay, failure-pattern, and obsolescence review with a content-free idempotent owner receipt and no knowledge lifecycle effect"
     }
   ],
   "qualifications": {
@@ -1007,6 +1021,132 @@
         "rationale": "KA-090 applies no quantization, calibration, weight change, provider call, or artifact creation and reports no quantized path or measured size."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_090_semantic_contract"
+    },
+    "KA-023": {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_023_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_023_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_023_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_temporal_health_rejects_tampered_ka_claim_before_write",
+        "rationale": "Strict bounded observations require an explicit reference time, reject future or duplicate records, and the owner rejects any unsupported persistence claim before writing a content-free review."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_023_owning_path",
+        "rationale": "KA-023 proposes confidence values only. KnowledgeTemporalHealthService records their digest and an idempotent receipt while applying no confidence or knowledge update."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_023_semantic_contract"
+    },
+    "KA-052": {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_052_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_052_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_052_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_temporal_health_rejects_tampered_ka_claim_before_write",
+        "rationale": "Temporal maintenance accepts the exact committed KA-1083 schedule, requires complete identifier coverage, and the owner fails closed if a KA claims a version or retirement effect."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_052_owning_path",
+        "rationale": "KA-052 returns review proposals only. The owner records a content-free receipt with zero versions created, retirements applied, or knowledge updates."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_052_semantic_contract"
+    },
+    "KA-064": {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_064_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_064_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_064_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_064_semantic_contract",
+        "rationale": "Failure detection counts bounded content-free codes and components, rejects raw message fields, uses no configurable regular expression, and stores only pattern counts and result digests."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_064_owning_path",
+        "rationale": "KA-064 measures recurring signatures only; the owner records zero dispatched alerts, blacklists, mitigations, provider calls, and external egress."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_064_semantic_contract"
+    },
+    "KA-1082": {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1082_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1082_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1082_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1082_semantic_contract",
+        "rationale": "Drift is calculated only from bounded unique caller-supplied observations and remains explicitly observational without inferring cause or correctness."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_1082_owning_path",
+        "rationale": "The drift measurement is consumed causally by KA-1083 and KA-1105 and is recorded by digest without applying a confidence update."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1082_semantic_contract"
+    },
+    "KA-1083": {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1083_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1083_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1083_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_temporal_health_owner_records_only_content_free_review",
+        "rationale": "The scheduler consumes exact KA-1082 identifiers, deterministic caller-supplied dates, bounded risk inputs, and creates no scheduler job or external request."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_1083_owning_path",
+        "rationale": "KA-1083 plans due dates only. The owner records zero scheduled jobs and binds the unapplied proposal chain to one maintenance-review receipt."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1083_semantic_contract"
+    },
+    "KA-1093": {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1093_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1093_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1093_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1093_semantic_contract",
+        "rationale": "Trust decay accepts bounded unique records and explicit dates, calculates a deterministic proposal, and makes no truth, correctness, or evidence-quality claim."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_1093_owning_path",
+        "rationale": "KA-1093 proposes trust scores only; the owner records their digest and explicitly applies no trust or knowledge update."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1093_semantic_contract"
+    },
+    "KA-1105": {
+      "batch_id": "cp19-k-batch-12-knowledge-temporal-health",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1105_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1105_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1105_owning_path",
+      "security_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_temporal_health_owner_records_only_content_free_review",
+        "rationale": "Obsolescence classification requires exact drift and scheduler dependency coverage plus declared contradiction, citation, and policy signals; it cannot establish falsity or safe deletion."
+      },
+      "effect_evidence": {
+        "applicability": "required",
+        "reference": "tests/integration/phase19/test_knowledge_temporal_health.py::test_ka_1105_owning_path",
+        "rationale": "KA-1105 proposes revalidation only. The owner dispatches no request, updates no concept, and records only counts, digests, lifecycle states, and an integrity-checked receipt."
+      },
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1105_semantic_contract"
     }
   }
 }

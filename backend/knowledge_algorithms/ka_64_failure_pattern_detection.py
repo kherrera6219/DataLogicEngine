@@ -1,73 +1,108 @@
-"""
-KA-064: Failure Pattern Detection
-Purpose: Identify recurring failure signatures and error patterns in the execution logs to trigger proactive alerts or mitigation.
-"""
-import logging
-import json
-import os
-import re
-from typing import Dict, Any
-from pydantic import BaseModel, ConfigDict
+"""KA-064: deterministic failure-code frequency measurement."""
+
+from __future__ import annotations
+
+import hashlib
+from collections import Counter
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-logger = logging.getLogger(__name__)
+
+class FailureEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    occurrence_id: str = Field(min_length=1, max_length=200)
+    failure_code: str = Field(
+        min_length=1,
+        max_length=100,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+    )
+    component: str = Field(
+        min_length=1,
+        max_length=100,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+    )
 
 
 class KA064Input(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "failure_events": [
+                        {
+                            "occurrence_id": "event-1",
+                            "failure_code": "deletion_failed",
+                            "component": "neo4j",
+                        }
+                    ],
+                    "minimum_occurrences": 1,
+                }
+            ]
+        },
+    )
+
+    failure_events: list[FailureEvent] = Field(default_factory=list, max_length=50_000)
+    minimum_occurrences: int = Field(default=3, ge=1, le=50_000)
+
+    @model_validator(mode="after")
+    def validate_occurrences(self) -> KA064Input:
+        identifiers = [item.occurrence_id for item in self.failure_events]
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError("failure occurrence IDs must be unique")
+        return self
+
+
 class KA064FailurePatternDetection(KnowledgeAlgorithm):
+    """Count exact content-free failure codes without scanning raw log text."""
+
     input_schema = KA064Input
-    """
-    KA-064: Error signature matching and pattern analysis engine.
-    """
-    def __init__(self, context: Dict[str, Any]):
+
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
-        self.config = self._load_config()
+        self.ka_id = "KA-064"
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_64_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA064Input) -> Dict[str, Any]:
-        input_dict = input_data.model_dump()
-        error_logs = input_dict.get("error_logs", [])
-        
-        self.log_execution_step("Scanning for Failure Patterns", {"log_count": len(error_logs)})
-        
-        signatures = self.config.get("signature_db", [])
-        detected_patterns = {}
-        
-        for log in error_logs:
-             msg = log.get("message", "")
-             for sig in signatures:
-                  if re.search(sig["regex"], msg, re.IGNORECASE):
-                       tag = sig["tag"]
-                       detected_patterns[tag] = detected_patterns.get(tag, 0) + 1
-                       
-        # Filter by min occurrence
-        threshold = self.config.get("min_occurrence_count", 3)
-        significant_failures = {k: v for k, v in detected_patterns.items() if v >= threshold}
-        
+    def _run_logic(self, input_data: KA064Input) -> dict[str, Any]:
+        counts = Counter(
+            (item.component.lower(), item.failure_code.lower())
+            for item in input_data.failure_events
+        )
+        patterns = []
+        for (component, failure_code), count in sorted(counts.items()):
+            if count < input_data.minimum_occurrences:
+                continue
+            signature_sha256 = hashlib.sha256(
+                f"{component}:{failure_code}".encode()
+            ).hexdigest()
+            patterns.append(
+                {
+                    "component": component,
+                    "failure_code": failure_code,
+                    "occurrence_count": count,
+                    "signature_sha256": signature_sha256,
+                    "review_recommended": True,
+                }
+            )
         return {
-            "ka_id": "KA-064",
-            "ka_name": "Failure Pattern Detection",
             "success": True,
-            "detected_signatures": significant_failures,
-            "alert_triggered": len(significant_failures) > 0
+            "status": "failure_patterns_measured",
+            "patterns": patterns,
+            "event_count": len(input_data.failure_events),
+            "alerts_dispatched": 0,
+            "blacklisting_applied": False,
+            "log_content_scanned": False,
+            "deterministic": True,
+            "limitations": (
+                "Only exact caller-supplied content-free failure codes are counted. "
+                "The result does not inspect logs, diagnose root cause, dispatch an "
+                "alert, blacklist a source, or apply mitigation."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA064FailurePatternDetection(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-064 Failed: {e}")
-        return {"success": False, "error": str(e)}
 
-
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA064FailurePatternDetection(context).run(context)

@@ -48,9 +48,9 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "2026.07.25-cp19i.1",
         "2026.07.25-cp19j.1",
         "2026.08.01-cp19k.1",
-            "2026.08.01-cp19k.2",
-            "2026.08.02-cp19k.3",
-            "2026.08.02-cp19k.4",
+        "2026.08.01-cp19k.2",
+        "2026.08.02-cp19k.3",
+        "2026.08.02-cp19k.4",
     }
     assert registry["schema_version"] == "dle.refinement-workflow-registry.v1"
     assert registry["owner"] == "governed_execution_orchestrator"
@@ -69,14 +69,13 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "cp19_i_extended_subsystem_authority": 149,
         "cp19_j_product_workflow_authority": 149,
     }
-    assert sum(
-        entry.admission.production_enabled for entry in entries
-    ) == expected_enabled[manifest.status]
-    dependency_edges = sum(
-        len(entry.contract.dependencies) for entry in entries
+    assert (
+        sum(entry.admission.production_enabled for entry in entries)
+        == expected_enabled[manifest.status]
     )
+    dependency_edges = sum(len(entry.contract.dependencies) for entry in entries)
     if manifest.manifest_version == "2026.08.02-cp19k.4":
-        assert dependency_edges == 142
+        assert dependency_edges == 143
     elif manifest.manifest_version == "2026.08.02-cp19k.3":
         assert dependency_edges == 138
     elif manifest.manifest_version == "2026.08.01-cp19k.1":

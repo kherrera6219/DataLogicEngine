@@ -650,6 +650,33 @@ CP19_H_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
     },
 }
 
+# CP19-K Batch 12 makes the knowledge temporal-health chain causal. Confidence
+# drift is measured before schedule planning; schedule output is then consumed
+# by temporal maintenance and, together with drift, by obsolescence review.
+CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-1083": {
+        "dependencies": ["KA-1082"],
+        "rationale": (
+            "Revalidation scheduling consumes committed confidence-drift "
+            "measurements instead of trusting a duplicated caller claim."
+        ),
+    },
+    "KA-052": {
+        "dependencies": ["KA-1083"],
+        "rationale": (
+            "Temporal maintenance proposals consume the committed revalidation "
+            "schedule and never infer or apply retirement independently."
+        ),
+    },
+    "KA-1105": {
+        "dependencies": ["KA-1082", "KA-1083"],
+        "rationale": (
+            "Obsolescence review consumes both committed drift measurements and "
+            "the derived revalidation schedule before proposing review."
+        ),
+    },
+}
+
 CP19_H_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
     canonical_id: {
         "production_enabled": True,
@@ -1044,7 +1071,8 @@ def build_manifest() -> dict[str, Any]:
             }
         )
         override = (
-            CP19_I_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            CP19_K_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
+            or CP19_I_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_H_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_G_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
             or CP19_F_DEPENDENCY_OVERRIDES.get(row["canonical_id"])
@@ -1199,6 +1227,7 @@ def build_manifest() -> dict[str, Any]:
                 **CP19_G_DEPENDENCY_OVERRIDES,
                 **CP19_H_DEPENDENCY_OVERRIDES,
                 **CP19_I_DEPENDENCY_OVERRIDES,
+                **CP19_K_DEPENDENCY_OVERRIDES,
             },
             "production_admission_checkpoint": "CP19-I",
             "production_admission_ids": sorted(
