@@ -88,10 +88,12 @@ def render(
         "skipped and 35 known warnings. "
         "The reviewed owner-operated dataset exporter remains supporting "
         "tooling, enforces release evidence, redaction, and app-owned output, "
-        "and does not satisfy installed training/provider acceptance. All 31 "
-        "dependency alerts visible before publication were remediated; local "
-        "Python and Node audits are clean, and GitHub reports zero open "
-        "Dependabot alerts. CP19-K remains active and the rebuild remains "
+        "and does not satisfy installed training/provider acceptance. The "
+        "earlier 31 dependency alerts remain remediated. Ten newly published "
+        "GitHub alerts plus four additional local audit advisories are fixed "
+        "in the governed Python and Node locks; local audits are clean and "
+        "the GitHub Dependabot rescan is pending. CP19-K remains active and "
+        "the rebuild remains "
         "blocked through CP19-L."
     )
     lines = [

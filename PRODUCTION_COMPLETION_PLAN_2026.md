@@ -5540,6 +5540,12 @@ zero-cycle dependency graph. The KA suite passes 826 tests, the governed/
 TruthCore/Phase-19/simulation integration set passes 227, and the full source
 suite passes 2,716 with 19 skipped and 35 known warnings.
 
+A post-push live scan found ten newly published GitHub alerts across `aiohttp`,
+`undici`, and `ip-address`. The governed locks now use patched versions and
+also remediate one `socket.io-parser` plus three `cryptography` advisories found
+by local audits. Local `pip-audit` and `npm audit` report zero vulnerabilities;
+the GitHub Dependabot rescan is pending.
+
 Evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-11-validation.json`;

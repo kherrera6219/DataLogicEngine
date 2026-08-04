@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Newly published dependency advisory remediation**: upgraded `aiohttp` to
+  3.14.3 and `cryptography` to 50.0.0 in the governed Python source and hash
+  lock; added frontend overrides for `undici` 7.29.0, resolved `ip-address` 10.4.0, and
+  `socket.io-parser` 4.2.7. This closes ten newly reported GitHub alerts plus
+  four additional advisories found by local audits. `pip-audit` and `npm audit`
+  now report zero vulnerabilities; GitHub rescan is pending.
 - **Phase 19 CP19-K provider model release-preparation batch 11**: qualified
   `KA-083`, `KA-087`, `KA-088`, `KA-089`, and `KA-090` through the real
   provider-owned lifecycle. Replaced false live-deployment, registry, traffic,

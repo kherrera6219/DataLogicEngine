@@ -112,11 +112,14 @@
     "adm-zip": "^0.6.0",
     "axios": "^1.18.0",
     "fast-uri": "^3.1.4",
+    "ip-address": "^10.2.2",
+    "undici": "^7.29.0",
     "js-yaml": "^4.3.0",
     "postcss": "^8.5.18",
     "sharp": "^0.35.0",
     "tar": "^7.5.18",
     "tmp": "^0.2.7",
-    "shell-quote": "^1.9.0"
+    "shell-quote": "^1.9.0",
+    "socket.io-parser": "^4.2.7"
   }
 }

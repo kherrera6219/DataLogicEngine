@@ -255,10 +255,12 @@ Phase 18 source baseline while completing the whole-application wiring.
         remains supporting tooling; Batch 10 and 11 qualification comes from the
         new provider-owned model-lifecycle path and closes no installed acceptance
         gate.
-      - Dependency review: all 31 open GitHub alerts were remediated in the
-        Python and Node authorities. Local `pip-audit` and `npm audit` report
-        zero known vulnerabilities, both lockfile-governance gates pass, and
-        GitHub now reports zero open Dependabot alerts after its rescan.
+      - Dependency review: the earlier 31 GitHub alerts remain remediated.
+        Ten newly published alerts reported on 2026-08-04 across `aiohttp`,
+        `undici`, and `ip-address`, plus one local `socket.io-parser` and three
+        `cryptography` advisories, are remediated in the governed locks. Local
+        `pip-audit` and `npm audit` report zero vulnerabilities; the GitHub
+        Dependabot rescan is pending.
       - Next: execute grouped Batch 12 through the real production owner. Keep every later batch open until its named individual and owner/effect evidence passes.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,

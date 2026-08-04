@@ -43,6 +43,7 @@ SDKs.
 | Individually qualified KAs | 51/213; 162 remain open |
 | Grouped qualification roadmap | 36 batches (08-43); Batches 08-11 complete, Batch 12 next, 32 remain |
 | Latest source validation | 2,716 passed, 19 skipped, 35 known warnings |
+| Dependency security | 10 newly published alerts remediated in governed locks; local audits clean; GitHub rescan pending |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
@@ -74,6 +75,12 @@ those exact plans plus measured health before one idempotent release-preparation
 record is written. The workflow explicitly performs no deployment, traffic
 routing, registry update, rollback, weight change, quantized artifact, or
 provider call.
+
+A post-push live security check found ten newly published GitHub alerts across
+`aiohttp`, `undici`, and `ip-address`. The governed locks now use patched
+versions and also remediate one `socket.io-parser` plus three `cryptography`
+advisories found by local audits. Local Python and Node audits are clean; the
+GitHub Dependabot rescan is pending.
 
 The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split

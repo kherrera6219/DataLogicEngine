@@ -320,11 +320,11 @@ four plans plus measured health. The owner writes one idempotent preparation
 record and receipt while applying no deployment, routing, registry, rollback,
 weight, artifact, or provider effect. Batch 12 is next.
 
-The same pass remediated all 31 dependency alerts visible before publication.
-`pypdf==6.14.2`, `web3==7.15.0`, Next 16.2.12, Electron Builder 26.15.3, and
-the reviewed transitive overrides/lock now resolve patched versions. Local
-Python and Node audits report zero vulnerabilities, lock governance passes, and
-the post-push GitHub rescan reports zero open Dependabot alerts.
+The earlier 31 dependency alerts remain remediated. Ten newly published GitHub
+alerts reported on 2026-08-04 across `aiohttp`, `undici`, and `ip-address`, plus
+one local `socket.io-parser` and three `cryptography` advisories, are remediated
+by the governed locks. Local Python and Node audits report zero vulnerabilities;
+lock governance passes and the GitHub Dependabot rescan is pending.
 The KA suite passes 826 tests; governed execution, TruthCore, Phase 19, and
 simulation integration pass 227; frontend type checking and all seven
 TypeScript SDK tests pass; the retained 430 frontend tests and production/
