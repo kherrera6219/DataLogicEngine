@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.2.3 |
+| Document version | v1.2.4 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-02 |
+| Last reviewed | 2026-08-04 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -38,11 +38,11 @@ SDKs.
 | Area | Current state |
 |---|---|
 | Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
-| Runtime authority | One generated manifest/controller; 138-edge acyclic dependency graph |
+| Runtime authority | One generated manifest/controller; 142-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
 | Individually qualified KAs | 51/213; 162 remain open |
 | Grouped qualification roadmap | 36 batches (08-43); Batches 08-11 complete, Batch 12 next, 32 remain |
-| Latest source validation | 2,698 passed, 18 skipped, 35 known warnings |
+| Latest source validation | 2,716 passed, 19 skipped, 35 known warnings |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
@@ -67,12 +67,20 @@ says no trainer, provider call, epoch, checkpoint, or model artifact exists.
 Preparation rejects artifacts above 256 MiB, and replay verifies the persisted
 record against its authoritative receipt before returning it.
 
+Batch 11 qualifies the five model release-preparation KAs through the same
+provider-owned lifecycle. Versioning, experiment allocation, pruning, and
+quantization produce bounded proposals from supplied evidence; KA-083 consumes
+those exact plans plus measured health before one idempotent release-preparation
+record is written. The workflow explicitly performs no deployment, traffic
+routing, registry update, rollback, weight change, quantized artifact, or
+provider call.
+
 The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batches 08 through 10 are complete; the
-current matrix has 167 open rows and Batch 11 is provider model release.
+treated as one unsafe mega-batch. Batches 08 through 11 are complete; the
+current matrix has 162 open rows and Batch 12 is knowledge temporal health.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
@@ -217,20 +225,20 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-10 qualify 46/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-11 qualify 51/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
   authenticated content-free diagnostics advisory, causal secure ingestion,
-  and provider-owned measured model preparation; 167 rows remain open
-- The reviewed remaining roadmap contains 33 cohesive batches (11-43), each
-  bounded to one production owner and effect boundary. Batch 11 is the five-KA
-  provider model-release group. Grouping shares fixtures and transactions but does
+  and provider-owned measured model preparation plus bounded model release
+  preparation; 162 rows remain open
+- The reviewed remaining roadmap contains 32 cohesive batches (12-43), each
+  bounded to one production owner and effect boundary. Batch 12 is the seven-KA
+  knowledge temporal-health group. Grouping shares fixtures and transactions but does
   not waive any individual semantic, owning-path, trace, security, effect, or
   performance proof
-- Seven additional provider/gateway KAs remain open: model deployment,
-  versioning, A/B testing, pruning, quantization, API gateway, and external deep
-  research. None is
+- Two additional provider/gateway KAs remain open: API gateway and external
+  deep research. Neither is
   counted from registry membership or direct tests without a real owner and,
   where applicable, an authoritative effect receipt
 - CP19-L clean-source qualification must pass before any release-candidate

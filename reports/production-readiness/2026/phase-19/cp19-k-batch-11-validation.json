@@ -1,0 +1,84 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-11-provider-model-release-preparation",
+  "validated_on": "2026-08-04",
+  "qualified_ids": [
+    "KA-083",
+    "KA-087",
+    "KA-088",
+    "KA-089",
+    "KA-090"
+  ],
+  "grouped_roadmap": {
+    "baseline_open_capabilities": 186,
+    "planned_batches": 36,
+    "batch_range": [8, 43],
+    "completed_batches": [8, 9, 10, 11],
+    "next_batch": 12,
+    "remaining_batches": 32
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 51,
+    "incomplete_capabilities": 162,
+    "production_enabled_capabilities": 149,
+    "dependency_edges": 142,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {
+      "name": "focused_model_release_semantics_and_owner_paths",
+      "command": "python -m pytest -q tests/integration/phase19/test_provider_model_release.py tests/integration/phase19/test_provider_gateway.py tests/knowledge_algorithms/test_ka_stub_replacements.py tests/knowledge_algorithms/test_phase19_per_ka_semantics.py tests/knowledge_algorithms/test_risk_classifier.py tests/backend/test_dataset_exporter.py tests/integration/phase19/test_extended_subsystems.py",
+      "status": "pass",
+      "result": "151 passed"
+    },
+    {
+      "name": "knowledge_algorithm_suite",
+      "command": "python -m pytest -q tests/knowledge_algorithms",
+      "status": "pass",
+      "result": "826 passed, 3 known deprecation warnings"
+    },
+    {
+      "name": "governed_truthcore_phase19_simulation_integration",
+      "command": "python -m pytest -q tests/governed_execution tests/truth_engine tests/integration/phase19 tests/unit/test_phase10_simulation_authority.py",
+      "status": "pass",
+      "result": "227 passed"
+    },
+    {
+      "name": "full_source_suite",
+      "command": "python -m pytest -q",
+      "status": "pass",
+      "result": "2716 passed, 19 skipped, 35 known warnings"
+    },
+    {
+      "name": "qualification_matrix_integrity",
+      "command": "python scripts/verify_phase19_cp19k_qualification.py",
+      "status": "pass",
+      "result": "51/213 qualified; checkpoint in progress"
+    },
+    {
+      "name": "runtime_authority_and_selector_dag",
+      "command": "python scripts/verify_ka_runtime_authority.py; python scripts/verify_ka_selector_dag.py",
+      "status": "pass",
+      "result": "runtime authority and selector/DAG verification passed with 142 dependency edges and zero cycles"
+    },
+    {
+      "name": "documentation_references_and_truth",
+      "command": "python scripts/verify_docs_references.py; python scripts/verify_documentation_truth.py",
+      "status": "pass",
+      "result": "active documentation references and truth checks passed"
+    }
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 162 per-KA rows remain open across 32 planned batches.",
+    "The provider model lifecycle writes a release-preparation record and receipt only; it applies no deployment, provider call, traffic routing, registry update, rollback, weight mutation, pruning, quantization, or artifact creation.",
+    "Versioning, A/B analysis, pruning, quantization, and KA-083 release admission remain bounded proposals based only on supplied evidence and measured health.",
+    "The reviewed candidate dataset exporter remains supporting tooling and does not qualify training, provider, deployment, model-quality, or installed gates.",
+    "No installed retrieval, graph, workflow, accessibility, provider, independent-review, human-pilot, or soak acceptance is claimed.",
+    "This source batch is not CP19-L clean-source qualification or CP19-M rebuilt-installed acceptance.",
+    "No rebuild, signing, installation, or production/public release is authorized."
+  ]
+}

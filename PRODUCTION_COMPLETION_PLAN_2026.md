@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.58.0 |
+| Document version | v1.59.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5515,6 +5515,41 @@ Evidence:
 - `tests/integration/phase19/test_provider_model_preparation.py`; and
 - `backend/llm_gateway/model_lifecycle.py`.
 
+### CP19-K batch 11 passed 2026-08-04
+
+Batch 11 closes `KA-083`, `KA-087`, `KA-088`, `KA-089`, and `KA-090`
+through the real provider-owned model-lifecycle boundary. The review removed
+legacy claims of a live deployment, invented registry paths and artifact hashes,
+active traffic allocation, performed pruning, achieved accuracy, and generated
+quantized artifacts.
+
+The four preparation KAs now emit deterministic, bounded proposals from supplied
+evidence. KA-083 validates and consumes those exact plans plus measured health.
+`ProviderModelLifecycleService` confines the inspected ONNX, SafeTensors, or
+TFLite artifact to the app-owned model directory, enforces the 256 MiB ceiling,
+validates SHA-256 identity and receipt replay, and writes one idempotent release-
+preparation record. It performs no deployment, provider call, traffic routing,
+registry update, rollback, weight mutation, pruning, quantization, or artifact
+creation. KA-090 is correctly classified read-only.
+
+The matrix and verifier pass at 51/213 qualified and 162 incomplete. Grouped
+Batches 08 through 11 are complete; 32 planned batches remain and Batch 12,
+knowledge temporal health, is next. Runtime manifest `2026.08.02-cp19k.4`
+retains 213 capabilities and 149 production-enabled capabilities with a 142-edge
+zero-cycle dependency graph. The KA suite passes 826 tests, the governed/
+TruthCore/Phase-19/simulation integration set passes 227, and the full source
+suite passes 2,716 with 19 skipped and 35 known warnings.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-11-validation.json`;
+- `config/phase19-ka-qualification-evidence.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_provider_model_release.py`;
+- `tests/integration/phase19/test_provider_gateway.py`; and
+- `backend/llm_gateway/model_lifecycle.py`.
+
 Retained CP19-B evidence:
 
 - `reports/production-readiness/2026/phase-19/cp19-b-caller-inventory.md`;
@@ -5961,17 +5996,17 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-10 now truthfully
-qualify 46 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-11 now truthfully
+qualify 51 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
-measured provider monitoring, content-free authenticated observability, and the
-causal secure-ingestion pipeline, and measured provider model preparation,
-leaving 167 of 213 rows open. The
+measured provider monitoring, content-free authenticated observability, causal
+secure ingestion, measured provider model preparation, and bounded provider
+model release preparation, leaving 162 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, current 138-edge acyclic dependency graph, bounded structured
+fixtures, current 142-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
@@ -5985,10 +6020,11 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batches 08 through 10 are complete and 33 remain. Continue
-CP19-K with Batch 11, provider model release (`KA-083`, `KA-087`, `KA-088`,
-`KA-089`, and `KA-090`), through the real provider owner without treating the
-Batch 10 admission record as training or deployment evidence. Keep every later row
+batches (08-43); Batches 08 through 11 are complete and 32 remain. Continue
+CP19-K with Batch 12, knowledge temporal health (`KA-023`, `KA-052`, `KA-064`, `KA-1082`, `KA-1083`,
+`KA-1093`, and `KA-1105`), through the real TruthMemory/TruthLink/FROST owner
+without treating the Batch 11 preparation record as deployment or model-mutation
+evidence. Keep every later row
 incomplete until its individual owner/effect evidence exists.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve

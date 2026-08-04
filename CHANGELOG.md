@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-02 |
+| Last reviewed | 2026-08-04 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -26,6 +26,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K provider model release-preparation batch 11**: qualified
+  `KA-083`, `KA-087`, `KA-088`, `KA-089`, and `KA-090` through the real
+  provider-owned lifecycle. Replaced false live-deployment, registry, traffic,
+  pruning, accuracy, compression, and quantized-artifact claims with bounded
+  evidence-backed proposals. The owner validates the exact four preparation
+  plans and measured health, then writes one idempotent release-preparation
+  record and receipt while applying no deployment, routing, registry, rollback,
+  provider, weight, or artifact effect. App-owned artifact containment, the
+  256 MiB ceiling, health failure, effect tampering, idempotency conflict, and
+  receipt-integrity replay fail closed. The matrix is 51/213 qualified with 162
+  open, the dependency graph has 142 zero-cycle edges, and Batch 12 is next. The
+  826-test KA suite, 227 affected integrations, and 2,716-test full source suite
+  pass with 19 skipped and 35 known warnings.
 - **Phase 19 CP19-K provider model-preparation batch 10**: qualified `KA-081`,
   `KA-082`, `KA-085`, and `KA-086` through the real provider-owned lifecycle.
   Removed fabricated completed training/checkpoints, hash-derived evaluation

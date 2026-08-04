@@ -63,7 +63,7 @@ open prerequisite.
 | 08 | Operations observability — **passed 2026-08-02** | security/operations | 091, 092, 094, 095, 098, 099, 100 | 7 |
 | 09 | Secure ingestion pipeline — **passed 2026-08-02** | ingestion | 071-078 | 8 |
 | 10 | Provider model preparation — **passed 2026-08-02** | provider/gateway | 081, 082, 085, 086 | 4 |
-| 11 | Provider model release — **passed 2026-08-02** | provider/gateway | 083, 087-090 | 5 |
+| 11 | Provider model release preparation — **passed 2026-08-04** | provider/gateway | 083, 087-090 | 5 |
 | 12 | Knowledge temporal health | TruthMemory/TruthLink/FROST | 023, 052, 064, 1082, 1083, 1093, 1105 | 7 |
 | 13 | L1 context and dependencies | TruthCore L1-L5 | 003, 011, 015, 017, 025, 040 | 6 |
 | 14 | Retrieval provenance and scoring | retrieval/graph/memory | 018, 079, 1049, 1077, 1092 | 5 |

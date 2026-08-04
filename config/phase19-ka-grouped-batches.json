@@ -47,8 +47,8 @@
       "batch_number": 11,
       "batch_id": "cp19-k-batch-11-provider-model-release",
       "owner": "provider_gateway",
-      "cohesion": "Versioned deployment, experiment, compression, and release preparation",
-      "effect_boundary": "ProviderGatewayService alone owns deployment; versioning, experiments, pruning, and quantization remain bounded decisions",
+      "cohesion": "Version, experiment, compression, and release-preparation proposals",
+      "effect_boundary": "ProviderModelLifecycleService owns only the release-preparation record; deployment, routing, version registration, pruning, and quantization remain unapplied",
       "canonical_ids": ["KA-083", "KA-087", "KA-088", "KA-089", "KA-090"]
     },
     {
