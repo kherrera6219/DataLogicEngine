@@ -68,6 +68,7 @@ class KA1037Input(BaseModel):
         ge=0,
         le=1,
     )
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_personas(self) -> KA1037Input:
@@ -77,6 +78,11 @@ class KA1037Input(BaseModel):
         known = set(persona_ids)
         if any(turn.persona_id not in known for turn in self.debate_trace):
             raise ValueError("debate trace references an unknown persona")
+        if self.dependency_results and set(self.dependency_results) != {
+            "KA-012",
+            "KA-030",
+        }:
+            raise ValueError("dependency_results must contain KA-012 and KA-030")
         return self
 
 
@@ -95,6 +101,12 @@ class KA1037NormEmergenceDetector(KnowledgeAlgorithm):
         return 1.0 if not union else len(left & right) / len(union)
 
     def _run_logic(self, input_data: KA1037Input) -> dict[str, Any]:
+        analysis = input_data.dependency_results.get("KA-012", {})
+        conflict_review = input_data.dependency_results.get("KA-030", {})
+        owner_context_ready = not input_data.dependency_results or (
+            bool(analysis.get("persona_findings"))
+            and conflict_review.get("all_dissent_preserved") is True
+        )
         token_sets = {
             item.persona_id: normalized_tokens(item.content)
             for item in input_data.persona_outputs
@@ -147,10 +159,16 @@ class KA1037NormEmergenceDetector(KnowledgeAlgorithm):
                     "threshold": input_data.language_similarity_threshold,
                 }
             )
-        unhealthy_suspected = len(flags) == 2 and not dissenting
+        unhealthy_suspected = (
+            owner_context_ready and len(flags) == 2 and not dissenting
+        )
         return {
             "success": True,
-            "status": "convergence_measured",
+            "status": (
+                "convergence_measured"
+                if owner_context_ready
+                else "persona_context_required"
+            ),
             "convergence_metrics": {
                 "persona_count": len(input_data.persona_outputs),
                 "mean_pairwise_token_jaccard": mean_similarity,
@@ -163,6 +181,11 @@ class KA1037NormEmergenceDetector(KnowledgeAlgorithm):
             "dissenting_personas": dissenting,
             "unhealthy_convergence_suspected": unhealthy_suspected,
             "measurement_status": "observational",
+            "owner_context_ready": owner_context_ready,
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "persona_constraints_applied": 0,
+            "profile_updated": False,
+            "causal_norm_emergence_established": False,
             "limitations": (
                 "Token and position convergence can indicate similarity, not "
                 "groupthink, coercion, correctness, or harm. Human review and "

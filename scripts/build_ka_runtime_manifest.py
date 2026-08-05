@@ -696,12 +696,18 @@ CP19_K_ADMISSION_IDS = {
     "KA-051",
     "KA-054",
     "KA-055",
+    "KA-057",
     "KA-058",
     "KA-059",
     "KA-063",
+    "KA-068",
+    "KA-069",
+    "KA-1037",
     "KA-1041",
     "KA-1042",
+    "KA-1075",
     "KA-1073",
+    "KA-1084",
     "KA-1102",
     "KA-1106",
     "KA-116",
@@ -906,8 +912,18 @@ CP19_H_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
 
 CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     "schema_version": "dle.ka-subsystem-registry.v1",
-    "registry_version": "2026.08.05-cp19k.3",
+    "registry_version": "2026.08.05-cp19k.4",
     "owners": {
+        "dsqp_quad_persona": {
+            "adaptation": [
+                "KA-057",
+                "KA-068",
+                "KA-069",
+                "KA-1037",
+                "KA-1075",
+                "KA-1084",
+            ],
+        },
         "truthcore_l1_l5": {
             "context_dependencies": [
                 "KA-003",
@@ -1448,7 +1464,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.05-cp19k.9",
+        "manifest_version": "2026.08.05-cp19k.10",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

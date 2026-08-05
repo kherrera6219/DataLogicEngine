@@ -5633,7 +5633,7 @@ dependency outputs while the knowledge lifecycle service retains every effect.
 Batch 18 replaces fabricated graph neighbors with bounded supplied adjacency
 and makes promotion consume exact integrity/quarantine/containment decisions.
 
-### CP19-K batches 19-28 passed through 2026-08-05
+### CP19-K batches 19-29 passed through 2026-08-05
 
 Batch 19 completes the five-node Quad Persona/DSQP DAG. L4 executes persona
 analysis and bounded viewpoint expansion; L5 consumes those exact results for
@@ -5675,16 +5675,23 @@ TruthGate consumes exact dependencies for regression, fairness, compliance,
 and governance decisions without establishing legal applicability, ethical
 acceptability, causal discrimination, or any compliance/governance mutation.
 
-The generated matrix and verifier pass at 137/213 qualified and 76 incomplete.
-Batches 08 through 28 are complete, 15 planned batches remain, and Batch 29,
-persona adaptation (`KA-057`, `KA-068`, `KA-069`, `KA-1037`, `KA-1075`, and
-`KA-1084`), is next. Runtime manifest `2026.08.05-cp19k.9` retains 213 capabilities, 174
+Batch 29 registers one manifest-governed DSQP adaptation operation for six
+KAs. Persona/emotional, domain, and locale inputs are explicit; the legacy OS
+locale and config-applied behavior is removed; convergence and reweighting
+consume exact analysis/bias dependencies; and cross-instance consensus remains
+agreement-only. No content rewrite, profile/model mutation, fairness or truth
+claim, consensus application, provider call, or external request occurs.
+
+The generated matrix and verifier pass at 143/213 qualified and 70 incomplete.
+Batches 08 through 29 are complete, 14 planned batches remain, and Batch 30,
+L6 planning control (`KA-006`, `KA-007`, and `KA-060`), is next. Runtime
+manifest `2026.08.05-cp19k.10` retains 213 capabilities, 180
 production-enabled capabilities, and a 128-edge zero-cycle
 dependency graph. Rebuild authorization remains false, and all rebuilt-
 installed, accessibility, provider, independent-review, pilot, and soak gates
-remain open. The 912-test KA suite, 377 governed/TruthCore/Phase-19/simulation
-integration tests, seven TypeScript SDK tests, and 2,910-test full source suite
-pass with 18 skipped and 35
+remain open. The 918-test KA suite, 383 governed/TruthCore/Phase-19/simulation
+integration tests, seven TypeScript SDK tests, and 2,922-test full source suite
+pass with 18 skipped and 32
 known warnings.
 
 Evidence:
@@ -5705,9 +5712,11 @@ Evidence:
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-26-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-27-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-28-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-29-validation.json`;
 - `config/phase19-ka-qualification-evidence.json`;
 - `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
 - `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_dsqp_quad_persona.py`;
 - `tests/integration/phase19/test_truthcore_l1_l5.py`;
 - `tests/integration/phase19/test_truthgate.py`;
 - `tests/integration/phase19/test_truthmemory_truthlink_frost.py`;
@@ -6160,8 +6169,8 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-28 now truthfully
-qualify 137 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-29 now truthfully
+qualify 143 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
 measured provider monitoring, content-free authenticated observability, causal
@@ -6172,8 +6181,8 @@ routing, adversarial/privacy gating, knowledge trust/containment, bounded graph
 expansion/promotion, Quad Persona foundation, L6 evidence/confidence/entropy,
 adaptive DMRF routing, store maintenance, content evolution, lifecycle
 analytics, L10 oversight, TruthGate system integrity, knowledge release/drift
-review, and regulatory/compliance evidence, leaving 76 of
-213 rows open. The
+review, regulatory/compliance evidence, and bounded persona adaptation, leaving
+70 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
@@ -6191,11 +6200,11 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batches 08 through 28 are complete and 15 remain. Continue
-CP19-K with Batch 29, persona adaptation (`KA-057`, `KA-068`, `KA-069`,
-`KA-1037`, `KA-1075`, and `KA-1084`), through the real Quad Persona/DSQP owner
-without inferring production enablement from registry membership. Keep every later row
-incomplete until its individual owner/effect evidence exists.
+batches (08-43); Batches 08 through 29 are complete and 14 remain. Continue
+CP19-K with Batch 30, L6 planning control (`KA-006`, `KA-007`, and `KA-060`),
+through the real TruthCore L6-L8 owner without inferring production enablement
+from registry membership. Keep every later row incomplete until its individual
+owner/effect evidence exists.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve
 all 213 capabilities and the one-controller boundary while integrating the ten

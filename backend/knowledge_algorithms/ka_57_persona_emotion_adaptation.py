@@ -1,66 +1,86 @@
-"""
-KA-057: Persona/Emotion Adaptation
-Purpose: Adapt the tone, structure, and complexity of outputs to match specific stakeholder personas and emotional contexts.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
+"""KA-057: deterministic persona and emotional-context style planning."""
+
+from __future__ import annotations
+
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA057Input(BaseModel):
-    output_object: Dict[str, Any] = Field(default_factory=dict, description="The output object to adapt")
-    persona: str = Field("general", description="The target stakeholder persona")
+    model_config = ConfigDict(extra="forbid")
+
+    output_object: dict[str, Any] = Field(default_factory=dict)
+    persona: Literal[
+        "general",
+        "technical_expert",
+        "business_leader",
+        "end_user",
+        "skeptic",
+    ] = "general"
+    emotional_context: Literal[
+        "neutral",
+        "uncertain",
+        "distressed",
+        "positive",
+    ] = "neutral"
+
 
 class KA057PersonaEmotionAdaptation(KnowledgeAlgorithm):
-    """
-    KA-057: Output styling and persona adaptation engine for empathetic context.
-    """
+    """Return bounded style constraints without rewriting response content."""
+
     input_schema = KA057Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-057"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_57_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA057Input) -> Dict[str, Any]:
-        output_object = input_data.output_object
-        target_persona = input_data.persona
-        self.log_execution_step("Adapting Output to Persona", {"persona": target_persona})
-        
-        vibe_overrides = self.config.get("vibe_overrides", {})
-        vibe = vibe_overrides.get(target_persona, {"complexity": "medium", "empathy": "medium"})
-        adapted_plan = {
-            "persona_applied": target_persona,
-            "vibe_settings": vibe,
-            "style_hints": [f"Complexity level: {vibe.get('complexity')}", f"Empathy level: {vibe.get('empathy')}"],
-            "original_id": output_object.get("id")
+    def _run_logic(self, input_data: KA057Input) -> dict[str, Any]:
+        persona_settings = {
+            "general": ("medium", "balanced", "plain_language"),
+            "technical_expert": ("high", "concise", "technical_detail"),
+            "business_leader": ("medium", "concise", "decision_summary"),
+            "end_user": ("low", "supportive", "step_by_step"),
+            "skeptic": ("high", "neutral", "evidence_first"),
         }
+        emotional_settings = {
+            "neutral": ("standard", False),
+            "uncertain": ("clarifying", True),
+            "distressed": ("calm", True),
+            "positive": ("warm", False),
+        }
+        complexity, tone, structure = persona_settings[input_data.persona]
+        emotional_tone, acknowledge_uncertainty = emotional_settings[
+            input_data.emotional_context
+        ]
+        source_id = input_data.output_object.get("id")
         return {
             "success": True,
-            "adapted_style_plan": adapted_plan,
-            "intensity": self.config.get("adaptation_intensity", 0.8)
+            "status": "persona_style_proposed",
+            "adapted_style_plan": {
+                "persona_applied": input_data.persona,
+                "persona": input_data.persona,
+                "emotional_context": input_data.emotional_context,
+                "complexity": complexity,
+                "tone": tone,
+                "emotional_tone": emotional_tone,
+                "structure": structure,
+                "acknowledge_uncertainty": acknowledge_uncertainty,
+                "source_object_id": str(source_id) if source_id is not None else None,
+            },
+            "content_inspected": False,
+            "content_rewritten": False,
+            "profile_updated": False,
+            "context_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "The result is a style proposal from explicit persona and emotional "
+                "context. It does not infer emotion, rewrite content, or update a profile."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA057PersonaEmotionAdaptation(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-057 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA057PersonaEmotionAdaptation(context).run(context)

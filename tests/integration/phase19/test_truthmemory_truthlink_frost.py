@@ -94,7 +94,7 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_declared_shared_id
 
     # Two capabilities intentionally appear under distinct owner operations;
     # the canonical ID authority remains unique.
-    assert len(set(registry_ids)) == 85
+    assert len(set(registry_ids)) == 91
     assert {
         canonical_id
         for canonical_id in registry_ids
@@ -106,6 +106,12 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_declared_shared_id
         "KA-054",
         "KA-055",
         "KA-063",
+        "KA-057",
+        "KA-068",
+        "KA-069",
+        "KA-1037",
+        "KA-1075",
+        "KA-1084",
     } <= set(registry_ids)
     assert all(
         manifest.entries[canonical_id].admission.production_enabled
@@ -114,6 +120,12 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_declared_shared_id
             "KA-054",
             "KA-055",
             "KA-063",
+            "KA-057",
+            "KA-068",
+            "KA-069",
+            "KA-1037",
+            "KA-1075",
+            "KA-1084",
         )
     )
 

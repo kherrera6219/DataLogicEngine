@@ -22,7 +22,7 @@ def test_cp19i_manifest_preserves_one_identity_and_admits_extended_owners():
     manifest = get_ka_controller().manifest
 
     assert manifest.status == "cp19_j_product_workflow_authority"
-    assert manifest.manifest_version == "2026.08.05-cp19k.9"
+    assert manifest.manifest_version == "2026.08.05-cp19k.10"
     assert manifest.capability_count == 213
     assert len(manifest.entries) == len(set(manifest.entries)) == 213
     assert (
@@ -30,7 +30,7 @@ def test_cp19i_manifest_preserves_one_identity_and_admits_extended_owners():
             definition.admission.production_enabled
             for definition in manifest.entries.values()
         )
-        == 174
+        == 180
     )
     assert CP19_I_OWNER_IDS | CP19_I_ADDITIONAL_ADMISSION_IDS <= set(
         manifest.authority["production_admission_ids"]

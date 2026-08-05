@@ -1233,7 +1233,7 @@ def test_ka069_cultural_context_adapter():
 
     ka = KA069CulturalContextAdapter({})
 
-    # Test EU compliance text framing and comma-separated float numbers
+    # Explicit locale guidance must not inspect or rewrite source text.
     result_eu = ka.run(
         KA069Input(
             culture="regional_eu",
@@ -1242,9 +1242,15 @@ def test_ka069_cultural_context_adapter():
         )
     )
     assert result_eu["success"] is True
-    assert result_eu["output"]["applied_framing"] == "privacy_first"
-    assert "compliance" in result_eu["output"]["adapted_text"].lower()
-    assert result_eu["output"]["localized_numerics"]["rate"] == "1.234,56"
+    assert result_eu["output"]["framing"] == "privacy_aware"
+    assert result_eu["output"]["text_content_inspected"] is False
+    assert result_eu["output"]["text_content_returned"] is False
+    assert result_eu["output"]["numeric_format_specifications"]["rate"] == {
+        "value": 1234.56,
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "decimal_places": 2,
+    }
 
     # Test ASIA respectful framing and rounded numbers
     result_asia = ka.run(
@@ -1255,5 +1261,11 @@ def test_ka069_cultural_context_adapter():
         )
     )
     assert result_asia["success"] is True
-    assert "respect" in result_asia["output"]["phrasing_prefix"].lower()
-    assert result_asia["output"]["localized_numerics"]["rate"] == "1,235"
+    assert result_asia["output"]["locale_detected"] is False
+    assert result_asia["output"]["content_rewritten"] is False
+    assert (
+        result_asia["output"]["numeric_format_specifications"]["rate"][
+            "decimal_places"
+        ]
+        == 0
+    )

@@ -98,6 +98,10 @@ class KA1084CrossInstanceConsensusEngine(KnowledgeAlgorithm):
             ),
             "shared_evidence_hashes": shared_evidence,
             "measurement_status": "agreement_only",
+            "truth_established": False,
+            "consensus_applied": False,
+            "profile_updated": False,
+            "external_requests": 0,
             "limitations": (
                 "Agreement across instances does not establish factual truth, "
                 "independence, evidence quality, or absence of shared bias."

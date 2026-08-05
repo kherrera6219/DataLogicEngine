@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.05-cp19k.9",
+  "manifest_version": "2026.08.05-cp19k.10",
   "status": "cp19_k_in_progress",
   "batches": [
     {
@@ -260,6 +260,12 @@
       "completed_on": "2026-08-05",
       "canonical_ids": ["KA-016", "KA-027", "KA-1090", "KA-169", "KA-174", "KA-176"],
       "scope": "Explicit regulatory, ethical, regression, fairness, compliance, and governance evidence evaluated through TruthGate without query inference, legal conclusions, causal claims, or compliance-state mutation"
+    },
+    {
+      "batch_id": "cp19-k-batch-29-persona-adaptation",
+      "completed_on": "2026-08-05",
+      "canonical_ids": ["KA-057", "KA-068", "KA-069", "KA-1037", "KA-1075", "KA-1084"],
+      "scope": "Explicit persona, domain, locale, convergence, representation, and cross-instance agreement proposals through the manifest-governed DSQP owner without content rewriting, locale or emotion inference, profile mutation, fairness claims, consensus application, or external requests"
     }
   ],
   "qualifications": {
@@ -2052,6 +2058,66 @@
       "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_176_owning_path", "rationale": "Governance validation is bounded to explicit decision classification, evidence, and accountable role assignments."},
       "effect_evidence": {"applicability": "not_applicable", "rationale": "TruthGate returns a validation decision and updates no governance state."},
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_176_semantic_contract"
+    },
+    "KA-057": {
+      "batch_id": "cp19-k-batch-29-persona-adaptation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_057_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_057_owning_path",
+      "trace_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_057_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_057_semantic_contract", "rationale": "The KA uses explicit persona/emotional context, never inspects or returns content, and performs no emotion inference."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Style adaptation is a bounded proposal; no content, provider context, or user profile is changed."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_057_semantic_contract"
+    },
+    "KA-068": {
+      "batch_id": "cp19-k-batch-29-persona-adaptation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_068_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_068_owning_path",
+      "trace_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_068_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_068_semantic_contract", "rationale": "Domain and risk are caller-declared and unsupported domains fail to neutral general settings."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The proposal starts no search and changes no routing, validation, or model weights."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_068_semantic_contract"
+    },
+    "KA-069": {
+      "batch_id": "cp19-k-batch-29-persona-adaptation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_069_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_069_owning_path",
+      "trace_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_069_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_069_semantic_contract", "rationale": "Locale group must be explicit; OS locale detection, cultural inference, source-text inspection, and content return are disabled."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Formatting guidance rewrites no text and updates no profile or provider context."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_069_semantic_contract"
+    },
+    "KA-1037": {
+      "batch_id": "cp19-k-batch-29-persona-adaptation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1037_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_1037_owning_path",
+      "trace_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_1037_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_1037_owning_path", "rationale": "Convergence measurement consumes exact persona-analysis and dissent-preservation dependencies and remains observational."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "No causal norm emergence is established and zero persona constraints are applied."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1037_semantic_contract"
+    },
+    "KA-1075": {
+      "batch_id": "cp19-k-batch-29-persona-adaptation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1075_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_1075_owning_path",
+      "trace_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_1075_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_1075_owning_path", "rationale": "Reweighting consumes exact linguistic and population disparity evidence and preserves every observed label."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The result does not establish fairness and applies no record, label, model, or profile mutation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1075_semantic_contract"
+    },
+    "KA-1084": {
+      "batch_id": "cp19-k-batch-29-persona-adaptation",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1084_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_1084_owning_path",
+      "trace_test": "tests/integration/phase19/test_dsqp_quad_persona.py::test_ka_1084_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1084_semantic_contract", "rationale": "Agreement is measured only across explicit instance answers and makes zero external requests."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Agreement does not establish truth and no consensus or profile update is applied."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1084_semantic_contract"
     }
   }
 }

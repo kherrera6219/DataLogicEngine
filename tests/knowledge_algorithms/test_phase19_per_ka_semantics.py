@@ -2803,3 +2803,70 @@ def test_ka_176_semantic_contract():
     _assert_pure_bounded_result("KA-176", result)
     assert result.output["approvals_recorded"] == 0
     assert result.output["governance_state_updated"] is False
+
+
+def _batch_29_payload(canonical_id: str):
+    from tests.integration.phase19.test_dsqp_quad_persona import _batch_29_inputs
+
+    payload = dict(_batch_29_inputs()[canonical_id])
+    dependencies = {
+        "KA-1037": {
+            "KA-012": {"persona_findings": [{"persona_type": "knowledge"}]},
+            "KA-030": {"all_dissent_preserved": True},
+        },
+        "KA-1075": {
+            "KA-010": {"success": True},
+            "KA-1045": {"status": "population_disparity_measured"},
+        },
+    }
+    if canonical_id in dependencies:
+        payload["dependency_results"] = dependencies[canonical_id]
+    return payload
+
+
+def test_ka_057_semantic_contract():
+    result = _execute("KA-057", _batch_29_payload("KA-057"))
+    _assert_pure_bounded_result("KA-057", result)
+    assert result.output["content_inspected"] is False
+    assert result.output["content_rewritten"] is False
+    assert result.output["profile_updated"] is False
+
+
+def test_ka_068_semantic_contract():
+    result = _execute("KA-068", _batch_29_payload("KA-068"))
+    _assert_pure_bounded_result("KA-068", result)
+    assert result.output["pipeline_weights_changed"] is False
+    assert result.output["search_started"] is False
+    assert result.output["context_applied"] is False
+
+
+def test_ka_069_semantic_contract():
+    result = _execute("KA-069", _batch_29_payload("KA-069"))
+    _assert_pure_bounded_result("KA-069", result)
+    assert result.output["locale_detected"] is False
+    assert result.output["text_content_inspected"] is False
+    assert result.output["text_content_returned"] is False
+
+
+def test_ka_1037_semantic_contract():
+    result = _execute("KA-1037", _batch_29_payload("KA-1037"))
+    _assert_pure_bounded_result("KA-1037", result)
+    assert result.output["dependencies_consumed"] == ["KA-012", "KA-030"]
+    assert result.output["persona_constraints_applied"] == 0
+    assert result.output["causal_norm_emergence_established"] is False
+
+
+def test_ka_1075_semantic_contract():
+    result = _execute("KA-1075", _batch_29_payload("KA-1075"))
+    _assert_pure_bounded_result("KA-1075", result)
+    assert result.output["dependencies_consumed"] == ["KA-010", "KA-1045"]
+    assert result.output["fairness_established"] is False
+    assert result.output["mutation_applied"] is False
+
+
+def test_ka_1084_semantic_contract():
+    result = _execute("KA-1084", _batch_29_payload("KA-1084"))
+    _assert_pure_bounded_result("KA-1084", result)
+    assert result.output["truth_established"] is False
+    assert result.output["consensus_applied"] is False
+    assert result.output["external_requests"] == 0

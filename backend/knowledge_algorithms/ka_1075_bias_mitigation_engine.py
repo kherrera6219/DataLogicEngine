@@ -37,12 +37,18 @@ class KA1075Input(BaseModel):
 
     records: list[MitigationRecord] = Field(min_length=2, max_length=100_000)
     maximum_multiplier: float = Field(default=10, ge=1, le=100)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_ids(self) -> KA1075Input:
         identifiers = [record.record_id for record in self.records]
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("mitigation record IDs must be unique")
+        if self.dependency_results and set(self.dependency_results) != {
+            "KA-010",
+            "KA-1045",
+        }:
+            raise ValueError("dependency_results must contain KA-010 and KA-1045")
         return self
 
 
@@ -56,6 +62,13 @@ class KA1075BiasMitigationEngine(KnowledgeAlgorithm):
         self.ka_id = "KA-1075"
 
     def _run_logic(self, input_data: KA1075Input) -> dict[str, Any]:
+        linguistic_review = input_data.dependency_results.get("KA-010", {})
+        population_review = input_data.dependency_results.get("KA-1045", {})
+        owner_context_ready = not input_data.dependency_results or (
+            linguistic_review.get("success") is True
+            and population_review.get("status")
+            == "population_disparity_measured"
+        )
         group_counts = Counter(record.group for record in input_data.records)
         group_total = len(group_counts)
         population = len(input_data.records)
@@ -81,7 +94,11 @@ class KA1075BiasMitigationEngine(KnowledgeAlgorithm):
         ]
         return {
             "success": True,
-            "status": "bias_mitigation_proposed",
+            "status": (
+                "bias_mitigation_proposed"
+                if owner_context_ready
+                else "bias_evidence_required"
+            ),
             "method": "capped_inverse_group_frequency",
             "group_counts": dict(sorted(group_counts.items())),
             "group_multipliers": {
@@ -91,6 +108,10 @@ class KA1075BiasMitigationEngine(KnowledgeAlgorithm):
             "weighted_records": weighted_records,
             "labels_changed": False,
             "mutation_applied": False,
+            "proposal_ready": owner_context_ready,
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "fairness_established": False,
+            "profile_updated": False,
             "deterministic": True,
             "limitations": (
                 "Reweighting addresses representation imbalance only. It does "

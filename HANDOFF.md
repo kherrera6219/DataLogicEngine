@@ -240,11 +240,11 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batches 01 through 28 are complete. Batches 19-23 add the five-node
+CP19-K batches 01 through 29 are complete. Batches 19-23 add the five-node
 Quad Persona foundation, L6 evidence/confidence/entropy validation, adaptive
 DMRF routing, retrieval-store maintenance, and knowledge-content evolution
 through their real DSQP, TruthCore, DMRF, retrieval, and TruthMemory owners. The
-generated 213-row matrix and verifier report 137 qualified and 76 incomplete,
+generated 213-row matrix and verifier report 143 qualified and 70 incomplete,
 with rebuild authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
@@ -252,7 +252,7 @@ KA-1081 admission, KA-037 limits provider tokens, KA-042 feeds KA-070, and the
 bounded counterfactual projection changes the provider prompt through the real
 job. SimulationJobRunner alone applies the plan/context/artifact effects and
 binds each to an authoritative receipt. Runtime manifest
-`2026.08.05-cp19k.9` retains 213 capabilities, 174 production-enabled
+`2026.08.05-cp19k.10` retains 213 capabilities, 180 production-enabled
 capabilities, and 128 dependency edges with zero cycles. `KA-1101` and
 `KA-1103` remain unqualified because no production chaos or rollback action
 consumes their registry operations.
@@ -339,7 +339,11 @@ introspection-backed long-horizon drift review. Batch 28 replaces query/config
 inference with explicit regulatory and ethical evidence and proves six
 compliance/governance decisions through TruthGate without legal, causal,
 containment, release, or state-mutation claims. Batch 29, persona adaptation,
-is next.
+now executes through one manifest-governed DSQP operation. Explicit persona,
+domain, locale, convergence, representation, and agreement evidence produces
+bounded proposals with no content rewrite, profile mutation, fairness/truth
+claim, consensus application, or external request. Batch 30, L6 planning
+control, is next.
 
 The earlier 31 dependency alerts remain remediated. Ten newly published GitHub
 alerts reported on 2026-08-04 across `aiohttp`, `undici`, and `ip-address`, plus
@@ -347,12 +351,12 @@ one local `socket.io-parser` and three `cryptography` advisories, are remediated
 by the governed locks. Local Python and Node audits report zero vulnerabilities;
 lock governance passes and the 2026-08-04 live GitHub query reports zero open
 Dependabot alerts.
-The KA suite passes 912 tests; the governed execution, TruthCore, Phase 19,
-and simulation integration set passes 377 tests; the TypeScript SDK passes
+The KA suite passes 918 tests; the governed execution, TruthCore, Phase 19,
+and simulation integration set passes 383 tests; the TypeScript SDK passes
 seven tests; frontend type checking and all seven TypeScript SDK tests pass;
 the retained 430 frontend tests and production/Electron builds remain green;
-and the full source suite passes 2,910 tests with
-18 skipped and 35 known warnings. Read:
+and the full source suite passes 2,922 tests with
+18 skipped and 32 known warnings. Read:
 
 A parallel candidate training-dataset exporter was reviewed before publication
 and hardened into an explicit owner-operated tool. Its API is owner-authenticated,
@@ -1028,10 +1032,10 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 137/213 with grouped Batch 29, persona adaptation
-   (`KA-057`, `KA-068`, `KA-069`, `KA-1037`, `KA-1075`, and `KA-1084`),
-   through the real Quad Persona/DSQP owner. Do not infer qualification from registry membership.
-2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 76 open
+1. Continue CP19-K from 143/213 with grouped Batch 30, L6 planning control
+   (`KA-006`, `KA-007`, and `KA-060`), through the real TruthCore L6-L8 owner.
+   Do not infer qualification from registry membership.
+2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 70 open
    rows unqualified until each named semantic, owning-path, trace, limitation,
    security, effect, and performance proof passes; direct tests or registry
    membership do not qualify an owning path.
