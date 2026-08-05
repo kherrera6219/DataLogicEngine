@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -39,6 +39,15 @@ class KA1079Input(BaseModel):
     minimum_confidence: float = Field(default=0.8, ge=0, le=1)
     minimum_evidence_count: int = Field(default=2, ge=0, le=10_000)
     minimum_citation_count: int = Field(default=1, ge=0, le=10_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_dependencies(self) -> KA1079Input:
+        if self.dependency_results and set(self.dependency_results) != {"KA-1094", "KA-1109", "KA-117"}:
+            raise ValueError(
+                "KA-1079 requires exact KA-1094, KA-1109, and KA-117 results"
+            )
+        return self
 
 
 class KA1079KnowledgePromotionGate(KnowledgeAlgorithm):
@@ -52,6 +61,23 @@ class KA1079KnowledgePromotionGate(KnowledgeAlgorithm):
 
     def _run_logic(self, input_data: KA1079Input) -> dict[str, Any]:
         failures = []
+        integrity = input_data.dependency_results.get("KA-117", {})
+        quarantine = input_data.dependency_results.get("KA-1094", {})
+        containment = input_data.dependency_results.get("KA-1109", {})
+        if input_data.dependency_results and not integrity.get("is_valid"):
+            failures.append("integrity_invalid")
+        if any(
+            item.get("decision") == "quarantine"
+            for item in quarantine.get("decisions", [])
+            if item.get("knowledge_id") == input_data.knowledge_id
+        ):
+            failures.append("quarantine_required")
+        if any(
+            item.get("containment_class") == "never_persist"
+            for item in containment.get("decisions", [])
+            if item.get("knowledge_id") == input_data.knowledge_id
+        ):
+            failures.append("containment_denied")
         if input_data.validation_status != "validated":
             failures.append("validation_not_passed")
         if input_data.confidence < input_data.minimum_confidence:
@@ -78,6 +104,7 @@ class KA1079KnowledgePromotionGate(KnowledgeAlgorithm):
             "decision": decision,
             "failed_criteria": failures,
             "promotion_applied": False,
+            "dependencies_consumed": ["KA-1094", "KA-1109", "KA-117"] if input_data.dependency_results else [],
             "deterministic": True,
             "limitations": (
                 "This is a policy decision only. The owning knowledge service "

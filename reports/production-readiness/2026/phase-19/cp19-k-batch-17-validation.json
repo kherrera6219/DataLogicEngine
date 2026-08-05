@@ -1,0 +1,22 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+  "validated_on": "2026-08-04",
+  "qualified_ids": ["KA-062", "KA-065", "KA-1071", "KA-1094", "KA-1109", "KA-117"],
+  "grouped_roadmap": {"baseline_open_capabilities": 186, "planned_batches": 36, "completed_batches": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], "next_batch": 19, "remaining_batches": 25},
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 86, "incomplete_capabilities": 127, "production_enabled_capabilities": 155, "dependency_edges": 142, "dependency_cycles": 0, "rebuild_authorized": false},
+  "checks": [
+    {"name": "batch_17_semantics_and_owner_paths", "status": "pass", "result": "13 passed"},
+    {"name": "causal_dependency_contracts", "status": "pass", "result": "exact provenance, regression, integrity, TruthGate, privacy, quarantine, and containment outputs consumed"},
+    {"name": "knowledge_algorithm_suite", "status": "pass", "result": "861 passed, 3 known deprecation warnings"},
+    {"name": "governed_truthcore_phase19_simulation_integration", "status": "pass", "result": "317 passed"},
+    {"name": "full_source_suite", "status": "pass", "result": "2799 passed, 18 skipped, 35 known warnings"}
+  ],
+  "limitations": [
+    "Trust eligibility measures supplied observations and does not authenticate a source or establish factual truth.",
+    "KnowledgeLifecycleService remains the only quarantine, containment, persistence, and receipt authority; KAs apply no such effects.",
+    "CP19-K is incomplete and no installed, provider, independent-review, pilot, soak, rebuild, signing, or release gate is closed."
+  ]
+}

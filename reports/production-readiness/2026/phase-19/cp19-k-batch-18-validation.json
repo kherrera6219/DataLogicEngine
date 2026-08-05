@@ -1,0 +1,22 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-18-knowledge-expansion-promotion",
+  "validated_on": "2026-08-04",
+  "qualified_ids": ["KA-029", "KA-1079"],
+  "grouped_roadmap": {"baseline_open_capabilities": 186, "planned_batches": 36, "completed_batches": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], "next_batch": 19, "remaining_batches": 25},
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 86, "incomplete_capabilities": 127, "production_enabled_capabilities": 155, "dependency_edges": 142, "dependency_cycles": 0, "rebuild_authorized": false},
+  "checks": [
+    {"name": "batch_18_semantics_and_owner_paths", "status": "pass", "result": "4 passed"},
+    {"name": "graph_and_promotion_effect_boundary", "status": "pass", "result": "supplied adjacency only; exact integrity/quarantine/containment dependencies; zero applied effects"},
+    {"name": "knowledge_algorithm_suite", "status": "pass", "result": "861 passed, 3 known deprecation warnings"},
+    {"name": "governed_truthcore_phase19_simulation_integration", "status": "pass", "result": "317 passed"},
+    {"name": "full_source_suite", "status": "pass", "result": "2799 passed, 18 skipped, 35 known warnings"}
+  ],
+  "limitations": [
+    "Graph expansion cannot discover nodes or edges outside the supplied adjacency snapshot.",
+    "Promotion remains an owner-applied policy effect and KA-1079 records promotion_applied false.",
+    "CP19-K is incomplete and no installed, provider, independent-review, pilot, soak, rebuild, signing, or release gate is closed."
+  ]
+}

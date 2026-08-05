@@ -226,17 +226,25 @@ def test_ka039_detects_numeric_outlier_with_zscore():
 def test_ka034_scores_adversarial_assumption_risk_deterministically():
     result = KA034AdversarialReasoning({}).run(
         KA034Input(
-            scenario="The system must always trust retrieved context.",
-            assumptions=["Retrieved context is always correct"],
-            evidence=["Local provenance check is missing."],
+            scenario_id="retrieval-boundary",
+            cases=[
+                {
+                    "case_id": "poisoned-context",
+                    "target_assumption": "Retrieved context is always correct",
+                    "attack_class": "context_poisoning",
+                    "expected_control_ids": ["provenance-check"],
+                    "observed_control_ids": [],
+                    "observed_outcome": "escaped",
+                }
+            ],
         )
     )
 
     assert result["success"] is True
-    attack = result["output"]["attacks_simulated"][0]
-    assert attack["vulnerability_found"] is True
-    assert attack["threat_type"] in {"logical_injection", "context_poisoning"}
-    assert result["output"]["mitigation_plan"]
+    case = result["output"]["case_results"][0]
+    assert case["decision"] == "fail"
+    assert case["attack_class"] == "context_poisoning"
+    assert result["output"]["attacks_executed"] is False
 
 
 def test_ka035_imputes_reproducible_bayesian_posterior():

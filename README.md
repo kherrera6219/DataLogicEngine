@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.2.5 |
+| Document version | v1.2.6 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -37,12 +37,12 @@ SDKs.
 
 | Area | Current state |
 |---|---|
-| Canonical Knowledge Algorithms | 213 retained; 153 production-enabled |
-| Runtime authority | One generated manifest/controller; 143-edge acyclic dependency graph |
+| Canonical Knowledge Algorithms | 213 retained; 155 production-enabled |
+| Runtime authority | One generated manifest/controller; 142-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 74/213; 139 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batches 08-15 complete, Batch 16 next, 28 remain |
-| Latest source validation | 2,775 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 86/213; 127 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batches 08-18 complete, Batch 19 next, 25 remain |
+| Latest source validation | 2,799 passed, 18 skipped, 35 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
@@ -95,8 +95,11 @@ The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batches 08 through 15 are complete; the
-current matrix has 139 open rows and Batch 16 is the adversarial/privacy gate.
+treated as one unsafe mega-batch. Batches 08 through 18 are complete. Batches
+16-18 add explicit adversarial/privacy evaluation, dependency-bound knowledge
+trust/containment, bounded supplied-graph expansion, and promotion decisions
+without applying those effects. The current matrix has 127 open rows and Batch
+19 is the persona foundation group.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
@@ -253,17 +256,18 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-15 qualify 74/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-18 qualify 86/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
   authenticated content-free diagnostics advisory, causal secure ingestion,
   and provider-owned measured model preparation plus bounded model release
   preparation, content-free temporal-health review, deterministic context,
-  bounded retrieval, and fail-closed routing; 139 rows remain open
-- The reviewed remaining roadmap contains 28 cohesive batches (16-43), each
-  bounded to one production owner and effect boundary. Batch 16 is the four-KA
-  adversarial/privacy TruthGate group. Grouping shares fixtures and transactions
+  bounded retrieval, fail-closed routing, adversarial/privacy gating,
+  knowledge trust/containment, and bounded graph expansion/promotion; 127 rows remain open
+- The reviewed remaining roadmap contains 25 cohesive batches (19-43), each
+  bounded to one production owner and effect boundary. Batch 19 is the five-KA
+  persona foundation group. Grouping shares fixtures and transactions
   but does not waive any individual semantic, owning-path, trace, security,
   effect, or performance proof
 - Two additional provider/gateway KAs remain open: API gateway and external

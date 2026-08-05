@@ -2,13 +2,13 @@
 
 **Status:** Active
 
-**Plan version:** `2026.08.04-cp19k-grouped.6`
+**Plan version:** `2026.08.04-cp19k-grouped.7`
 
 **Baseline:** 27/213 qualified; 186 open
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batches 08-15 passed; 74/213 qualified, 139 open; Batch 16 next
+**Current checkpoint:** Batches 08-18 passed; 86/213 qualified, 127 open; Batch 19 next
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 
@@ -68,9 +68,9 @@ open prerequisite.
 | 13 | L1 context and dependencies — **passed 2026-08-04** | TruthCore L1-L5 | 003, 011, 015, 017, 025, 040 | 6 |
 | 14 | Retrieval provenance and scoring — **passed 2026-08-04** | retrieval/graph/memory | 018, 079, 1049, 1077, 1092 | 5 |
 | 15 | DMRF core routing — **passed 2026-08-04** | governed request/DMRF | 031, 036, 1073, 1107, KA-Master | 5 |
-| 16 | Adversarial/privacy gate | TruthGate | 034, 1074, 172, 173 | 4 |
-| 17 | Knowledge trust and containment | TruthMemory/TruthLink/FROST | 062, 065, 1071, 1094, 1109, 117 | 6 |
-| 18 | Knowledge expansion/promotion | retrieval/graph/memory | 029, 1079 | 2 |
+| 16 | Adversarial/privacy gate — **passed 2026-08-04** | TruthGate | 034, 1074, 172, 173 | 4 |
+| 17 | Knowledge trust and containment — **passed 2026-08-04** | TruthMemory/TruthLink/FROST | 062, 065, 1071, 1094, 1109, 117 | 6 |
+| 18 | Knowledge expansion/promotion — **passed 2026-08-04** | retrieval/graph/memory | 029, 1079 | 2 |
 | 19 | Persona foundation DAG | DSQP/Quad Persona | 012, 013, 028, 030, 038 | 5 |
 | 20 | L6 evidence/confidence/entropy | TruthCore L6-L8 | 002, 009, 014, 026, 035, 1041, 1042, 1102 | 8 |
 | 21 | DMRF adaptive routing | governed request/DMRF | 033, 058, 059 | 3 |
@@ -117,4 +117,4 @@ The machine-readable authority is
 `config/phase19-ka-grouped-batches.json`. Its integrity test proves exact
 186-row baseline coverage, one owner per batch, bounded batch size, unique
 membership, dependency-safe order, and exact reconciliation of completed
-batches with the current 139-row open matrix.
+batches with the current 127-row open matrix.

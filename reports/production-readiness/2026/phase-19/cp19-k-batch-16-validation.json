@@ -1,0 +1,22 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-16-truthgate-adversarial-privacy",
+  "validated_on": "2026-08-04",
+  "qualified_ids": ["KA-034", "KA-1074", "KA-172", "KA-173"],
+  "grouped_roadmap": {"baseline_open_capabilities": 186, "planned_batches": 36, "completed_batches": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], "next_batch": 19, "remaining_batches": 25},
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 86, "incomplete_capabilities": 127, "production_enabled_capabilities": 155, "dependency_edges": 142, "dependency_cycles": 0, "rebuild_authorized": false},
+  "checks": [
+    {"name": "batch_16_semantics_and_owner_paths", "status": "pass", "result": "9 passed"},
+    {"name": "qualification_matrix", "status": "pass", "result": "86/213 qualified; checkpoint in_progress"},
+    {"name": "knowledge_algorithm_suite", "status": "pass", "result": "861 passed, 3 known deprecation warnings"},
+    {"name": "governed_truthcore_phase19_simulation_integration", "status": "pass", "result": "317 passed"},
+    {"name": "full_source_suite", "status": "pass", "result": "2799 passed, 18 skipped, 35 known warnings"}
+  ],
+  "limitations": [
+    "KA-034 evaluates supplied observations and does not execute adversarial tests or establish security.",
+    "Privacy classification and sensitive values are caller supplied; unknown sensitive content still requires discovery.",
+    "CP19-K is incomplete and no installed, provider, independent-review, pilot, soak, rebuild, signing, or release gate is closed."
+  ]
+}

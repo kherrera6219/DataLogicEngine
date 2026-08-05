@@ -58,12 +58,15 @@ class KA1071Input(BaseModel):
 
     knowledge_id: str = Field(min_length=1, max_length=200)
     nodes: list[ProvenanceNode] = Field(min_length=1, max_length=10_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_ids(self) -> KA1071Input:
         identifiers = [node.node_id for node in self.nodes]
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("provenance node IDs must be unique")
+        if self.dependency_results and set(self.dependency_results) != {"KA-018"}:
+            raise ValueError("KA-1071 requires the exact KA-018 dependency result")
         return self
 
 
@@ -117,7 +120,17 @@ class KA1071KnowledgeProvenanceTracker(KnowledgeAlgorithm):
             if node_id in reachable:
                 reachable.update(children[node_id])
         ungrounded_claims = sorted(set(claim_ids) - reachable)
-        complete = not missing and not cycle_nodes and not ungrounded_claims
+        source_measurement = input_data.dependency_results.get("KA-018", {})
+        measured_source_id = source_measurement.get("source_id")
+        dependency_matches = not source_measurement or measured_source_id in {
+            node.source_ref for node in input_data.nodes if node.node_type == "source"
+        }
+        complete = (
+            not missing
+            and not cycle_nodes
+            and not ungrounded_claims
+            and dependency_matches
+        )
         return {
             "success": True,
             "status": "provenance_valid" if complete else "provenance_incomplete",
@@ -129,6 +142,8 @@ class KA1071KnowledgeProvenanceTracker(KnowledgeAlgorithm):
             "missing_parent_node_ids": missing,
             "cycle_node_ids": cycle_nodes,
             "ungrounded_claim_node_ids": ungrounded_claims,
+            "dependency_source_matched": dependency_matches,
+            "dependency_consumed": "KA-018" if source_measurement else None,
             "hashed_node_count": sum(bool(node.content_sha256) for node in input_data.nodes),
             "provenance_persisted": False,
             "deterministic": True,

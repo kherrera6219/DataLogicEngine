@@ -10,6 +10,7 @@ from backend.governed_execution.contracts import (
     SourceRecord,
 )
 from backend.memory.unified_memory_service import UnifiedMemoryService
+from backend.governed_execution.knowledge_lifecycle import KnowledgeLifecycleCoordinator
 from tests.governed_execution.test_orchestrator import (
     _Gateway,
     _orchestrator,
@@ -202,3 +203,75 @@ def test_cp19h_truthmemory_recall_is_authorized_retention_valid_and_not_quaranti
 
     assert [item.vertex_id for item in authorized] == [allowed.vertex_id]
     assert denied == []
+
+
+def _batch_18_inputs():
+    from tests.integration.phase19.test_truthmemory_truthlink_frost import (
+        _batch_17_inputs,
+    )
+
+    inputs = _batch_17_inputs()
+    inputs.update(
+        {
+            "KA-029": {
+                "seed_entities": ["a"],
+                "adjacency": [
+                    {"node_id": "a", "neighbor_ids": ["b"]},
+                    {"node_id": "b", "neighbor_ids": ["c"]},
+                ],
+                "depth": 1,
+            },
+            "KA-1079": {
+                "knowledge_id": "knowledge-1",
+                "validation_status": "validated",
+                "confidence": 0.95,
+                "evidence_count": 2,
+                "citation_count": 1,
+                "contradiction_count": 0,
+                "provenance_complete": True,
+                "risk_class": "low",
+            },
+        }
+    )
+    return inputs
+
+
+def _run_batch_18_owner(canonical_id: str):
+    execution = KnowledgeLifecycleCoordinator().execute_operation_sync(
+        owner="retrieval_graph_memory",
+        operation="promotion",
+        requested_ids=[canonical_id],
+        ka_inputs=_batch_18_inputs(),
+        request_id=f"batch-18-{canonical_id}",
+        run_id=f"batch-18-run-{canonical_id}",
+        max_effects=4,
+        principal_id="owner-1",
+        service_capabilities={"knowledge_lifecycle_service"},
+    )
+    states = [
+        event.state.value
+        for event in execution.report.traces[canonical_id].events
+        if event.state.value != "effect_proposed"
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return execution.results[canonical_id]["output"]
+
+
+def test_ka_029_owning_path():
+    output = _run_batch_18_owner("KA-029")
+    assert [row["node_id"] for row in output["expanded_nodes"]] == ["a", "b"]
+    assert output["graph_store_read"] is False
+    assert output["graph_mutation_applied"] is False
+
+
+def test_ka_1079_owning_path():
+    output = _run_batch_18_owner("KA-1079")
+    assert output["decision"] == "approve"
+    assert output["promotion_applied"] is False

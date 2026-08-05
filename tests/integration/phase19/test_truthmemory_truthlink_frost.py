@@ -92,11 +92,9 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids()
         for canonical_id in canonical_ids
     ]
 
-    assert len(set(registry_ids)) == 66
+    assert len(set(registry_ids)) == 68
     assert set(registry_ids) <= set(manifest.entries)
     assert {
-        "KA-029",
-        "KA-034",
         "KA-051",
         "KA-054",
         "KA-055",
@@ -105,8 +103,6 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids()
     assert all(
         not manifest.entries[canonical_id].admission.production_enabled
         for canonical_id in {
-            "KA-029",
-            "KA-034",
             "KA-051",
             "KA-054",
             "KA-055",
@@ -283,3 +279,154 @@ def test_ka_1093_owning_path(tmp_path):
 
 def test_ka_1105_owning_path(tmp_path):
     _assert_temporal_health_owner_path(tmp_path, "KA-1105")
+
+
+def _batch_17_inputs():
+    snapshot = {"nodes": [{"id": "knowledge-1", "digest": "abc"}], "edges": []}
+    return {
+        "KA-004": {"query": "validated knowledge release"},
+        "KA-005": {"query": "validated knowledge release"},
+        "KA-018": {
+            "source_id": "source-1",
+            "source_type": "local_document",
+            "content_sha256": "a" * 64,
+            "provenance_checks": [
+                {
+                    "check_id": "hash-bound",
+                    "status": "passed",
+                    "authority_ref": "local-receipt",
+                }
+            ],
+        },
+        "KA-022": {
+            "recommendation": "release validated knowledge",
+            "impact_scores": {"governed_risk": 0.0},
+        },
+        "KA-024": {"confidence": 0.95, "risk_score": 0.0},
+        "KA-062": {
+            "source_id": "source-1",
+            "signature_verified": True,
+            "authority_verified": True,
+            "independently_corrobated": True,
+        },
+        "KA-065": {"snapshot": snapshot, "baseline": snapshot},
+        "KA-1071": {
+            "knowledge_id": "knowledge-1",
+            "nodes": [
+                {"node_id": "source", "node_type": "source", "source_ref": "source-1"},
+                {
+                    "node_id": "claim",
+                    "node_type": "claim",
+                    "source_ref": "knowledge-1",
+                    "parent_node_ids": ["source"],
+                },
+            ],
+        },
+        "KA-1074": {
+            "fields": [
+                {
+                    "field_id": "status",
+                    "value": "approved",
+                    "classification": "public",
+                }
+            ]
+        },
+        "KA-1094": {
+            "candidates": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "validation_status": "validated",
+                    "confidence": 0.95,
+                    "contradiction_count": 0,
+                }
+            ]
+        },
+        "KA-1109": {
+            "candidates": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "declared_sensitivity": "public",
+                    "consent_verified": True,
+                }
+            ]
+        },
+        "KA-1107": {
+            "planned_steps": [
+                {
+                    "step_id": "release",
+                    "capability_id": "KA-1079",
+                    "layer": "L10",
+                    "query_class": "knowledge_release",
+                }
+            ],
+            "allowed_capability_ids": ["KA-1079"],
+            "allowed_layers": ["L10"],
+            "allowed_query_classes": ["knowledge_release"],
+        },
+        "KA-117": {"snapshot": snapshot},
+    }
+
+
+def _run_batch_17_owner(canonical_id: str):
+    operation = "maintenance" if canonical_id == "KA-062" else "release"
+    execution = KnowledgeLifecycleCoordinator().execute_operation_sync(
+        owner="truthmemory_truthlink_frost",
+        operation=operation,
+        requested_ids=[canonical_id],
+        ka_inputs=_batch_17_inputs(),
+        request_id=f"batch-17-{canonical_id}",
+        run_id=f"batch-17-run-{canonical_id}",
+        max_effects=4,
+        principal_id="owner-1",
+        service_capabilities={"knowledge_lifecycle_service"},
+    )
+    states = [
+        event.state.value
+        for event in execution.report.traces[canonical_id].events
+        if event.state.value != "effect_proposed"
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return execution.results[canonical_id]["output"]
+
+
+def test_ka_062_owning_path():
+    output = _run_batch_17_owner("KA-062")
+    assert output["dependency_consumed"] == "KA-018"
+    assert output["source_trust_established"] is False
+
+
+def test_ka_065_owning_path():
+    output = _run_batch_17_owner("KA-065")
+    assert output["status"] == "regression_free"
+    assert output["knowledge_updated"] is False
+
+
+def test_ka_1071_owning_path():
+    output = _run_batch_17_owner("KA-1071")
+    assert output["provenance_complete"] is True
+    assert output["provenance_persisted"] is False
+
+
+def test_ka_1094_owning_path():
+    output = _run_batch_17_owner("KA-1094")
+    assert output["decisions"][0]["decision"] == "retain"
+    assert output["records_moved"] == 0
+
+
+def test_ka_1109_owning_path():
+    output = _run_batch_17_owner("KA-1109")
+    assert output["decisions"][0]["containment_class"] == "public"
+    assert output["persistence_actions_applied"] == 0
+
+
+def test_ka_117_owning_path():
+    output = _run_batch_17_owner("KA-117")
+    assert output["is_valid"] is True
+    assert output["quarantine_applied"] is False

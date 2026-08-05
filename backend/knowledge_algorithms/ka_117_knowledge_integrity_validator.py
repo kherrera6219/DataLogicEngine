@@ -1,84 +1,111 @@
-"""
-KA-117: Knowledge Integrity Validator
-Purpose: Validate internal consistency, schema compliance, and structural integrity of the KB before persistence.
-"""
-import logging
+"""KA-117: deterministic knowledge-graph integrity validation."""
+
+from __future__ import annotations
+
 import json
+import logging
 import os
-from typing import Dict, Any
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA117Input(BaseModel):
-    snapshot: Dict[str, Any] = Field(..., description="The knowledge graph snapshot to validate")
+    model_config = ConfigDict(extra="forbid")
+
+    snapshot: dict[str, Any] = Field(default_factory=dict)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_dependency(self) -> KA117Input:
+        if self.dependency_results and set(self.dependency_results) != {"KA-065"}:
+            raise ValueError("KA-117 requires the exact KA-065 dependency result")
+        return self
+
 
 class KA117KnowledgeIntegrityValidator(KnowledgeAlgorithm):
-    """
-    KA-117: KB integrity and consistency validation engine for graph structures.
-    """
+    """Validate declared structure without quarantining or mutating knowledge."""
+
     input_schema = KA117Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-117"
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
+    @staticmethod
+    def _load_config() -> dict[str, Any]:
         try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_50_config.json")
+            config_path = os.path.join(
+                os.path.dirname(__file__), "config", "ka_117_config.json"
+            )
             if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
+                with open(config_path) as stream:
+                    return json.load(stream) or {}
         except Exception:
             return {}
+        return {}
 
-    def _run_logic(self, input_data: KA117Input) -> Dict[str, Any]:
-        kb_snapshot = input_data.snapshot
-        nodes = kb_snapshot.get("nodes", [])
-        edges = kb_snapshot.get("edges", [])
-        self.log_execution_step("Validating KB Integrity", {"node_count": len(nodes), "edge_count": len(edges)})
-
+    def _run_logic(self, input_data: KA117Input) -> dict[str, Any]:
+        nodes = input_data.snapshot.get("nodes", [])
+        edges = input_data.snapshot.get("edges", [])
+        nodes = nodes if isinstance(nodes, list) else []
+        edges = edges if isinstance(edges, list) else []
+        node_ids = [str(node.get("id")) for node in nodes if isinstance(node, dict) and node.get("id") is not None]
         issues = []
-        node_ids = set(n.get("id") for n in nodes)
-        for edge in edges:
-            src = edge.get("source")
-            tgt = edge.get("target")
-            if src not in node_ids or tgt not in node_ids:
-                issues.append({
-                    "type": "DANGLING_EDGE",
-                    "edge": edge,
-                    "description": f"Edge references missing node: {src} -> {tgt}"
-                })
-        min_conf = self.config.get("min_node_confidence", 0.3)
+        if len(node_ids) != len(set(node_ids)):
+                issues.append({"type": "DUPLICATE_NODE_ID"})
+        known = set(node_ids)
+        for index, edge in enumerate(edges):
+            if not isinstance(edge, dict):
+                issues.append({"type": "INVALID_EDGE", "edge_index": index})
+                continue
+            missing = sorted(
+                value
+                for value in (str(edge.get("source")), str(edge.get("target")))
+                if value not in known
+            )
+            if missing:
+                issues.append(
+                    {"type": "DANGLING_EDGE", "edge_index": index, "missing_node_ids": missing}
+                )
+        minimum_confidence = float(self.config.get("min_node_confidence", 0.3))
         for node in nodes:
-            if node.get("confidence", 0.0) < min_conf:
-                issues.append({
-                    "type": "LOW_CONFIDENCE_NODE",
-                    "node_id": node.get("id"),
-                    "description": f"Node confidence below threshold: {node.get('confidence')}"
-                })
-
-        status = "PASSED" if not issues else "FAILED"
+            if isinstance(node, dict) and float(node.get("confidence", 1.0)) < minimum_confidence:
+                issues.append(
+                    {"type": "LOW_CONFIDENCE_NODE", "node_id": str(node.get("id"))}
+                )
+        regression = input_data.dependency_results.get("KA-065", {})
+        if regression and regression.get("status") != "regression_free":
+            issues.append({"type": "REGRESSION_DEPENDENCY_FAILED"})
+        valid = not issues
+        status = "PASSED" if valid else "FAILED"
         if issues and self.config.get("quarantine_on_failure", True):
             status = "QUARANTINED"
-
         return {
             "success": True,
             "status": status,
-            "issues_count": len(issues),
+            "is_valid": valid,
+            "issues": issues,
+            "issue_count": len(issues),
             "integrity_report": issues,
-            "is_valid": len(issues) == 0
+            "issues_count": len(issues),
+            "dependency_consumed": "KA-065" if regression else None,
+            "quarantine_applied": False,
+            "knowledge_updated": False,
+            "deterministic": True,
+            "limitations": (
+                "Validation is limited to the supplied snapshot and regression "
+                "result; the owner decides whether any record is quarantined."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
     try:
-        algo = KA117KnowledgeIntegrityValidator(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-117 Failed: {e}")
-        return {"success": False, "error": str(e)}
+        return KA117KnowledgeIntegrityValidator(context).run(context)
+    except Exception as exc:
+        logging.getLogger(__name__).error("KA-117 failed: %s", exc)
+        return {"success": False, "error": str(exc)}

@@ -51,12 +51,15 @@ class KA1109Input(BaseModel):
     )
 
     candidates: list[KnowledgeCandidate] = Field(min_length=1, max_length=10_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_ids(self) -> KA1109Input:
         identifiers = [item.knowledge_id for item in self.candidates]
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("knowledge IDs must be unique")
+        if self.dependency_results and set(self.dependency_results) != {"KA-024", "KA-1074"}:
+            raise ValueError("KA-1109 requires exact KA-024 and KA-1074 results")
         return self
 
 
@@ -70,10 +73,25 @@ class KA1109KnowledgeContainmentClassifier(KnowledgeAlgorithm):
         self.ka_id = "KA-1109"
 
     def _run_logic(self, input_data: KA1109Input) -> dict[str, Any]:
+        dependencies_present = bool(input_data.dependency_results)
+        policy_approved = not dependencies_present or bool(
+            input_data.dependency_results["KA-024"].get("is_approved")
+        )
+        privacy_safe = not dependencies_present or not bool(
+            input_data.dependency_results["KA-1074"].get(
+                "non_public_value_exposed", True
+            )
+        )
         decisions = []
         for item in sorted(input_data.candidates, key=lambda row: row.knowledge_id):
             reasons = []
             never = False
+            if not policy_approved:
+                reasons.append("truthgate_policy_not_approved")
+                never = True
+            if not privacy_safe:
+                reasons.append("privacy_transformation_not_safe")
+                never = True
             if item.declared_sensitivity == "prohibited":
                 reasons.append("declared_prohibited")
                 never = True
@@ -114,6 +132,7 @@ class KA1109KnowledgeContainmentClassifier(KnowledgeAlgorithm):
             "status": "knowledge_containment_classified",
             "decisions": decisions,
             "persistence_actions_applied": 0,
+            "dependencies_consumed": ["KA-024", "KA-1074"] if dependencies_present else [],
             "deterministic": True,
             "limitations": (
                 "This advisory classifier does not inspect raw content or apply "

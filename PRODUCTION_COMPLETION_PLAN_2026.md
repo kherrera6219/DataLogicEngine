@@ -5602,7 +5602,7 @@ Evidence:
 - `tests/integration/phase19/test_knowledge_temporal_health.py`; and
 - `backend/truth_engine/knowledge_temporal_health.py`.
 
-### CP19-K batches 13-15 passed 2026-08-04
+### CP19-K batches 13-18 passed 2026-08-04
 
 Batch 13 closes `KA-003`, `KA-011`, `KA-015`, `KA-017`, `KA-025`, and
 `KA-040` through `TruthCoreContextDependencyService`. The algorithms now use
@@ -5625,15 +5625,23 @@ reasoning boundary before later execution. `KA-Master` exposes the single
 manifest/controller authority while self-selection remains disabled; it does
 not create a second execution path.
 
-The generated matrix and verifier pass at 74/213 qualified and 139 incomplete.
-Batches 08 through 15 are complete, 28 planned batches remain, and Batch 16,
-the adversarial/privacy TruthGate (`KA-034`, `KA-1074`, `KA-172`, and
-`KA-173`), is next. Runtime manifest `2026.08.04-cp19k.5` retains 213
-capabilities, 153 production-enabled capabilities, and a 143-edge zero-cycle
+Batch 16 closes explicit adversarial-case evaluation, field privacy, safety,
+and exact-value filtering through TruthGate without executing attacks or
+exposing declared private values. Batch 17 makes provenance, trust eligibility,
+regression, integrity, quarantine, and containment causal through exact
+dependency outputs while the knowledge lifecycle service retains every effect.
+Batch 18 replaces fabricated graph neighbors with bounded supplied adjacency
+and makes promotion consume exact integrity/quarantine/containment decisions.
+
+The generated matrix and verifier pass at 86/213 qualified and 127 incomplete.
+Batches 08 through 18 are complete, 25 planned batches remain, and Batch 19,
+persona foundation (`KA-012`, `KA-013`, `KA-028`, `KA-030`, and `KA-038`), is
+next. Runtime manifest `2026.08.04-cp19k.6` retains 213 capabilities, 155
+production-enabled capabilities, and a 142-edge zero-cycle
 dependency graph. Rebuild authorization remains false, and all rebuilt-
 installed, accessibility, provider, independent-review, pilot, and soak gates
-remain open. The 849-test KA suite, 262 governed/TruthCore/Phase-19/simulation
-integration tests, and 2,775-test full source suite pass with 18 skipped and 35
+remain open. The 861-test KA suite, 317 governed/TruthCore/Phase-19/simulation
+integration tests, and 2,799-test full source suite pass with 18 skipped and 35
 known warnings.
 
 Evidence:
@@ -5641,10 +5649,15 @@ Evidence:
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-13-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-14-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-15-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-16-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-17-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-18-validation.json`;
 - `config/phase19-ka-qualification-evidence.json`;
 - `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
 - `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
 - `tests/integration/phase19/test_truthcore_l1_l5.py`;
+- `tests/integration/phase19/test_truthgate.py`;
+- `tests/integration/phase19/test_truthmemory_truthlink_frost.py`;
 - `tests/integration/phase19/test_retrieval_graph_memory.py`; and
 - `tests/integration/phase19/test_governed_request_dmrf.py`.
 
@@ -6094,19 +6107,20 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-15 now truthfully
-qualify 74 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-18 now truthfully
+qualify 86 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
 measured provider monitoring, content-free authenticated observability, causal
 secure ingestion, measured provider model preparation, and bounded provider
 model release preparation, content-free knowledge temporal-health review,
 deterministic context analysis, supplied-record retrieval, and fail-closed DMRF
-routing, leaving 139 of 213 rows open. The
+routing, adversarial/privacy gating, knowledge trust/containment, and bounded
+graph expansion/promotion, leaving 127 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, current 143-edge acyclic dependency graph, bounded structured
+fixtures, current 142-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
@@ -6120,9 +6134,9 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batches 08 through 15 are complete and 28 remain. Continue
-CP19-K with Batch 16, adversarial/privacy gate (`KA-034`, `KA-1074`, `KA-172`,
-and `KA-173`), through the real TruthGate owner without inferring production
+batches (08-43); Batches 08 through 18 are complete and 25 remain. Continue
+CP19-K with Batch 19, persona foundation (`KA-012`, `KA-013`, `KA-028`,
+`KA-030`, and `KA-038`), through the real Quad Persona/DSQP owner without inferring production
 enablement from registry membership. Keep every later row
 incomplete until its individual owner/effect evidence exists.
 

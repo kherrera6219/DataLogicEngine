@@ -1,9 +1,9 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.08.04-cp19k.5",
+  "manifest_version": "2026.08.04-cp19k.6",
   "canonical_capabilities": 213,
-  "dependency_edges": 143,
+  "dependency_edges": 142,
   "dependency_cycles": 0,
   "dependency_result_contract": "dle.ka-execution-result.v1#output",
   "dependency_input_field": "dependency_results",
@@ -311,6 +311,11 @@
       ],
       "matches_approved_order": true,
       "rationale": "Core algorithm selection consumes committed query classification, bounded complexity, intent clarification, and tier routing results; simulation validation is not a routing prerequisite."
+    },
+    "KA-1074": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Field-level privacy transformation consumes explicit field labels and must not trigger DMRF plan-boundary enforcement as a hidden prerequisite."
     }
   },
   "structured_execution": {

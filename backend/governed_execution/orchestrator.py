@@ -1479,6 +1479,7 @@ class GovernedExecutionOrchestrator:
             for item in context.evidence
         ]
         candidate = str(context.reasoning.candidate or proposal.content)
+        trust_source = evidence_inputs[0] if evidence_inputs else {}
         inputs = {
             "KA-004": {"query": context.query},
             "KA-005": {"query": context.query},
@@ -1505,7 +1506,12 @@ class GovernedExecutionOrchestrator:
                 "impact_scores": {"governed_risk": 0.0},
             },
             "KA-024": {"confidence": confidence, "risk_score": 0.0},
-            "KA-062": {"evidence": evidence_inputs},
+            "KA-062": {
+                "source_id": trust_source.get("source_id", "request-source"),
+                "signature_verified": False,
+                "authority_verified": False,
+                "independently_corrobated": len(evidence_inputs) > 1,
+            },
             "KA-065": {"snapshot": snapshot, "baseline": snapshot},
             "KA-1071": {
                 "knowledge_id": knowledge_id,
@@ -1528,8 +1534,6 @@ class GovernedExecutionOrchestrator:
                         "validation_status": "validated",
                         "confidence": confidence,
                         "contradiction_count": contradiction_count,
-                        "integrity_valid": True,
-                        "provenance_complete": bool(context.evidence),
                     }
                 ]
             },

@@ -16,8 +16,8 @@ class QuarantineCandidate(BaseModel):
     validation_status: Literal["validated", "unvalidated", "disputed", "failed"]
     confidence: float = Field(ge=0, le=1)
     contradiction_count: int = Field(ge=0, le=1_000_000)
-    integrity_valid: bool
-    provenance_complete: bool
+    integrity_valid: bool | None = None
+    provenance_complete: bool | None = None
 
 
 class KA1094Input(BaseModel):
@@ -43,12 +43,15 @@ class KA1094Input(BaseModel):
 
     candidates: list[QuarantineCandidate] = Field(min_length=1, max_length=20_000)
     minimum_confidence: float = Field(default=0.5, ge=0, le=1)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_ids(self) -> KA1094Input:
         identifiers = [item.knowledge_id for item in self.candidates]
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("knowledge IDs must be unique")
+        if self.dependency_results and set(self.dependency_results) != {"KA-1071", "KA-117"}:
+            raise ValueError("KA-1094 requires exact KA-1071 and KA-117 results")
         return self
 
 
@@ -62,6 +65,13 @@ class KA1094KnowledgeQuarantineEngine(KnowledgeAlgorithm):
         self.ka_id = "KA-1094"
 
     def _run_logic(self, input_data: KA1094Input) -> dict[str, Any]:
+        dependencies_present = bool(input_data.dependency_results)
+        integrity_valid = bool(
+            input_data.dependency_results.get("KA-117", {}).get("is_valid")
+        )
+        provenance_complete = bool(
+            input_data.dependency_results.get("KA-1071", {}).get("provenance_complete")
+        )
         decisions = []
         for item in sorted(input_data.candidates, key=lambda row: row.knowledge_id):
             reasons = []
@@ -71,9 +81,11 @@ class KA1094KnowledgeQuarantineEngine(KnowledgeAlgorithm):
                 reasons.append("confidence_below_threshold")
             if item.contradiction_count:
                 reasons.append("unresolved_contradictions")
-            if not item.integrity_valid:
+            item_integrity_valid = integrity_valid if dependencies_present else item.integrity_valid is not False
+            item_provenance_complete = provenance_complete if dependencies_present else item.provenance_complete is not False
+            if not item_integrity_valid:
                 reasons.append("integrity_invalid")
-            if not item.provenance_complete:
+            if not item_provenance_complete:
                 reasons.append("provenance_incomplete")
             decisions.append(
                 {
@@ -88,6 +100,7 @@ class KA1094KnowledgeQuarantineEngine(KnowledgeAlgorithm):
             "status": "knowledge_quarantine_evaluated",
             "decisions": decisions,
             "records_moved": 0,
+            "dependencies_consumed": ["KA-1071", "KA-117"] if dependencies_present else [],
             "effect_service_required": True,
             "deterministic": True,
             "limitations": (

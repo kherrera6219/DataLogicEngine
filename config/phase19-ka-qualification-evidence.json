@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.04-cp19k.5",
+  "manifest_version": "2026.08.04-cp19k.6",
   "status": "cp19_k_in_progress",
   "batches": [
     {
@@ -182,6 +182,24 @@
         "KA-Master"
       ],
       "scope": "Canonical governed classification, complexity, algorithm-selection, boundary-enforcement, and controller authority with fail-closed routing and no capability self-selection"
+    },
+    {
+      "batch_id": "cp19-k-batch-16-truthgate-adversarial-privacy",
+      "completed_on": "2026-08-04",
+      "canonical_ids": ["KA-034", "KA-1074", "KA-172", "KA-173"],
+      "scope": "TruthGate-owned adversarial observation evaluation, field privacy transformation, safety admission, and exact-value redaction with no attack execution or external effect"
+    },
+    {
+      "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+      "completed_on": "2026-08-04",
+      "canonical_ids": ["KA-062", "KA-065", "KA-1071", "KA-1094", "KA-1109", "KA-117"],
+      "scope": "Causal provenance, regression, integrity, quarantine, and containment decisions through the knowledge lifecycle owner with exact dependency consumption and no direct knowledge mutation"
+    },
+    {
+      "batch_id": "cp19-k-batch-18-knowledge-expansion-promotion",
+      "completed_on": "2026-08-04",
+      "canonical_ids": ["KA-029", "KA-1079"],
+      "scope": "Bounded supplied-graph expansion and dependency-bound promotion decisions through the retrieval and graph owner without graph access, mutation, or promotion effect"
     }
   ],
   "qualifications": {
@@ -1344,6 +1362,126 @@
       "security_evidence": {"applicability": "not_applicable", "rationale": "The authority descriptor proves one canonical manifest/controller boundary and disables KA-Master self-selection to prevent recursive or bypass execution."},
       "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-Master exposes controller authority only; ManifestKASelector plans and CanonicalKAController executes admitted child capabilities."},
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_master_semantic_contract"
+    },
+    "KA-034": {
+      "batch_id": "cp19-k-batch-16-truthgate-adversarial-privacy",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_034_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_034_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_034_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_034_semantic_contract", "rationale": "The capability evaluates explicit observed adversarial cases and controls; it neither invents findings nor executes attacks."},
+      "effect_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_034_owning_path", "rationale": "TruthGate owns the policy boundary while KA-034 records zero applied effects."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_034_semantic_contract"
+    },
+    "KA-1074": {
+      "batch_id": "cp19-k-batch-16-truthgate-adversarial-privacy",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1074_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_1074_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_1074_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_1074_owning_path", "rationale": "The proof confirms a declared personal value is absent from the protected output and metadata."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-1074 transforms supplied fields in memory and performs no store, provider, or policy effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1074_semantic_contract"
+    },
+    "KA-172": {
+      "batch_id": "cp19-k-batch-16-truthgate-adversarial-privacy",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_172_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_172_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_172_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_172_semantic_contract", "rationale": "Missing safeguards and human review deterministically block declared high-risk candidates."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-172 emits an allow or block decision and applies zero actions."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_172_semantic_contract"
+    },
+    "KA-173": {
+      "batch_id": "cp19-k-batch-16-truthgate-adversarial-privacy",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_173_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_173_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_173_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_173_owning_path", "rationale": "The declared source value is absent from the filtered output and returned metadata."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-173 returns a filtered copy and does not modify the source or persist content."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_173_semantic_contract"
+    },
+    "KA-062": {
+      "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_062_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_062_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_062_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_062_semantic_contract", "rationale": "The trust-eligibility measurement consumes the exact KA-018 source identity and explicitly does not establish source truth."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-062 measures four supplied criteria and applies no commitment or knowledge effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_062_semantic_contract"
+    },
+    "KA-065": {
+      "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_065_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_065_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_065_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_065_semantic_contract", "rationale": "Regression reports include identifiers and changed field names but never return baseline or current values."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-065 compares supplied snapshots and performs no knowledge update."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_065_semantic_contract"
+    },
+    "KA-1071": {
+      "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1071_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1071_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1071_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1071_owning_path", "rationale": "Graph completeness requires an exact KA-018 source match plus acyclic source reachability."},
+      "effect_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1071_owning_path", "rationale": "The owner consumes the proposal while KA-1071 reports provenance_persisted false."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1071_semantic_contract"
+    },
+    "KA-1094": {
+      "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1094_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1094_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1094_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1094_semantic_contract", "rationale": "Quarantine consumes exact provenance and integrity dependencies rather than duplicated caller booleans."},
+      "effect_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1094_owning_path", "rationale": "The knowledge lifecycle service owns quarantine and KA-1094 moves zero records."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1094_semantic_contract"
+    },
+    "KA-1109": {
+      "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1109_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1109_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1109_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1109_semantic_contract", "rationale": "Containment fails closed on exact TruthGate and privacy dependency outputs plus declared prohibited signals."},
+      "effect_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1109_owning_path", "rationale": "The owning lifecycle service applies persistence policy while KA-1109 applies zero persistence actions."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1109_semantic_contract"
+    },
+    "KA-117": {
+      "batch_id": "cp19-k-batch-17-knowledge-trust-containment",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_117_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_117_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_117_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_117_semantic_contract", "rationale": "Integrity validation consumes the exact regression result and reports structural identifiers without returning knowledge values."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-117 validates a supplied graph snapshot and applies neither quarantine nor knowledge mutation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_117_semantic_contract"
+    },
+    "KA-029": {
+      "batch_id": "cp19-k-batch-18-knowledge-expansion-promotion",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_029_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_029_owning_path",
+      "trace_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_029_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_029_semantic_contract", "rationale": "Expansion is bounded by explicit depth and node limits and cannot query an undeclared graph."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-029 traverses only supplied adjacency and records no graph read or mutation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_029_semantic_contract"
+    },
+    "KA-1079": {
+      "batch_id": "cp19-k-batch-18-knowledge-expansion-promotion",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1079_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1079_owning_path",
+      "trace_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1079_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1079_semantic_contract", "rationale": "Promotion consumes exact integrity, quarantine, and containment dependency decisions and fails closed on any blocker."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-1079 returns a policy decision only and records promotion_applied false."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1079_semantic_contract"
     }
   }
 }

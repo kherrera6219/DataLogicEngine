@@ -10,6 +10,7 @@ from backend.governed_execution.extended_subsystems import (
     ExtendedSubsystemCoordinator,
     ExtendedSubsystemError,
 )
+from backend.governed_execution.knowledge_lifecycle import KnowledgeLifecycleCoordinator
 from backend.knowledge_algorithms.controller import get_ka_controller
 from tests.governed_execution.test_orchestrator import (
     _Gateway,
@@ -24,6 +25,7 @@ def test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation():
 
     assert registry["schema_version"] == "dle.ka-subsystem-registry.v1"
     assert registry["owners"]["truthgate"]["entry"] == [
+        "KA-034",
         "KA-022",
         "KA-172",
         "KA-173",
@@ -37,6 +39,98 @@ def test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation():
             manifest.entries[canonical_id].admission.production_enabled
             for canonical_id in operation_ids
         )
+
+
+def _run_truthgate_batch_16(canonical_id: str):
+    operation = "layer_8" if canonical_id == "KA-1074" else "entry"
+    inputs = {
+        "KA-034": {
+            "scenario_id": "truthgate-boundary",
+            "cases": [
+                {
+                    "case_id": "privacy-escape",
+                    "target_assumption": "private data remains contained",
+                    "attack_class": "privacy_exposure",
+                    "expected_control_ids": ["privacy-filter"],
+                    "observed_control_ids": ["privacy-filter"],
+                    "observed_outcome": "blocked",
+                }
+            ],
+        },
+        "KA-1074": {
+            "fields": [
+                {
+                    "field_id": "email",
+                    "value": "owner@example.com",
+                    "classification": "personal",
+                }
+            ]
+        },
+        "KA-172": {
+            "candidates": [
+                {
+                    "candidate_id": "candidate-1",
+                    "risk_level": "low",
+                    "hazard_ids": [],
+                }
+            ]
+        },
+        "KA-173": {
+            "text": "Contact owner@example.com",
+            "sensitive_values": [
+                {"label": "email", "value": "owner@example.com"}
+            ],
+        },
+    }
+    execution = KnowledgeLifecycleCoordinator().execute_operation_sync(
+        owner="truthgate",
+        operation=operation,
+        requested_ids=[canonical_id],
+        ka_inputs=inputs,
+        request_id=f"batch-16-{canonical_id}",
+        run_id=f"batch-16-run-{canonical_id}",
+        max_effects=1,
+        principal_id="owner-1",
+        service_capabilities={"policy_decision_service"},
+    )
+    states = [
+        event.state.value
+        for event in execution.report.traces[canonical_id].events
+        if event.state.value != "effect_proposed"
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return execution.results[canonical_id]["output"]
+
+
+def test_ka_034_owning_path():
+    output = _run_truthgate_batch_16("KA-034")
+    assert output["robustness_decision"] == "pass"
+    assert output["effects_applied"] == 0
+
+
+def test_ka_1074_owning_path():
+    output = _run_truthgate_batch_16("KA-1074")
+    assert output["protected_fields"]["email"] == "[REDACTED:PERSONAL]"
+    assert "owner@example.com" not in str(output)
+
+
+def test_ka_172_owning_path():
+    output = _run_truthgate_batch_16("KA-172")
+    assert output["decisions"][0]["decision"] == "allow"
+    assert output["actions_applied"] == 0
+
+
+def test_ka_173_owning_path():
+    output = _run_truthgate_batch_16("KA-173")
+    assert output["filtered_text"] == "Contact [REDACTED_EMAIL]"
+    assert "owner@example.com" not in str(output)
 
 
 def test_ka_177_owning_path():

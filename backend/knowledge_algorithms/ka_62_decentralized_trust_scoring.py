@@ -1,84 +1,70 @@
-"""
-KA-062: Decentralized Trust Scoring
-Purpose: Compute a robust trust score for knowledge fragments based on their provenance hashes and source credibility.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
+"""KA-062: deterministic trust-eligibility measurement from provenance evidence."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA062Input(BaseModel):
-    evidence: List[Dict[str, Any]] = Field(default_factory=list, description="Evidence fragments to evaluate for trust and credibility")
+    model_config = ConfigDict(extra="forbid")
+
+    source_id: str = Field(default="unspecified", min_length=1, max_length=500)
+    signature_verified: bool = False
+    authority_verified: bool = False
+    independently_corrobated: bool = False
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_dependency(self) -> KA062Input:
+        if self.dependency_results and set(self.dependency_results) != {"KA-018"}:
+            raise ValueError("KA-062 requires the exact KA-018 dependency result")
+        provenance = self.dependency_results.get("KA-018", {})
+        if provenance and provenance.get("source_id") != self.source_id:
+            raise ValueError("KA-018 source_id must match the trust candidate")
+        return self
+
 
 class KA062DecentralizedTrustScoring(KnowledgeAlgorithm):
-    """
-    KA-062: Provenance-based trust calculation engine for knowledge fragments.
-    """
+    """Measure observed trust criteria without asserting source truth."""
+
     input_schema = KA062Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-062"
-        self.config = self._load_config()
 
-    def _default_config(self) -> Dict[str, Any]:
-        return {
-            "provenance_weights": {},
-            "min_trust_for_commitment": 0.7,
+    def _run_logic(self, input_data: KA062Input) -> dict[str, Any]:
+        provenance = input_data.dependency_results.get("KA-018", {})
+        criteria = {
+            "authority_verified": input_data.authority_verified,
+            "independently_corrobated": input_data.independently_corrobated,
+            "provenance_checks_passed": bool(
+                provenance.get("all_supplied_checks_passed")
+            ),
+            "signature_verified": input_data.signature_verified,
         }
-
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_62_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    loaded = json.load(f) or {}
-                    return {**self._default_config(), **loaded}
-            return self._default_config()
-        except Exception:
-            return self._default_config()
-
-    def _run_logic(self, input_data: KA062Input) -> Dict[str, Any]:
-        evidence_nodes = input_data.evidence
-        self.log_execution_step("Computing Trust Scores", {"evidence_count": len(evidence_nodes)})
-        
-        provenance_weights = self.config.get("provenance_weights", {})
-        trust_reports = []
-        min_trust = self.config.get("min_trust_for_commitment", 0.7)
-        
-        for e in evidence_nodes:
-             source = e.get("source", "unknown")
-             weight = provenance_weights.get(source, 1.0)
-             trust_score = weight * 0.8
-             trust_reports.append({
-                 "source": source,
-                 "final_score": min(1.0, trust_score),
-                 "status": "TRUSTED" if trust_score >= min_trust else "UNTRUSTED"
-             })
-             
+        passed = sum(criteria.values())
         return {
             "success": True,
-            "reports": trust_reports,
-            "average_trust": sum(r["final_score"] for r in trust_reports) / max(1, len(trust_reports))
+            "status": "trust_evidence_measured",
+            "source_id": input_data.source_id,
+            "criteria": criteria,
+            "observed_criterion_ratio": round(passed / len(criteria), 8),
+            "commitment_eligible": passed == len(criteria),
+            "dependency_consumed": "KA-018" if provenance else None,
+            "source_trust_established": False,
+            "effects_applied": 0,
+            "deterministic": True,
+            "limitations": (
+                "The result measures declared, supplied observations and does not "
+                "authenticate the source or establish factual correctness."
+            ),
         }
 
-    def _fallback_logic(self, input_data: KA062Input, error: Exception) -> Dict[str, Any]:
-        """Failsafe: Return zero trust for all evidence if calculation fails."""
-        self.logger.warning(f"Resilience Fallback for KA-062: {str(error)}")
-        return {
-            "success": False,
-            "reports": [],
-            "average_trust": 0.0,
-            "fallback_engaged": True,
-            "message": "Trust scoring failed. Defaulting to zero trust for all fragments."
-        }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    algo = KA062DecentralizedTrustScoring(context)
-    return algo.run(context)
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA062DecentralizedTrustScoring(context).run(context)

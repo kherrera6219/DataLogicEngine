@@ -1978,3 +1978,275 @@ def test_ka_master_semantic_contract():
     assert first["self_selection_enabled"] is False
     assert first["planning_authority"] == "ManifestKASelector"
     assert first["execution_authority"] == "CanonicalKAController"
+
+
+def _knowledge_trust_dependencies() -> dict[str, dict]:
+    provenance = _execute(
+        "KA-018",
+        {
+            "source_id": "source-1",
+            "source_type": "local_document",
+            "content_sha256": "a" * 64,
+            "provenance_checks": [
+                {
+                    "check_id": "hash-bound",
+                    "status": "passed",
+                    "authority_ref": "local-receipt",
+                }
+            ],
+        },
+    ).output
+    regression = _execute(
+        "KA-065",
+        {
+            "snapshot": {"nodes": [{"id": "knowledge-1", "digest": "abc"}]},
+            "baseline": {"nodes": [{"id": "knowledge-1", "digest": "abc"}]},
+        },
+    ).output
+    provenance_graph = _execute(
+        "KA-1071",
+        {
+            "knowledge_id": "knowledge-1",
+            "nodes": [
+                {"node_id": "source", "node_type": "source", "source_ref": "source-1"},
+                {
+                    "node_id": "claim",
+                    "node_type": "claim",
+                    "source_ref": "knowledge-1",
+                    "parent_node_ids": ["source"],
+                },
+            ],
+            "dependency_results": {"KA-018": provenance},
+        },
+    ).output
+    integrity = _execute(
+        "KA-117",
+        {
+            "snapshot": {"nodes": [{"id": "knowledge-1"}], "edges": []},
+            "dependency_results": {"KA-065": regression},
+        },
+    ).output
+    privacy = _execute(
+        "KA-1074",
+        {
+            "fields": [
+                {
+                    "field_id": "status",
+                    "value": "approved",
+                    "classification": "public",
+                }
+            ]
+        },
+    ).output
+    quarantine = _execute(
+        "KA-1094",
+        {
+            "candidates": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "validation_status": "validated",
+                    "confidence": 0.95,
+                    "contradiction_count": 0,
+                }
+            ],
+            "dependency_results": {
+                "KA-1071": provenance_graph,
+                "KA-117": integrity,
+            },
+        },
+    ).output
+    containment = _execute(
+        "KA-1109",
+        {
+            "candidates": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "declared_sensitivity": "public",
+                    "consent_verified": True,
+                }
+            ],
+            "dependency_results": {
+                "KA-024": {"is_approved": True},
+                "KA-1074": privacy,
+            },
+        },
+    ).output
+    return {
+        "KA-018": provenance,
+        "KA-065": regression,
+        "KA-1071": provenance_graph,
+        "KA-1074": privacy,
+        "KA-1094": quarantine,
+        "KA-1109": containment,
+        "KA-117": integrity,
+    }
+
+
+def test_ka_034_semantic_contract():
+    evaluated = _execute(
+        "KA-034",
+        {
+            "scenario_id": "privacy-boundary",
+            "cases": [
+                {
+                    "case_id": "case-1",
+                    "target_assumption": "private values are contained",
+                    "attack_class": "privacy_exposure",
+                    "expected_control_ids": ["redaction"],
+                    "observed_control_ids": ["redaction"],
+                    "observed_outcome": "blocked",
+                }
+            ],
+        },
+    )
+    _assert_bounded_result("KA-034", evaluated)
+    assert evaluated.output["robustness_decision"] == "pass"
+    assert evaluated.output["attacks_executed"] is False
+
+
+def test_ka_1074_semantic_contract():
+    source_value = "owner@example.com"
+    protected = _execute(
+        "KA-1074",
+        {
+            "fields": [
+                {
+                    "field_id": "email",
+                    "value": source_value,
+                    "classification": "personal",
+                }
+            ]
+        },
+    )
+    _assert_pure_bounded_result("KA-1074", protected)
+    assert source_value not in str(protected.output)
+    assert protected.output["non_public_value_exposed"] is False
+
+
+def test_ka_172_semantic_contract():
+    blocked = _execute(
+        "KA-172",
+        {
+            "candidates": [
+                {
+                    "candidate_id": "candidate-1",
+                    "risk_level": "high",
+                    "hazard_ids": ["hazard-1"],
+                    "required_safeguard_ids": ["guard-1"],
+                    "verified_safeguard_ids": [],
+                }
+            ]
+        },
+    )
+    _assert_pure_bounded_result("KA-172", blocked)
+    assert blocked.output["decisions"][0]["decision"] == "block"
+    assert blocked.output["actions_applied"] == 0
+
+
+def test_ka_173_semantic_contract():
+    source_value = "owner@example.com"
+    filtered = _execute(
+        "KA-173",
+        {
+            "text": f"Contact {source_value}",
+            "sensitive_values": [{"label": "email", "value": source_value}],
+        },
+    )
+    _assert_pure_bounded_result("KA-173", filtered)
+    assert source_value not in str(filtered.output)
+    assert filtered.output["source_values_returned"] is False
+
+
+def test_ka_062_semantic_contract():
+    dependencies = _knowledge_trust_dependencies()
+    measured = _execute(
+        "KA-062",
+        {
+            "source_id": "source-1",
+            "signature_verified": True,
+            "authority_verified": True,
+            "independently_corrobated": True,
+            "dependency_results": {"KA-018": dependencies["KA-018"]},
+        },
+    )
+    _assert_pure_bounded_result("KA-062", measured)
+    assert measured.output["commitment_eligible"] is True
+    assert measured.output["source_trust_established"] is False
+
+
+def test_ka_065_semantic_contract():
+    result = _knowledge_trust_dependencies()["KA-065"]
+    assert result["status"] == "regression_free"
+    assert result["source_values_returned"] is False
+    assert result["knowledge_updated"] is False
+
+
+def test_ka_1071_semantic_contract():
+    result = _knowledge_trust_dependencies()["KA-1071"]
+    assert result["provenance_complete"] is True
+    assert result["dependency_consumed"] == "KA-018"
+    assert result["provenance_persisted"] is False
+
+
+def test_ka_1094_semantic_contract():
+    result = _knowledge_trust_dependencies()["KA-1094"]
+    assert result["decisions"][0]["decision"] == "retain"
+    assert result["dependencies_consumed"] == ["KA-1071", "KA-117"]
+    assert result["records_moved"] == 0
+
+
+def test_ka_1109_semantic_contract():
+    result = _knowledge_trust_dependencies()["KA-1109"]
+    assert result["decisions"][0]["containment_class"] == "public"
+    assert result["dependencies_consumed"] == ["KA-024", "KA-1074"]
+    assert result["persistence_actions_applied"] == 0
+
+
+def test_ka_117_semantic_contract():
+    result = _knowledge_trust_dependencies()["KA-117"]
+    assert result["is_valid"] is True
+    assert result["dependency_consumed"] == "KA-065"
+    assert result["quarantine_applied"] is False
+
+
+def test_ka_029_semantic_contract():
+    expanded = _execute(
+        "KA-029",
+        {
+            "seed_entities": ["a"],
+            "adjacency": [
+                {"node_id": "a", "neighbor_ids": ["b"]},
+                {"node_id": "b", "neighbor_ids": ["c"]},
+            ],
+            "depth": 1,
+        },
+    )
+    _assert_pure_bounded_result("KA-029", expanded)
+    assert [row["node_id"] for row in expanded.output["expanded_nodes"]] == ["a", "b"]
+    assert expanded.output["graph_store_read"] is False
+    assert expanded.output["graph_mutation_applied"] is False
+
+
+def test_ka_1079_semantic_contract():
+    dependencies = _knowledge_trust_dependencies()
+    promoted = _execute(
+        "KA-1079",
+        {
+            "knowledge_id": "knowledge-1",
+            "validation_status": "validated",
+            "confidence": 0.95,
+            "evidence_count": 2,
+            "citation_count": 1,
+            "contradiction_count": 0,
+            "provenance_complete": True,
+            "risk_class": "low",
+            "dependency_results": {
+                "KA-1094": dependencies["KA-1094"],
+                "KA-1109": dependencies["KA-1109"],
+                "KA-117": dependencies["KA-117"],
+            },
+        },
+    )
+    _assert_pure_bounded_result("KA-1079", promoted)
+    assert promoted.output["decision"] == "approve"
+    assert promoted.output["promotion_applied"] is False

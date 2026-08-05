@@ -1,72 +1,81 @@
-"""
-KA-065: Knowledge Regression Tester
-Purpose: Ensure that updates to the knowledge base do not break or contradict prior established high-confidence knowledge.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
+"""KA-065: deterministic structural regression comparison."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
 
-logger = logging.getLogger(__name__)
+class KA065Input(BaseModel):
+    model_config = ConfigDict(extra="forbid")
 
+    snapshot: dict[str, Any] = Field(default_factory=dict)
+    baseline: dict[str, Any] = Field(default_factory=dict)
 
-class KA065RegressionInput(BaseModel):
-    snapshot: Dict[str, Any] = Field(default_factory=dict, description="The current knowledge base snapshot to test")
-    baseline: Dict[str, Any] = Field(default_factory=dict, description="Baseline established knowledge to compare against")
 
 class KA065KnowledgeRegressionTester(KnowledgeAlgorithm):
-    """
-    KA-065: Knowledge regression and consistency testing engine to prevent stability violations.
-    """
-    input_schema = KA065RegressionInput
+    """Compare supplied node records without returning their values."""
 
-    def __init__(self, context: Dict[str, Any]):
+    input_schema = KA065Input
+
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-065"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_65_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
+    @staticmethod
+    def _nodes(snapshot: dict[str, Any]) -> dict[str, dict[str, Any]]:
+        raw = snapshot.get("nodes", [])
+        if isinstance(raw, dict):
+            return {
+                str(node_id): value if isinstance(value, dict) else {"value": value}
+                for node_id, value in raw.items()
+            }
+        if isinstance(raw, list):
+            return {
+                str(item["id"]): item
+                for item in raw
+                if isinstance(item, dict) and item.get("id") is not None
+            }
+        return {}
 
-    def _run_logic(self, input_data: KA065RegressionInput) -> Dict[str, Any]:
-        kb_snapshot = input_data.snapshot
-        baseline_knowledge = input_data.baseline
-        self.log_execution_step("Running Knowledge Regression Tests", {"baseline_size": len(baseline_knowledge)})
-        
-        failures = []
-        for node_id, baseline_val in baseline_knowledge.items():
-             current_val = kb_snapshot.get("nodes", {}).get(node_id)
-             if current_val and current_val != baseline_val:
-                  failures.append({
-                      "node_id": node_id,
-                      "baseline": baseline_val,
-                      "current": current_val,
-                      "type": "STABILITY_VIOLATION"
-                  })
-                  
-        status = "PASSED" if not failures else "FAILED"
+    def _run_logic(self, input_data: KA065Input) -> dict[str, Any]:
+        current = self._nodes(input_data.snapshot)
+        baseline = self._nodes(input_data.baseline)
+        regressions = []
+        for node_id in sorted(baseline):
+            if node_id not in current:
+                regressions.append(
+                    {"node_id": node_id, "type": "missing_node", "changed_fields": []}
+                )
+                continue
+            changed = sorted(
+                key
+                for key in set(baseline[node_id]) | set(current[node_id])
+                if key != "id" and baseline[node_id].get(key) != current[node_id].get(key)
+            )
+            if changed:
+                regressions.append(
+                    {"node_id": node_id, "type": "changed_node", "changed_fields": changed}
+                )
         return {
             "success": True,
-            "status": status,
-            "failure_count": len(failures),
-            "regression_report": failures,
-            "veto": status == "FAILED" and self.config.get("strict_mode", True)
+            "status": "regression_free" if not regressions else "regression_detected",
+            "regression_count": len(regressions),
+            "regressions": regressions,
+            "baseline_node_count": len(baseline),
+            "snapshot_node_count": len(current),
+            "source_values_returned": False,
+            "knowledge_updated": False,
+            "deterministic": True,
+            "limitations": (
+                "This compares supplied structural snapshots only; field changes "
+                "require owner review and are not independently classified as errors."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA065KnowledgeRegressionTester(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-065 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA065KnowledgeRegressionTester(context).run(context)

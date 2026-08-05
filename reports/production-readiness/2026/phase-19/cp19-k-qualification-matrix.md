@@ -7,8 +7,8 @@
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 74 rows are fully
-qualified and 139 remain open. A row closes
+canonical capabilities. 86 rows are fully
+qualified and 127 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -35,6 +35,9 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-13-l1-context-dependencies` | 2026-08-04 | 6 | Deterministic L1 gap, analytical, temporal, jurisdiction, dependency, and hypothesis proposals through the truth-context owner with no knowledge mutation or external effect |
 | `cp19-k-batch-14-retrieval-provenance-scoring` | 2026-08-04 | 5 | Evidence-bound provenance, lexical retrieval, relevance, freshness, and dependency auditing through the retrieval owner without hidden store, vector, provider, or trust effects |
 | `cp19-k-batch-15-dmrf-core-routing` | 2026-08-04 | 5 | Canonical governed classification, complexity, algorithm-selection, boundary-enforcement, and controller authority with fail-closed routing and no capability self-selection |
+| `cp19-k-batch-16-truthgate-adversarial-privacy` | 2026-08-04 | 4 | TruthGate-owned adversarial observation evaluation, field privacy transformation, safety admission, and exact-value redaction with no attack execution or external effect |
+| `cp19-k-batch-17-knowledge-trust-containment` | 2026-08-04 | 6 | Causal provenance, regression, integrity, quarantine, and containment decisions through the knowledge lifecycle owner with exact dependency consumption and no direct knowledge mutation |
+| `cp19-k-batch-18-knowledge-expansion-promotion` | 2026-08-04 | 2 | Bounded supplied-graph expansion and dependency-bound promotion decisions through the retrieval and graph owner without graph access, mutation, or promotion effect |
 
 ## Gate decision
 

@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-04 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.60.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.61.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release decision | Production/public release: **NO-GO** |
@@ -255,12 +255,19 @@ Phase 18 source baseline while completing the whole-application wiring.
         `KA-1073`, `KA-1107`, and `KA-Master`. All remain bounded proposals or
         controller authority, with deterministic traces and zero hidden
         provider, store, graph, knowledge, memory, or capability effects.
-      - The generated matrix and integrity verifier pass at 74/213 qualified
-        and 139 incomplete; rebuild authorization remains false. Runtime
-        manifest `2026.08.04-cp19k.5` retains 213 capabilities, 153 production-
-        enabled capabilities, and a 143-edge zero-cycle graph. The 849-test KA
-        suite, 262 governed/TruthCore/Phase-19/simulation integration tests, and
-        2,775-test full source suite pass; the source suite has 18 skipped and
+      - Batches 16-18 passed 2026-08-04: TruthGate closes adversarial-case,
+        field-privacy, safety, and exact-value redaction; the knowledge owner
+        closes provenance/trust, regression, integrity, quarantine, and
+        containment; and the retrieval owner closes bounded supplied-graph
+        expansion plus promotion. Exact dependency outputs replace duplicated
+        caller claims, and no KA applies an attack, graph, quarantine,
+        containment, persistence, or promotion effect.
+      - The generated matrix and integrity verifier pass at 86/213 qualified
+        and 127 incomplete; rebuild authorization remains false. Runtime
+        manifest `2026.08.04-cp19k.6` retains 213 capabilities, 155 production-
+        enabled capabilities, and a 142-edge zero-cycle graph. The 861-test KA
+        suite, 317 governed/TruthCore/Phase-19/simulation integration tests, and
+        2,799-test full source suite pass; the source suite has 18 skipped and
         35 known warnings.
       - Parallel candidate training-dataset exporter review passed after
         hardening: owner-authenticated API, app-owned output containment,
@@ -277,8 +284,8 @@ Phase 18 source baseline while completing the whole-application wiring.
         `cryptography` advisories, are remediated in the governed locks. Local
         `pip-audit` and `npm audit` report zero vulnerabilities; the 2026-08-04
         live GitHub query reports zero open Dependabot alerts.
-      - Next: execute grouped Batch 16 (`KA-034`, `KA-1074`, `KA-172`, and
-        `KA-173`) through the real TruthGate owner. Keep every later batch
+      - Next: execute grouped Batch 19 (`KA-012`, `KA-013`, `KA-028`, `KA-030`,
+        and `KA-038`) through the real Quad Persona/DSQP owner. Keep every later batch
         open until its named individual and owner/effect evidence passes.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
@@ -1007,7 +1014,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-15 qualify 74/213 rows, 139 remain open in 28 grouped batches, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-18 qualify 86/213 rows, 127 remain open in 25 grouped batches, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -1029,10 +1036,9 @@ Complete CP19-K by closing the generated 213-row matrix with one individually
 named semantic test, positive/negative selector proof, real owning-path
 assertion, explicit limitation, causal trace proof, and applicable security,
 effect, and performance evidence for every canonical capability. Proceed next
-with grouped Batch 12 (`KA-023`, `KA-052`, `KA-064`, `KA-1082`, `KA-1083`,
-`KA-1093`, and `KA-1105`), knowledge temporal health, using the reviewed 36-
-batch roadmap and the real TruthMemory/TruthLink/FROST owner. Do not treat Batch
-11's preparation receipt as proof of deployment or model mutation.
+with grouped Batch 19 (`KA-012`, `KA-013`, `KA-028`, `KA-030`, and `KA-038`),
+persona foundation, using the reviewed 36-batch roadmap and the real Quad
+Persona/DSQP owner. Do not treat source qualification as installed acceptance.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

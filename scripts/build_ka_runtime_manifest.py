@@ -671,14 +671,21 @@ CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
             "apply persistence or provider effects."
         ),
     }
-    for canonical_id in {"KA-015", "KA-036", "KA-040", "KA-1073"}
+    for canonical_id in {
+        "KA-015",
+        "KA-029",
+        "KA-034",
+        "KA-036",
+        "KA-040",
+        "KA-1073",
+    }
 }
 
 # The restored design catalog marked KA-1077 as a memory writer. The reviewed
 # implementation only ranks supplied signals and explicitly applies no write.
 CP19_K_PURE_ADVISORY_OVERRIDES = {"KA-1077"}
 
-# CP19-K batches 12-15 make owner-consumed dependencies explicit and remove
+# CP19-K batches 12-18 make owner-consumed dependencies explicit and remove
 # stale design edges that would otherwise trigger unrelated maintenance or
 # simulation work inside pure context/routing decisions.
 CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
@@ -717,6 +724,14 @@ CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
             "Core algorithm selection consumes committed query classification, "
             "bounded complexity, intent clarification, and tier routing results; "
             "simulation validation is not a routing prerequisite."
+        ),
+    },
+    "KA-1074": {
+        "dependencies": [],
+        "rationale": (
+            "Field-level privacy transformation consumes explicit field labels "
+            "and must not trigger DMRF plan-boundary enforcement as a hidden "
+            "prerequisite."
         ),
     },
 }
@@ -780,6 +795,7 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
         },
         "truthgate": {
             "entry": [
+                "KA-034",
                 "KA-022",
                 "KA-172",
                 "KA-173",
@@ -817,7 +833,7 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
                 "KA-1076",
                 "KA-1078",
             ],
-            "promotion": ["KA-1079"],
+            "promotion": ["KA-029", "KA-1079"],
         },
         "truthmemory_truthlink_frost": {
             "release": [
@@ -1279,7 +1295,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.04-cp19k.5",
+        "manifest_version": "2026.08.04-cp19k.6",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

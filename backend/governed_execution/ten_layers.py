@@ -642,9 +642,25 @@ class GovernedTenLayerStages:
                 "source_id": item.source_id,
                 "content_hash": item.content_hash,
                 "quality_score": item.quality_score,
+                "provenance_checks": (
+                    item.metadata.get("provenance_checks", [])
+                    if isinstance(item.metadata, dict)
+                    else []
+                ),
+                "signature_verified": bool(
+                    item.metadata.get("signature_verified")
+                    if isinstance(item.metadata, dict)
+                    else False
+                ),
+                "authority_verified": bool(
+                    item.metadata.get("authority_verified")
+                    if isinstance(item.metadata, dict)
+                    else False
+                ),
             }
             for item in context.evidence
         ]
+        trust_source = evidence_input[0] if evidence_input else {}
         request = self._selection_request(
             context,
             layer_id="L8",
@@ -654,6 +670,12 @@ class GovernedTenLayerStages:
                 "KA-004": {"query": context.query},
                 "KA-005": {"query": context.query},
                 "KA-010": {"content": candidate},
+                "KA-018": {
+                    "source_id": trust_source.get("source_id", "unspecified"),
+                    "source_type": trust_source.get("source", "unverified"),
+                    "content_sha256": trust_source.get("content_hash", "0" * 64),
+                    "provenance_checks": trust_source.get("provenance_checks", []),
+                },
                 "KA-022": {
                     "recommendation": candidate,
                     "impact_scores": {"governed_risk": risk_score},
@@ -666,7 +688,16 @@ class GovernedTenLayerStages:
                     "recommendation": candidate,
                     "has_linguistic_bias": False,
                 },
-                "KA-062": {"evidence": evidence_input},
+                "KA-062": {
+                    "source_id": trust_source.get("source_id", "unspecified"),
+                    "signature_verified": bool(
+                        trust_source.get("signature_verified")
+                    ),
+                    "authority_verified": bool(
+                        trust_source.get("authority_verified")
+                    ),
+                    "independently_corrobated": len(evidence_input) > 1,
+                },
                 "KA-1074": {
                     "fields": [
                         {
