@@ -75,6 +75,7 @@ class KA030ConflictResolution(KnowledgeAlgorithm):
             "all_dissent_preserved": len(dispositions) == len(prompt_constraints),
             "silent_dissent_count": 0,
             "escalation_triggered": False,
+            "substantive_resolution_claimed": False,
             "final_state": (
                 "CONSTRAINED_BY_RETAINED_DISSENT"
                 if dispositions

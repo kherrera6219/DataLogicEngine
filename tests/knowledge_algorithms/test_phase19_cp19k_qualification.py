@@ -100,6 +100,35 @@ QUALIFIED_BATCHES = {
     "KA-117",
     "KA-029",
     "KA-1079",
+    "KA-012",
+    "KA-013",
+    "KA-028",
+    "KA-030",
+    "KA-038",
+    "KA-002",
+    "KA-009",
+    "KA-014",
+    "KA-026",
+    "KA-035",
+    "KA-1041",
+    "KA-1042",
+    "KA-1102",
+    "KA-033",
+    "KA-058",
+    "KA-059",
+    "KA-080",
+    "KA-1039",
+    "KA-1040",
+    "KA-1043",
+    "KA-1046",
+    "KA-1048",
+    "KA-1076",
+    "KA-1078",
+    "KA-051",
+    "KA-053",
+    "KA-054",
+    "KA-055",
+    "KA-063",
 }
 
 
@@ -109,9 +138,9 @@ def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     assert matrix["status"] == "cp19_k_in_progress"
     assert matrix["invariants"] == {
         "canonical_capabilities": 213,
-        "qualified_capabilities": 86,
-        "incomplete_capabilities": 127,
-        "reviewed_capabilities": 86,
+        "qualified_capabilities": 115,
+        "incomplete_capabilities": 98,
+        "reviewed_capabilities": 115,
         "runtime_registries_added": 0,
         "findings_waived": False,
         "rebuild_authorized": False,
@@ -151,11 +180,11 @@ def test_cp19k_completed_batches_have_every_required_evidence_class():
         assert row["performance_budget_ms"] > 0
 
 
-def test_cp19k_does_not_overstate_next_unreviewed_ka_012():
+def test_cp19k_does_not_overstate_next_unreviewed_ka_1086():
     row = next(
         row
         for row in build_matrix()["canonical_capabilities"]
-        if row["canonical_id"] == "KA-012"
+        if row["canonical_id"] == "KA-1086"
     )
 
     assert row["production_enabled"] is True
@@ -176,7 +205,7 @@ def test_cp19k_integrity_verifier_passes_without_closing_checkpoint():
 
     assert evidence["integrity_status"] == "pass"
     assert evidence["checkpoint_status"] == "in_progress"
-    assert evidence["qualified_capabilities"] == 86
-    assert evidence["incomplete_capabilities"] == 127
+    assert evidence["qualified_capabilities"] == 115
+    assert evidence["incomplete_capabilities"] == 98
     assert evidence["rebuild_authorized"] is False
     assert evidence["errors"] == []

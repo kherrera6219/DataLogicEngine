@@ -2,13 +2,13 @@
 
 **Status:** Active
 
-**Plan version:** `2026.08.04-cp19k-grouped.7`
+**Plan version:** `2026.08.04-cp19k-grouped.8`
 
 **Baseline:** 27/213 qualified; 186 open
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batches 08-18 passed; 86/213 qualified, 127 open; Batch 19 next
+**Current checkpoint:** Batches 08-23 passed; 115/213 qualified, 98 open; Batch 24 next
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 
@@ -71,11 +71,11 @@ open prerequisite.
 | 16 | Adversarial/privacy gate — **passed 2026-08-04** | TruthGate | 034, 1074, 172, 173 | 4 |
 | 17 | Knowledge trust and containment — **passed 2026-08-04** | TruthMemory/TruthLink/FROST | 062, 065, 1071, 1094, 1109, 117 | 6 |
 | 18 | Knowledge expansion/promotion — **passed 2026-08-04** | retrieval/graph/memory | 029, 1079 | 2 |
-| 19 | Persona foundation DAG | DSQP/Quad Persona | 012, 013, 028, 030, 038 | 5 |
-| 20 | L6 evidence/confidence/entropy | TruthCore L6-L8 | 002, 009, 014, 026, 035, 1041, 1042, 1102 | 8 |
-| 21 | DMRF adaptive routing | governed request/DMRF | 033, 058, 059 | 3 |
-| 22 | Retrieval store maintenance | retrieval/graph/memory | 080, 1039, 1040, 1043, 1046, 1048, 1076, 1078 | 8 |
-| 23 | Knowledge content evolution | TruthMemory/TruthLink/FROST | 051, 053, 054, 055, 063 | 5 |
+| 19 | Persona foundation DAG — **passed 2026-08-04** | DSQP/Quad Persona | 012, 013, 028, 030, 038 | 5 |
+| 20 | L6 evidence/confidence/entropy — **passed 2026-08-04** | TruthCore L6-L8 | 002, 009, 014, 026, 035, 1041, 1042, 1102 | 8 |
+| 21 | DMRF adaptive routing — **passed 2026-08-04** | governed request/DMRF | 033, 058, 059 | 3 |
+| 22 | Retrieval store maintenance — **passed 2026-08-04** | retrieval/graph/memory | 080, 1039, 1040, 1043, 1046, 1048, 1076, 1078 | 8 |
+| 23 | Knowledge content evolution — **passed 2026-08-04** | TruthMemory/TruthLink/FROST | 051, 053, 054, 055, 063 | 5 |
 | 24 | Knowledge lifecycle analytics | TruthMemory/TruthLink/FROST | 1086, 1088, 1089, 1095 | 4 |
 | 25 | L10 oversight and release | TruthCore L10 | 020, 021, 1106, 1112, 116 | 5 |
 | 26 | System-integrity gate | TruthGate | 1045, 1099, 1104, 1108, 1110 | 5 |
@@ -117,4 +117,4 @@ The machine-readable authority is
 `config/phase19-ka-grouped-batches.json`. Its integrity test proves exact
 186-row baseline coverage, one owner per batch, bounded batch size, unique
 membership, dependency-safe order, and exact reconciliation of completed
-batches with the current 127-row open matrix.
+batches with the current 98-row open matrix.

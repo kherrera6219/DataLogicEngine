@@ -1,72 +1,74 @@
-"""
-KA-053: Dynamic Knowledge Compression
-Purpose: Compress and merge knowledge nodes to optimize storage and retrieval while preserving utility and semantics.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
+"""KA-053: deterministic knowledge-compression proposal generation."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA053Input(BaseModel):
-    graph_segments: List[Dict[str, Any]] = Field(default_factory=list, description="Segments of the knowledge graph to compress")
+    model_config = ConfigDict(extra="forbid")
+
+    graph_segments: list[dict[str, Any]] = Field(default_factory=list, max_length=5_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
 
 class KA053DynamicKnowledgeCompression(KnowledgeAlgorithm):
-    """
-    KA-053: Graph compression and node unification engine to optimize the knowledge base.
-    """
+    """Propose ID mappings without reading or changing a graph store."""
+
     input_schema = KA053Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-053"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_53_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA053Input) -> Dict[str, Any]:
-        graph_segments = input_data.graph_segments
-        self.log_execution_step("Compressing Knowledge Graph", {"segment_count": len(graph_segments)})
-        
-        compressed_nodes = []
-        mapping_table = {}
-        for segment in graph_segments:
-             nodes = segment.get("nodes", [])
-             if len(nodes) > 1:
-                  primary = nodes[0]
-                  comp_id = f"COMP-{primary.get('id')}"
-                  compressed_nodes.append({
-                      "id": comp_id,
-                      "merged_from": [n.get("id") for n in nodes],
-                      "utility_preserved": True
-                  })
-                  for n in nodes:
-                       mapping_table[n.get("id")] = comp_id
-                       
+    def _run_logic(self, input_data: KA053Input) -> dict[str, Any]:
+        proposals = []
+        total_nodes = 0
+        for index, segment in enumerate(input_data.graph_segments, start=1):
+            node_ids = sorted(
+                {
+                    str(node.get("id"))
+                    for node in segment.get("nodes", [])
+                    if isinstance(node, dict) and node.get("id")
+                }
+            )
+            total_nodes += len(node_ids)
+            if len(node_ids) < 2:
+                continue
+            proposals.append(
+                {
+                    "proposal_id": stable_identifier(
+                        "compression", {"index": index, "node_ids": node_ids}
+                    ),
+                    "source_node_ids": node_ids,
+                    "target_node_id": stable_identifier("compressed-node", node_ids),
+                    "requires_semantic_equivalence_review": True,
+                }
+            )
         return {
             "success": True,
-            "compressed_nodes": compressed_nodes,
-            "mapping": mapping_table,
-            "compression_ratio": len(compressed_nodes) / max(len(graph_segments), 1)
+            "status": "compression_proposals_created",
+            "compression_proposals": proposals,
+            "proposal_count": len(proposals),
+            "source_node_count": total_nodes,
+            "projected_node_reduction": sum(
+                len(item["source_node_ids"]) - 1 for item in proposals
+            ),
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "graph_store_read": False,
+            "compression_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "Shared segment membership does not establish semantic equivalence. "
+                "The owner must validate and transact any merge."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA053DynamicKnowledgeCompression(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-053 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA053DynamicKnowledgeCompression(context).run(context)

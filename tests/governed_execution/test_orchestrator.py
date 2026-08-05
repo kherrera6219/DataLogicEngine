@@ -382,26 +382,22 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
     provider_stage = next(
         stage for stage in result.stages if stage.name == "provider_execution"
     )
-    assert provider_stage.outputs["ka_lifecycle"][
-        "request_governance"
-    ]["executed_ids"] == ["KA-1072"]
-    assert provider_stage.outputs["ka_lifecycle"][
-        "response_monitoring"
-    ]["executed_ids"] == ["KA-084"]
+    assert provider_stage.outputs["ka_lifecycle"]["request_governance"][
+        "executed_ids"
+    ] == ["KA-1072"]
+    assert provider_stage.outputs["ka_lifecycle"]["response_monitoring"][
+        "executed_ids"
+    ] == ["KA-084"]
     assert provider_stage.outputs["effect_receipt"]["status"] == "applied"
     assert (
-        provider_stage.outputs["effect_receipt"]["service"]
-        == "ProviderGatewayService"
+        provider_stage.outputs["effect_receipt"]["service"] == "ProviderGatewayService"
     )
-    assert provider_stage.outputs["effect_receipt"]["ka_plan_id"] == (
-        provider_stage.outputs["ka_lifecycle"]["request_governance"][
-            "plan_id"
-        ]
+    assert (
+        provider_stage.outputs["effect_receipt"]["ka_plan_id"]
+        == (provider_stage.outputs["ka_lifecycle"]["request_governance"]["plan_id"])
     )
     assert provider_stage.outputs["effect_receipt"]["ka_proposal_ids"] == []
-    monitoring = provider_stage.outputs["ka_lifecycle"][
-        "response_monitoring_decision"
-    ]
+    monitoring = provider_stage.outputs["ka_lifecycle"]["response_monitoring_decision"]
     assert monitoring["status"] == "measured"
     assert monitoring["notification_applied"] is False
     assert [item["stage_id"] for item in gateway.persisted[0]["trace"]] == [
@@ -422,15 +418,32 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
     assert set(layers["L10"]["ka_results"]) == expected_l10
     assert set(layers["L10"]["outputs"]["kas_invoked"]) == expected_l10
     assert layers["L10"]["outputs"]["effects_applied"] is False
-    assert reasoning["effects"] == [
+    assert reasoning["effects"][:2] == [
         {
             "ka_id": "KA-012",
             "state": "proposal_only",
             "effect_port": "persona_context_service",
             "applied": False,
             "receipt": None,
-        }
+        },
+        {
+            "ka_id": "KA-028",
+            "state": "proposal_only",
+            "effect_port": "persona_context_service",
+            "applied": False,
+            "receipt": None,
+        },
     ]
+    assert [effect["ka_id"] for effect in reasoning["effects"][2:]] == [
+        "KA-012",
+        "KA-028",
+    ]
+    assert all(
+        effect["state"] == "applied_by_owner"
+        and effect["applied"] is True
+        and effect["receipt"]["service"] == "PersonaContextService"
+        for effect in reasoning["effects"][2:]
+    )
     ka = result.metadata["truthcore"]["steps_executed"][0]
     assert ka["input"] == {"query": "Assess the evidence"}
     assert ka["output"]["normalized_query"] == "Assess the evidence"
@@ -465,13 +478,11 @@ async def test_provider_receipt_survives_post_call_ka_monitor_failure(monkeypatc
     ] == ["KA-1072"]
     assert provider_stage.outputs["effect_receipt"]["status"] == "applied"
     assert (
-        provider_stage.outputs["effect_receipt"]["service"]
-        == "ProviderGatewayService"
+        provider_stage.outputs["effect_receipt"]["service"] == "ProviderGatewayService"
     )
-    assert provider_stage.outputs["effect_receipt"]["ka_plan_id"] == (
-        provider_stage.outputs["ka_lifecycle"]["request_governance"][
-            "plan_id"
-        ]
+    assert (
+        provider_stage.outputs["effect_receipt"]["ka_plan_id"]
+        == (provider_stage.outputs["ka_lifecycle"]["request_governance"]["plan_id"])
     )
 
 

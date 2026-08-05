@@ -125,7 +125,7 @@ def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
             len(definition.contract.dependencies)
             for definition in manifest.entries.values()
         )
-        == 142
+        == 135
     )
     assert manifest.entries["KA-081"].contract.dependencies == [
         "KA-085",
@@ -142,9 +142,7 @@ def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
 def test_cp19c_reciprocal_design_dependencies_have_prerequisite_order():
     manifest = load_manifest()
 
-    for canonical_id, override in manifest.authority[
-        "dependency_overrides"
-    ].items():
+    for canonical_id, override in manifest.authority["dependency_overrides"].items():
         assert (
             manifest.entries[canonical_id].contract.dependencies
             == override["dependencies"]
@@ -207,9 +205,7 @@ def test_cp19c_plan_has_all_truthful_dispositions_and_deterministic_order():
     assert first.entries["KA-117"].required
     assert first.entries["KA-117"].disposition == KAPlanDisposition.SELECTED
     assert first.entries["KA-065"].role.value == "dependency"
-    dependency_states = [
-        event.state.value for event in first.entries["KA-065"].events
-    ]
+    dependency_states = [event.state.value for event in first.entries["KA-065"].events]
     assert dependency_states[:4] == [
         "planned",
         "candidate",

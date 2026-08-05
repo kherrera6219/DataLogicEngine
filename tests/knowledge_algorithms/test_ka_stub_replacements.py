@@ -1,11 +1,11 @@
-from backend.knowledge_algorithms.ka_11_analytical_modeling import (
-    KA011AnalyticalModeling,
-    KA011Input,
-)
 from backend.knowledge_algorithms.contracts import (
     KAExecutionResult,
     KAExecutionState,
     KAOutcomeType,
+)
+from backend.knowledge_algorithms.ka_11_analytical_modeling import (
+    KA011AnalyticalModeling,
+    KA011Input,
 )
 from backend.knowledge_algorithms.ka_31_algorithm_selection_engine import (
     KA031AlgorithmSelectionEngine,
@@ -120,8 +120,8 @@ from backend.knowledge_algorithms.ka_85_feature_engineering import (
     KA085FeatureInput,
 )
 from backend.knowledge_algorithms.ka_86_hyperparameter_tuning import (
-    KA086Observation,
     KA086HyperparameterTuning,
+    KA086Observation,
     KA086TuningInput,
 )
 from backend.knowledge_algorithms.ka_87_model_versioning import (
@@ -165,15 +165,17 @@ def test_ka011_supports_structural_and_bayesian_models():
     assert "implementation stubbed" not in str(bayesian["output"]).lower()
 
 
-def test_ka033_extension_slot_summarizes_payload():
+def test_ka033_reserved_slot_never_returns_or_applies_payload():
     result = KA033ExtensionSlot({}).run(
         KA033Input(operation="summarize", payload={"query": "x", "empty": ""})
     )
 
     assert result["success"] is True
-    assert result["output"]["operation"] == "summarize"
-    assert result["output"]["result_payload"]["summary"]["field_count"] == 2
-    assert result["output"]["result_payload"]["summary"]["empty_fields"] == ["empty"]
+    assert result["output"]["status"] == "reserved_disabled"
+    assert result["output"]["execution_allowed"] is False
+    assert result["output"]["payload_returned"] is False
+    assert result["output"]["operation_applied"] is False
+    assert "query" not in str(result["output"])
 
 
 def test_ka031_selects_policy_aware_pipeline():
@@ -651,9 +653,7 @@ def test_ka081_creates_deterministic_training_plan():
         hyperparameters={"learning_rate": 0.001},
         dependency_results={"KA-085": feature, "KA-086": tuning},
     )
-    first = ka.run(
-        payload
-    )
+    first = ka.run(payload)
     second = ka.run(payload)
 
     assert first["success"] is True

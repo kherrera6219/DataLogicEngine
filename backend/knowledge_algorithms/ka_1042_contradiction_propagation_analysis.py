@@ -56,10 +56,7 @@ class KA1042Input(BaseModel):
         },
     )
 
-    conflicts: list[ContradictionRecord] = Field(
-        min_length=1,
-        max_length=100,
-    )
+    conflicts: list[ContradictionRecord] = Field(default_factory=list, max_length=100)
     dependency_graph: list[DependencyEdge] = Field(
         default_factory=list,
         max_length=5_000,
@@ -67,6 +64,7 @@ class KA1042Input(BaseModel):
     maximum_depth: int = Field(default=20, ge=1, le=100)
     maximum_paths_per_conflict: int = Field(default=500, ge=1, le=5_000)
     decay_per_hop: float = Field(default=0.85, ge=0, le=1)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_identity(self) -> KA1042Input:
@@ -113,6 +111,20 @@ class KA1042ContradictionPropagationAnalysis(KnowledgeAlgorithm):
         return visited != len(nodes)
 
     def _run_logic(self, input_data: KA1042Input) -> dict[str, Any]:
+        conflicts = list(input_data.conflicts)
+        if not conflicts:
+            dependency_conflicts = (
+                input_data.dependency_results.get("KA-026", {}).get("conflicts") or []
+            )
+            conflicts = [
+                ContradictionRecord(
+                    conflict_id=str(row.get("f1_id") or f"conflict-{index}"),
+                    node_id=str(row.get("f1_id") or f"claim-{index}"),
+                    severity=float(row.get("severity") or 0.0),
+                )
+                for index, row in enumerate(dependency_conflicts, start=1)
+                if isinstance(row, dict)
+            ]
         adjacency: dict[str, list[str]] = defaultdict(list)
         for edge in input_data.dependency_graph:
             adjacency[edge.upstream].append(edge.downstream)
@@ -123,7 +135,7 @@ class KA1042ContradictionPropagationAnalysis(KnowledgeAlgorithm):
         impacts: dict[str, dict[str, Any]] = {}
         truncated = False
         for conflict in sorted(
-            input_data.conflicts,
+            conflicts,
             key=lambda item: item.conflict_id,
         ):
             queue: deque[tuple[str, list[str]]] = deque(
@@ -191,6 +203,8 @@ class KA1042ContradictionPropagationAnalysis(KnowledgeAlgorithm):
             "cycle_detected": self._cycle_detected(input_data.dependency_graph),
             "truncated": truncated,
             "deterministic": True,
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "corrections_applied": 0,
             "limitations": (
                 "Impact is a transparent severity-decay heuristic over the "
                 "supplied dependency graph. It does not prove that a downstream "

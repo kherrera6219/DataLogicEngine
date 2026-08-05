@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.2.6 |
+| Document version | v1.2.7 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -37,12 +37,12 @@ SDKs.
 
 | Area | Current state |
 |---|---|
-| Canonical Knowledge Algorithms | 213 retained; 155 production-enabled |
-| Runtime authority | One generated manifest/controller; 142-edge acyclic dependency graph |
+| Canonical Knowledge Algorithms | 213 retained; 170 production-enabled |
+| Runtime authority | One generated manifest/controller; 135-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 86/213; 127 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batches 08-18 complete, Batch 19 next, 25 remain |
-| Latest source validation | 2,799 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 115/213; 98 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batches 08-23 complete, Batch 24 next, 20 remain |
+| Latest source validation | 2,866 passed, 18 skipped, 35 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
@@ -95,11 +95,13 @@ The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batches 08 through 18 are complete. Batches
-16-18 add explicit adversarial/privacy evaluation, dependency-bound knowledge
-trust/containment, bounded supplied-graph expansion, and promotion decisions
-without applying those effects. The current matrix has 127 open rows and Batch
-19 is the persona foundation group.
+treated as one unsafe mega-batch. Batches 08 through 23 are complete. Batches
+19-23 complete the five-node Quad Persona foundation, evidence/confidence/
+entropy validation, adaptive DMRF routing, retrieval-store maintenance, and
+knowledge-content evolution through their real owners. Persona context is
+applied once by `PersonaContextService`; store and content changes remain
+idempotent, release-gated owner decisions with no hidden mutation. The current
+matrix has 98 open rows and Batch 24 is the knowledge-lifecycle analytics group.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
@@ -231,6 +233,12 @@ Completed source and engineering checkpoints:
   canonical controller authority with self-selection disabled. These paths
   apply no hidden provider, vector, store, graph, knowledge, memory, or
   capability effect
+- Phase 19 CP19-K Batches 19-23 passed: 29 individually evidenced algorithms
+  now execute through Quad Persona/DSQP, TruthCore L6-L8, DMRF, retrieval/store,
+  and TruthMemory lifecycle owners. Consensus and confidence remain measured
+  readiness/index outputs rather than fabricated certainty; reserved routing
+  remains disabled; and every persona, store, and content effect stays bounded
+  to an explicit owner receipt or a separate release transaction
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
@@ -256,7 +264,7 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-18 qualify 86/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-23 qualify 115/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
@@ -264,10 +272,12 @@ Open engineering and release acceptance:
   and provider-owned measured model preparation plus bounded model release
   preparation, content-free temporal-health review, deterministic context,
   bounded retrieval, fail-closed routing, adversarial/privacy gating,
-  knowledge trust/containment, and bounded graph expansion/promotion; 127 rows remain open
-- The reviewed remaining roadmap contains 25 cohesive batches (19-43), each
-  bounded to one production owner and effect boundary. Batch 19 is the five-KA
-  persona foundation group. Grouping shares fixtures and transactions
+  knowledge trust/containment, bounded graph expansion/promotion, the complete
+  five-node persona foundation, evidence/confidence/entropy validation, adaptive
+  routing, store maintenance, and content-evolution proposals; 98 rows remain open
+- The reviewed remaining roadmap contains 20 cohesive batches (24-43), each
+  bounded to one production owner and effect boundary. Batch 24 is the four-KA
+  knowledge-lifecycle analytics group. Grouping shares fixtures and transactions
   but does not waive any individual semantic, owning-path, trace, security,
   effect, or performance proof
 - Two additional provider/gateway KAs remain open: API gateway and external

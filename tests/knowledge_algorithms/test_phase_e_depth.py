@@ -15,21 +15,24 @@ from backend.knowledge_algorithms.ka_22_risk_assessment import (
 from backend.knowledge_algorithms.ka_23_belief_decay import KA023BeliefDecay, KA023Input
 
 
-def test_ka014_domain_calibration_varies_with_domain_scores():
+def test_ka014_decision_index_varies_without_claiming_calibration():
     ka = KA014ConfidenceScoring({})
     low = ka.run(
         KA014Input(
             domain_scores={"evidence": 0.2, "risk": 0.3}, risk_domain="high_risk"
         )
-    )["output"]["calibrated_confidence"]
+    )["output"]
     high = ka.run(
         KA014Input(
             domain_scores={"evidence": 0.9, "risk": 0.85}, risk_domain="standard"
         )
-    )["output"]["calibrated_confidence"]
+    )["output"]
 
-    assert high > low
-    assert high != 0.9
+    assert high["confidence_index"] > low["confidence_index"]
+    assert high["confidence_index"] != 0.9
+    assert high["calibrated_confidence"] is None
+    assert low["calibrated_confidence"] is None
+    assert high["is_certified"] is False
 
 
 def test_ka023_domain_specific_lambdas_decay_healthcare_faster_than_general():

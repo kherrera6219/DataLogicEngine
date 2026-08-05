@@ -1,147 +1,111 @@
-"""
-KA-038: Consensus Engine
-Purpose: Derive weighted consensus from multiple persona claims and detect expert conflicts.
-"""
-import logging
-import json
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field, field_validator
+"""KA-038: deterministic DSQP consensus-readiness assessment."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-# Attempt to import mathematical framework for dynamic weights
-try:
-    from core.persona.quad.mathematical_framework import DynamicWeightFunctions
-    MATH_AVAILABLE = True
-except ImportError:
-    MATH_AVAILABLE = False
-
-logger = logging.getLogger(__name__)
 
 class PersonaClaim(BaseModel):
-    claim_id: str = Field(..., description="Unique identifier for the claim being evaluated")
-    content: str = Field(..., description="The substantive content of the claim")
-    persona_type: str = Field(..., description="The persona providing the claim (knowledge, sector, regulatory, compliance)")
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Persona's confidence in this claim")
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str = Field(min_length=1, max_length=200)
+    content: str = Field(min_length=1, max_length=20_000)
+    persona_type: str = Field(min_length=1, max_length=100)
+    support_score: float | None = Field(default=None, ge=0, le=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
 
 class KA038Input(BaseModel):
-    claims: List[PersonaClaim] = Field(..., description="List of claims from various personas")
-    context: Dict[str, Any] = Field(default_factory=dict, description="Context for dynamic weight calculation")
-    manual_weights: Optional[Dict[str, float]] = Field(None, description="Optional manual override for persona weights")
+    model_config = ConfigDict(extra="forbid")
 
-    @field_validator("manual_weights", mode="before")
-    @classmethod
-    def coerce_manual_weights(cls, value):
-        if value in (None, ""):
-            return None
-        if isinstance(value, dict):
-            return value
-        # Generic test harness may inject scalar placeholders; ignore them.
-        return None
+    claims: list[PersonaClaim] = Field(default_factory=list, max_length=1_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    conflict_threshold: float = Field(default=0.4, ge=0, le=1)
+
 
 class KA038ConsensusEngine(KnowledgeAlgorithm):
-    """
-    KA-038: Enhanced Consensus Engine for Enterprise v2.0.
-    Implements weighted semantic voting and conflict detection.
-    """
+    """Report consensus readiness without inventing confidence or resolving dissent."""
+
     input_schema = KA038Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-038"
-        self.weights_engine = DynamicWeightFunctions() if MATH_AVAILABLE else None
 
-    def _run_logic(self, input_data: KA038Input) -> Dict[str, Any]:
-        claims = input_data.claims
-        context = input_data.context
-        
-        # 1. Resolve Weights
-        weights = input_data.manual_weights
-        if not weights:
-            if self.weights_engine:
-                weights = self.weights_engine.compute_all_weights(context)
-            else:
-                # Fallback to equal weights
-                weights = {"knowledge": 0.25, "sector": 0.25, "regulatory": 0.25, "compliance": 0.25}
-        weights = json.loads(json.dumps(weights, sort_keys=True, default=float))
+    def _run_logic(self, input_data: KA038Input) -> dict[str, Any]:
+        weighting = input_data.dependency_results.get("KA-013", {})
+        disposition = input_data.dependency_results.get("KA-030", {})
+        sufficiency = weighting.get("sufficiency") or {}
+        retained_dissent = disposition.get("resolved_findings") or []
 
-        self.log_execution_step("Calculating Weighted Consensus", {"claim_count": len(claims), "weights": weights})
-
-        # 2. Group Claims by ID (Semantic Grouping)
-        groups: Dict[str, List[PersonaClaim]] = {}
-        for claim in claims:
-            if claim.claim_id not in groups:
-                groups[claim.claim_id] = []
-            groups[claim.claim_id].append(claim)
-
-        # 3. Process Each Group
-        consensus_results = []
-        conflicts_detected = []
-
-        for claim_id, group_claims in groups.items():
-            result = self._evaluate_group_consensus(claim_id, group_claims, weights)
-            consensus_results.append(result)
-            
-            if result.get("has_conflict"):
-                conflicts_detected.append({
+        by_claim: dict[str, list[PersonaClaim]] = {}
+        for claim in input_data.claims:
+            by_claim.setdefault(claim.claim_id, []).append(claim)
+        claim_measurements: list[dict[str, Any]] = []
+        claim_conflicts: list[str] = []
+        for claim_id, group in sorted(by_claim.items()):
+            measured = [
+                claim.support_score
+                for claim in group
+                if claim.support_score is not None
+            ]
+            delta = max(measured) - min(measured) if len(measured) > 1 else None
+            conflict = delta is not None and delta > input_data.conflict_threshold
+            if conflict:
+                claim_conflicts.append(claim_id)
+            claim_measurements.append(
+                {
                     "claim_id": claim_id,
-                    "delta": result.get("max_delta"),
-                    "voters": [c.persona_type for c in group_claims]
-                })
+                    "persona_count": len({claim.persona_type for claim in group}),
+                    "measured_support_count": len(measured),
+                    "support_range": (
+                        [round(min(measured), 8), round(max(measured), 8)]
+                        if measured
+                        else None
+                    ),
+                    "maximum_support_delta": (
+                        round(delta, 8) if delta is not None else None
+                    ),
+                    "conflict_detected": conflict,
+                }
+            )
 
+        dependencies_complete = set(input_data.dependency_results) == {
+            "KA-013",
+            "KA-030",
+        }
+        consensus_ready = bool(
+            dependencies_complete
+            and sufficiency.get("sufficient") is True
+            and weighting.get("silent_dissent_count") == 0
+            and disposition.get("silent_dissent_count") == 0
+            and not retained_dissent
+            and not claim_conflicts
+        )
         return {
             "success": True,
-            "ka_id": self.ka_id,
-            "consensus_results": consensus_results,
-            "conflicts": conflicts_detected,
-            "overall_consensus_reached": len(conflicts_detected) == 0,
-            "metadata": {
-                "weights_used": weights,
-                "math_framework_active": MATH_AVAILABLE
-            }
+            "status": "consensus_ready" if consensus_ready else "consensus_blocked",
+            "consensus_ready": consensus_ready,
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "persona_sufficient": sufficiency.get("sufficient") is True,
+            "retained_dissent_count": len(retained_dissent),
+            "claim_measurements": claim_measurements,
+            "claim_conflict_ids": claim_conflicts,
+            "calibrated_confidence": None,
+            "substantive_consensus_claimed": False,
+            "context_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "Consensus readiness means required persona coverage and dissent "
+                "handling are complete. It is not factual agreement, calibrated "
+                "confidence, or authority to suppress an objection."
+            ),
         }
 
-    def _evaluate_group_consensus(self, claim_id: str, group: List[PersonaClaim], weights: Dict[str, float]) -> Dict[str, Any]:
-        """Calculates weighted confidence and detects significant delta (conflict)."""
-        weighted_sum = 0.0
-        weight_total = 0.0
-        confidences = []
 
-        for claim in group:
-            w = weights.get(claim.persona_type, 0.0)
-            if w > 0:
-                weighted_sum += claim.confidence * w
-                weight_total += w
-                confidences.append(claim.confidence)
-
-        final_conf = (weighted_sum / weight_total) if weight_total > 0 else 0.0
-        
-        # Conflict Detection: Delta > 0.4 between any two active voters
-        max_delta = 0.0
-        if len(confidences) > 1:
-            max_delta = max(confidences) - min(confidences)
-
-        return {
-            "claim_id": claim_id,
-            "content": group[0].content, # Representative content
-            "weighted_confidence": round(final_conf, 4),
-            "max_delta": round(max_delta, 4),
-            "has_conflict": max_delta > 0.4,
-            "voter_count": len(group)
-        }
-
-    def _fallback_logic(self, input_data: Any, exception: Exception) -> Dict[str, Any]:
-        return {
-            "success": False,
-            "error": str(exception),
-            "consensus_results": [],
-            "status": "DEGRADED"
-        }
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA038ConsensusEngine(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-038 Fatal Execution Error: {e}")
-        return {"success": False, "error": str(e)}
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA038ConsensusEngine(context).run(context)

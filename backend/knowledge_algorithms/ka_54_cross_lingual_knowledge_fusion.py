@@ -1,73 +1,96 @@
-"""
-KA-054: Cross-Lingual Knowledge Fusion
-Purpose: Align and merge knowledge fragments across different languages to ensure a language-agnostic unified knowledge base.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
+"""KA-054: bounded cross-lingual alignment proposal generation."""
+
+from __future__ import annotations
+
+from itertools import combinations
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA054Input(BaseModel):
-    multilingual_sources: List[Dict[str, Any]] = Field(default_factory=list, description="A list of high-fidelity sources in different languages to fuse")
+    model_config = ConfigDict(extra="forbid")
+
+    multilingual_sources: list[dict[str, Any]] = Field(
+        default_factory=list, max_length=1_000
+    )
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
 
 class KA054CrossLingualKnowledgeFusion(KnowledgeAlgorithm):
-    """
-    KA-054: Multilingual alignment and concept fusion engine for language-agnostic knowledge.
-    """
+    """Match declared concept IDs without translating or merging content."""
+
     input_schema = KA054Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-054"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_54_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA054Input) -> Dict[str, Any]:
-        sources = input_data.multilingual_sources
-        self.log_execution_step("Fusing Cross-Lingual Knowledge", {"source_count": len(sources)})
-        
+    def _run_logic(self, input_data: KA054Input) -> dict[str, Any]:
         alignments = []
-        alignment_threshold = self.config.get("alignment_threshold", 0.85)
-        for i in range(len(sources)):
-            for j in range(i + 1, len(sources)):
-                s1 = sources[i]
-                s2 = sources[j]
-                for n1 in s1.get("nodes", []):
-                    for n2 in s2.get("nodes", []):
-                        if n1.get("concept_id") == n2.get("concept_id"):
-                            alignments.append({
-                                "source_node": n1.get("id"),
-                                "target_node": n2.get("id"),
-                                "languages": [s1.get("lang"), s2.get("lang")],
-                                "trust_score": alignment_threshold
-                            })
-                            
+        sources = sorted(
+            input_data.multilingual_sources,
+            key=lambda row: (
+                str(row.get("language") or row.get("lang") or ""),
+                str(row.get("source_id") or ""),
+            ),
+        )
+        for left, right in combinations(sources, 2):
+            left_language = str(left.get("language") or left.get("lang") or "unknown")
+            right_language = str(
+                right.get("language") or right.get("lang") or "unknown"
+            )
+            left_nodes = {
+                str(node.get("concept_id")): str(
+                    node.get("id") or node.get("concept_id")
+                )
+                for node in left.get("nodes", [])
+                if isinstance(node, dict) and node.get("concept_id")
+            }
+            right_nodes = {
+                str(node.get("concept_id")): str(
+                    node.get("id") or node.get("concept_id")
+                )
+                for node in right.get("nodes", [])
+                if isinstance(node, dict) and node.get("concept_id")
+            }
+            for concept_id in sorted(set(left_nodes) & set(right_nodes)):
+                alignments.append(
+                    {
+                        "alignment_id": stable_identifier(
+                            "cross-lingual",
+                            {
+                                "concept_id": concept_id,
+                                "languages": sorted([left_language, right_language]),
+                            },
+                        ),
+                        "concept_id": concept_id,
+                        "source_node_ids": sorted(
+                            [left_nodes[concept_id], right_nodes[concept_id]]
+                        ),
+                        "languages": sorted([left_language, right_language]),
+                        "basis": "declared_concept_identity",
+                        "requires_translation_review": True,
+                    }
+                )
         return {
             "success": True,
+            "status": "cross_lingual_alignments_proposed",
             "alignment_records": alignments,
-            "fusion_count": len(alignments),
-            "status": "ALIGNED"
+            "alignment_count": len(alignments),
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "translation_performed": False,
+            "fusion_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "Matching declared concept IDs does not prove equivalent meaning "
+                "across languages. No translation, trust score, or merge is applied."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA054CrossLingualKnowledgeFusion(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-054 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA054CrossLingualKnowledgeFusion(context).run(context)

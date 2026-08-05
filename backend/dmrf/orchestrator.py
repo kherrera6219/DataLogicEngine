@@ -30,7 +30,7 @@ from .desktop_config import DMRFDesktopConfig
 from .frost_bridge import FROSTBridge
 from .injection_defense import InjectionDefense
 from .mlflow_tracker import DMRFMLflowTracker
-from .models import DMRFResult, DMRFStep, TIER_ORDER, TierClassification
+from .models import TIER_ORDER, DMRFResult, DMRFStep, TierClassification
 from .observability import DMRFObservability
 from .router import DMRFRouter
 from .tier_classifier import DMRFTierClassifier
@@ -146,7 +146,7 @@ class DMRFOrchestrator:
         if self.db_session is not None:
             try:
                 self.memory.persist(result, session_id=context.get("truth_session_id"))
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - optional persistence boundary
                 result.warnings.append(
                     f"dmrf_memory_persist_failed:{type(exc).__name__}"
                 )
@@ -215,8 +215,30 @@ class DMRFOrchestrator:
                 ),
             )
         ]
+        query_terms = set(query.casefold().split())
+        scored_intents = [
+            {
+                "name": item["intent_id"],
+                "score": round(
+                    len(query_terms & set(item["keywords"]))
+                    / max(len(set(item["keywords"])), 1),
+                    8,
+                ),
+            }
+            for item in candidate_intents
+        ]
+        entropy_categories = [
+            {"category": item["name"], "count": max(item["score"], 0.01)}
+            for item in scored_intents
+        ]
         request = KASelectionRequest(
-            requested_ids=["KA-036", "KA-1073", "KA-031"],
+            requested_ids=[
+                "KA-036",
+                "KA-1073",
+                "KA-031",
+                "KA-058",
+                "KA-059",
+            ],
             ka_inputs={
                 "KA-004": {"query": query},
                 "KA-005": {"query": query},
@@ -243,6 +265,18 @@ class DMRFOrchestrator:
                     "available_kas": available_kas,
                     "budget": {"max_kas": 10},
                 },
+                "KA-1102": {"categories": entropy_categories},
+                "KA-058": {
+                    "ambiguity_metrics": {},
+                    "competing_intents": sorted(
+                        scored_intents,
+                        key=lambda item: (-item["score"], item["name"]),
+                    ),
+                },
+                "KA-059": {
+                    "complexity_tier": heuristic.tier,
+                    "budget": 1.0,
+                },
             },
             context=KAExecutionContext(
                 request_id=str(context.get("request_id") or result.run_id),
@@ -254,7 +288,7 @@ class DMRFOrchestrator:
                 layer="L1",
                 budget=KABudget(
                     deadline_ms=5_000,
-                    max_selected_algorithms=8,
+                    max_selected_algorithms=12,
                     max_dependency_executions=8,
                     max_recursion_depth=4,
                     max_fan_out=8,
@@ -296,8 +330,13 @@ class DMRFOrchestrator:
             if execution.success
         }
         selection_output = outputs.get("KA-031", {})
-        if report.status != KAPlanExecutionStatus.SUCCEEDED or not isinstance(
-            selection_output, dict
+        clarification_output = outputs.get("KA-058", {})
+        preemption_output = outputs.get("KA-059", {})
+        if (
+            report.status != KAPlanExecutionStatus.SUCCEEDED
+            or not isinstance(selection_output, dict)
+            or clarification_output.get("clarification_dispatched") is not False
+            or (preemption_output.get("preemption_applied") is not False)
         ):
             self._record_step(
                 result,

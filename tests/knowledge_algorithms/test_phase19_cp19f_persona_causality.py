@@ -60,7 +60,13 @@ def _selection_request() -> KASelectionRequest:
     return KASelectionRequest.model_validate(
         {
             "mode": "production",
-            "requested_ids": ["KA-012", "KA-013", "KA-030"],
+            "requested_ids": [
+                "KA-012",
+                "KA-013",
+                "KA-028",
+                "KA-030",
+                "KA-038",
+            ],
             "service_capabilities": ["persona_context_service"],
             "ka_inputs": {
                 "KA-012": {
@@ -72,9 +78,14 @@ def _selection_request() -> KASelectionRequest:
                     "domain": "REGULATORY",
                     "required_personas": list(PERSONAS),
                 },
+                "KA-028": {
+                    "query": "Assess a regulated encryption deployment",
+                    "existing_personas": list(PERSONAS),
+                },
                 "KA-030": {
                     "query": "Assess a regulated encryption deployment",
                 },
+                "KA-038": {"claims": []},
             },
             "context": {
                 "request_id": "cp19f-persona-chain",
@@ -91,7 +102,7 @@ def _selection_request() -> KASelectionRequest:
                     "max_input_bytes": 1_000_000,
                     "max_output_bytes": 5_000_000,
                     "max_provider_calls": 0,
-                    "max_effects": 1,
+                    "max_effects": 2,
                 },
             },
         }
@@ -109,13 +120,29 @@ async def test_cp19f_persona_dag_executes_once_without_fake_confidence():
     assert controller.manifest.status == "cp19_j_product_workflow_authority"
     assert controller.manifest.entries["KA-012"].contract.dependencies == []
     assert controller.manifest.entries["KA-013"].contract.dependencies == ["KA-012"]
+    assert controller.manifest.entries["KA-028"].contract.dependencies == []
     assert controller.manifest.entries["KA-030"].contract.dependencies == ["KA-013"]
-    assert plan.execution_order == [["KA-012"], ["KA-013"], ["KA-030"]]
+    assert controller.manifest.entries["KA-038"].contract.dependencies == [
+        "KA-013",
+        "KA-030",
+    ]
+    assert plan.execution_order == [
+        ["KA-012", "KA-028"],
+        ["KA-013"],
+        ["KA-030"],
+        ["KA-038"],
+    ]
 
     report = await KAPlanExecutor(controller).execute(plan, request)
 
     assert report.status is KAPlanExecutionStatus.SUCCEEDED
-    assert set(report.results) == {"KA-012", "KA-013", "KA-030"}
+    assert set(report.results) == {
+        "KA-012",
+        "KA-013",
+        "KA-028",
+        "KA-030",
+        "KA-038",
+    }
     assert all(
         sum(event.state is KATraceState.EXECUTED for event in trace.events) == 1
         for trace in report.traces.values()
@@ -123,14 +150,20 @@ async def test_cp19f_persona_dag_executes_once_without_fake_confidence():
     )
     analysis = report.results["KA-012"].output
     weighting = report.results["KA-013"].output
+    expansion = report.results["KA-028"].output
     disposition = report.results["KA-030"].output
+    consensus = report.results["KA-038"].output
     assert analysis["provider_subcalls_used"] == 0
     assert weighting["sufficiency"]["sufficient"] is True
     assert weighting["final_consensus_confidence"] is None
     assert weighting["silent_dissent_count"] == 0
+    assert expansion["context_applied"] is False
     assert disposition["all_dissent_preserved"] is True
     assert disposition["confidence_adjustment"] is None
     assert len(disposition["prompt_constraints"]) == len(weighting["dissent"])
+    assert consensus["dependencies_consumed"] == ["KA-013", "KA-030"]
+    assert consensus["substantive_consensus_claimed"] is False
+    assert consensus["calibrated_confidence"] is None
 
 
 class _MarkedDSQP(_DSQP):
@@ -226,8 +259,12 @@ async def test_cp19f_persona_output_changes_prompt_and_single_candidate(
         layer["layer_id"]: layer
         for layer in first.metadata["reasoning_state"]["layers"]
     }
-    assert layers["L4"]["selected_ka_ids"] == ["KA-012"]
-    assert set(layers["L5"]["selected_ka_ids"]) == {"KA-013", "KA-030"}
+    assert layers["L4"]["selected_ka_ids"] == ["KA-012", "KA-028"]
+    assert set(layers["L5"]["selected_ka_ids"]) == {
+        "KA-013",
+        "KA-030",
+        "KA-038",
+    }
     selected = [
         canonical_id
         for layer in layers.values()
@@ -235,10 +272,10 @@ async def test_cp19f_persona_output_changes_prompt_and_single_candidate(
     ]
     assert selected.count("KA-012") == 1
     assert selected.count("KA-013") == 1
+    assert selected.count("KA-028") == 1
     assert selected.count("KA-030") == 1
+    assert selected.count("KA-038") == 1
     assert not set(selected) & {
-        "KA-028",
-        "KA-038",
         "KA-057",
         "KA-068",
         "KA-069",

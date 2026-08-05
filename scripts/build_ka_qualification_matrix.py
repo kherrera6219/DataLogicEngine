@@ -20,9 +20,7 @@ if str(ROOT) not in sys.path:
 from backend.knowledge_algorithms.manifest import load_manifest
 from scripts.build_ka_integration_authority import build_authority
 
-OUTPUT_DIR = (
-    ROOT / "reports" / "production-readiness" / "2026" / "phase-19"
-)
+OUTPUT_DIR = ROOT / "reports" / "production-readiness" / "2026" / "phase-19"
 DEFAULT_JSON_PATH = OUTPUT_DIR / "ka-qualification-matrix.json"
 DEFAULT_CSV_PATH = OUTPUT_DIR / "ka-qualification-matrix.csv"
 DEFAULT_MARKDOWN_PATH = OUTPUT_DIR / "cp19-k-qualification-matrix.md"
@@ -97,8 +95,7 @@ def _fixture_evidence(
         and (
             canonical_id in request.get("requested_ids", [])
             or (
-                expected_fragment == "negative_selector"
-                and bool(request.get("stages"))
+                expected_fragment == "negative_selector" and bool(request.get("stages"))
             )
         )
     )
@@ -178,9 +175,7 @@ def _validate_source(
     if source.get("manifest_version") != manifest_version:
         raise ValueError("CP19-K evidence source manifest version drift")
 
-    authority_ids = {
-        row["canonical_id"] for row in authority["canonical_capabilities"]
-    }
+    authority_ids = {row["canonical_id"] for row in authority["canonical_capabilities"]}
     qualifications = source.get("qualifications")
     if not isinstance(qualifications, dict):
         raise TypeError("CP19-K evidence source qualifications must be an object")
@@ -219,8 +214,7 @@ def build_matrix() -> dict[str, Any]:
     )
 
     authority_rows = {
-        row["canonical_id"]: row
-        for row in authority["canonical_capabilities"]
+        row["canonical_id"]: row for row in authority["canonical_capabilities"]
     }
     if set(authority_rows) != set(manifest.entries):
         raise ValueError("CP19-K authority and runtime manifest identities differ")
@@ -255,8 +249,7 @@ def build_matrix() -> dict[str, Any]:
         )
         effect_applicability = (
             "required"
-            if definition.contract.effect_class
-            == "effect_oriented_review_required"
+            if definition.contract.effect_class == "effect_oriented_review_required"
             else "not_applicable"
         )
         evidence = {
@@ -280,9 +273,7 @@ def build_matrix() -> dict[str, Any]:
                 **trace,
                 "required_states": REQUIRED_TRACE_STATES,
             },
-            "security_review": _review_evidence(
-                review.get("security_evidence")
-            ),
+            "security_review": _review_evidence(review.get("security_evidence")),
             "effect_review": _review_evidence(
                 review.get("effect_evidence"),
                 expected_applicability=effect_applicability,
@@ -303,29 +294,23 @@ def build_matrix() -> dict[str, Any]:
                 "effect_class": definition.contract.effect_class,
                 "effect_port": definition.integration.effect_port,
                 "limitation": limitation,
-                "performance_budget_ms": (
-                    definition.contract.performance_budget_ms
-                ),
+                "performance_budget_ms": (definition.contract.performance_budget_ms),
                 "batch_id": review.get("batch_id"),
                 "evidence": evidence,
                 "missing_evidence": missing,
-                "qualification_status": (
-                    "qualified" if not missing else "incomplete"
-                ),
+                "qualification_status": ("qualified" if not missing else "incomplete"),
             }
         )
 
     status_counts = Counter(row["qualification_status"] for row in rows)
     evidence_counts = {
-        key: sum(
-            row["evidence"][key]["status"] == "qualified" for row in rows
-        )
+        key: sum(row["evidence"][key]["status"] == "qualified" for row in rows)
         for key in rows[0]["evidence"]
     }
     qualified = status_counts["qualified"]
     return {
         "schema_version": "dle.cp19-k-qualification-matrix.v1",
-        "matrix_version": "2026.08.02-cp19k.9",
+        "matrix_version": "2026.08.04-cp19k.10",
         "status": (
             "cp19_k_complete" if qualified == len(rows) else "cp19_k_in_progress"
         ),

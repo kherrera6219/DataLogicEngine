@@ -1,9 +1,9 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.08.04-cp19k.6",
+  "manifest_version": "2026.08.04-cp19k.7",
   "canonical_capabilities": 213,
-  "dependency_edges": 142,
+  "dependency_edges": 135,
   "dependency_cycles": 0,
   "dependency_result_contract": "dle.ka-execution-result.v1#output",
   "dependency_input_field": "dependency_results",
@@ -113,6 +113,14 @@
       ],
       "matches_approved_order": true,
       "rationale": "Conflict disposition consumes weighted, retained dissent and turns it into mandatory prompt constraints."
+    },
+    "KA-038": {
+      "dependencies": [
+        "KA-013",
+        "KA-030"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Consensus readiness consumes committed persona sufficiency and the exact retained-dissent disposition."
     },
     "KA-003": {
       "dependencies": [],
@@ -274,6 +282,45 @@
       ],
       "matches_approved_order": true,
       "rationale": "Chaos admission consumes the simulation budget decision and system-integrity state before an authoritative fault service may consider the proposal."
+    },
+    "KA-002": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Candidate-tree planning decomposes an explicit goal and does not silently trigger normalization or graph expansion."
+    },
+    "KA-009": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Evidence scoring consumes bounded supplied evidence; provenance and source-trust decisions remain separate owner gates."
+    },
+    "KA-026": {
+      "dependencies": [
+        "KA-009"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Contradiction review follows the exact evidence-validation result and never starts a persona or provider path implicitly."
+    },
+    "KA-1042": {
+      "dependencies": [
+        "KA-026"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Impact propagation consumes committed contradiction findings over the caller-supplied dependency graph."
+    },
+    "KA-1102": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Entropy quantification is a pure calculation over one explicit distribution and must not trigger reasoning or persona execution."
+    },
+    "KA-014": {
+      "dependencies": [
+        "KA-009",
+        "KA-026",
+        "KA-1041",
+        "KA-1102"
+      ],
+      "matches_approved_order": true,
+      "rationale": "The confidence decision consumes committed evidence, contradiction, normalization, and entropy measurements without duplicated claims."
     },
     "KA-015": {
       "dependencies": [],

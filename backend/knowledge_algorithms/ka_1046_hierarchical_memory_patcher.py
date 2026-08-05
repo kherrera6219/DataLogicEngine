@@ -62,6 +62,7 @@ class KA1046Input(BaseModel):
     updates: list[MemoryUpdate] = Field(min_length=1, max_length=1_000)
     minimum_long_term_confidence: float = Field(default=0.8, ge=0, le=1)
     minimum_long_term_evidence: int = Field(default=2, ge=0, le=10_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_update_ids(self) -> KA1046Input:
@@ -145,6 +146,7 @@ class KA1046HierarchicalMemoryPatcher(KnowledgeAlgorithm):
             "patch_applied": False,
             "effect_service_required": True,
             "deterministic": True,
+            "dependencies_consumed": sorted(input_data.dependency_results),
             "limitations": (
                 "This capability creates version-preconditioned patch plans. "
                 "Only the owning memory service may authorize, transact, and "

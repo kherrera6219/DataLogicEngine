@@ -33,6 +33,7 @@ class KA1102Input(BaseModel):
     )
 
     categories: list[EntropyCategory] = Field(min_length=1, max_length=100_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_distribution(self) -> KA1102Input:
@@ -71,6 +72,7 @@ class KA1102GlobalEntropyQuantifier(KnowledgeAlgorithm):
             "category_count": possible,
             "distribution_total": total,
             "deterministic": True,
+            "dependencies_consumed": sorted(input_data.dependency_results),
             "limitations": (
                 "Entropy measures distribution uncertainty only and does not "
                 "measure truth, risk, quality, or causal complexity."

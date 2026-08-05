@@ -1,14 +1,14 @@
 # CP19-K per-KA qualification matrix
 
-**Matrix version:** `2026.08.02-cp19k.9`
+**Matrix version:** `2026.08.04-cp19k.10`
 **Status:** `cp19_k_in_progress`
 **Release decision:** NO-GO; rebuild not authorized
 
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 86 rows are fully
-qualified and 127 remain open. A row closes
+canonical capabilities. 115 rows are fully
+qualified and 98 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -38,6 +38,11 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-16-truthgate-adversarial-privacy` | 2026-08-04 | 4 | TruthGate-owned adversarial observation evaluation, field privacy transformation, safety admission, and exact-value redaction with no attack execution or external effect |
 | `cp19-k-batch-17-knowledge-trust-containment` | 2026-08-04 | 6 | Causal provenance, regression, integrity, quarantine, and containment decisions through the knowledge lifecycle owner with exact dependency consumption and no direct knowledge mutation |
 | `cp19-k-batch-18-knowledge-expansion-promotion` | 2026-08-04 | 2 | Bounded supplied-graph expansion and dependency-bound promotion decisions through the retrieval and graph owner without graph access, mutation, or promotion effect |
+| `cp19-k-batch-19-persona-foundation` | 2026-08-04 | 5 | Five-node DSQP persona analysis, bounded viewpoint expansion, weighting, dissent preservation, consensus readiness, and one PersonaContextService receipt without provider subcalls or fabricated confidence |
+| `cp19-k-batch-20-l6-evidence-confidence-entropy` | 2026-08-04 | 8 | Causal bounded candidate, evidence, contradiction, normalization, propagation, imputation, confidence-index, and entropy decisions through the TruthCore L6-L8 owner without correction or certification effects |
+| `cp19-k-batch-21-dmrf-adaptive-routing` | 2026-08-04 | 3 | Fail-closed reserved-slot enforcement plus ambiguity and fast-path advice through governed DMRF with no payload echo, autonomous clarification, learning update, safety-layer skip, or routing mutation |
+| `cp19-k-batch-22-retrieval-store-maintenance` | 2026-08-04 | 8 | Cache, ontology, alignment, lineage, patch, conflict, pruning, and tier proposals reviewed by KnowledgeStoreService with idempotent no-mutation receipts and no rollback required |
+| `cp19-k-batch-23-knowledge-content-evolution` | 2026-08-04 | 5 | Content-free distillation, compression, cross-lingual alignment, multimodal review, and tuning proposals rejected from application by the release-gated KnowledgeLifecycleService with idempotent receipts |
 
 ## Gate decision
 

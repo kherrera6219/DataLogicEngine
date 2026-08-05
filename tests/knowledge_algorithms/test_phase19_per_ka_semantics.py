@@ -2250,3 +2250,332 @@ def test_ka_1079_semantic_contract():
     _assert_pure_bounded_result("KA-1079", promoted)
     assert promoted.output["decision"] == "approve"
     assert promoted.output["promotion_applied"] is False
+
+
+def _persona_foundation_outputs():
+    profiles = {
+        persona: {
+            "persona_id": f"profile-{persona}",
+            "persona_type": persona,
+            "axis_number": axis,
+            "components": {"job_role": {"focus_area": f"{persona} review"}},
+            "validation": {"valid": True, "coverage_score": 1.0},
+        }
+        for axis, persona in zip(
+            (8, 9, 10, 11),
+            ("knowledge", "sector", "regulatory", "compliance"),
+            strict=True,
+        )
+    }
+    analysis = _execute(
+        "KA-012",
+        {
+            "query": "Assess a regulated release",
+            "active_personas": sorted(profiles),
+            "dsqp_profiles": profiles,
+        },
+    )
+    weighting = _execute(
+        "KA-013",
+        {
+            "required_personas": sorted(profiles),
+            "dependency_results": {"KA-012": analysis.output},
+        },
+    )
+    disposition = _execute(
+        "KA-030",
+        {
+            "query": "Assess a regulated release",
+            "dependency_results": {"KA-013": weighting.output},
+        },
+    )
+    consensus = _execute(
+        "KA-038",
+        {
+            "dependency_results": {
+                "KA-013": weighting.output,
+                "KA-030": disposition.output,
+            }
+        },
+    )
+    return analysis, weighting, disposition, consensus
+
+
+def test_ka_012_semantic_contract():
+    analysis, _, _, _ = _persona_foundation_outputs()
+    _assert_bounded_result("KA-012", analysis)
+    assert analysis.output["provider_subcalls_used"] == 0
+    assert all(
+        item["confidence"] is None for item in analysis.output["persona_findings"]
+    )
+
+
+def test_ka_013_semantic_contract():
+    _, weighting, _, _ = _persona_foundation_outputs()
+    _assert_pure_bounded_result("KA-013", weighting)
+    assert weighting.output["final_consensus_confidence"] is None
+    assert weighting.output["sufficiency"]["sufficient"] is True
+
+
+def test_ka_028_semantic_contract():
+    expanded = _execute(
+        "KA-028",
+        {
+            "query": "Assess customer regulatory impact",
+            "existing_personas": ["knowledge"],
+        },
+    )
+    _assert_bounded_result("KA-028", expanded)
+    assert expanded.output["context_applied"] is False
+    assert expanded.output["deterministic"] is True
+
+
+def test_ka_030_semantic_contract():
+    _, _, disposition, _ = _persona_foundation_outputs()
+    _assert_pure_bounded_result("KA-030", disposition)
+    assert disposition.output["all_dissent_preserved"] is True
+    assert disposition.output["substantive_resolution_claimed"] is False
+
+
+def test_ka_038_semantic_contract():
+    _, _, _, consensus = _persona_foundation_outputs()
+    _assert_pure_bounded_result("KA-038", consensus)
+    assert consensus.output["substantive_consensus_claimed"] is False
+    assert consensus.output["calibrated_confidence"] is None
+
+
+def _batch_20_payloads():
+    from tests.integration.phase19.test_truthcore_l6_l8 import _inputs
+
+    return _inputs()
+
+
+def test_ka_002_semantic_contract():
+    result = _execute("KA-002", _batch_20_payloads()["KA-002"])
+    _assert_bounded_result("KA-002", result)
+    assert result.output["candidate_only"] is True
+    assert result.output["execution_started"] is False
+
+
+def test_ka_009_semantic_contract():
+    result = _execute("KA-009", _batch_20_payloads()["KA-009"])
+    _assert_pure_bounded_result("KA-009", result)
+    assert result.output["evidence_state_updated"] is False
+
+
+def test_ka_014_semantic_contract():
+    payload = _batch_20_payloads()["KA-014"]
+    payload["dependency_results"] = {
+        "KA-009": {"results": [{"score": 0.8}]},
+        "KA-026": {"has_contradictions": False},
+        "KA-1041": {"normalized_confidence": [{"normalized_confidence": 0.8}]},
+        "KA-1102": {"normalized_entropy": 0.2},
+    }
+    result = _execute("KA-014", payload)
+    _assert_pure_bounded_result("KA-014", result)
+    assert result.output["calibrated_confidence"] is None
+    assert result.output["is_certified"] is False
+
+
+def test_ka_026_semantic_contract():
+    payload = _batch_20_payloads()["KA-026"]
+    payload["dependency_results"] = {"KA-009": {"overall_validity": True}}
+    result = _execute("KA-026", payload)
+    _assert_bounded_result("KA-026", result)
+    assert result.output["has_contradictions"] is True
+    assert result.output["corrections_applied"] == 0
+
+
+def test_ka_035_semantic_contract():
+    result = _execute("KA-035", _batch_20_payloads()["KA-035"])
+    _assert_pure_bounded_result("KA-035", result)
+    assert result.output["imputations_applied"] is False
+
+
+def test_ka_1041_semantic_contract():
+    result = _execute("KA-1041", _batch_20_payloads()["KA-1041"])
+    _assert_pure_bounded_result("KA-1041", result)
+    assert result.output["calibrated_probability"] is False
+
+
+def test_ka_1042_semantic_contract():
+    payload = _batch_20_payloads()["KA-1042"]
+    payload["dependency_results"] = {
+        "KA-026": {"conflicts": [{"f1_id": "a", "severity": 1.0}]}
+    }
+    result = _execute("KA-1042", payload)
+    _assert_pure_bounded_result("KA-1042", result)
+    assert result.output["dependencies_consumed"] == ["KA-026"]
+    assert result.output["corrections_applied"] == 0
+
+
+def test_ka_1102_semantic_contract():
+    result = _execute("KA-1102", _batch_20_payloads()["KA-1102"])
+    _assert_pure_bounded_result("KA-1102", result)
+    assert 0 <= result.output["normalized_entropy"] <= 1
+
+
+def test_ka_033_semantic_contract():
+    from backend.knowledge_algorithms.ka_33_reserved_expansion_slot import run
+
+    result = run({"payload": {"secret": "must-not-return"}})
+    assert result["ka_id"] == "KA-033"
+    assert result["output"]["status"] == "reserved_disabled"
+    assert result["output"]["payload_returned"] is False
+    assert load_manifest().entries["KA-033"].admission.production_enabled is False
+
+
+def test_ka_058_semantic_contract():
+    result = _execute(
+        "KA-058",
+        {
+            "competing_intents": [
+                {"name": "DATA", "score": 0.5},
+                {"name": "REASONING", "score": 0.45},
+            ],
+            "dependency_results": {
+                "KA-1073": {"resolved_intent": None},
+                "KA-1102": {"normalized_entropy": 0.9},
+            },
+        },
+    )
+    _assert_pure_bounded_result("KA-058", result)
+    assert result.output["clarification_required"] is True
+    assert result.output["clarification_dispatched"] is False
+    assert result.output["learning_applied"] is False
+
+
+def test_ka_059_semantic_contract():
+    result = _execute(
+        "KA-059",
+        {
+            "complexity_tier": "low",
+            "dependency_results": {
+                "KA-031": {"status": "algorithm_selection_proposed"},
+                "KA-113": {"complexity_tier": "low"},
+            },
+        },
+    )
+    _assert_pure_bounded_result("KA-059", result)
+    assert result.output["preemption_applied"] is False
+    assert result.output["skipped_layers"] == []
+    assert set(result.output["blocked_safety_layers"]) == {"L6", "L7", "L10"}
+
+
+def _batch_22_payload(canonical_id: str):
+    from tests.integration.phase19.test_retrieval_graph_memory import _batch_22_inputs
+
+    payload = dict(_batch_22_inputs()[canonical_id])
+    dependencies = {
+        "KA-1046": {"KA-1079": {}, "KA-1109": {}},
+        "KA-1076": {"KA-1077": {}, "KA-1094": {}},
+        "KA-1078": {"KA-1109": {}},
+    }
+    if canonical_id in dependencies:
+        payload["dependency_results"] = dependencies[canonical_id]
+    return payload
+
+
+def test_ka_080_semantic_contract():
+    result = _execute("KA-080", _batch_22_payload("KA-080"))
+    _assert_bounded_result("KA-080", result)
+    assert result.output["cache_mutation_applied"] is False
+
+
+def test_ka_1039_semantic_contract():
+    result = _execute("KA-1039", _batch_22_payload("KA-1039"))
+    _assert_bounded_result("KA-1039", result)
+    assert result.output["mutation_applied"] is False
+
+
+def test_ka_1040_semantic_contract():
+    result = _execute("KA-1040", _batch_22_payload("KA-1040"))
+    _assert_bounded_result("KA-1040", result)
+    assert result.output["alignment_count"] == 1
+    assert result.output["mutation_applied"] is False
+
+
+def test_ka_1043_semantic_contract():
+    result = _execute("KA-1043", _batch_22_payload("KA-1043"))
+    _assert_bounded_result("KA-1043", result)
+    assert result.output["lineage_complete"] is True
+    assert result.output["lineage_persisted"] is False
+
+
+def test_ka_1046_semantic_contract():
+    result = _execute("KA-1046", _batch_22_payload("KA-1046"))
+    _assert_bounded_result("KA-1046", result)
+    assert result.output["patch_applied"] is False
+    assert result.output["dependencies_consumed"] == ["KA-1079", "KA-1109"]
+
+
+def test_ka_1048_semantic_contract():
+    result = _execute("KA-1048", _batch_22_payload("KA-1048"))
+    _assert_bounded_result("KA-1048", result)
+    assert result.output["mutation_applied"] is False
+
+
+def test_ka_1076_semantic_contract():
+    result = _execute("KA-1076", _batch_22_payload("KA-1076"))
+    _assert_bounded_result("KA-1076", result)
+    assert result.output["nodes_deleted"] == 0
+    assert result.output["dependencies_consumed"] == ["KA-1077", "KA-1094"]
+
+
+def test_ka_1078_semantic_contract():
+    result = _execute("KA-1078", _batch_22_payload("KA-1078"))
+    _assert_bounded_result("KA-1078", result)
+    assert result.output["tier_changes_applied"] is False
+    assert result.output["dependencies_consumed"] == ["KA-1109"]
+
+
+def _batch_23_payload(canonical_id: str):
+    from tests.integration.phase19.test_truthmemory_truthlink_frost import (
+        _batch_23_inputs,
+    )
+
+    payload = dict(_batch_23_inputs()[canonical_id])
+    dependencies = {
+        "KA-051": {"KA-1046": {}, "KA-1079": {}},
+        "KA-053": {"KA-1049": {}, "KA-1077": {}},
+        "KA-054": {"KA-1040": {}},
+        "KA-055": {"KA-009": {}, "KA-018": {}},
+    }
+    if canonical_id in dependencies:
+        payload["dependency_results"] = dependencies[canonical_id]
+    return payload
+
+
+def test_ka_051_semantic_contract():
+    result = _execute("KA-051", _batch_23_payload("KA-051"))
+    _assert_bounded_result("KA-051", result)
+    assert result.output["knowledge_changes_applied"] is False
+    assert result.output["provider_subcalls_used"] == 0
+
+
+def test_ka_053_semantic_contract():
+    result = _execute("KA-053", _batch_23_payload("KA-053"))
+    _assert_bounded_result("KA-053", result)
+    assert result.output["graph_store_read"] is False
+    assert result.output["compression_applied"] is False
+
+
+def test_ka_054_semantic_contract():
+    result = _execute("KA-054", _batch_23_payload("KA-054"))
+    _assert_bounded_result("KA-054", result)
+    assert result.output["translation_performed"] is False
+    assert result.output["fusion_applied"] is False
+
+
+def test_ka_055_semantic_contract():
+    result = _execute("KA-055", _batch_23_payload("KA-055"))
+    _assert_bounded_result("KA-055", result)
+    assert result.output["source_content_returned"] is False
+    assert result.output["fusion_applied"] is False
+
+
+def test_ka_063_semantic_contract():
+    result = _execute("KA-063", _batch_23_payload("KA-063"))
+    _assert_bounded_result("KA-063", result)
+    assert result.output["profile_update_applied"] is False
+    assert result.output["model_training_started"] is False

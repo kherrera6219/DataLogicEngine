@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from backend.knowledge_algorithms.production_utils import (
     load_config,
@@ -15,6 +15,8 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
 class KA028Input(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     query: str = Field(min_length=1, max_length=20_000)
     context: dict[str, Any] = Field(default_factory=dict)
     existing_personas: list[str] = Field(default_factory=list, max_length=100)
@@ -38,9 +40,7 @@ class KA028POVExpansion(KnowledgeAlgorithm):
             for value in input_data.existing_personas
             if value.strip()
         }
-        query_tokens = normalized_tokens(
-            f"{input_data.query} {input_data.context}"
-        )
+        query_tokens = normalized_tokens(f"{input_data.query} {input_data.context}")
         ranked: list[tuple[int, str, dict[str, Any]]] = []
         for key, info in personas.items():
             if key.lower() in existing or not isinstance(info, dict):
@@ -53,8 +53,7 @@ class KA028POVExpansion(KnowledgeAlgorithm):
         limit = input_data.limit or int(self.config.get("expansion_limit", 2))
         selected = ranked[: max(0, min(limit, len(ranked)))]
         findings = [
-            self._finding(key, info, relevance)
-            for relevance, key, info in selected
+            self._finding(key, info, relevance) for relevance, key, info in selected
         ]
         return {
             "success": True,
@@ -63,6 +62,12 @@ class KA028POVExpansion(KnowledgeAlgorithm):
             "selection_order": [item["persona"] for item in findings],
             "count": len(findings),
             "deterministic": True,
+            "context_applied": False,
+            "limitations": (
+                "Perspectives are bounded configured review prompts selected by "
+                "lexical overlap. They are not people, factual findings, or "
+                "measured stakeholder consensus."
+            ),
         }
 
     @staticmethod

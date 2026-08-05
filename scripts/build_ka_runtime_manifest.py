@@ -219,7 +219,7 @@ CP19_E_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
     },
 }
 
-CP19_F_PERSONA_IDS = {"KA-012", "KA-013", "KA-030"}
+CP19_F_PERSONA_IDS = {"KA-012", "KA-013", "KA-028", "KA-030", "KA-038"}
 
 # CP19-F makes the causal dataflow executable: profile-backed perspective
 # analysis precedes weighting, and weighting precedes conflict disposition.
@@ -244,6 +244,13 @@ CP19_F_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
         "rationale": (
             "Conflict disposition consumes weighted, retained dissent and "
             "turns it into mandatory prompt constraints."
+        ),
+    },
+    "KA-038": {
+        "dependencies": ["KA-013", "KA-030"],
+        "rationale": (
+            "Consensus readiness consumes committed persona sufficiency and "
+            "the exact retained-dissent disposition."
         ),
     },
 }
@@ -304,6 +311,26 @@ CP19_F_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
             "Conflict dispositions",
             "mandatory prompt constraints",
             "silent-dissent count",
+        ],
+    },
+    "KA-028": {
+        "inputs": ["Normalized query", "existing persona identifiers"],
+        "outputs": [
+            "Bounded additional perspective prompts",
+            "selection order",
+            "no context effect",
+        ],
+    },
+    "KA-038": {
+        "inputs": [
+            "Committed KA-013 sufficiency",
+            "committed KA-030 dissent disposition",
+            "optional declared claim support scores",
+        ],
+        "outputs": [
+            "Consensus-readiness decision",
+            "retained-dissent count",
+            "no fabricated confidence",
         ],
     },
 }
@@ -654,6 +681,28 @@ CP19_H_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
 # owner paths are qualified here. KA-Master remains non-selectable: the
 # CanonicalKAController is the authority and must never recursively select its
 # compatibility wrapper as a production algorithm.
+CP19_K_ADMISSION_IDS = {
+    "KA-002",
+    "KA-014",
+    "KA-015",
+    "KA-026",
+    "KA-029",
+    "KA-034",
+    "KA-035",
+    "KA-036",
+    "KA-040",
+    "KA-051",
+    "KA-054",
+    "KA-055",
+    "KA-058",
+    "KA-059",
+    "KA-063",
+    "KA-1041",
+    "KA-1042",
+    "KA-1073",
+    "KA-1102",
+}
+
 CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
     canonical_id: {
         "production_enabled": True,
@@ -671,14 +720,7 @@ CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
             "apply persistence or provider effects."
         ),
     }
-    for canonical_id in {
-        "KA-015",
-        "KA-029",
-        "KA-034",
-        "KA-036",
-        "KA-040",
-        "KA-1073",
-    }
+    for canonical_id in CP19_K_ADMISSION_IDS
 }
 
 # The restored design catalog marked KA-1077 as a memory writer. The reviewed
@@ -689,6 +731,48 @@ CP19_K_PURE_ADVISORY_OVERRIDES = {"KA-1077"}
 # stale design edges that would otherwise trigger unrelated maintenance or
 # simulation work inside pure context/routing decisions.
 CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-002": {
+        "dependencies": [],
+        "rationale": (
+            "Candidate-tree planning decomposes an explicit goal and does not "
+            "silently trigger normalization or graph expansion."
+        ),
+    },
+    "KA-009": {
+        "dependencies": [],
+        "rationale": (
+            "Evidence scoring consumes bounded supplied evidence; provenance "
+            "and source-trust decisions remain separate owner gates."
+        ),
+    },
+    "KA-026": {
+        "dependencies": ["KA-009"],
+        "rationale": (
+            "Contradiction review follows the exact evidence-validation result "
+            "and never starts a persona or provider path implicitly."
+        ),
+    },
+    "KA-1042": {
+        "dependencies": ["KA-026"],
+        "rationale": (
+            "Impact propagation consumes committed contradiction findings over "
+            "the caller-supplied dependency graph."
+        ),
+    },
+    "KA-1102": {
+        "dependencies": [],
+        "rationale": (
+            "Entropy quantification is a pure calculation over one explicit "
+            "distribution and must not trigger reasoning or persona execution."
+        ),
+    },
+    "KA-014": {
+        "dependencies": ["KA-009", "KA-026", "KA-1041", "KA-1102"],
+        "rationale": (
+            "The confidence decision consumes committed evidence, contradiction, "
+            "normalization, and entropy measurements without duplicated claims."
+        ),
+    },
     "KA-015": {
         "dependencies": [],
         "rationale": (
@@ -781,7 +865,7 @@ CP19_H_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
 
 CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     "schema_version": "dle.ka-subsystem-registry.v1",
-    "registry_version": "2026.07.25-cp19h.1",
+    "registry_version": "2026.08.04-cp19k.2",
     "owners": {
         "truthcore_l1_l5": {
             "context_dependencies": [
@@ -791,6 +875,18 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
                 "KA-017",
                 "KA-025",
                 "KA-040",
+            ],
+        },
+        "truthcore_l6_l8": {
+            "evidence_confidence_entropy": [
+                "KA-002",
+                "KA-009",
+                "KA-014",
+                "KA-026",
+                "KA-035",
+                "KA-1041",
+                "KA-1042",
+                "KA-1102",
             ],
         },
         "truthgate": {
@@ -860,6 +956,13 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
                 "KA-1095",
                 "KA-1105",
                 "KA-1111",
+            ],
+            "content_evolution": [
+                "KA-051",
+                "KA-053",
+                "KA-054",
+                "KA-055",
+                "KA-063",
             ],
         },
     },
@@ -1295,7 +1398,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.04-cp19k.6",
+        "manifest_version": "2026.08.04-cp19k.7",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
@@ -1325,6 +1428,7 @@ def build_manifest() -> dict[str, Any]:
                 | CP19_H_OWNER_IDS
                 | CP19_I_OWNER_IDS
                 | CP19_I_ADDITIONAL_ADMISSION_IDS
+                | CP19_K_ADMISSION_IDS
             ),
             "refinement_workflow": {
                 "schema_version": "dle.refinement-workflow-registry.v1",

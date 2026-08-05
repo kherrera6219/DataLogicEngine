@@ -10,8 +10,8 @@ import pytest
 from backend.governed_execution.contracts import EvidenceRecord
 from backend.knowledge_algorithms.controller import get_ka_controller
 from tests.governed_execution.test_orchestrator import (
-    _RefinementGateway,
     _orchestrator,
+    _RefinementGateway,
     _request,
 )
 
@@ -52,6 +52,7 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "2026.08.02-cp19k.3",
         "2026.08.02-cp19k.4",
         "2026.08.04-cp19k.6",
+        "2026.08.04-cp19k.7",
     }
     assert registry["schema_version"] == "dle.refinement-workflow-registry.v1"
     assert registry["owner"] == "governed_execution_orchestrator"
@@ -70,12 +71,15 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "cp19_i_extended_subsystem_authority": 149,
         "cp19_j_product_workflow_authority": 155,
     }
-    assert (
-        sum(entry.admission.production_enabled for entry in entries)
-        == expected_enabled[manifest.status]
-    )
+    enabled_count = sum(entry.admission.production_enabled for entry in entries)
+    if manifest.manifest_version == "2026.08.04-cp19k.7":
+        assert enabled_count == 170
+    else:
+        assert enabled_count == expected_enabled[manifest.status]
     dependency_edges = sum(len(entry.contract.dependencies) for entry in entries)
-    if manifest.manifest_version == "2026.08.04-cp19k.6":
+    if manifest.manifest_version == "2026.08.04-cp19k.7":
+        assert dependency_edges == 135
+    elif manifest.manifest_version == "2026.08.04-cp19k.6":
         assert dependency_edges == 142
     elif manifest.manifest_version == "2026.08.02-cp19k.4":
         assert dependency_edges == 143
@@ -130,15 +134,15 @@ async def test_cp19g_refinement_accounts_all_steps_and_revalidates_once(
     assert refinement["max_provider_rewrites"] == 1
     assert refinement["rewrite_authorized"] is True
     assert refinement["step_status_counts"] == {
-        "executed": 10,
-        "skipped": 2,
+        "executed": 11,
+        "skipped": 1,
         "blocked": 0,
         "failed": 0,
     }
     assert [step["step"] for step in refinement["steps"]] == list(range(1, 13))
     by_id = {step["step_id"]: step for step in refinement["steps"]}
     assert by_id["structured_decomposition"]["reused_ka_ids"] == ["KA-001"]
-    assert by_id["alternative_branches"]["status"] == "skipped"
+    assert by_id["alternative_branches"]["executed_ka_ids"] == ["KA-002"]
     assert by_id["missing_information"]["executed_ka_ids"] == ["KA-003"]
     assert set(by_id["deep_causal_analytical_review"]["executed_ka_ids"]) == {
         "KA-011",

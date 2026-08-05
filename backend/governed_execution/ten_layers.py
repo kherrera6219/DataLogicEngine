@@ -299,7 +299,7 @@ class GovernedTenLayerStages:
             context,
             layer_id="L4",
             tier=context.reasoning.tier or "standard",
-            requested_ids=["KA-012"],
+            requested_ids=["KA-012", "KA-028"],
             ka_inputs={
                 "KA-012": {
                     "query": context.query,
@@ -311,7 +311,16 @@ class GovernedTenLayerStages:
                         "provider_subcall_budget": 0,
                     },
                     "dsqp_profiles": profiles_by_type,
-                }
+                },
+                "KA-028": {
+                    "query": context.query,
+                    "context": {
+                        "trace_id": context.trace_id,
+                        "evidence_ids": list(context.reasoning.evidence_ids),
+                    },
+                    "existing_personas": sorted(expected_personas),
+                    "limit": 2,
+                },
             },
             service_capabilities={"persona_context_service"},
         )
@@ -320,6 +329,7 @@ class GovernedTenLayerStages:
         executed_ids = self._executed_ids(report)
         ka_results = self._committed_results(report, executed_ids)
         analysis_result = ka_results.get("KA-012", {}).get("output", {})
+        expansion_result = ka_results.get("KA-028", {}).get("output", {})
         findings = analysis_result.get("persona_findings") or []
         observed_personas = {
             str(item.get("persona_type"))
@@ -328,23 +338,26 @@ class GovernedTenLayerStages:
         }
         complete = (
             report.status is KAPlanExecutionStatus.SUCCEEDED
-            and executed_ids == ["KA-012"]
+            and set(executed_ids) == {"KA-012", "KA-028"}
             and expected_personas == observed_personas
             and analysis_result.get("provider_subcalls_used") == 0
             and analysis_result.get("provider_subcall_budget") == 0
         )
         if complete:
-            context.ka_result_cache["KA-012"] = report.results["KA-012"]
+            for canonical_id in ("KA-012", "KA-028"):
+                context.ka_result_cache[canonical_id] = report.results[canonical_id]
             context.dsqp["persona_analysis"] = analysis_result
+            context.dsqp["persona_expansion"] = expansion_result
         effects = (
             [
                 {
-                    "ka_id": "KA-012",
+                    "ka_id": canonical_id,
                     "state": "proposal_only",
                     "effect_port": "persona_context_service",
                     "applied": False,
                     "receipt": None,
                 }
+                for canonical_id in ("KA-012", "KA-028")
             ]
             if complete
             else []
@@ -366,6 +379,8 @@ class GovernedTenLayerStages:
                 "persona_finding_count": len(findings),
                 "constraint_count": len(analysis_result.get("constraints") or []),
                 "objection_count": len(analysis_result.get("objections") or []),
+                "additional_perspective_count": expansion_result.get("count"),
+                "additional_perspective_ids": expansion_result.get("selection_order"),
                 "provider_subcalls_used": (
                     analysis_result.get("provider_subcalls_used")
                 ),
@@ -393,8 +408,9 @@ class GovernedTenLayerStages:
 
     async def l5(self, context: GovernedContext) -> LayerExecution:
         prior = context.ka_result_cache.get("KA-012")
+        expansion_prior = context.ka_result_cache.get("KA-028")
         analysis = context.dsqp.get("persona_analysis")
-        if prior is None or not isinstance(analysis, dict):
+        if prior is None or expansion_prior is None or not isinstance(analysis, dict):
             return LayerExecution(
                 ok=False,
                 outputs={
@@ -414,7 +430,7 @@ class GovernedTenLayerStages:
             context,
             layer_id="L5",
             tier=context.reasoning.tier or "standard",
-            requested_ids=["KA-013", "KA-030"],
+            requested_ids=["KA-013", "KA-030", "KA-038"],
             ka_inputs={
                 "KA-013": {
                     "persona_results": analysis.get("persona_results") or [],
@@ -430,8 +446,9 @@ class GovernedTenLayerStages:
                         "domain": domain,
                     },
                 },
+                "KA-038": {"claims": []},
             },
-            prior_results={"KA-012": prior},
+            prior_results={"KA-012": prior, "KA-028": expansion_prior},
             service_capabilities={"persona_context_service"},
         )
         plan = self.ka_selector.plan(request)
@@ -440,25 +457,45 @@ class GovernedTenLayerStages:
         ka_results = self._committed_results(report, executed_ids)
         weighting = ka_results.get("KA-013", {}).get("output", {})
         conflict_resolution = ka_results.get("KA-030", {}).get("output", {})
+        consensus = ka_results.get("KA-038", {}).get("output", {})
         sufficiency = weighting.get("sufficiency") or {}
         dissent_count = int(weighting.get("dissent_count") or 0)
         complete = (
             report.status is KAPlanExecutionStatus.SUCCEEDED
-            and set(executed_ids) == {"KA-013", "KA-030"}
+            and set(executed_ids) == {"KA-013", "KA-030", "KA-038"}
             and sufficiency.get("sufficient") is True
             and weighting.get("silent_dissent_count") == 0
             and conflict_resolution.get("silent_dissent_count") == 0
             and conflict_resolution.get("all_dissent_preserved") is True
             and len(conflict_resolution.get("prompt_constraints") or [])
             == dissent_count
+            and consensus.get("dependencies_consumed") == ["KA-013", "KA-030"]
+            and consensus.get("substantive_consensus_claimed") is False
         )
         if complete:
-            for canonical_id in ("KA-013", "KA-030"):
+            for canonical_id in ("KA-013", "KA-030", "KA-038"):
                 context.ka_result_cache[canonical_id] = report.results[canonical_id]
+            receipt = {
+                "schema_version": "dle.persona-context-receipt.v1",
+                "service": "PersonaContextService",
+                "status": "applied",
+                "plan_id": plan.plan_id,
+                "ka_proposal_ids": [
+                    "KA-012",
+                    "KA-013",
+                    "KA-028",
+                    "KA-030",
+                    "KA-038",
+                ],
+                "context_target": "provider_system_message",
+                "provider_subcalls_used": 0,
+            }
             context.dsqp["persona_synthesis"] = {
                 "weighting": weighting,
                 "conflict_resolution": conflict_resolution,
+                "consensus": consensus,
             }
+            context.dsqp["persona_context_receipt"] = receipt
         context.provider_messages = build_provider_messages(context)
         system_text = str(context.provider_messages[0].get("content") or "")
         completed_kas = [
@@ -503,6 +540,11 @@ class GovernedTenLayerStages:
                 ),
                 "dissent_resolution": (weighting.get("dissent_resolution")),
                 "persona_sufficient": sufficiency.get("sufficient"),
+                "consensus_ready": consensus.get("consensus_ready"),
+                "substantive_consensus_claimed": consensus.get(
+                    "substantive_consensus_claimed"
+                ),
+                "persona_context_receipt": context.dsqp.get("persona_context_receipt"),
                 "provider_subcalls_used": 0,
                 "child_trace_ids": self._child_trace_ids(
                     report,
@@ -526,6 +568,20 @@ class GovernedTenLayerStages:
                     ),
                 }
             ],
+            effects=(
+                [
+                    {
+                        "ka_id": canonical_id,
+                        "state": "applied_by_owner",
+                        "effect_port": "persona_context_service",
+                        "applied": True,
+                        "receipt": context.dsqp.get("persona_context_receipt"),
+                    }
+                    for canonical_id in ("KA-012", "KA-028")
+                ]
+                if complete
+                else []
+            ),
             error_code="L5_CANDIDATE_PLAN_FAILURE" if not ok else None,
         )
 
@@ -622,9 +678,7 @@ class GovernedTenLayerStages:
             if validator.status in {"failed", "blocked"}
         ]
         policy_blocks = [
-            decision
-            for decision in context.policy_decisions
-            if decision.blocked
+            decision for decision in context.policy_decisions if decision.blocked
         ]
         candidate = str(context.reasoning.candidate or "")
         # KA-024 receives the measured binary policy-gate signal here. Answer
@@ -690,12 +744,8 @@ class GovernedTenLayerStages:
                 },
                 "KA-062": {
                     "source_id": trust_source.get("source_id", "unspecified"),
-                    "signature_verified": bool(
-                        trust_source.get("signature_verified")
-                    ),
-                    "authority_verified": bool(
-                        trust_source.get("authority_verified")
-                    ),
+                    "signature_verified": bool(trust_source.get("signature_verified")),
+                    "authority_verified": bool(trust_source.get("authority_verified")),
                     "independently_corrobated": len(evidence_input) > 1,
                 },
                 "KA-1074": {
@@ -757,16 +807,8 @@ class GovernedTenLayerStages:
             flags=sorted(
                 {
                     *blocking,
-                    *(
-                        ["prior_policy_block"]
-                        if policy_blocks
-                        else []
-                    ),
-                    *(
-                        ["truthgate_ka_block"]
-                        if not ka_ok
-                        else []
-                    ),
+                    *(["prior_policy_block"] if policy_blocks else []),
+                    *(["truthgate_ka_block"] if not ka_ok else []),
                 }
             ),
             ka_results=ka_results,

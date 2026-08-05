@@ -116,7 +116,7 @@ class CanonicalRefinementWorkflow:
         self.ka_executor = KAPlanExecutor(self.ka_controller)
         registry = self.ka_controller.manifest.authority.get("refinement_workflow")
         if not isinstance(registry, dict):
-            raise ValueError("Canonical refinement registry is missing")
+            raise TypeError("Canonical refinement registry is missing")
         steps = registry.get("steps")
         if not isinstance(steps, list) or len(steps) != 12:
             raise ValueError("Canonical refinement registry must contain 12 steps")
@@ -260,7 +260,10 @@ class CanonicalRefinementWorkflow:
             spec,
             context,
             ["KA-001"],
-            {"KA-001": {"query": context.query}},
+            {
+                "KA-001": {"query": context.query},
+                "KA-004": {"query": context.query},
+            },
         )
 
     async def _alternative_branches(
@@ -556,7 +559,10 @@ class CanonicalRefinementWorkflow:
             spec,
             context,
             ["KA-005"],
-            {"KA-005": {"query": context.query}},
+            {
+                "KA-004": {"query": context.query},
+                "KA-005": {"query": context.query},
+            },
         )
         persona = context.dsqp.get("persona_synthesis")
         conflict = (
@@ -746,8 +752,8 @@ class CanonicalRefinementWorkflow:
             )
         return KASelectionRequest(
             requested_ids=requested_ids,
-            shared_input={"query": context.query},
             ka_inputs=ka_inputs,
+            service_capabilities={"governed_execution_service"},
             mode=KAExecutionMode.PRODUCTION,
             context=KAExecutionContext(
                 request_id=context.request.request_id,

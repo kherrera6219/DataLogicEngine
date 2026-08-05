@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from typing import ClassVar
+
 import pytest
 
-from backend.dmrf.truth_integration.core_adapter import TruthCoreDMRFAdapter
 from backend.dmrf.orchestrator import DMRFOrchestrator
 from backend.dmrf.tier_classifier import DMRFTierClassifier
+from backend.dmrf.truth_integration.core_adapter import TruthCoreDMRFAdapter
 from backend.governed_execution.contracts import GovernedContext, GovernedRequest
 from backend.governed_execution.ten_layers import GovernedTenLayerStages
 from backend.knowledge_algorithms.ka_master_controller import KAMasterController
@@ -83,8 +85,8 @@ def _assert_dmrf_complete_trace(outputs: dict, canonical_id: str) -> None:
 
 class _InvalidDMRFPlan:
     valid = False
-    selected_ids: list[str] = []
-    validation_errors = ["required_routing_plan_rejected"]
+    selected_ids: ClassVar[list[str]] = []
+    validation_errors: ClassVar[list[str]] = ["required_routing_plan_rejected"]
 
 
 class _InvalidDMRFController:
@@ -211,6 +213,59 @@ async def test_ka_1107_owning_path():
     assert boundary["plan_allowed"] is True
     assert boundary["execution_started"] is False
     _assert_dmrf_complete_trace(outputs, "KA-1107")
+
+
+def test_ka_033_owning_path():
+    from backend.knowledge_algorithms.controller import get_ka_controller
+    from backend.knowledge_algorithms.ka_33_reserved_expansion_slot import run
+    from backend.knowledge_algorithms.selection import (
+        KASelectionRequest,
+        ManifestKASelector,
+    )
+
+    descriptor = run({"payload": {"secret": "must-not-return"}})
+    assert descriptor["ka_id"] == "KA-033"
+    assert descriptor["output"]["status"] == "reserved_disabled"
+    assert descriptor["output"]["payload_returned"] is False
+    plan = ManifestKASelector(get_ka_controller().manifest).plan(
+        KASelectionRequest(requested_ids=["KA-033"], ka_inputs={"KA-033": {}})
+    )
+    assert plan.valid is False
+    assert any(
+        "required algorithms not admitted: KA-033" in error
+        for error in plan.validation_errors
+    )
+
+
+@pytest.mark.asyncio
+async def test_ka_058_owning_path():
+    result, outputs = await _canonical_dmrf_result()
+
+    assert result.ok is True
+    clarification = outputs["outputs"]["KA-058"]
+    assert clarification["dependencies_consumed"] == ["KA-1073", "KA-1102"]
+    assert clarification["clarification_dispatched"] is False
+    assert clarification["learning_applied"] is False
+    _assert_dmrf_complete_trace(outputs, "KA-058")
+
+
+@pytest.mark.asyncio
+async def test_ka_059_owning_path():
+    result, outputs = await _canonical_dmrf_result()
+
+    assert result.ok is True
+    preemption = outputs["outputs"]["KA-059"]
+    assert preemption["dependencies_consumed"] == ["KA-031", "KA-113"]
+    assert preemption["preemption_applied"] is False
+    assert preemption["skipped_layers"] == []
+    assert not set(preemption["blocked_safety_layers"]) - {
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+    }
+    _assert_dmrf_complete_trace(outputs, "KA-059")
 
 
 @pytest.mark.asyncio

@@ -1,70 +1,77 @@
-"""
-KA-051: Self-Correcting Knowledge Distillation
-Purpose: Distill high-confidence outcomes and validated traces into reusable rules and abstractions.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
+"""KA-051: bounded knowledge-distillation proposal generation."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA051Input(BaseModel):
-    traces: List[Dict[str, Any]] = Field(default_factory=list, description="Execution traces to distill into stable rules")
+    model_config = ConfigDict(extra="forbid")
+
+    traces: list[dict[str, Any]] = Field(default_factory=list, max_length=10_000)
+    minimum_measured_score: float = Field(default=0.9, ge=0, le=1)
+    maximum_candidates: int = Field(default=5, ge=1, le=100)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
 
 class KA051SelfCorrectingKnowledgeDistillation(KnowledgeAlgorithm):
-    """
-    KA-051: Learning engine that distills stable rules and abstractions from successful execution traces.
-    """
+    """Propose reusable pattern identifiers from explicitly measured traces."""
+
     input_schema = KA051Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-051"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_51_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA051Input) -> Dict[str, Any]:
-        traces = input_data.traces
-        self.log_execution_step("Distilling Rules from Traces", {"trace_count": len(traces)})
-        
-        distilled_rules = []
-        threshold = self.config.get("distillation_threshold", 0.9)
-        for trace in traces:
-            confidence = trace.get("confidence", 0.0)
-            if confidence >= threshold:
-                distilled_rules.append({
-                    "rule_id": f"RULE-{trace.get('id', 'UNK')}",
-                    "abstraction": f"Pattern: {trace.get('pattern_name')} -> Success",
-                    "confidence": confidence,
-                    "source_trace": trace.get("id")
-                })
-                
-        max_rules = self.config.get("max_rules_per_session", 5)
-        distilled_rules = distilled_rules[:max_rules]
+    def _run_logic(self, input_data: KA051Input) -> dict[str, Any]:
+        candidates = []
+        for trace in sorted(
+            input_data.traces,
+            key=lambda row: str(row.get("trace_id") or row.get("id") or ""),
+        ):
+            trace_id = str(trace.get("trace_id") or trace.get("id") or "").strip()
+            pattern_id = str(trace.get("pattern_id") or "").strip()
+            score = trace.get("measured_score", trace.get("confidence"))
+            if not trace_id or not pattern_id or not isinstance(score, (int, float)):
+                continue
+            if (
+                not 0 <= float(score) <= 1
+                or float(score) < input_data.minimum_measured_score
+            ):
+                continue
+            candidates.append(
+                {
+                    "candidate_id": stable_identifier(
+                        "distillation", {"trace_id": trace_id, "pattern_id": pattern_id}
+                    ),
+                    "source_trace_id": trace_id,
+                    "pattern_id": pattern_id,
+                    "measured_score": round(float(score), 8),
+                    "requires_release_review": True,
+                }
+            )
+        candidates = candidates[: input_data.maximum_candidates]
         return {
             "success": True,
-            "new_distilled_rules": distilled_rules,
-            "count": len(distilled_rules)
+            "status": "distillation_candidates_proposed",
+            "distillation_candidates": candidates,
+            "candidate_count": len(candidates),
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "knowledge_changes_applied": False,
+            "provider_subcalls_used": 0,
+            "deterministic": True,
+            "limitations": (
+                "Candidates require explicit measured trace scores and contain "
+                "identifiers only. They are not learned rules and no knowledge "
+                "content is persisted or promoted."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA051SelfCorrectingKnowledgeDistillation(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-051 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA051SelfCorrectingKnowledgeDistillation(context).run(context)

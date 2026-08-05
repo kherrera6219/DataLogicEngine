@@ -92,22 +92,22 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids()
         for canonical_id in canonical_ids
     ]
 
-    assert len(set(registry_ids)) == 68
+    assert len(set(registry_ids)) == 80
     assert set(registry_ids) <= set(manifest.entries)
     assert {
         "KA-051",
         "KA-054",
         "KA-055",
         "KA-063",
-    }.isdisjoint(registry_ids)
+    } <= set(registry_ids)
     assert all(
-        not manifest.entries[canonical_id].admission.production_enabled
-        for canonical_id in {
+        manifest.entries[canonical_id].admission.production_enabled
+        for canonical_id in (
             "KA-051",
             "KA-054",
             "KA-055",
             "KA-063",
-        }
+        )
     )
 
 
@@ -430,3 +430,143 @@ def test_ka_117_owning_path():
     output = _run_batch_17_owner("KA-117")
     assert output["is_valid"] is True
     assert output["quarantine_applied"] is False
+
+
+def _batch_23_inputs():
+    from tests.integration.phase19.test_retrieval_graph_memory import (
+        _batch_22_inputs,
+    )
+
+    inputs = _batch_22_inputs()
+    inputs.update(
+        {
+            "KA-009": {
+                "query": "validated knowledge release",
+                "evidence": [
+                    {
+                        "evidence_id": "evidence-1",
+                        "source_type": "documentation",
+                        "content": "validated knowledge release",
+                    }
+                ],
+            },
+            "KA-051": {
+                "traces": [
+                    {
+                        "trace_id": "trace-1",
+                        "pattern_id": "bounded-release-review",
+                        "measured_score": 0.95,
+                    }
+                ]
+            },
+            "KA-053": {"graph_segments": [{"nodes": [{"id": "a"}, {"id": "b"}]}]},
+            "KA-054": {
+                "multilingual_sources": [
+                    {
+                        "source_id": "en-source",
+                        "language": "en",
+                        "nodes": [{"id": "en-control", "concept_id": "control"}],
+                    },
+                    {
+                        "source_id": "es-source",
+                        "language": "es",
+                        "nodes": [{"id": "es-control", "concept_id": "control"}],
+                    },
+                ]
+            },
+            "KA-055": {
+                "modal_evidence": [
+                    {
+                        "evidence_id": "text-1",
+                        "topic_id": "control",
+                        "modality": "text",
+                        "verdict": "supported",
+                        "measured_score": 0.9,
+                    },
+                    {
+                        "evidence_id": "image-1",
+                        "topic_id": "control",
+                        "modality": "image",
+                        "verdict": "uncertain",
+                        "measured_score": 0.6,
+                    },
+                ]
+            },
+            "KA-063": {
+                "outcome_metrics": {
+                    "measured_accuracy": 0.75,
+                    "p95_latency_ms": 1_200,
+                },
+                "feedback": [{"feedback_id": "f-1", "label": "reviewed"}],
+            },
+        }
+    )
+    return inputs
+
+
+def _run_batch_23_owner(canonical_id: str):
+    from backend.governed_execution.knowledge_content_evolution import (
+        KnowledgeLifecycleService,
+    )
+
+    review = KnowledgeLifecycleService().review_content_evolution_sync(
+        requested_ids=[canonical_id],
+        ka_inputs=_batch_23_inputs(),
+        request_id=f"batch-23-{canonical_id}",
+        run_id=f"batch-23-run-{canonical_id}",
+        principal_id="owner-1",
+        release_authorized=False,
+    )
+    assert review.ok
+    receipt = review.receipts[canonical_id]
+    assert receipt["service"] == "KnowledgeLifecycleService"
+    assert receipt["status"] == "release_not_authorized"
+    assert receipt["applied"] is False
+    assert receipt["rollback_status"] == "not_required_no_mutation"
+    states = [
+        event.state.value
+        for event in review.execution.report.traces[canonical_id].events
+        if event.state.value not in {"dependency", "effect_proposed"}
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return review.execution.results[canonical_id]["output"]
+
+
+def test_ka_051_owning_path():
+    output = _run_batch_23_owner("KA-051")
+    assert output["candidate_count"] == 1
+    assert output["knowledge_changes_applied"] is False
+
+
+def test_ka_053_owning_path():
+    output = _run_batch_23_owner("KA-053")
+    assert output["proposal_count"] == 1
+    assert output["compression_applied"] is False
+
+
+def test_ka_054_owning_path():
+    output = _run_batch_23_owner("KA-054")
+    assert output["alignment_count"] == 1
+    assert output["translation_performed"] is False
+    assert output["fusion_applied"] is False
+
+
+def test_ka_055_owning_path():
+    output = _run_batch_23_owner("KA-055")
+    assert output["disagreement_topic_ids"] == ["control"]
+    assert output["source_content_returned"] is False
+    assert output["fusion_applied"] is False
+
+
+def test_ka_063_owning_path():
+    output = _run_batch_23_owner("KA-063")
+    assert len(output["suggestions"]) == 2
+    assert output["profile_update_applied"] is False
+    assert output["model_training_started"] is False

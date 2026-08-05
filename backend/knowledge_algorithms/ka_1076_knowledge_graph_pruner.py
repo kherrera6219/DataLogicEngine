@@ -62,6 +62,7 @@ class KA1076Input(BaseModel):
     maximum_confidence: float = Field(default=0.5, ge=0, le=1)
     minimum_age_days: int = Field(default=180, ge=0, le=100_000)
     maximum_reuse_count: int = Field(default=0, ge=0, le=1_000_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_graph(self) -> KA1076Input:
@@ -125,6 +126,7 @@ class KA1076KnowledgeGraphPruner(KnowledgeAlgorithm):
             "nodes_deleted": 0,
             "mutation_applied": False,
             "deterministic": True,
+            "dependencies_consumed": sorted(input_data.dependency_results),
             "limitations": (
                 "This produces archive candidates from supplied metrics. The "
                 "graph owner must revalidate dependencies and apply any change."

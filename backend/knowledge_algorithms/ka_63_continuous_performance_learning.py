@@ -1,75 +1,68 @@
-"""
-KA-063: Continuous Performance Learning
-Purpose: Learn which KA configurations and pipeline paths perform best over time by analyzing outcome metrics and user feedback.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
+"""KA-063: deterministic performance-tuning proposal generation."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA063LearningInput(BaseModel):
-    outcome_metrics: Dict[str, Any] = Field(default_factory=dict, description="Performance and outcome metrics to learn from")
-    feedback: List[Dict[str, Any]] = Field(default_factory=list, description="User or system feedback on previous outcomes")
+    model_config = ConfigDict(extra="forbid")
+
+    outcome_metrics: dict[str, Any] = Field(default_factory=dict)
+    feedback: list[dict[str, Any]] = Field(default_factory=list, max_length=10_000)
+
 
 class KA063ContinuousPerformanceLearning(KnowledgeAlgorithm):
-    """
-    KA-063: Real-time performance learning and profile tuning engine for long-term optimization.
-    """
+    """Recommend bounded tuning review without updating a model or profile."""
+
     input_schema = KA063LearningInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-063"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_63_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA063LearningInput) -> Dict[str, Any]:
-        outcome_metrics = input_data.outcome_metrics
-        self.log_execution_step("Updating Performance Profiles", {"metric_count": len(outcome_metrics)})
-        
-        learning_rate = self.config.get("learning_rate", 0.1)
-        tuning_suggestions = []
-        accuracy = outcome_metrics.get("accuracy", 0.0)
-        latency = outcome_metrics.get("latency", 0.0)
-        if accuracy < 0.8:
-             tuning_suggestions.append({
-                 "parameter": "pipeline_depth",
-                 "adjustment": +1,
-                 "reason": "Low accuracy detected in recent runs"
-             })
-        if latency > 1000:
-             tuning_suggestions.append({
-                 "parameter": "concurrency_level",
-                 "adjustment": +2,
-                 "reason": "High latency detected"
-             })
-             
+    def _run_logic(self, input_data: KA063LearningInput) -> dict[str, Any]:
+        suggestions = []
+        accuracy = input_data.outcome_metrics.get("measured_accuracy")
+        latency = input_data.outcome_metrics.get("p95_latency_ms")
+        if (
+            isinstance(accuracy, (int, float))
+            and 0 <= float(accuracy) <= 1
+            and float(accuracy) < 0.8
+        ):
+            suggestions.append(
+                {
+                    "parameter": "pipeline_depth",
+                    "direction": "increase_review",
+                    "basis": "measured_accuracy_below_0.8",
+                }
+            )
+        if isinstance(latency, (int, float)) and float(latency) > 1_000:
+            suggestions.append(
+                {
+                    "parameter": "concurrency_level",
+                    "direction": "benchmark_higher_concurrency",
+                    "basis": "measured_p95_latency_above_1000ms",
+                }
+            )
         return {
             "success": True,
-            "suggestions": tuning_suggestions,
-            "learning_status": "UPDATING" if tuning_suggestions else "STABLE",
-            "learning_rate_applied": learning_rate
+            "status": "tuning_review_proposed" if suggestions else "no_change_proposed",
+            "suggestions": suggestions,
+            "feedback_record_count": len(input_data.feedback),
+            "profile_update_applied": False,
+            "model_training_started": False,
+            "deterministic": True,
+            "limitations": (
+                "Recommendations use caller-supplied aggregate measurements. No "
+                "online learning, configuration change, or model update occurs."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA063ContinuousPerformanceLearning(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-063 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA063ContinuousPerformanceLearning(context).run(context)

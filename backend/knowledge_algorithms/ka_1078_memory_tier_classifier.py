@@ -45,6 +45,7 @@ class KA1078Input(BaseModel):
     long_term_importance: float = Field(default=0.7, ge=0, le=1)
     long_term_confidence: float = Field(default=0.8, ge=0, le=1)
     archive_age_days: int = Field(default=365, ge=0, le=100_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_ids(self) -> KA1078Input:
@@ -97,6 +98,7 @@ class KA1078MemoryTierClassifier(KnowledgeAlgorithm):
             "classifications": classifications,
             "tier_changes_applied": False,
             "deterministic": True,
+            "dependencies_consumed": sorted(input_data.dependency_results),
             "limitations": (
                 "Tier recommendations use supplied lifecycle metrics. The memory "
                 "service must authorize and apply any movement."

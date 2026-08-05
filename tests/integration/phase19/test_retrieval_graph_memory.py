@@ -9,8 +9,8 @@ from backend.governed_execution.contracts import (
     GovernedContext,
     SourceRecord,
 )
-from backend.memory.unified_memory_service import UnifiedMemoryService
 from backend.governed_execution.knowledge_lifecycle import KnowledgeLifecycleCoordinator
+from backend.memory.unified_memory_service import UnifiedMemoryService
 from tests.governed_execution.test_orchestrator import (
     _Gateway,
     _orchestrator,
@@ -275,3 +275,225 @@ def test_ka_1079_owning_path():
     output = _run_batch_18_owner("KA-1079")
     assert output["decision"] == "approve"
     assert output["promotion_applied"] is False
+
+
+def _batch_22_inputs():
+    inputs = _batch_18_inputs()
+    inputs.update(
+        {
+            "KA-080": {
+                "key": "cache-a",
+                "operation": "set",
+                "cache_state": {"entries": {"cache-a": {"hits": 2}}},
+                "value": "replacement",
+                "ttl_seconds": 60,
+            },
+            "KA-1039": {
+                "baseline_version": "v1",
+                "current_version": "v2",
+                "baseline_concepts": [
+                    {
+                        "concept_id": "control",
+                        "label": "Control",
+                        "definition": "A documented measure.",
+                    }
+                ],
+                "current_concepts": [
+                    {
+                        "concept_id": "control",
+                        "label": "Control",
+                        "definition": "A verified measure.",
+                    }
+                ],
+            },
+            "KA-1040": {
+                "concepts": [
+                    {
+                        "concept_id": "customer",
+                        "label": "Customer",
+                        "synonyms": ["client"],
+                    },
+                    {
+                        "concept_id": "client",
+                        "label": "Client",
+                        "synonyms": ["customer"],
+                    },
+                ]
+            },
+            "KA-1043": {
+                "knowledge_id": "knowledge-1",
+                "events": [
+                    {
+                        "event_id": "e1",
+                        "version_id": "v1",
+                        "event_type": "created",
+                        "source_ref": "receipt:1",
+                    },
+                    {
+                        "event_id": "e2",
+                        "version_id": "v2",
+                        "parent_version_ids": ["v1"],
+                        "event_type": "validated",
+                        "source_ref": "receipt:2",
+                    },
+                ],
+            },
+            "KA-1046": {
+                "updates": [
+                    {
+                        "update_id": "u1",
+                        "knowledge_id": "knowledge-1",
+                        "current_version": "v1",
+                        "proposed_version": "v2",
+                        "lifecycle_state": "validated",
+                        "confidence": 0.95,
+                        "evidence_count": 3,
+                        "sensitivity": "internal",
+                    }
+                ]
+            },
+            "KA-1048": {
+                "assertions": [
+                    {
+                        "assertion_id": "a",
+                        "concept_id": "control",
+                        "definition": "A verified measure.",
+                        "source_ontology": "approved",
+                        "authority_priority": 10,
+                        "confidence": 0.9,
+                        "evidence_refs": ["policy-1"],
+                    },
+                    {
+                        "assertion_id": "b",
+                        "concept_id": "control",
+                        "definition": "Any process.",
+                        "source_ontology": "legacy",
+                        "authority_priority": 5,
+                        "confidence": 0.8,
+                    },
+                ]
+            },
+            "KA-1049": {
+                "knowledge_nodes": [
+                    {"node_id": "a", "content": "bounded release evidence"},
+                    {"node_id": "b", "content": "bounded release control"},
+                ]
+            },
+            "KA-1077": {
+                "candidates": [
+                    {
+                        "knowledge_id": "knowledge-1",
+                        "relevance": 0.9,
+                        "confidence": 0.8,
+                        "freshness": 0.7,
+                        "reuse_count": 2,
+                        "dependent_count": 1,
+                    }
+                ]
+            },
+            "KA-1076": {
+                "nodes": [
+                    {
+                        "node_id": "old",
+                        "importance": 0.1,
+                        "confidence": 0.2,
+                        "age_days": 500,
+                        "reuse_count": 0,
+                    },
+                    {
+                        "node_id": "active",
+                        "importance": 0.9,
+                        "confidence": 0.9,
+                        "age_days": 2,
+                        "reuse_count": 10,
+                    },
+                ],
+                "edges": [],
+            },
+            "KA-1078": {
+                "candidates": [
+                    {
+                        "knowledge_id": "knowledge-1",
+                        "validation_status": "validated",
+                        "importance": 0.9,
+                        "confidence": 0.95,
+                        "age_days": 5,
+                        "reuse_count": 10,
+                    }
+                ]
+            },
+        }
+    )
+    return inputs
+
+
+def _run_batch_22_owner(canonical_id: str):
+    from backend.governed_execution.knowledge_store_maintenance import (
+        KnowledgeStoreService,
+    )
+
+    review = KnowledgeStoreService().review_maintenance_sync(
+        requested_ids=[canonical_id],
+        ka_inputs=_batch_22_inputs(),
+        request_id=f"batch-22-{canonical_id}",
+        run_id=f"batch-22-run-{canonical_id}",
+        principal_id="owner-1",
+    )
+    assert review.ok
+    receipt = review.receipts[canonical_id]
+    assert receipt["service"] == "KnowledgeStoreService"
+    assert receipt["status"] == "reviewed_no_mutation"
+    assert receipt["applied"] is False
+    assert receipt["rollback_status"] == "not_required_no_mutation"
+    states = [
+        event.state.value
+        for event in review.execution.report.traces[canonical_id].events
+        if event.state.value not in {"dependency", "effect_proposed"}
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return review.execution.results[canonical_id]["output"]
+
+
+def test_ka_080_owning_path():
+    assert _run_batch_22_owner("KA-080")["cache_mutation_applied"] is False
+
+
+def test_ka_1039_owning_path():
+    assert _run_batch_22_owner("KA-1039")["mutation_applied"] is False
+
+
+def test_ka_1040_owning_path():
+    assert _run_batch_22_owner("KA-1040")["alignment_count"] == 1
+
+
+def test_ka_1043_owning_path():
+    assert _run_batch_22_owner("KA-1043")["lineage_complete"] is True
+
+
+def test_ka_1046_owning_path():
+    output = _run_batch_22_owner("KA-1046")
+    assert output["patch_applied"] is False
+    assert output["dependencies_consumed"] == ["KA-1079", "KA-1109"]
+
+
+def test_ka_1048_owning_path():
+    assert _run_batch_22_owner("KA-1048")["mutation_applied"] is False
+
+
+def test_ka_1076_owning_path():
+    output = _run_batch_22_owner("KA-1076")
+    assert output["mutation_applied"] is False
+    assert output["dependencies_consumed"] == ["KA-1077", "KA-1094"]
+
+
+def test_ka_1078_owning_path():
+    output = _run_batch_22_owner("KA-1078")
+    assert output["tier_changes_applied"] is False
+    assert output["dependencies_consumed"] == ["KA-1109"]

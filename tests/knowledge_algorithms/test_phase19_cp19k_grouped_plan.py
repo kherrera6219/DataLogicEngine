@@ -50,11 +50,26 @@ def test_grouped_plan_covers_every_open_ka_exactly_once():
     assert plan["planned_batch_count"] == 36
     assert plan["batch_number_range"] == [8, 43]
     assert plan["completed_batch_numbers"] == [
-        8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
     ]
-    assert plan["next_batch_number"] == 19
-    assert plan["current_qualified_capabilities"] == 86
-    assert plan["current_open_capabilities"] == 127
+    assert plan["next_batch_number"] == 24
+    assert plan["current_qualified_capabilities"] == 115
+    assert plan["current_open_capabilities"] == 98
     assert len(plan["batches"]) == 36
     assert len(planned_ids) == len(set(planned_ids)) == 186
     assert remaining_planned_ids == open_ids

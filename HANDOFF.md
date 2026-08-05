@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.0.2 |
+| Document version | v1.0.3 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-04 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.61.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.62.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -240,20 +240,20 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batches 01 through 18 are complete. Batches 16-18 add `KA-034`,
-`KA-1074`, `KA-172`, `KA-173`, `KA-062`, `KA-065`, `KA-1071`, `KA-1094`,
-`KA-1109`, `KA-117`, `KA-029`, and `KA-1079` through the real TruthGate,
-TruthMemory/TruthLink/FROST, and retrieval/graph/memory owners. The generated
-213-row matrix and verifier report 86 qualified and 127 incomplete, with rebuild
-authorization false. Batch 02 moves
+CP19-K batches 01 through 23 are complete. Batches 19-23 add the five-node
+Quad Persona foundation, L6 evidence/confidence/entropy validation, adaptive
+DMRF routing, retrieval-store maintenance, and knowledge-content evolution
+through their real DSQP, TruthCore, DMRF, retrieval, and TruthMemory owners. The
+generated 213-row matrix and verifier report 115 qualified and 98 incomplete,
+with rebuild authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
 KA-1081 admission, KA-037 limits provider tokens, KA-042 feeds KA-070, and the
 bounded counterfactual projection changes the provider prompt through the real
 job. SimulationJobRunner alone applies the plan/context/artifact effects and
 binds each to an authoritative receipt. Runtime manifest
-`2026.08.04-cp19k.6` retains 213 capabilities, 155 production-enabled
-capabilities, and 142 dependency edges with zero cycles. `KA-1101` and
+`2026.08.04-cp19k.7` retains 213 capabilities, 170 production-enabled
+capabilities, and 135 dependency edges with zero cycles. `KA-1101` and
 `KA-1103` remain unqualified because no production chaos or rollback action
 consumes their registry operations.
 
@@ -329,7 +329,7 @@ a separate fail-closed boundary, and proves `KA-Master` is canonical controller
 authority rather than a self-selecting capability. Batches 16-18 replace
 synthetic adversarial and graph findings, duplicated trust/integrity booleans,
 and direct quarantine language with bounded supplied observations and exact
-dependency results. Batch 19 is next.
+dependency results. Batch 24 is next.
 
 The earlier 31 dependency alerts remain remediated. Ten newly published GitHub
 alerts reported on 2026-08-04 across `aiohttp`, `undici`, and `ip-address`, plus
@@ -337,10 +337,10 @@ one local `socket.io-parser` and three `cryptography` advisories, are remediated
 by the governed locks. Local Python and Node audits report zero vulnerabilities;
 lock governance passes and the 2026-08-04 live GitHub query reports zero open
 Dependabot alerts.
-The KA suite passes 861 tests; governed execution, TruthCore, Phase 19, and
-simulation integration pass 317; frontend type checking and all seven
+The KA suite passes 890 tests; governed execution, TruthCore, Phase 19, and
+simulation integration pass 355; frontend type checking and all seven
 TypeScript SDK tests pass; the retained 430 frontend tests and production/
-Electron builds remain green; and the full source suite passes 2,799 tests with
+Electron builds remain green; and the full source suite passes 2,866 tests with
 18 skipped and 35 known warnings. Read:
 
 A parallel candidate training-dataset exporter was reviewed before publication
@@ -1017,10 +1017,10 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 86/213 with grouped Batch 19, persona foundation
-   (`KA-012`, `KA-013`, `KA-028`, `KA-030`, and `KA-038`), through the real
-   Quad Persona/DSQP owner. Do not infer qualification from registry membership.
-2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 127 open
+1. Continue CP19-K from 115/213 with grouped Batch 24, knowledge-lifecycle
+   analytics (`KA-1086`, `KA-1088`, `KA-1089`, and `KA-1095`), through the real
+   TruthMemory/TruthLink/FROST owner. Do not infer qualification from registry membership.
+2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 98 open
    rows unqualified until each named semantic, owning-path, trace, limitation,
    security, effect, and performance proof passes; direct tests or registry
    membership do not qualify an owning path.
