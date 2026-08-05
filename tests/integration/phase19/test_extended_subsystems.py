@@ -22,13 +22,16 @@ def test_cp19i_manifest_preserves_one_identity_and_admits_extended_owners():
     manifest = get_ka_controller().manifest
 
     assert manifest.status == "cp19_j_product_workflow_authority"
-    assert manifest.manifest_version == "2026.08.02-cp19k.4"
+    assert manifest.manifest_version == "2026.08.04-cp19k.5"
     assert manifest.capability_count == 213
     assert len(manifest.entries) == len(set(manifest.entries)) == 213
-    assert sum(
-        definition.admission.production_enabled
-        for definition in manifest.entries.values()
-    ) == 149
+    assert (
+        sum(
+            definition.admission.production_enabled
+            for definition in manifest.entries.values()
+        )
+        == 153
+    )
     assert CP19_I_OWNER_IDS | CP19_I_ADDITIONAL_ADMISSION_IDS <= set(
         manifest.authority["production_admission_ids"]
     )
@@ -118,10 +121,7 @@ def test_cp19i_mcp_admission_runs_security_and_operations_before_effect():
         "KA-177",
         "KA-179",
     } <= set(execution.executed_ids)
-    assert (
-        coordinator.execution_outputs(execution)["KA-179"]["decision"]
-        == "allow"
-    )
+    assert coordinator.execution_outputs(execution)["KA-179"]["decision"] == "allow"
 
 
 def test_cp19i_mcp_admission_rejects_inline_credentials():
@@ -165,9 +165,7 @@ async def test_cp19i_provider_governance_and_monitoring_are_trace_accounted():
         principal_id="owner-1",
         duration_ms=125,
     )
-    monitoring_decision = coordinator.provider_monitoring_decision(
-        monitor_execution
-    )
+    monitoring_decision = coordinator.provider_monitoring_decision(monitor_execution)
     receipt = coordinator.bind_effect_receipt(
         service="ProviderGatewayService",
         operation="answer:provider_call",
@@ -208,7 +206,5 @@ def test_cp19i_simulation_plan_executes_and_effect_remains_service_owned():
     assert execution.ok is True
     assert allowed is True
     assert blockers == []
-    assert {"KA-032", "KA-037", "KA-1080", "KA-1081"} <= set(
-        execution.executed_ids
-    )
+    assert {"KA-032", "KA-037", "KA-1080", "KA-1081"} <= set(execution.executed_ids)
     assert execution.plan.effect_proposal_count >= 1

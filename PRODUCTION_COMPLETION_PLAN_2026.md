@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.60.0 |
+| Document version | v1.61.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -5581,7 +5581,8 @@ reuse fail closed.
 
 The matrix and verifier pass at 58/213 qualified and 155 incomplete. Grouped
 Batches 08 through 12 are complete; 31 planned batches remain and Batch 13, L1
-context dependencies (`KA-002`, `KA-003`, `KA-006`, and `KA-007`), is next. The
+context dependencies (`KA-003`, `KA-011`, `KA-015`, `KA-017`, `KA-025`, and
+`KA-040`), is next. The
 runtime manifest retains 213 capabilities and 149 production-enabled
 capabilities with a 143-edge zero-cycle dependency graph.
 The KA suite passes 833 tests, the governed/TruthCore/Phase-19/simulation
@@ -5600,6 +5601,52 @@ Evidence:
 - `tests/integration/phase19/test_truthmemory_truthlink_frost.py`;
 - `tests/integration/phase19/test_knowledge_temporal_health.py`; and
 - `backend/truth_engine/knowledge_temporal_health.py`.
+
+### CP19-K batches 13-15 passed 2026-08-04
+
+Batch 13 closes `KA-003`, `KA-011`, `KA-015`, `KA-017`, `KA-025`, and
+`KA-040` through `TruthCoreContextDependencyService`. The algorithms now use
+bounded supplied fields and explicit reference time for deterministic gap,
+analytical, temporal, jurisdiction, dependency, and hypothesis proposals.
+They do not infer legal applicability or calibrated confidence and apply no
+knowledge, graph, policy, provider, or persistence effect.
+
+Batch 14 closes `KA-018`, `KA-079`, `KA-1049`, `KA-1077`, and `KA-1092`
+through the retrieval/graph/memory owner. Provenance and freshness consume
+explicit evidence metadata and reference time, retrieval performs deterministic
+lexical ranking over supplied records, and the dependency audit consumes the
+exact `KA-025` result. No hidden vector engine, database, provider, network,
+trust, evidence, graph, or memory effect is claimed.
+
+Batch 15 closes `KA-031`, `KA-036`, `KA-1073`, `KA-1107`, and `KA-Master`
+through the governed request/DMRF path. Complexity and intent causally feed the
+selection proposal. The selected plan is then checked by a separate fail-closed
+reasoning boundary before later execution. `KA-Master` exposes the single
+manifest/controller authority while self-selection remains disabled; it does
+not create a second execution path.
+
+The generated matrix and verifier pass at 74/213 qualified and 139 incomplete.
+Batches 08 through 15 are complete, 28 planned batches remain, and Batch 16,
+the adversarial/privacy TruthGate (`KA-034`, `KA-1074`, `KA-172`, and
+`KA-173`), is next. Runtime manifest `2026.08.04-cp19k.5` retains 213
+capabilities, 153 production-enabled capabilities, and a 143-edge zero-cycle
+dependency graph. Rebuild authorization remains false, and all rebuilt-
+installed, accessibility, provider, independent-review, pilot, and soak gates
+remain open. The 849-test KA suite, 262 governed/TruthCore/Phase-19/simulation
+integration tests, and 2,775-test full source suite pass with 18 skipped and 35
+known warnings.
+
+Evidence:
+
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-13-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-14-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-15-validation.json`;
+- `config/phase19-ka-qualification-evidence.json`;
+- `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
+- `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
+- `tests/integration/phase19/test_truthcore_l1_l5.py`;
+- `tests/integration/phase19/test_retrieval_graph_memory.py`; and
+- `tests/integration/phase19/test_governed_request_dmrf.py`.
 
 Retained CP19-B evidence:
 
@@ -6047,14 +6094,15 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-12 now truthfully
-qualify 58 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-15 now truthfully
+qualify 74 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
 measured provider monitoring, content-free authenticated observability, causal
 secure ingestion, measured provider model preparation, and bounded provider
-model release preparation and content-free knowledge temporal-health review,
-leaving 155 of 213 rows open. The
+model release preparation, content-free knowledge temporal-health review,
+deterministic context analysis, supplied-record retrieval, and fail-closed DMRF
+routing, leaving 139 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
@@ -6072,11 +6120,10 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batches 08 through 12 are complete and 31 remain. Continue
-CP19-K with Batch 13, L1 context dependencies (`KA-002`, `KA-003`, `KA-006`,
-and `KA-007`), through the real TruthCore L1-L5 owner without treating the Batch
-12 maintenance-review record as a knowledge, trust, confidence, scheduling, or
-retirement effect. Keep every later row
+batches (08-43); Batches 08 through 15 are complete and 28 remain. Continue
+CP19-K with Batch 16, adversarial/privacy gate (`KA-034`, `KA-1074`, `KA-172`,
+and `KA-173`), through the real TruthGate owner without inferring production
+enablement from registry membership. Keep every later row
 incomplete until its individual owner/effect evidence exists.
 
 Proceed through CP19-K to CP19-L in the mandatory order defined above. Preserve

@@ -388,14 +388,10 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
                             "flow_id": f"tool:{tool_name}",
                             "source_asset_id": "mcp_gateway",
                             "target_asset_id": f"connector:{server_id}",
-                            "crosses_trust_boundary": bool(
-                                crosses_trust_boundary
-                            ),
+                            "crosses_trust_boundary": bool(crosses_trust_boundary),
                             "authenticated": bool(connector_authenticated),
                             "encrypted": bool(connector_encrypted),
-                            "integrity_protected": bool(
-                                connector_integrity_protected
-                            ),
+                            "integrity_protected": bool(connector_integrity_protected),
                         }
                     ],
                 },
@@ -604,9 +600,7 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             "blockers": sorted(blockers),
             "requires_human_review": bool(bias.get("is_biased")),
             "bias_score": float(bias.get("bias_score") or 0.0),
-            "security_audit_passed": bool(
-                security_audit.get("audit_passed")
-            ),
+            "security_audit_passed": bool(security_audit.get("audit_passed")),
             "threat_detected": bool(threat.get("threat_detected")),
             "logging_backend": str(logging_result.get("backend") or ""),
             "audit_id": str(audit.get("audit_id") or ""),
@@ -696,21 +690,15 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             "status": "planned",
             "automatic_retry_allowed": False,
             "circuit_state": circuit_state,
-            "circuit_reason": str(
-                fault_tolerance.get("circuit_reason") or ""
-            ),
-            "fallback_engaged": bool(
-                fault_tolerance.get("fallback_engaged")
-            ),
+            "circuit_reason": str(fault_tolerance.get("circuit_reason") or ""),
+            "fallback_engaged": bool(fault_tolerance.get("fallback_engaged")),
             "recommended_retry_policy": dict(
                 fault_tolerance.get("retry_policy_applied") or {}
             ),
             "incident_id": str(plan.get("incident_id") or ""),
             "incident_decision": str(plan.get("decision") or ""),
             "proposed_steps": list(plan.get("ordered_steps") or []),
-            "actions_applied": int(
-                incident_response.get("actions_applied") or 0
-            ),
+            "actions_applied": int(incident_response.get("actions_applied") or 0),
         }
 
     async def plan_provider_request(
@@ -815,14 +803,10 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
         anomalies = output.get("anomalies")
         metric_deltas = output.get("metric_deltas")
         if not isinstance(anomalies, list) or not isinstance(metric_deltas, dict):
-            raise ExtendedSubsystemError(
-                "Provider monitoring output is incomplete"
-            )
+            raise ExtendedSubsystemError("Provider monitoring output is incomplete")
         health_score = output.get("health_score")
         if not isinstance(health_score, (int, float)):
-            raise ExtendedSubsystemError(
-                "Provider monitoring health score is invalid"
-            )
+            raise ExtendedSubsystemError("Provider monitoring health score is invalid")
         return {
             "schema_version": "dle.provider-monitoring-decision.v1",
             "status": "measured",
@@ -917,6 +901,12 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
                     "available_kas": available,
                     "budget": {"max_kas": 10},
                 },
+                "KA-036": {
+                    "problem": scenario.query,
+                    "declared_step_count": len(orchestration_pipeline),
+                    "dependency_count": len(orchestration_pipeline) - 1,
+                    "observed_latencies_ms": [],
+                },
                 "KA-032": {
                     "pipeline": orchestration_pipeline,
                     "simulation_state": {"completed_steps": []},
@@ -954,6 +944,30 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
                     "maximum_peak_memory_mb": 4_096,
                     "maximum_recursion_depth": 0,
                     "maximum_concurrency": 1,
+                },
+                "KA-1073": {
+                    "utterance": scenario.query,
+                    "candidate_intents": [
+                        {
+                            "intent_id": "COUNTERFACTUAL",
+                            "description": "Counterfactual simulation",
+                            "keywords": [
+                                "simulate",
+                                "simulation",
+                                "counterfactual",
+                                "scenario",
+                            ],
+                            "required_slots": [],
+                        },
+                        {
+                            "intent_id": "GENERAL",
+                            "description": "General analysis",
+                            "keywords": ["assess", "evaluate", "review"],
+                            "required_slots": [],
+                        },
+                    ],
+                    "minimum_match": 0.0,
+                    "ambiguity_margin": 0.0,
                 },
                 "KA-1107": {
                     "planned_steps": planned_steps,
@@ -994,9 +1008,7 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
                 0,
                 int(allocation.get("timeout_ms") or 0),
             ),
-            "execution_queue": str(
-                allocation.get("execution_queue") or "unallocated"
-            ),
+            "execution_queue": str(allocation.get("execution_queue") or "unallocated"),
         }
 
     @staticmethod
@@ -1025,14 +1037,16 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
         allocation = outputs.get("KA-037", {})
         allocated_tokens = int(allocation.get("token_budget") or 0)
         required_tokens = (
-            int(scenario.plan.max_output_tokens)
-            if scenario is not None
-            else 1
+            int(scenario.plan.max_output_tokens) if scenario is not None else 1
         )
-        effective_tokens = min(
-            int(scenario.max_total_tokens),
-            allocated_tokens,
-        ) if scenario is not None else allocated_tokens
+        effective_tokens = (
+            min(
+                int(scenario.max_total_tokens),
+                allocated_tokens,
+            )
+            if scenario is not None
+            else allocated_tokens
+        )
         if effective_tokens < required_tokens:
             blockers.append("resource_allocation_below_plan_minimum")
         if outputs.get("KA-1081", {}).get("estimate_source") != "KA-1080_dependency":
@@ -1100,9 +1114,7 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             "schema_version": "dle.simulation-counterfactual-context.v1",
             "local_projection": projection,
             "graph_projection": ripple,
-            "ka_lifecycle": ExtendedSubsystemCoordinator.lifecycle_evidence(
-                execution
-            ),
+            "ka_lifecycle": ExtendedSubsystemCoordinator.lifecycle_evidence(execution),
         }
 
     def plan_simulation_outcome(

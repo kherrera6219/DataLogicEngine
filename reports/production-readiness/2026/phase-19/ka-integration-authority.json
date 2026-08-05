@@ -6514,7 +6514,6 @@
       "primary_owner_title": "Retrieval, graph, and memory",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "governed_request",
@@ -6523,19 +6522,19 @@
         "truthcore"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "knowledge_data_plane",
       "declared_layers": [
         "L10"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "knowledge_store_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1077.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1077.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1077_semantic_contract",
       "integration_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1077_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [

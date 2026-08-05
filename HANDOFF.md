@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.0.0 |
+| Document version | v1.0.1 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -240,25 +240,19 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batches 01 through 12 are complete for `KA-001`, `KA-004`, `KA-005`,
-`KA-010`, `KA-022`, `KA-024`,
-`KA-032`, `KA-037`, `KA-042`, `KA-061`, `KA-070`, `KA-084`, `KA-096`, `KA-097`,
-`KA-106`, `KA-113`, `KA-1080`, `KA-1081`, `KA-1091`, `KA-136`, `KA-137`,
-`KA-175`, `KA-177`, `KA-179`, `KA-182`, `KA-184`, `KA-1072`, `KA-091`,
-`KA-092`, `KA-094`, `KA-095`, `KA-098`, `KA-099`, `KA-100`, `KA-071`,
-`KA-072`, `KA-073`, `KA-074`, `KA-075`, `KA-076`, `KA-077`, `KA-078`,
-`KA-081`, `KA-082`, `KA-085`, `KA-086`, `KA-083`, `KA-087`, `KA-088`,
-`KA-089`, `KA-090`, `KA-023`, `KA-052`, `KA-064`, `KA-1082`, `KA-1083`,
-`KA-1093`, and `KA-1105`.
-The generated 213-row matrix and verifier report 58 qualified and 155
-incomplete, with rebuild authorization false. Batch 02 moves
+CP19-K batches 01 through 15 are complete. Batches 13-15 add `KA-003`,
+`KA-011`, `KA-015`, `KA-017`, `KA-025`, `KA-040`, `KA-018`, `KA-079`,
+`KA-1049`, `KA-1077`, `KA-1092`, `KA-031`, `KA-036`, `KA-1073`, `KA-1107`,
+and `KA-Master` through the real TruthCore L1-L5, retrieval/graph/memory, and
+governed request/DMRF owners. The generated 213-row matrix and verifier report
+74 qualified and 139 incomplete, with rebuild authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
 KA-1081 admission, KA-037 limits provider tokens, KA-042 feeds KA-070, and the
 bounded counterfactual projection changes the provider prompt through the real
 job. SimulationJobRunner alone applies the plan/context/artifact effects and
 binds each to an authoritative receipt. Runtime manifest
-`2026.08.02-cp19k.4` retains 213 capabilities, 149 production-enabled
+`2026.08.04-cp19k.5` retains 213 capabilities, 153 production-enabled
 capabilities, and 143 dependency edges with zero cycles. `KA-1101` and
 `KA-1103` remain unqualified because no production chaos or rollback action
 consumes their registry operations.
@@ -325,7 +319,14 @@ now causally feeds scheduling; scheduling feeds temporal maintenance; drift and
 scheduling feed obsolescence review. The owner writes one idempotent,
 content-free maintenance-review record and receipt while applying no confidence,
 trust, knowledge, version, retirement, alert, blacklist, job, revalidation,
-provider, or external-egress effect. Batch 13 is next.
+provider, or external-egress effect. Batch 13 adds a deterministic truth-context
+owner for bounded gap, analytical, temporal, jurisdiction, dependency, and
+hypothesis proposals. Batch 14 binds provenance, lexical retrieval, relevance,
+freshness, and dependency audit to supplied evidence records without hidden
+vector, store, provider, trust, or memory effects. Batch 15 makes complexity and
+intent causal inputs to algorithm selection, enforces the selected plan through
+a separate fail-closed boundary, and proves `KA-Master` is canonical controller
+authority rather than a self-selecting capability. Batch 16 is next.
 
 The earlier 31 dependency alerts remain remediated. Ten newly published GitHub
 alerts reported on 2026-08-04 across `aiohttp`, `undici`, and `ip-address`, plus
@@ -333,10 +334,10 @@ one local `socket.io-parser` and three `cryptography` advisories, are remediated
 by the governed locks. Local Python and Node audits report zero vulnerabilities;
 lock governance passes and the 2026-08-04 live GitHub query reports zero open
 Dependabot alerts.
-The KA suite passes 833 tests; governed execution, TruthCore, Phase 19, and
-simulation integration pass 245; frontend type checking and all seven
+The KA suite passes 849 tests; governed execution, TruthCore, Phase 19, and
+simulation integration pass 262; frontend type checking and all seven
 TypeScript SDK tests pass; the retained 430 frontend tests and production/
-Electron builds remain green; and the full source suite passes 2,742 tests with
+Electron builds remain green; and the full source suite passes 2,775 tests with
 18 skipped and 35 known warnings. Read:
 
 A parallel candidate training-dataset exporter was reviewed before publication
@@ -1013,11 +1014,10 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 58/213 with grouped Batch 13, L1 context dependencies
-   (`KA-002`, `KA-003`, `KA-006`, and `KA-007`), through the real TruthCore
-   L1-L5 owner. Do not count Batch 12's maintenance-review receipt as a
-   confidence, trust, knowledge, scheduling, or retirement effect.
-2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 155 open
+1. Continue CP19-K from 74/213 with grouped Batch 16, adversarial/privacy gate
+   (`KA-034`, `KA-1074`, `KA-172`, and `KA-173`), through the real TruthGate
+   owner. Do not infer production enablement from registry membership.
+2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 139 open
    rows unqualified until each named semantic, owning-path, trace, limitation,
    security, effect, and performance proof passes; direct tests or registry
    membership do not qualify an owning path.

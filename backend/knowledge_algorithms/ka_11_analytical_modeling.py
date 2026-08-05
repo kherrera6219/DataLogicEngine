@@ -60,7 +60,16 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
         )
 
         if not data:
-            return {"success": True, "result": "No data for modeling"}
+            return {
+                "success": True,
+                "status": "measurement_required",
+                "model_type": model_type,
+                "results": {},
+                "missing_inputs": ["data"],
+                "calibrated_probability": False,
+                "external_effect_applied": False,
+                "deterministic": True,
+            }
 
         nums = [x for x in data if isinstance(x, (int, float))]
 
@@ -91,11 +100,18 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
 
         return {
             "success": True,
+            "status": "descriptive_model_computed",
             "model_type": model_type,
             "results": results,
             "confidence_adjustment": None,
             "confidence_adjustment_status": "not_measured",
             "calibrated_probability": False,
+            "external_effect_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "Statistics describe only supplied values. Bayesian output is a "
+                "declared shrinkage heuristic, not a calibrated posterior model."
+            ),
         }
 
     @staticmethod
@@ -140,7 +156,7 @@ class KA011AnalyticalModeling(KnowledgeAlgorithm):
             "prior_strength": prior_strength,
             "sample_mean": sample_mean,
             "posterior_mean": posterior_mean,
-            "credible_interval_95": [
+            "heuristic_interval_95": [
                 posterior_mean - credible_half_width,
                 posterior_mean + credible_half_width,
             ],

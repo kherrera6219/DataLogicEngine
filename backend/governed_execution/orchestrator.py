@@ -1231,27 +1231,95 @@ class GovernedExecutionOrchestrator:
             }
             for item in context.evidence
         ]
-        first_source = (
-            records[0]
-            if records
-            else {
-                "id": "no-source",
-                "source_type": "none",
-                "content_hash": None,
+        known_ids = {item.source_id for item in context.evidence}
+        dependency_edges = sorted(
+            {
+                (str(upstream), item.source_id)
+                for item in context.evidence
+                for upstream in item.metadata.get("depends_on_source_ids", [])
+                if str(upstream) in known_ids and str(upstream) != item.source_id
             }
         )
+        requested_ids = ["KA-079"]
+        inputs: dict[str, dict[str, Any]] = {
+            "KA-079": {
+                "query": context.query,
+                "records": records,
+                "max_results": len(records) or 1,
+            }
+        }
+        if records:
+            first_source = context.evidence[0]
+            requested_ids.extend(["KA-018", "KA-1077", "KA-1092"])
+            inputs.update(
+                {
+                    "KA-018": {
+                        "source_id": first_source.source_id,
+                        "source_type": first_source.source_type,
+                        "content_sha256": first_source.content_hash,
+                        "provenance_checks": first_source.metadata.get(
+                            "provenance_checks", []
+                        ),
+                    },
+                    "KA-1077": {
+                        "candidates": [
+                            {
+                                "knowledge_id": item.source_id,
+                                "relevance": self._bounded_signal(item.score),
+                                "confidence": self._bounded_signal(
+                                    item.quality_score
+                                    if item.quality_score is not None
+                                    else item.provenance_completeness
+                                ),
+                                "freshness": self._bounded_signal(item.freshness_score),
+                                "reuse_count": self._bounded_count(
+                                    item.metadata.get("reuse_count")
+                                ),
+                                "dependent_count": self._bounded_count(
+                                    item.metadata.get("dependent_count")
+                                ),
+                            }
+                            for item in context.evidence
+                        ]
+                    },
+                    "KA-025": {
+                        "nodes": [
+                            {
+                                "id": item.source_id,
+                                "deps": sorted(
+                                    str(value)
+                                    for value in item.metadata.get(
+                                        "depends_on_source_ids", []
+                                    )
+                                    if str(value) in known_ids
+                                ),
+                            }
+                            for item in context.evidence
+                        ]
+                    },
+                    "KA-1092": {
+                        "changed_knowledge_ids": sorted(known_ids),
+                        "known_knowledge_ids": sorted(known_ids),
+                        "dependencies": [
+                            {"upstream_id": upstream, "downstream_id": downstream}
+                            for upstream, downstream in dependency_edges
+                        ],
+                    },
+                }
+            )
+            if len(records) >= 2:
+                requested_ids.append("KA-1049")
+                inputs["KA-1049"] = {
+                    "knowledge_nodes": [
+                        {"node_id": item.source_id, "content": item.text}
+                        for item in context.evidence
+                    ]
+                }
         execution = await self.knowledge_lifecycle.execute_operation(
             owner="retrieval_graph_memory",
             operation="retrieval",
-            requested_ids=["KA-018", "KA-079"],
-            ka_inputs={
-                "KA-018": {"source_metadata": first_source},
-                "KA-079": {
-                    "query": context.query,
-                    "records": records,
-                    "max_results": len(records) or 1,
-                },
-            },
+            requested_ids=requested_ids,
+            ka_inputs=inputs,
             request_id=context.request.request_id,
             run_id=context.trace_id,
             max_effects=4,
@@ -1281,8 +1349,20 @@ class GovernedExecutionOrchestrator:
         )
         for index, item in enumerate(context.evidence, start=1):
             item.citation_label = f"S{index}"
+        lifecycle_evidence = execution.to_dict()
+        lifecycle_evidence["traces"] = {
+            canonical_id: {
+                "parent_ids": list(trace.parent_ids),
+                "events": [
+                    event.model_dump(mode="json", exclude_none=True)
+                    for event in trace.events
+                ],
+            }
+            for canonical_id, trace in execution.report.traces.items()
+            if canonical_id in execution.executed_ids
+        }
         context.request.metadata.setdefault("_knowledge_lifecycle", {})["retrieval"] = (
-            execution.to_dict()
+            lifecycle_evidence
         )
         context.request.metadata.setdefault("_retrieval_decisions", []).append(
             {
@@ -1292,6 +1372,20 @@ class GovernedExecutionOrchestrator:
                 "ranked_source_ids": ranked_ids,
             }
         )
+
+    @staticmethod
+    def _bounded_signal(value: Any) -> float:
+        try:
+            return round(max(0.0, min(1.0, float(value))), 8)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @staticmethod
+    def _bounded_count(value: Any) -> int:
+        try:
+            return max(0, min(1_000_000, int(value)))
+        except (TypeError, ValueError):
+            return 0
 
     def _stage_memory_proposal(
         self,
@@ -1389,11 +1483,22 @@ class GovernedExecutionOrchestrator:
             "KA-004": {"query": context.query},
             "KA-005": {"query": context.query},
             "KA-018": {
-                "source_metadata": (
-                    evidence_inputs[0]
+                "source_id": (
+                    evidence_inputs[0]["source_id"]
                     if evidence_inputs
-                    else {"source": context.request.source}
-                )
+                    else "request-source"
+                ),
+                "source_type": (
+                    evidence_inputs[0]["source"]
+                    if evidence_inputs
+                    else context.request.source
+                ),
+                "content_sha256": (
+                    evidence_inputs[0]["content_hash"]
+                    if evidence_inputs
+                    else sha256(context.request.source.encode("utf-8")).hexdigest()
+                ),
+                "provenance_checks": [],
             },
             "KA-022": {
                 "recommendation": candidate,
@@ -1849,9 +1954,7 @@ class GovernedExecutionOrchestrator:
                         },
                         result_payload={
                             "answer_sha256": sha256(
-                                str(provider_output.get("answer") or "").encode(
-                                    "utf-8"
-                                )
+                                str(provider_output.get("answer") or "").encode("utf-8")
                             ).hexdigest(),
                             "usage": usage,
                             "ledger_persisted": True,

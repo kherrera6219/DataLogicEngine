@@ -1,6 +1,9 @@
 from datetime import datetime, UTC
 
-from backend.knowledge_algorithms.ka_36_complexity_estimator import KA036ComplexityEstimator
+from backend.knowledge_algorithms.ka_36_complexity_estimator import (
+    KA036ComplexityEstimator,
+    KA036Input,
+)
 from backend.knowledge_algorithms.ka_master_controller import KAMasterController
 from backend.truth_engine.truth_core.historical_embeddings import (
     cosine_similarity,
@@ -9,9 +12,13 @@ from backend.truth_engine.truth_core.historical_embeddings import (
     text_to_embedding,
 )
 from backend.truth_engine.truth_core.l9_schemas import L9Input
-from backend.truth_engine.truth_core.meta_reasoning_controller import MetaReasoningController
+from backend.truth_engine.truth_core.meta_reasoning_controller import (
+    MetaReasoningController,
+)
 from backend.truth_engine.truth_gate.l8_schemas import L8Input
-from backend.truth_engine.truth_gate.trust_validation_gateway import TrustValidationGateway
+from backend.truth_engine.truth_gate.trust_validation_gateway import (
+    TrustValidationGateway,
+)
 from models import TruthSession
 
 
@@ -47,7 +54,9 @@ def test_local_embedding_round_trip_similarity():
     serialized = serialize_embedding(query)
 
     assert parse_embedding(serialized) == text_to_embedding(query)
-    assert cosine_similarity(text_to_embedding(query), parse_embedding(serialized)) == 1.0
+    assert (
+        cosine_similarity(text_to_embedding(query), parse_embedding(serialized)) == 1.0
+    )
 
 
 def test_l9_drift_report_includes_db_similar_sessions(monkeypatch):
@@ -62,7 +71,9 @@ def test_l9_drift_report_includes_db_similar_sessions(monkeypatch):
         }
     ]
     monkeypatch.setattr(controller, "_search_audit_evidence", lambda *_: [])
-    monkeypatch.setattr(controller, "_search_db_similar_sessions", lambda *_: db_matches)
+    monkeypatch.setattr(
+        controller, "_search_db_similar_sessions", lambda *_: db_matches
+    )
 
     report = controller._detect_belief_drift(
         L9Input(
@@ -110,17 +121,16 @@ def test_ka_execution_timing_persistence(monkeypatch):
     assert added[0].tenant_id == "tenant-a"
 
 
-def test_ka_036_reads_p95_latency_from_last_100(monkeypatch):
-    monkeypatch.setattr(
-        KA036ComplexityEstimator,
-        "_recent_latencies",
-        staticmethod(lambda target_ka_id=None: [100, 200, 300, 5000]),
-    )
-
+def test_ka_036_uses_supplied_latency_without_hidden_history_read():
     result = KA036ComplexityEstimator({})._run_logic(
-        type("Input", (), {"model_dump": lambda self: {"problem": "short", "target_ka_id": "KA-014"}})()
+        KA036Input(
+            problem="short",
+            target_ka_id="KA-014",
+            observed_latencies_ms=[100, 200, 300, 5000],
+        )
     )
 
-    assert result["latency_baseline"]["sample_size"] == 4
-    assert result["latency_baseline"]["p95_latency_ms"] == 5000
+    assert result["signals"]["latency_sample_size"] == 4
+    assert result["signals"]["p95_latency_ms"] == 5000
     assert result["complexity_score"] == 5
+    assert result["database_read_performed"] is False

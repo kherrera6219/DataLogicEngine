@@ -49,10 +49,10 @@ def test_grouped_plan_covers_every_open_ka_exactly_once():
     assert plan["planned_capabilities"] == 186
     assert plan["planned_batch_count"] == 36
     assert plan["batch_number_range"] == [8, 43]
-    assert plan["completed_batch_numbers"] == [8, 9, 10, 11, 12]
-    assert plan["next_batch_number"] == 13
-    assert plan["current_qualified_capabilities"] == 58
-    assert plan["current_open_capabilities"] == 155
+    assert plan["completed_batch_numbers"] == [8, 9, 10, 11, 12, 13, 14, 15]
+    assert plan["next_batch_number"] == 16
+    assert plan["current_qualified_capabilities"] == 74
+    assert plan["current_open_capabilities"] == 139
     assert len(plan["batches"]) == 36
     assert len(planned_ids) == len(set(planned_ids)) == 186
     assert remaining_planned_ids == open_ids
@@ -62,19 +62,14 @@ def test_grouped_batches_have_one_owner_bounded_size_and_dependency_order():
     plan = _load(PLAN_PATH)
     matrix = _load(MATRIX_PATH)
     manifest = load_manifest()
-    rows = {
-        row["canonical_id"]: row
-        for row in matrix["canonical_capabilities"]
-    }
+    rows = {row["canonical_id"]: row for row in matrix["canonical_capabilities"]}
     batch_by_id = {
         canonical_id: batch["batch_number"]
         for batch in plan["batches"]
         for canonical_id in batch["canonical_ids"]
     }
 
-    assert [batch["batch_number"] for batch in plan["batches"]] == list(
-        range(8, 44)
-    )
+    assert [batch["batch_number"] for batch in plan["batches"]] == list(range(8, 44))
     assert len({batch["batch_id"] for batch in plan["batches"]}) == 36
     for batch in plan["batches"]:
         canonical_ids = batch["canonical_ids"]
@@ -82,13 +77,10 @@ def test_grouped_batches_have_one_owner_bounded_size_and_dependency_order():
         assert batch["cohesion"].strip()
         assert batch["effect_boundary"].strip()
         assert {
-            rows[canonical_id]["primary_owner"]
-            for canonical_id in canonical_ids
+            rows[canonical_id]["primary_owner"] for canonical_id in canonical_ids
         } == {batch["owner"]}
         for canonical_id in canonical_ids:
-            for dependency_id in manifest.entries[
-                canonical_id
-            ].contract.dependencies:
+            for dependency_id in manifest.entries[canonical_id].contract.dependencies:
                 dependency_batch = batch_by_id.get(dependency_id)
                 if dependency_batch is not None:
                     assert dependency_batch <= batch["batch_number"], (

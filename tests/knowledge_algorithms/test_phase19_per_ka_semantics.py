@@ -1671,3 +1671,310 @@ def test_ka_1105_semantic_contract():
     assert proposed.output["dependencies_consumed"] == ["KA-1082", "KA-1083"]
     assert proposed.output["requests_dispatched"] == 0
     assert proposed.output["knowledge_updated"] is False
+
+
+def test_ka_003_semantic_contract():
+    payload = {
+        "current_state": {"region": "us"},
+        "desired_state": {"region": "eu", "policy": "declared"},
+    }
+    first = _execute("KA-003", payload)
+    second = _execute("KA-003", payload)
+
+    _assert_pure_bounded_result("KA-003", first)
+    assert first.output == second.output
+    assert first.output["gap_count"] == 2
+    assert first.output["state_mutation_applied"] is False
+
+
+def test_ka_011_semantic_contract():
+    measured = _execute("KA-011", {"data": [1, 2, 3], "model_type": "statistical"})
+    missing = _execute("KA-011", {"data": [], "model_type": "statistical"})
+
+    _assert_pure_bounded_result("KA-011", measured)
+    _assert_pure_bounded_result("KA-011", missing)
+    assert measured.output["results"]["mean"] == 2
+    assert measured.output["calibrated_probability"] is False
+    assert missing.output["status"] == "measurement_required"
+
+
+def test_ka_015_semantic_contract():
+    payload = {
+        "facts": [
+            {
+                "fact_id": "fact-1",
+                "observed_at": "2026-01-01T00:00:00Z",
+                "expires_at": "2026-06-01T00:00:00Z",
+            }
+        ],
+        "reference_time": "2026-08-04T00:00:00Z",
+    }
+    first = _execute("KA-015", payload)
+    second = _execute("KA-015", payload)
+
+    _assert_pure_bounded_result("KA-015", first)
+    assert first.output == second.output
+    assert first.output["expired_count"] == 1
+    assert first.output["system_clock_used"] is False
+    assert first.output["knowledge_updated"] is False
+
+
+def test_ka_017_semantic_contract():
+    matched = _execute(
+        "KA-017",
+        {
+            "location": "California",
+            "entity_scope": "consumer",
+            "candidates": [
+                {
+                    "jurisdiction_id": "US-CA",
+                    "location_aliases": ["California"],
+                    "entity_scopes": ["consumer"],
+                    "regulation_refs": ["declared-control-ref"],
+                }
+            ],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-017", matched)
+    assert matched.output["resolved_jurisdiction"] == "US-CA"
+    assert matched.output["legal_applicability_established"] is False
+    assert matched.output["external_lookup_performed"] is False
+
+
+def test_ka_025_semantic_contract():
+    measured = _execute(
+        "KA-025",
+        {
+            "nodes": [
+                {"id": "a", "deps": []},
+                {"id": "b", "deps": ["a"]},
+            ]
+        },
+    )
+
+    _assert_pure_bounded_result("KA-025", measured)
+    assert measured.output["meta"]["is_dag"] is True
+    assert measured.output["graph_mutation_applied"] is False
+
+
+def test_ka_040_semantic_contract():
+    payload = {
+        "observation": "Latency increased after the cache change",
+        "variables": ["cache_configuration", "request_volume"],
+    }
+    first = _execute("KA-040", payload)
+    second = _execute("KA-040", payload)
+
+    _assert_pure_bounded_result("KA-040", first)
+    assert first.output == second.output
+    assert first.output["hypotheses_validated"] is False
+    assert all(
+        row["evidence_status"] == "untested" for row in first.output["hypotheses"]
+    )
+    assert all("confidence" not in row for row in first.output["hypotheses"])
+
+
+def test_ka_018_semantic_contract():
+    measured = _execute(
+        "KA-018",
+        {
+            "source_id": "source-1",
+            "source_type": "local_document",
+            "content_sha256": "a" * 64,
+            "provenance_checks": [
+                {
+                    "check_id": "hash-bound",
+                    "status": "passed",
+                    "authority_ref": "local-index-receipt",
+                }
+            ],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-018", measured)
+    assert measured.output["passed_check_ratio"] == 1
+    assert measured.output["source_trust_established"] is False
+    assert len(measured.output["trace_sha256"]) == 64
+
+
+def test_ka_079_semantic_contract():
+    payload = {
+        "query": "alpha evidence",
+        "records": [
+            {"id": "b", "content": "beta material"},
+            {"id": "a", "content": "alpha evidence"},
+        ],
+    }
+    first = _execute("KA-079", payload)
+    second = _execute("KA-079", payload)
+
+    _assert_pure_bounded_result("KA-079", first)
+    assert first.output == second.output
+    assert [row["id"] for row in first.output["results"]] == ["a"]
+    assert first.output["external_engine_used"] is False
+    assert "execution_time_ms" not in first.output
+
+
+def test_ka_1049_semantic_contract():
+    measured = _execute(
+        "KA-1049",
+        {
+            "knowledge_nodes": [
+                {"node_id": "a", "content": "Same evidence"},
+                {"node_id": "b", "content": " same  evidence "},
+            ]
+        },
+    )
+
+    _assert_pure_bounded_result("KA-1049", measured)
+    assert measured.output["merge_candidates"][0]["exact_duplicate"] is True
+    assert measured.output["mutation_applied"] is False
+
+
+def test_ka_1077_semantic_contract():
+    ranked = _execute(
+        "KA-1077",
+        {
+            "candidates": [
+                {
+                    "knowledge_id": "a",
+                    "relevance": 0.9,
+                    "confidence": 0.8,
+                    "freshness": 0.7,
+                    "reuse_count": 10,
+                    "dependent_count": 2,
+                }
+            ]
+        },
+    )
+
+    _assert_pure_bounded_result("KA-1077", ranked)
+    assert ranked.output["ranked_knowledge"][0]["knowledge_id"] == "a"
+    assert ranked.effects == []
+
+
+def test_ka_1092_semantic_contract():
+    audited = _execute(
+        "KA-1092",
+        {
+            "changed_knowledge_ids": ["a"],
+            "known_knowledge_ids": ["a", "b"],
+            "dependencies": [{"upstream_id": "a", "downstream_id": "b"}],
+            "dependency_results": {
+                "KA-025": {"graph": {"edges": [{"from": "a", "to": "b"}]}}
+            },
+        },
+    )
+
+    _assert_pure_bounded_result("KA-1092", audited)
+    assert audited.output["affected_knowledge_ids"] == ["b"]
+    assert audited.output["dependency_consumed"] == "KA-025"
+    assert audited.output["mutation_applied"] is False
+
+
+def test_ka_036_semantic_contract():
+    payload = {
+        "problem": "Evaluate a bounded routing request",
+        "declared_step_count": 4,
+        "dependency_count": 2,
+        "observed_latencies_ms": [100, 200, 300],
+    }
+    first = _execute("KA-036", payload)
+    second = _execute("KA-036", payload)
+
+    _assert_pure_bounded_result("KA-036", first)
+    assert first.output == second.output
+    assert first.output["database_read_performed"] is False
+    assert first.output["signals"]["p95_latency_ms"] == 300
+
+
+def test_ka_1073_semantic_contract():
+    clarified = _execute(
+        "KA-1073",
+        {
+            "utterance": "retrieve the local data",
+            "candidate_intents": [
+                {
+                    "intent_id": "DATA",
+                    "description": "Data retrieval",
+                    "keywords": ["retrieve", "data"],
+                },
+                {
+                    "intent_id": "SECURITY",
+                    "description": "Security review",
+                    "keywords": ["security", "attack"],
+                },
+            ],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-1073", clarified)
+    assert clarified.output["resolved_intent"] == "DATA"
+    assert clarified.output["clarification_questions"] == []
+
+
+def _routing_dependencies() -> dict[str, dict]:
+    return {
+        "KA-005": {"category": "TECHNICAL", "suggested_tier": "moderate"},
+        "KA-036": {"category": "moderate", "complexity_score": 3},
+        "KA-1073": {"resolved_intent": "REASONING"},
+        "KA-113": {"complexity_tier": "medium"},
+    }
+
+
+def test_ka_031_semantic_contract():
+    payload = {
+        "query": "explain the result",
+        "available_kas": ["KA-001", "KA-040", "KA-041", "KA-043"],
+        "dependency_results": _routing_dependencies(),
+    }
+    first = _execute("KA-031", payload)
+    second = _execute("KA-031", payload)
+
+    _assert_pure_bounded_result("KA-031", first)
+    assert first.output == second.output
+    assert first.output["dependencies_consumed"] == [
+        "KA-005",
+        "KA-036",
+        "KA-1073",
+        "KA-113",
+    ]
+    assert first.output["execution_started"] is False
+
+
+def test_ka_1107_semantic_contract():
+    enforced = _execute(
+        "KA-1107",
+        {
+            "planned_steps": [
+                {
+                    "step_id": "selected-1",
+                    "capability_id": "KA-001",
+                    "layer": "L1",
+                    "query_class": "routing",
+                }
+            ],
+            "allowed_capability_ids": ["KA-001"],
+            "allowed_layers": ["L1"],
+            "allowed_query_classes": ["routing"],
+        },
+    )
+
+    _assert_pure_bounded_result("KA-1107", enforced)
+    assert enforced.output["plan_allowed"] is True
+    assert enforced.output["execution_started"] is False
+
+
+def test_ka_master_semantic_contract():
+    from backend.knowledge_algorithms.ka_master_controller import KAMasterController
+
+    controller = KAMasterController({"llm_gateway": None})
+    first = controller.authority_descriptor()
+    second = controller.authority_descriptor()
+
+    assert first == second
+    assert first["capability_count"] == 213
+    assert first["self_selection_enabled"] is False
+    assert first["planning_authority"] == "ManifestKASelector"
+    assert first["execution_authority"] == "CanonicalKAController"

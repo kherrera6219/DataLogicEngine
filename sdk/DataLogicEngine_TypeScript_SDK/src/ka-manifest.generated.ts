@@ -3,7 +3,7 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.08.02-cp19k.4",
+  "manifest_version": "2026.08.04-cp19k.5",
   "status": "cp19_j_product_workflow_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
@@ -241,6 +241,10 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         ],
         "rationale": "Chaos admission consumes the simulation budget decision and system-integrity state before an authoritative fault service may consider the proposal."
       },
+      "KA-015": {
+        "dependencies": [],
+        "rationale": "Temporal validity is measured from explicit fact windows and an explicit reference time; it must not trigger temporal-maintenance proposals as a hidden prerequisite."
+      },
       "KA-1083": {
         "dependencies": [
           "KA-1082"
@@ -259,6 +263,15 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "KA-1083"
         ],
         "rationale": "Obsolescence review consumes both committed drift measurements and the derived revalidation schedule before proposing review."
+      },
+      "KA-031": {
+        "dependencies": [
+          "KA-005",
+          "KA-036",
+          "KA-1073",
+          "KA-113"
+        ],
+        "rationale": "Core algorithm selection consumes committed query classification, bounded complexity, intent clarification, and tier routing results; simulation validation is not a routing prerequisite."
       }
     },
     "production_admission_checkpoint": "CP19-I",
@@ -558,6 +571,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       "schema_version": "dle.ka-subsystem-registry.v1",
       "registry_version": "2026.07.25-cp19h.1",
       "owners": {
+        "truthcore_l1_l5": {
+          "context_dependencies": [
+            "KA-003",
+            "KA-011",
+            "KA-015",
+            "KA-017",
+            "KA-025",
+            "KA-040"
+          ]
+        },
         "truthgate": {
           "entry": [
             "KA-022",
@@ -2317,7 +2340,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_k_production_qualified",
         "inputs": [
           "Time-tagged facts",
           "events"
@@ -2337,9 +2360,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [
-          "KA-052"
-        ],
+        "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
@@ -2351,12 +2372,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -3847,7 +3868,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         ],
         "dependencies": [
           "KA-005",
-          "KA-1081",
+          "KA-036",
+          "KA-1073",
           "KA-113"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
@@ -4293,7 +4315,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4310,12 +4332,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Named scores and classifications are heuristics, not calibrated probabilities.",
-        "guarantee": "Produces a repeatable heuristic result for identical versioned inputs; it is not independent factual proof.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
+        "production_enabled": true,
         "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
@@ -4609,7 +4631,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -4626,13 +4648,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "Requires explicit owner opt-in, recorded parameters/seed when stochastic, and cannot appear as a production validator.",
-        "guarantee": "Provides research or exploratory output only and is excluded from production answer validation.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "experimental_method",
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
@@ -11895,7 +11917,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_b_contract_parity",
+        "status": "cp19_k_production_qualified",
         "inputs": [
           "Parsed query",
           "entities"
@@ -11926,14 +11948,14 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "Phase 19 capability limitation review required.",
-        "guarantee": "No production guarantee until CP19-K per-KA proof and CP19-M rebuilt-installed acceptance pass.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
-        "production_enabled": false,
-        "classification": "implementation_required",
-        "deterministic": null,
+        "production_enabled": true,
+        "classification": "deterministic_heuristic",
+        "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
       "integration": {
@@ -12309,9 +12331,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "risk_classes": [
           "Medium"
         ],
-        "effect_class": "effect_oriented_review_required",
+        "effect_class": "pure_or_advisory_review_required",
         "reads_memory": true,
-        "writes_memory": true,
+        "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
         "limitations": "The result is a measured validation, heuristic, or effect proposal; it does not independently establish external truth or apply a data, memory, graph, policy, quarantine, promotion, or release effect.",
@@ -12329,7 +12351,6 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "primary_owner": "retrieval_graph_memory",
         "consumer_paths": [
           "api_sdk_desktop_evaluation",
-          "authoritative_effect_service",
           "canonical_controller",
           "contract_parity",
           "governed_request",
@@ -12338,10 +12359,10 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "truthcore"
         ],
         "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-        "required_or_optional": "conditional_effect_proposal",
+        "required_or_optional": "conditional",
         "stage": "knowledge_data_plane",
-        "effect_port": "knowledge_store_service",
-        "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+        "effect_port": null,
+        "effect_transaction": "not_applicable_pure_or_advisory_result",
         "qualification": {
           "contract": "CP19-B",
           "selector": "CP19-C",

@@ -2,13 +2,13 @@
 
 **Status:** Active
 
-**Plan version:** `2026.08.02-cp19k-grouped.4`
+**Plan version:** `2026.08.04-cp19k-grouped.6`
 
 **Baseline:** 27/213 qualified; 186 open
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batches 08-12 passed; 58/213 qualified, 155 open; Batch 13 next
+**Current checkpoint:** Batches 08-15 passed; 74/213 qualified, 139 open; Batch 16 next
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 
@@ -64,10 +64,10 @@ open prerequisite.
 | 09 | Secure ingestion pipeline — **passed 2026-08-02** | ingestion | 071-078 | 8 |
 | 10 | Provider model preparation — **passed 2026-08-02** | provider/gateway | 081, 082, 085, 086 | 4 |
 | 11 | Provider model release preparation — **passed 2026-08-04** | provider/gateway | 083, 087-090 | 5 |
-| 12 | Knowledge temporal health | TruthMemory/TruthLink/FROST | 023, 052, 064, 1082, 1083, 1093, 1105 | 7 |
-| 13 | L1 context and dependencies | TruthCore L1-L5 | 003, 011, 015, 017, 025, 040 | 6 |
-| 14 | Retrieval provenance and scoring | retrieval/graph/memory | 018, 079, 1049, 1077, 1092 | 5 |
-| 15 | DMRF core routing | governed request/DMRF | 031, 036, 1073, 1107, KA-Master | 5 |
+| 12 | Knowledge temporal health — **passed 2026-08-04** | TruthMemory/TruthLink/FROST | 023, 052, 064, 1082, 1083, 1093, 1105 | 7 |
+| 13 | L1 context and dependencies — **passed 2026-08-04** | TruthCore L1-L5 | 003, 011, 015, 017, 025, 040 | 6 |
+| 14 | Retrieval provenance and scoring — **passed 2026-08-04** | retrieval/graph/memory | 018, 079, 1049, 1077, 1092 | 5 |
+| 15 | DMRF core routing — **passed 2026-08-04** | governed request/DMRF | 031, 036, 1073, 1107, KA-Master | 5 |
 | 16 | Adversarial/privacy gate | TruthGate | 034, 1074, 172, 173 | 4 |
 | 17 | Knowledge trust and containment | TruthMemory/TruthLink/FROST | 062, 065, 1071, 1094, 1109, 117 | 6 |
 | 18 | Knowledge expansion/promotion | retrieval/graph/memory | 029, 1079 | 2 |
@@ -117,4 +117,4 @@ The machine-readable authority is
 `config/phase19-ka-grouped-batches.json`. Its integrity test proves exact
 186-row baseline coverage, one owner per batch, bounded batch size, unique
 membership, dependency-safe order, and exact reconciliation of completed
-batches with the current 179-row open matrix.
+batches with the current 139-row open matrix.

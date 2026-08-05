@@ -1,97 +1,127 @@
-"""
-KA-015: Temporal Reasoning
-Purpose: Evaluate the temporal validity and relevance of facts across time windows.
-"""
-import logging
-import json
-import os
-from datetime import datetime, timedelta
-from typing import Dict, Any, List
+"""KA-015: deterministic temporal validity measurement."""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
 
-logger = logging.getLogger(__name__)
+def _utc_datetime(value: str) -> datetime:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("timestamps must include a UTC offset")
+    return parsed.astimezone(UTC)
+
+
+class TemporalFact(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    fact_id: str = Field(min_length=1, max_length=200)
+    observed_at: str
+    expires_at: str | None = None
+
+    @field_validator("observed_at", "expires_at")
+    @classmethod
+    def validate_timestamp(cls, value: str | None) -> str | None:
+        if value is not None:
+            _utc_datetime(value)
+        return value
+
+    @model_validator(mode="after")
+    def validate_window(self) -> TemporalFact:
+        if self.expires_at and _utc_datetime(self.expires_at) < _utc_datetime(
+            self.observed_at
+        ):
+            raise ValueError("expires_at cannot precede observed_at")
+        return self
 
 
 class KA015Input(BaseModel):
-    facts: List[Dict[str, Any]] = Field(default_factory=list, description="List of facts with timestamps to evaluate")
-    reference_time: str = Field(None, description="ISO reference time for evaluation")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "facts": [
+                        {
+                            "fact_id": "fact-1",
+                            "observed_at": "2026-01-01T00:00:00Z",
+                        }
+                    ],
+                    "reference_time": "2026-08-04T00:00:00Z",
+                }
+            ]
+        },
+    )
+
+    facts: list[TemporalFact] = Field(min_length=1, max_length=10_000)
+    reference_time: str
+    default_validity_days: int = Field(default=365, ge=1, le=36_500)
+
+    @field_validator("reference_time")
+    @classmethod
+    def validate_reference_time(cls, value: str) -> str:
+        _utc_datetime(value)
+        return value
+
 
 class KA015TemporalReasoning(KnowledgeAlgorithm):
-    """
-    KA-015: Filters and scores knowledge based on time stamps and validity windows.
-    """
+    """Measure supplied validity windows without consulting a system clock."""
+
     input_schema = KA015Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-015"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_15_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA015Input) -> Dict[str, Any]:
-        facts = input_data.facts
-        reference_time_str = input_data.reference_time or datetime.now().isoformat()
-        
-        try:
-            ref_time = datetime.fromisoformat(reference_time_str)
-        except ValueError:
-            ref_time = datetime.now()
-            
-        self.log_execution_step("Temporal Analysis", {"fact_count": len(facts), "ref_time": ref_time.isoformat()})
-        
-        processed_facts = []
-        for fact in facts:
-            validity = self._check_validity(fact, ref_time)
-            processed_facts.append({
-                **fact,
-                "temporal_validity": validity
-            })
-            
+    def _run_logic(self, input_data: KA015Input) -> dict[str, Any]:
+        reference = _utc_datetime(input_data.reference_time)
+        results = []
+        for fact in sorted(input_data.facts, key=lambda item: item.fact_id):
+            observed = _utc_datetime(fact.observed_at)
+            expires = (
+                _utc_datetime(fact.expires_at)
+                if fact.expires_at
+                else observed + timedelta(days=input_data.default_validity_days)
+            )
+            if reference < observed:
+                status = "future_dated"
+                relative_days = (observed - reference).days
+            elif reference > expires:
+                status = "expired"
+                relative_days = (reference - expires).days
+            else:
+                status = "valid"
+                relative_days = (expires - reference).days
+            results.append(
+                {
+                    "fact_id": fact.fact_id,
+                    "status": status,
+                    "observed_at": observed.isoformat().replace("+00:00", "Z"),
+                    "expires_at": expires.isoformat().replace("+00:00", "Z"),
+                    "relative_days": relative_days,
+                    "validity_changed": False,
+                }
+            )
         return {
             "success": True,
-            "ref_time": ref_time.isoformat(),
-            "results": processed_facts,
-            "expired_count": sum(1 for f in processed_facts if f["temporal_validity"]["status"] == "expired")
+            "status": "temporal_validity_measured",
+            "reference_time": reference.isoformat().replace("+00:00", "Z"),
+            "results": results,
+            "expired_count": sum(row["status"] == "expired" for row in results),
+            "system_clock_used": False,
+            "knowledge_updated": False,
+            "deterministic": True,
+            "limitations": (
+                "Validity reflects only supplied timestamps and the declared default "
+                "window; it does not establish factual currency or retire knowledge."
+            ),
         }
 
-    def _check_validity(self, fact: Dict[str, Any], ref_time: datetime) -> Dict[str, Any]:
-        ts_str = fact.get("timestamp")
-        expires_str = fact.get("expires_at")
-        if not ts_str:
-            return {"status": "unknown", "msg": "No timestamp provided"}
-            
-        try:
-            ts = datetime.fromisoformat(ts_str)
-            if expires_str:
-                expires_at = datetime.fromisoformat(expires_str)
-            else:
-                duration = self.config.get("default_validity_days", 365)
-                expires_at = ts + timedelta(days=duration)
-                
-            if ref_time > expires_at:
-                return {"status": "expired", "relative_age_days": (ref_time - ts).days}
-            elif ref_time < ts:
-                 return {"status": "future_dated", "starts_in_days": (ts - ref_time).days}
-            else:
-                 return {"status": "valid", "remaining_days": (expires_at - ref_time).days}
-        except Exception as e:
-            return {"status": "error", "error": str(e)}
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA015TemporalReasoning(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-015 Failed: {e}")
-        return {"success": False, "error": str(e)}
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA015TemporalReasoning(context).run(context)

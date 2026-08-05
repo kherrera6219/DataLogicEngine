@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.product-user-document-verification.v1",
-  "generated_at": "2026-08-02T02:51:41.982752+00:00",
-  "authority_version": "2026.08.01-phase19-cp19j-product-workflow",
+  "generated_at": "2026-08-05T00:52:44.962243+00:00",
+  "authority_version": "2026.08.02-phase19-cp19k-batch08",
   "status": "pass",
   "target_count": 5,
   "verified_count": 5,

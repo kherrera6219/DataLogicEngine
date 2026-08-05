@@ -92,7 +92,7 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids()
         for canonical_id in canonical_ids
     ]
 
-    assert len(set(registry_ids)) == 60
+    assert len(set(registry_ids)) == 66
     assert set(registry_ids) <= set(manifest.entries)
     assert {
         "KA-029",

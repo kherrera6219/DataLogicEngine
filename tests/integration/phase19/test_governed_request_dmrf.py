@@ -20,9 +20,7 @@ def _context(query: str) -> GovernedContext:
         principal_id="cp19-k-reviewer",
     )
     context = GovernedContext(request=request, query=query)
-    context.routing = {
-        "axis_vector": {"axes": {"15": {"value": "standard"}}}
-    }
+    context.routing = {"axis_vector": {"axes": {"15": {"value": "standard"}}}}
     return context
 
 
@@ -63,15 +61,14 @@ async def _canonical_dmrf_result():
             "principal_id": "cp19-k-reviewer",
         },
     )
-    step = next(
-        item for item in result.steps if item.name == "ka_complexity_router"
-    )
+    step = next(item for item in result.steps if item.name == "ka_complexity_router")
     return result, step.outputs
 
 
 def _assert_dmrf_complete_trace(outputs: dict, canonical_id: str) -> None:
     events = outputs["traces"][canonical_id]["events"]
-    assert [event["state"] for event in events] == [
+    states = [event["state"] for event in events]
+    assert [state for state in states if state != "dependency"] == [
         "planned",
         "candidate",
         "selected",
@@ -79,6 +76,8 @@ def _assert_dmrf_complete_trace(outputs: dict, canonical_id: str) -> None:
         "executing",
         "executed",
     ]
+    if canonical_id in {"KA-005", "KA-113"}:
+        assert "dependency" in states
     assert events[-1]["result_trace_id"]
 
 
@@ -109,9 +108,7 @@ async def test_ka_004_owning_path():
     assert layer.outputs["query"] == "Assess the control boundary"
     assert context.query == "Assess the control boundary"
     assert layer.ka_results["KA-004"]["output"]["is_valid"] is True
-    assert layer.decisions == [
-        {"decision": "allow", "reason": "normalized_and_routed"}
-    ]
+    assert layer.decisions == [{"decision": "allow", "reason": "normalized_and_routed"}]
     _assert_complete_trace(context, "KA-004")
 
 
@@ -164,6 +161,71 @@ async def test_ka_113_owning_path():
         if item.name == "tier_classifier"
     )
     _assert_dmrf_complete_trace(outputs, "KA-113")
+
+
+@pytest.mark.asyncio
+async def test_ka_036_owning_path():
+    result, outputs = await _canonical_dmrf_result()
+
+    assert result.ok is True
+    complexity = outputs["outputs"]["KA-036"]
+    assert complexity["status"] == "complexity_estimated"
+    assert complexity["database_read_performed"] is False
+    _assert_dmrf_complete_trace(outputs, "KA-036")
+
+
+@pytest.mark.asyncio
+async def test_ka_1073_owning_path():
+    result, outputs = await _canonical_dmrf_result()
+
+    assert result.ok is True
+    intent = outputs["outputs"]["KA-1073"]
+    assert intent["status"] in {"intent_resolved", "clarification_required"}
+    assert intent["deterministic"] is True
+    _assert_dmrf_complete_trace(outputs, "KA-1073")
+
+
+@pytest.mark.asyncio
+async def test_ka_031_owning_path():
+    result, outputs = await _canonical_dmrf_result()
+
+    assert result.ok is True
+    selection = outputs["outputs"]["KA-031"]
+    assert selection["status"] == "algorithm_selection_proposed"
+    assert selection["dependencies_consumed"] == [
+        "KA-005",
+        "KA-036",
+        "KA-1073",
+        "KA-113",
+    ]
+    assert selection["execution_started"] is False
+    _assert_dmrf_complete_trace(outputs, "KA-031")
+
+
+@pytest.mark.asyncio
+async def test_ka_1107_owning_path():
+    result, outputs = await _canonical_dmrf_result()
+
+    assert result.ok is True
+    boundary = outputs["outputs"]["KA-1107"]
+    assert boundary["plan_allowed"] is True
+    assert boundary["execution_started"] is False
+    _assert_dmrf_complete_trace(outputs, "KA-1107")
+
+
+@pytest.mark.asyncio
+async def test_ka_master_owning_path():
+    controller = KAMasterController({"llm_gateway": None})
+    descriptor = controller.authority_descriptor()
+    result, outputs = await _canonical_dmrf_result()
+
+    assert result.ok is True
+    assert descriptor["capability_count"] == 213
+    assert descriptor["self_selection_enabled"] is False
+    assert descriptor["planning_authority"] == "ManifestKASelector"
+    assert descriptor["execution_authority"] == "CanonicalKAController"
+    assert "KA-Master" not in outputs["selected_ids"]
+    assert "KA-Master" not in outputs["traces"]
 
 
 @pytest.mark.asyncio

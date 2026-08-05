@@ -1,92 +1,80 @@
-"""
-KA-036: Complexity Estimator
-Purpose: Estimate problem complexity (time/space/cognitive).
-"""
-import logging
-import math
-from typing import Dict, Any, List
-from pydantic import BaseModel, ConfigDict
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+"""KA-036: bounded complexity estimation from supplied request signals."""
 
-logger = logging.getLogger(__name__)
+from __future__ import annotations
+
+import math
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
 class KA036Input(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
+
+    problem: str = Field(min_length=1, max_length=100_000)
+    target_ka_id: str | None = Field(default=None, max_length=200)
+    declared_step_count: int = Field(default=1, ge=1, le=10_000)
+    dependency_count: int = Field(default=0, ge=0, le=100_000)
+    observed_latencies_ms: list[int] = Field(default_factory=list, max_length=1_000)
+
+
 class KA036ComplexityEstimator(KnowledgeAlgorithm):
+    """Estimate routing complexity without database access or hidden telemetry."""
+
     input_schema = KA036Input
-    def __init__(self, context: Dict[str, Any]):
+
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
+        self.ka_id = "KA-036"
 
-    def _run_logic(self, input_data: KA036Input) -> Dict[str, Any]:
-        input_dict = input_data.model_dump()
-        """
-        Estimate complexity.
-        """
-        problem = input_dict.get("problem", "")
-        target_ka_id = input_dict.get("target_ka_id") or input_dict.get("ka_id")
-        
-        self.log_execution_step("Estimating Complexity", {})
-        
-        score = 1
-        if len(problem) > 100:
-            score = 5
-
-        latency_sample = self._recent_latencies(target_ka_id)
-        p95_latency_ms = self._percentile(latency_sample, 95) if latency_sample else None
-        if p95_latency_ms is not None:
-            if p95_latency_ms >= 5000:
-                score = max(score, 5)
-            elif p95_latency_ms >= 1500:
-                score = max(score, 3)
-        
+    def _run_logic(self, input_data: KA036Input) -> dict[str, Any]:
+        if any(
+            value < 0 or value > 3_600_000 for value in input_data.observed_latencies_ms
+        ):
+            raise ValueError("observed latencies must be between 0 and 3,600,000 ms")
+        length_score = min(len(input_data.problem) // 500, 3)
+        step_score = min(math.ceil(input_data.declared_step_count / 5), 3)
+        dependency_score = min(math.ceil(input_data.dependency_count / 10), 3)
+        raw_score = max(1, min(5, 1 + length_score + step_score + dependency_score))
+        latencies = sorted(input_data.observed_latencies_ms)
+        p95 = self._percentile(latencies, 95)
+        if p95 is not None:
+            if p95 >= 5_000:
+                raw_score = max(raw_score, 5)
+            elif p95 >= 1_500:
+                raw_score = max(raw_score, 3)
+        category = "low" if raw_score <= 2 else "moderate" if raw_score <= 4 else "high"
         return {
-            "ka_id": "KA-036",
             "success": True,
-            "complexity_score": score,
-            "category": "polynomial" if score < 3 else "exponential",
-            "latency_baseline": {
-                "target_ka_id": target_ka_id,
-                "sample_size": len(latency_sample),
-                "p95_latency_ms": p95_latency_ms,
-                "source": "ukg_ka_executions_last_100",
+            "status": "complexity_estimated",
+            "complexity_score": raw_score,
+            "category": category,
+            "signals": {
+                "problem_characters": len(input_data.problem),
+                "declared_step_count": input_data.declared_step_count,
+                "dependency_count": input_data.dependency_count,
+                "latency_sample_size": len(latencies),
+                "p95_latency_ms": p95,
             },
+            "database_read_performed": False,
+            "deterministic": True,
+            "limitations": (
+                "This is a routing estimate from declared structure and supplied "
+                "latency observations, not an asymptotic complexity proof."
+            ),
         }
 
     @staticmethod
-    def _recent_latencies(target_ka_id: str | None = None) -> List[int]:
-        try:
-            from extensions import db
-            from models import KAExecution
-
-            query = db.session.query(KAExecution).filter(KAExecution.execution_time_ms.isnot(None))
-            if target_ka_id:
-                query = query.filter(KAExecution.ka_id == target_ka_id)
-            rows = (
-                query.order_by(KAExecution.completed_at.desc())
-                .limit(100)
-                .all()
-            )
-            return [int(row.execution_time_ms) for row in rows if row.execution_time_ms is not None]
-        except Exception as exc:
-            logger.debug(f"KA-036 latency baseline unavailable: {exc}")
-            return []
-
-    @staticmethod
-    def _percentile(values: List[int], percentile: int) -> int | None:
+    def _percentile(values: list[int], percentile: int) -> int | None:
         if not values:
             return None
-        sorted_values = sorted(values)
-        rank = math.ceil((percentile / 100) * len(sorted_values)) - 1
-        rank = max(0, min(rank, len(sorted_values) - 1))
-        return sorted_values[rank]
-
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA036ComplexityEstimator(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-036 Failed: {e}")
-        return {"success": False, "error": str(e)}
+        rank = max(
+            0, min(math.ceil((percentile / 100) * len(values)) - 1, len(values) - 1)
+        )
+        return values[rank]
 
 
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA036ComplexityEstimator(context).run(context)

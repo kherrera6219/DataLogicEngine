@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.08.02-cp19k.4",
+  "manifest_version": "2026.08.04-cp19k.5",
   "canonical_capabilities": 213,
   "dependency_edges": 143,
   "dependency_cycles": 0,
@@ -275,6 +275,11 @@
       "matches_approved_order": true,
       "rationale": "Chaos admission consumes the simulation budget decision and system-integrity state before an authoritative fault service may consider the proposal."
     },
+    "KA-015": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Temporal validity is measured from explicit fact windows and an explicit reference time; it must not trigger temporal-maintenance proposals as a hidden prerequisite."
+    },
     "KA-1083": {
       "dependencies": [
         "KA-1082"
@@ -296,6 +301,16 @@
       ],
       "matches_approved_order": true,
       "rationale": "Obsolescence review consumes both committed drift measurements and the derived revalidation schedule before proposing review."
+    },
+    "KA-031": {
+      "dependencies": [
+        "KA-005",
+        "KA-036",
+        "KA-1073",
+        "KA-113"
+      ],
+      "matches_approved_order": true,
+      "rationale": "Core algorithm selection consumes committed query classification, bounded complexity, intent clarification, and tier routing results; simulation validation is not a routing prerequisite."
     }
   },
   "structured_execution": {

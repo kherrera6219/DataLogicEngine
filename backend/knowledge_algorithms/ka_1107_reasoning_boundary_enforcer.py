@@ -40,10 +40,13 @@ class KA1107Input(BaseModel):
         },
     )
 
-    planned_steps: list[PlannedReasoningStep] = Field(min_length=1, max_length=10_000)
+    planned_steps: list[PlannedReasoningStep] = Field(
+        default_factory=list, max_length=10_000
+    )
     allowed_capability_ids: list[str] = Field(min_length=1, max_length=10_000)
     allowed_layers: list[str] = Field(min_length=1, max_length=10)
     allowed_query_classes: list[str] = Field(min_length=1, max_length=1_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
 
 class KA1107ReasoningBoundaryEnforcer(KnowledgeAlgorithm):
@@ -59,8 +62,24 @@ class KA1107ReasoningBoundaryEnforcer(KnowledgeAlgorithm):
         capabilities = set(input_data.allowed_capability_ids)
         layers = set(input_data.allowed_layers)
         query_classes = set(input_data.allowed_query_classes)
+        planned_steps = list(input_data.planned_steps)
+        selection = input_data.dependency_results.get("KA-031", {})
+        if not planned_steps:
+            planned_steps = [
+                PlannedReasoningStep(
+                    step_id=f"selected-{index}",
+                    capability_id=str(capability_id),
+                    layer="L1",
+                    query_class="routing",
+                )
+                for index, capability_id in enumerate(
+                    selection.get("selected_pipeline", []), start=1
+                )
+            ]
+        if not planned_steps:
+            raise ValueError("planned steps or a KA-031 selection result are required")
         decisions = []
-        for item in input_data.planned_steps:
+        for item in planned_steps:
             blockers = []
             if item.capability_id not in capabilities:
                 blockers.append("capability_not_allowed")
@@ -80,6 +99,9 @@ class KA1107ReasoningBoundaryEnforcer(KnowledgeAlgorithm):
             "status": "reasoning_boundaries_enforced",
             "plan_allowed": all(row["decision"] == "allow" for row in decisions),
             "decisions": decisions,
+            "dependency_consumed": "KA-031" if selection else None,
+            "execution_started": False,
+            "persistence_applied": False,
             "deterministic": True,
             "limitations": (
                 "Enforcement covers the supplied plan and policy sets; the "

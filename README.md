@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.2.4 |
+| Document version | v1.2.5 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -37,12 +37,12 @@ SDKs.
 
 | Area | Current state |
 |---|---|
-| Canonical Knowledge Algorithms | 213 retained; 149 production-enabled |
+| Canonical Knowledge Algorithms | 213 retained; 153 production-enabled |
 | Runtime authority | One generated manifest/controller; 143-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 58/213; 155 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batches 08-12 complete, Batch 13 next, 31 remain |
-| Latest source validation | 2,742 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 74/213; 139 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batches 08-15 complete, Batch 16 next, 28 remain |
+| Latest source validation | 2,775 passed, 18 skipped, 35 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
@@ -95,8 +95,8 @@ The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batches 08 through 12 are complete; the
-current matrix has 155 open rows and Batch 13 is L1 context dependencies.
+treated as one unsafe mega-batch. Batches 08 through 15 are complete; the
+current matrix has 139 open rows and Batch 16 is the adversarial/privacy gate.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
@@ -220,6 +220,14 @@ Completed source and engineering checkpoints:
   `KA-1083`, `KA-1093`, and `KA-1105` execute as one causal temporal-health
   review through the TruthMemory owner. The content-free receipt records the
   review only and applies no knowledge lifecycle effect
+- Phase 19 CP19-K Batches 13-15 passed: 16 individually evidenced algorithms
+  now run through the TruthCore context, retrieval/graph, and governed DMRF
+  owners. Temporal work uses explicit reference time; retrieval is bounded to
+  supplied records; complexity and intent causally feed selection; the selected
+  plan is checked by a separate fail-closed boundary; and `KA-Master` remains
+  canonical controller authority with self-selection disabled. These paths
+  apply no hidden provider, vector, store, graph, knowledge, memory, or
+  capability effect
 - Completed GitHub Actions verification for the 2026-07-15 CodeQL and frontend-
   image follow-up
 - Replaced the vulnerable ChromaDB Python SDK with a restricted loopback-only,
@@ -245,18 +253,19 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-12 qualify 58/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-15 qualify 74/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
   authenticated content-free diagnostics advisory, causal secure ingestion,
   and provider-owned measured model preparation plus bounded model release
-  preparation and content-free temporal-health review; 155 rows remain open
-- The reviewed remaining roadmap contains 31 cohesive batches (13-43), each
-  bounded to one production owner and effect boundary. Batch 13 is the four-KA
-  L1 context-dependency group. Grouping shares fixtures and transactions but does
-  not waive any individual semantic, owning-path, trace, security, effect, or
-  performance proof
+  preparation, content-free temporal-health review, deterministic context,
+  bounded retrieval, and fail-closed routing; 139 rows remain open
+- The reviewed remaining roadmap contains 28 cohesive batches (16-43), each
+  bounded to one production owner and effect boundary. Batch 16 is the four-KA
+  adversarial/privacy TruthGate group. Grouping shares fixtures and transactions
+  but does not waive any individual semantic, owning-path, trace, security,
+  effect, or performance proof
 - Two additional provider/gateway KAs remain open: API gateway and external
   deep research. Neither is
   counted from registry membership or direct tests without a real owner and,

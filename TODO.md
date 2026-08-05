@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.0.0 |
+| Document version | v1.0.1 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -248,12 +248,19 @@ Phase 18 source baseline while completing the whole-application wiring.
         removed. The owner persists only a content-free idempotent review and
         receipt with zero applied knowledge, confidence, trust, version,
         retirement, alert, blacklist, job, request, provider, or egress effects.
-      - The generated matrix and integrity verifier pass at 58/213 qualified
-        and 155 incomplete; rebuild authorization remains false. Runtime
-        manifest `2026.08.02-cp19k.4` retains 213 capabilities, 149 production-
-        enabled capabilities, and a 143-edge zero-cycle graph. The 833-test KA
-        suite, 245 governed/TruthCore/Phase-19/simulation integration tests, and
-        2,742-test full source suite pass; the source suite has 18 skipped and
+      - Batches 13-15 passed 2026-08-04: the truth-context owner closes
+        `KA-003`, `KA-011`, `KA-015`, `KA-017`, `KA-025`, and `KA-040`; the
+        retrieval owner closes `KA-018`, `KA-079`, `KA-1049`, `KA-1077`, and
+        `KA-1092`; and the governed DMRF path closes `KA-031`, `KA-036`,
+        `KA-1073`, `KA-1107`, and `KA-Master`. All remain bounded proposals or
+        controller authority, with deterministic traces and zero hidden
+        provider, store, graph, knowledge, memory, or capability effects.
+      - The generated matrix and integrity verifier pass at 74/213 qualified
+        and 139 incomplete; rebuild authorization remains false. Runtime
+        manifest `2026.08.04-cp19k.5` retains 213 capabilities, 153 production-
+        enabled capabilities, and a 143-edge zero-cycle graph. The 849-test KA
+        suite, 262 governed/TruthCore/Phase-19/simulation integration tests, and
+        2,775-test full source suite pass; the source suite has 18 skipped and
         35 known warnings.
       - Parallel candidate training-dataset exporter review passed after
         hardening: owner-authenticated API, app-owned output containment,
@@ -270,8 +277,8 @@ Phase 18 source baseline while completing the whole-application wiring.
         `cryptography` advisories, are remediated in the governed locks. Local
         `pip-audit` and `npm audit` report zero vulnerabilities; the 2026-08-04
         live GitHub query reports zero open Dependabot alerts.
-      - Next: execute grouped Batch 13 (`KA-002`, `KA-003`, `KA-006`, and
-        `KA-007`) through the real TruthCore L1-L5 owner. Keep every later batch
+      - Next: execute grouped Batch 16 (`KA-034`, `KA-1074`, `KA-172`, and
+        `KA-173`) through the real TruthGate owner. Keep every later batch
         open until its named individual and owner/effect evidence passes.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
@@ -1000,7 +1007,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-12 qualify 58/213 rows, 155 remain open in 31 grouped batches, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-15 qualify 74/213 rows, 139 remain open in 28 grouped batches, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases

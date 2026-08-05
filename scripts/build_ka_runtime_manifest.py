@@ -650,10 +650,46 @@ CP19_H_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
     },
 }
 
-# CP19-K Batch 12 makes the knowledge temporal-health chain causal. Confidence
-# drift is measured before schedule planning; schedule output is then consumed
-# by temporal maintenance and, together with drift, by obsolescence review.
+# CP19-K batch-specific admission is limited to deterministic KAs whose named
+# owner paths are qualified here. KA-Master remains non-selectable: the
+# CanonicalKAController is the authority and must never recursively select its
+# compatibility wrapper as a production algorithm.
+CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
+    canonical_id: {
+        "production_enabled": True,
+        "classification": "deterministic_heuristic",
+        "deterministic": True,
+        "performance_budget_ms": 750,
+        "contract_status": "cp19_k_production_qualified",
+        "guarantee": (
+            "Produces a bounded deterministic owner-consumed decision from "
+            "explicit inputs without provider calls or direct effects."
+        ),
+        "limitations": (
+            "The result is a supplied-evidence measurement or routing proposal; "
+            "it does not establish external truth, execute a selected plan, or "
+            "apply persistence or provider effects."
+        ),
+    }
+    for canonical_id in {"KA-015", "KA-036", "KA-040", "KA-1073"}
+}
+
+# The restored design catalog marked KA-1077 as a memory writer. The reviewed
+# implementation only ranks supplied signals and explicitly applies no write.
+CP19_K_PURE_ADVISORY_OVERRIDES = {"KA-1077"}
+
+# CP19-K batches 12-15 make owner-consumed dependencies explicit and remove
+# stale design edges that would otherwise trigger unrelated maintenance or
+# simulation work inside pure context/routing decisions.
 CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-015": {
+        "dependencies": [],
+        "rationale": (
+            "Temporal validity is measured from explicit fact windows and an "
+            "explicit reference time; it must not trigger temporal-maintenance "
+            "proposals as a hidden prerequisite."
+        ),
+    },
     "KA-1083": {
         "dependencies": ["KA-1082"],
         "rationale": (
@@ -673,6 +709,14 @@ CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
         "rationale": (
             "Obsolescence review consumes both committed drift measurements and "
             "the derived revalidation schedule before proposing review."
+        ),
+    },
+    "KA-031": {
+        "dependencies": ["KA-005", "KA-036", "KA-1073", "KA-113"],
+        "rationale": (
+            "Core algorithm selection consumes committed query classification, "
+            "bounded complexity, intent clarification, and tier routing results; "
+            "simulation validation is not a routing prerequisite."
         ),
     },
 }
@@ -724,6 +768,16 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     "schema_version": "dle.ka-subsystem-registry.v1",
     "registry_version": "2026.07.25-cp19h.1",
     "owners": {
+        "truthcore_l1_l5": {
+            "context_dependencies": [
+                "KA-003",
+                "KA-011",
+                "KA-015",
+                "KA-017",
+                "KA-025",
+                "KA-040",
+            ],
+        },
         "truthgate": {
             "entry": [
                 "KA-022",
@@ -1057,6 +1111,7 @@ def build_manifest() -> dict[str, Any]:
     entries: dict[str, dict[str, Any]] = {}
     for row in rows:
         integration = integration_by_id[row["canonical_id"]]
+        pure_advisory_override = row["canonical_id"] in CP19_K_PURE_ADVISORY_OVERRIDES
         design_contracts = row.get("design_contracts", [])
         versions = [
             str(contract["version"])
@@ -1083,7 +1138,8 @@ def build_manifest() -> dict[str, Any]:
             dependencies = list(override["dependencies"])
         existing = bool(row.get("implementation"))
         admission_override = (
-            CP19_I_ADMISSION_OVERRIDES.get(row["canonical_id"])
+            CP19_K_ADMISSION_OVERRIDES.get(row["canonical_id"])
+            or CP19_I_ADMISSION_OVERRIDES.get(row["canonical_id"])
             or CP19_H_ADMISSION_OVERRIDES.get(row["canonical_id"])
             or CP19_G_ADMISSION_OVERRIDES.get(row["canonical_id"])
             or CP19_F_ADMISSION_OVERRIDES.get(row["canonical_id"])
@@ -1134,11 +1190,17 @@ def build_manifest() -> dict[str, Any]:
                 "dependency_input_field": "dependency_results",
                 "triggers": row.get("triggers", []),
                 "risk_classes": row.get("risk_classes", []),
-                "effect_class": row["effect_class"],
+                "effect_class": (
+                    "pure_or_advisory_review_required"
+                    if pure_advisory_override
+                    else row["effect_class"]
+                ),
                 "reads_memory": any(
                     contract.get("reads_memory") for contract in design_contracts
                 ),
-                "writes_memory": any(
+                "writes_memory": False
+                if pure_advisory_override
+                else any(
                     contract.get("writes_memory") for contract in design_contracts
                 ),
                 "produces_artifacts": any(
@@ -1196,10 +1258,20 @@ def build_manifest() -> dict[str, Any]:
                 "primary_owner": integration["primary_owner"],
                 "consumer_paths": integration["consumer_paths"],
                 "selector_policy": integration["selector_policy"],
-                "required_or_optional": integration["required_or_optional"],
+                "required_or_optional": (
+                    "conditional"
+                    if pure_advisory_override
+                    else integration["required_or_optional"]
+                ),
                 "stage": integration["stage"],
-                "effect_port": integration["effect_port"],
-                "effect_transaction": integration["effect_transaction"],
+                "effect_port": (
+                    None if pure_advisory_override else integration["effect_port"]
+                ),
+                "effect_transaction": (
+                    "not_applicable_pure_or_advisory_result"
+                    if pure_advisory_override
+                    else integration["effect_transaction"]
+                ),
                 "qualification": integration["qualification"],
             },
             "migration_notes": row["migration_notes"],
@@ -1207,7 +1279,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.02-cp19k.4",
+        "manifest_version": "2026.08.04-cp19k.5",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

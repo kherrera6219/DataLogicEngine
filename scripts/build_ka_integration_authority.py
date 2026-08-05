@@ -28,9 +28,7 @@ CROSSWALK_PATH = (
     / "phase-18"
     / "ka-capability-crosswalk.json"
 )
-OUTPUT_DIR = (
-    ROOT / "reports" / "production-readiness" / "2026" / "phase-19"
-)
+OUTPUT_DIR = ROOT / "reports" / "production-readiness" / "2026" / "phase-19"
 DEFAULT_JSON_PATH = OUTPUT_DIR / "ka-integration-authority.json"
 DEFAULT_CSV_PATH = OUTPUT_DIR / "ka-integration-authority.csv"
 DEFAULT_MARKDOWN_PATH = OUTPUT_DIR / "cp19-a-integration-authority.md"
@@ -146,6 +144,11 @@ OWNER_DEFINITIONS: dict[str, dict[str, Any]] = {
     },
 }
 
+# The restored design catalog described KA-1077 as a knowledge-store writer.
+# Its reviewed implementation only scores supplied signals and has no effect
+# port, so the integration authority must match the runtime contract.
+PURE_ADVISORY_OVERRIDES = {"KA-1077"}
+
 
 def _ids(start: int, end: int) -> set[str]:
     return {f"KA-{number:03d}" for number in range(start, end + 1)}
@@ -260,12 +263,16 @@ TRUTHGATE_IDS = {
     "KA-177",
 }
 SECURITY_OPERATIONS_IDS = (
-    _ids(91, 115)
-    | _ids(136, 139)
-    | _ids(175, 175)
-    | _ids(179, 184)
-    | {"KA-1097", "KA-1098", "KA-1100"}
-) - GOVERNED_REQUEST_IDS - PROVIDER_GATEWAY_IDS
+    (
+        _ids(91, 115)
+        | _ids(136, 139)
+        | _ids(175, 175)
+        | _ids(179, 184)
+        | {"KA-1097", "KA-1098", "KA-1100"}
+    )
+    - GOVERNED_REQUEST_IDS
+    - PROVIDER_GATEWAY_IDS
+)
 L9_OWNER_IDS = {"KA-008", "KA-019", "KA-056", "KA-1087"}
 L10_OWNER_IDS = {"KA-020", "KA-021", "KA-116"}
 L6_L8_OWNER_IDS = {"KA-014"}
@@ -452,14 +459,14 @@ def _primary_owner(row: dict[str, Any]) -> str:
     return "truthcore_l1_l5"
 
 
-def _consumer_paths(row: dict[str, Any], owner: str) -> list[str]:
+def _consumer_paths(row: dict[str, Any], owner: str, effect_class: str) -> list[str]:
     consumers = {
         "api_sdk_desktop_evaluation",
         "canonical_controller",
         "trace_evaluation",
         *OWNER_DEFINITIONS[owner]["consumers"],
     }
-    if row["effect_class"] == "effect_oriented_review_required":
+    if effect_class == "effect_oriented_review_required":
         consumers.add("authoritative_effect_service")
     if row.get("contract_status") != "complete":
         consumers.add("contract_parity")
@@ -488,7 +495,12 @@ def _entry(row: dict[str, Any]) -> dict[str, Any]:
     canonical_id = row["canonical_id"]
     owner = _primary_owner(row)
     owner_definition = OWNER_DEFINITIONS[owner]
-    effectful = row["effect_class"] == "effect_oriented_review_required"
+    effect_class = (
+        "pure_or_advisory_review_required"
+        if canonical_id in PURE_ADVISORY_OVERRIDES
+        else row["effect_class"]
+    )
+    effectful = effect_class == "effect_oriented_review_required"
     test_slug = _slug(canonical_id)
     return {
         "canonical_id": canonical_id,
@@ -496,14 +508,12 @@ def _entry(row: dict[str, Any]) -> dict[str, Any]:
         "implementation_owner": row["implementation"],
         "primary_owner": owner,
         "primary_owner_title": owner_definition["title"],
-        "consumer_paths": _consumer_paths(row, owner),
+        "consumer_paths": _consumer_paths(row, owner, effect_class),
         "selector_policy": _selector_policy(canonical_id),
-        "required_or_optional": _required_or_optional(
-            canonical_id, row["effect_class"]
-        ),
+        "required_or_optional": _required_or_optional(canonical_id, effect_class),
         "stage": owner_definition["stage"],
         "declared_layers": row.get("layer_scope", []),
-        "effect_class": row["effect_class"],
+        "effect_class": effect_class,
         "effect_port": owner_definition["effect_port"] if effectful else None,
         "effect_transaction": (
             "proposal_requires_authoritative_policy_idempotency_transaction_receipt"
@@ -511,20 +521,17 @@ def _entry(row: dict[str, Any]) -> dict[str, Any]:
             else "not_applicable_pure_or_advisory_result"
         ),
         "positive_fixture": (
-            f"tests/knowledge_algorithms/phase19/{test_slug}.json"
-            "#positive_selector"
+            f"tests/knowledge_algorithms/phase19/{test_slug}.json#positive_selector"
         ),
         "negative_fixture": (
-            f"tests/knowledge_algorithms/phase19/{test_slug}.json"
-            "#negative_selector"
+            f"tests/knowledge_algorithms/phase19/{test_slug}.json#negative_selector"
         ),
         "functional_test": (
             "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py"
             f"::test_{test_slug}_semantic_contract"
         ),
         "integration_test": (
-            f"tests/integration/phase19/test_{owner}.py"
-            f"::test_{test_slug}_owning_path"
+            f"tests/integration/phase19/test_{owner}.py::test_{test_slug}_owning_path"
         ),
         "trace_assertion": (
             "planned_selected_admitted_executed_terminal_state"
@@ -532,13 +539,9 @@ def _entry(row: dict[str, Any]) -> dict[str, Any]:
         ),
         "current_wiring": {
             "detected_execution_call_sites": row.get("execution_call_sites", []),
-            "detected_named_test_functions": row.get(
-                "named_test_functions", []
-            ),
+            "detected_named_test_functions": row.get("named_test_functions", []),
             "production_enabled": bool(
-                (row.get("phase6_production_metadata") or {}).get(
-                    "production_enabled"
-                )
+                (row.get("phase6_production_metadata") or {}).get("production_enabled")
             ),
         },
         "qualification": {
@@ -575,9 +578,7 @@ def build_authority() -> dict[str, Any]:
     workflow_paths = [row["path"] for row in WORKFLOW_DISPOSITIONS]
     if len(workflow_paths) != len(set(workflow_paths)):
         raise ValueError("workflow disposition paths must be unique")
-    missing_workflows = [
-        path for path in workflow_paths if not (ROOT / path).is_file()
-    ]
+    missing_workflows = [path for path in workflow_paths if not (ROOT / path).is_file()]
     if missing_workflows:
         raise ValueError(f"workflow disposition paths missing: {missing_workflows}")
     return {
@@ -597,9 +598,7 @@ def build_authority() -> dict[str, Any]:
             "unique_implementation_owners": len(
                 {row["implementation_owner"] for row in rows}
             ),
-            "unowned_capabilities": sum(
-                not row["primary_owner"] for row in rows
-            ),
+            "unowned_capabilities": sum(not row["primary_owner"] for row in rows),
             "duplicate_primary_owners": 0,
             "runtime_registries_added": 0,
             "findings_waived": False,
@@ -665,9 +664,7 @@ def csv_text(payload: dict[str, Any]) -> str:
                 "detected_named_test_count": len(
                     row["current_wiring"]["detected_named_test_functions"]
                 ),
-                "production_enabled": row["current_wiring"][
-                    "production_enabled"
-                ],
+                "production_enabled": row["current_wiring"]["production_enabled"],
             }
         )
     return buffer.getvalue()

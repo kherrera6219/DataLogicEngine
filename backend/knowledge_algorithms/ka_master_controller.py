@@ -1,8 +1,9 @@
 """
 KA-Master: Master Controller
-Purpose: The top-level orchestrator that manages the entire lifecycle of all 116 Knowledge Algorithms, 
+Purpose: The top-level orchestrator that manages the entire lifecycle of all 116 Knowledge Algorithms,
 providing a unified interface for complex query resolution and system self-management.
 """
+
 import logging
 import os
 import time
@@ -35,20 +36,24 @@ from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 logger = logging.getLogger(__name__)
 
 # Initialize celery
-celery_app = Celery('ka_tasks', broker=os.getenv('REDIS_URL', 'redis://localhost:6379/0'))
+celery_app = Celery(
+    "ka_tasks", broker=os.getenv("REDIS_URL", "redis://localhost:6379/0")
+)
+
 
 class KAMasterController(KnowledgeAlgorithm):
     """
     KA-Master: The supreme orchestrator and system state machine.
     """
+
     def __init__(self, context: dict[str, Any] | None = None):
         super().__init__(context or {}, None, None, None)
         self.ka_id = "KA-Master"
-        self.llm_gateway = (context or {}).get("llm_gateway") if isinstance(context, dict) else None
-        self._canonical_controller = get_ka_controller()
-        self._selector = ManifestKASelector(
-            self._canonical_controller.manifest
+        self.llm_gateway = (
+            (context or {}).get("llm_gateway") if isinstance(context, dict) else None
         )
+        self._canonical_controller = get_ka_controller()
+        self._selector = ManifestKASelector(self._canonical_controller.manifest)
         self.algorithms = self._load_registry()
 
     def _load_registry(self) -> dict[str, Any]:
@@ -88,13 +93,9 @@ class KAMasterController(KnowledgeAlgorithm):
             "Outputs": "; ".join(definition.contract.outputs),
             "Reads_Memory": "Yes" if definition.contract.reads_memory else "No",
             "Writes_Memory": "Yes" if definition.contract.writes_memory else "No",
-            "Can_Invoke_Chaos": (
-                "Yes" if "may_invoke_chaos" in trigger_set else "No"
-            ),
+            "Can_Invoke_Chaos": ("Yes" if "may_invoke_chaos" in trigger_set else "No"),
             "Can_Invoke_External_Research": (
-                "Yes"
-                if "may_invoke_external_research" in trigger_set
-                else "No"
+                "Yes" if "may_invoke_external_research" in trigger_set else "No"
             ),
             "Can_Trigger_Recursion": (
                 "Yes" if "may_trigger_recursion" in trigger_set else "No"
@@ -138,6 +139,31 @@ class KAMasterController(KnowledgeAlgorithm):
     def get_available_algorithms(self) -> dict[str, Any]:
         return self.algorithms
 
+    @property
+    def manifest(self):
+        """Expose the single canonical runtime authority to owning orchestrators."""
+        return self._canonical_controller.manifest
+
+    def authority_descriptor(self) -> dict[str, Any]:
+        """Return a content-free controller descriptor without selecting itself."""
+        production_ids = sorted(
+            definition.canonical_id
+            for definition in self.manifest.entries.values()
+            if definition.admission.production_enabled
+        )
+        master = self.manifest.entries["KA-Master"]
+        return {
+            "schema_version": "dle.ka-master-authority.v1",
+            "manifest_version": self.manifest.manifest_version,
+            "capability_count": len(self.manifest.entries),
+            "production_enabled_ids": production_ids,
+            "self_selection_enabled": master.admission.production_enabled,
+            "planning_authority": "ManifestKASelector",
+            "execution_authority": "CanonicalKAController",
+            "provider_calls": 0,
+            "persistence_applied": False,
+        }
+
     def plan_algorithms(
         self,
         request: KASelectionRequest | dict[str, Any],
@@ -165,26 +191,39 @@ class KAMasterController(KnowledgeAlgorithm):
         except KeyError:
             return normalize_ka_id(str(ka_id))
 
-    def execute_algorithm(self, ka_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    def execute_algorithm(
+        self, ka_id: str, input_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Return the versioned compatibility envelope for external legacy callers."""
         norm_id = self._normalize_ka_id(ka_id)
         is_async = input_data.get("async", False)
-        
-        self.log_execution_step("Dispatching Algorithm", {"ka_id": norm_id, "mode": "async" if is_async else "sync"})
-        
+
+        self.log_execution_step(
+            "Dispatching Algorithm",
+            {"ka_id": norm_id, "mode": "async" if is_async else "sync"},
+        )
+
         if norm_id not in self.algorithms:
             raise KAError(f"Algorithm {norm_id} not registered.", error_code="E404")
         metadata = self.algorithms[norm_id]["metadata"]
-        if input_data.get("_production_workflow") and not metadata.get("production_enabled"):
+        if input_data.get("_production_workflow") and not metadata.get(
+            "production_enabled"
+        ):
             raise KAError(
                 f"Algorithm {norm_id} is not enabled for production workflows.",
                 error_code="E403",
                 details={"classification": metadata.get("classification")},
             )
-            
+
         if is_async:
             task = run_ka_task.delay(norm_id, input_data)
-            return {"success": True, "ka_id": norm_id, "mode": "async", "task_id": task.id, "status": "PENDING"}
+            return {
+                "success": True,
+                "ka_id": norm_id,
+                "mode": "async",
+                "task_id": task.id,
+                "status": "PENDING",
+            }
 
         result = self.execute_typed(
             norm_id,
@@ -247,7 +286,9 @@ class KAMasterController(KnowledgeAlgorithm):
             norm_id,
             payload,
             output_data=result.model_dump(mode="json", exclude_none=True),
-            error=None if result.success else RuntimeError(
+            error=None
+            if result.success
+            else RuntimeError(
                 result.error.message
                 if result.error
                 else "Knowledge Algorithm execution failed."
@@ -282,7 +323,9 @@ class KAMasterController(KnowledgeAlgorithm):
                 ka_id=ka_id,
                 status="failed" if error else "completed",
                 input_data=self._json_safe(input_data),
-                output_data=self._json_safe(output_data) if output_data is not None else None,
+                output_data=self._json_safe(output_data)
+                if output_data is not None
+                else None,
                 error_message=str(error) if error else None,
                 execution_time_ms=max(0, round(elapsed_ms)),
                 tenant_id=(input_data or {}).get("tenant_id"),
@@ -310,19 +353,24 @@ class KAMasterController(KnowledgeAlgorithm):
             exists = session.query(KnowledgeAlgorithm).filter_by(ka_id=ka_id).first()
             if exists:
                 return
-            session.add(KnowledgeAlgorithm(
-                uid=f"ka-{ka_id.lower()}",
-                ka_id=ka_id,
-                name=ka_id,
-                description="Auto-registered by KA execution telemetry.",
-            ))
+            session.add(
+                KnowledgeAlgorithm(
+                    uid=f"ka-{ka_id.lower()}",
+                    ka_id=ka_id,
+                    name=ka_id,
+                    description="Auto-registered by KA execution telemetry.",
+                )
+            )
         except Exception:  # noqa: BLE001 - optional catalog persistence
             return
 
     @staticmethod
     def _json_safe(value: Any) -> Any:
         if isinstance(value, dict):
-            return {str(key): KAMasterController._json_safe(item) for key, item in value.items()}
+            return {
+                str(key): KAMasterController._json_safe(item)
+                for key, item in value.items()
+            }
         if isinstance(value, list):
             return [KAMasterController._json_safe(item) for item in value]
         if isinstance(value, tuple):
@@ -370,7 +418,7 @@ class KAMasterController(KnowledgeAlgorithm):
         successful = [step for step in step_results if step["success"]]
         failed = [step for step in step_results if not step["success"]]
         system_state = "NOMINAL" if not failed else "DEGRADED"
-        
+
         return {
             "success": bool(successful),
             "orchestrated_flow": [ka_id for ka_id, _payload in flow],
@@ -380,7 +428,9 @@ class KAMasterController(KnowledgeAlgorithm):
             "final_conclusion": self._summarize_flow(query, successful, failed),
         }
 
-    def _select_flow(self, query: str, data: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    def _select_flow(
+        self, query: str, data: dict[str, Any]
+    ) -> list[tuple[str, dict[str, Any]]]:
         """Choose a bounded local KA chain for the current request."""
         query_text = str(query or "")
         lower = query_text.lower()
@@ -390,7 +440,15 @@ class KAMasterController(KnowledgeAlgorithm):
         ]
         if any(term in lower for term in ("health", "status", "liveness", "readiness")):
             flow.append(("KA-109", {"check_mode": data.get("check_mode", "standard")}))
-        elif any(term in lower for term in ("select pipeline", "algorithm selection", "choose ka", "ka pipeline")):
+        elif any(
+            term in lower
+            for term in (
+                "select pipeline",
+                "algorithm selection",
+                "choose ka",
+                "ka pipeline",
+            )
+        ):
             flow.append(
                 (
                     "KA-031",
@@ -403,7 +461,15 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("orchestrate", "execution schedule", "simulate pipeline", "checkpoint")):
+        elif any(
+            term in lower
+            for term in (
+                "orchestrate",
+                "execution schedule",
+                "simulate pipeline",
+                "checkpoint",
+            )
+        ):
             flow.append(
                 (
                     "KA-032",
@@ -414,7 +480,15 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("adversarial", "attack assumption", "stress test", "robustness")):
+        elif any(
+            term in lower
+            for term in (
+                "adversarial",
+                "attack assumption",
+                "stress test",
+                "robustness",
+            )
+        ):
             flow.append(
                 (
                     "KA-034",
@@ -425,7 +499,9 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("impute", "gap", "missing value", "bayesian gap")):
+        elif any(
+            term in lower for term in ("impute", "gap", "missing value", "bayesian gap")
+        ):
             flow.append(
                 (
                     "KA-035",
@@ -437,7 +513,9 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("hypothesis", "hypotheses", "possible cause")):
+        elif any(
+            term in lower for term in ("hypothesis", "hypotheses", "possible cause")
+        ):
             flow.append(
                 (
                     "KA-040",
@@ -448,7 +526,14 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("causal graph", "causal inference engine", "causal relationship")):
+        elif any(
+            term in lower
+            for term in (
+                "causal graph",
+                "causal inference engine",
+                "causal relationship",
+            )
+        ):
             flow.append(
                 (
                     "KA-066",
@@ -460,7 +545,15 @@ class KAMasterController(KnowledgeAlgorithm):
                 )
             )
         elif any(term in lower for term in ("relation", "relationship", "predicate")):
-            flow.append(("KA-049", {"text": data.get("text", query_text), "entities": data.get("entities", [])}))
+            flow.append(
+                (
+                    "KA-049",
+                    {
+                        "text": data.get("text", query_text),
+                        "entities": data.get("entities", []),
+                    },
+                )
+            )
         elif any(term in lower for term in ("cache", "evict", "ttl")):
             flow.append(
                 (
@@ -472,7 +565,9 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("train model", "model training", "training job")):
+        elif any(
+            term in lower for term in ("train model", "model training", "training job")
+        ):
             flow.append(
                 (
                     "KA-081",
@@ -484,7 +579,10 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("evaluate model", "model evaluation", "performance metrics")):
+        elif any(
+            term in lower
+            for term in ("evaluate model", "model evaluation", "performance metrics")
+        ):
             flow.append(
                 (
                     "KA-082",
@@ -496,7 +594,9 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("deploy model", "model deployment", "canary")):
+        elif any(
+            term in lower for term in ("deploy model", "model deployment", "canary")
+        ):
             flow.append(
                 (
                     "KA-083",
@@ -508,7 +608,10 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("hyperparameter", "tune model", "parameter search")):
+        elif any(
+            term in lower
+            for term in ("hyperparameter", "tune model", "parameter search")
+        ):
             flow.append(
                 (
                     "KA-086",
@@ -519,7 +622,10 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("ab test", "a/b test", "experiment variant", "traffic split")):
+        elif any(
+            term in lower
+            for term in ("ab test", "a/b test", "experiment variant", "traffic split")
+        ):
             flow.append(
                 (
                     "KA-088",
@@ -530,11 +636,25 @@ class KAMasterController(KnowledgeAlgorithm):
                     },
                 )
             )
-        elif any(term in lower for term in ("entity", "extract", "name", "email", "regulation")):
+        elif any(
+            term in lower
+            for term in ("entity", "extract", "name", "email", "regulation")
+        ):
             flow.append(("KA-048", {"text": query_text}))
         elif any(term in lower for term in ("anomaly", "outlier", "spike")):
-            flow.append(("KA-039", {"data": data.get("data", []), "method": data.get("method", "zscore")}))
-        elif any(term in lower for term in ("why", "explain", "best explanation", "abductive")):
+            flow.append(
+                (
+                    "KA-039",
+                    {
+                        "data": data.get("data", []),
+                        "method": data.get("method", "zscore"),
+                    },
+                )
+            )
+        elif any(
+            term in lower
+            for term in ("why", "explain", "best explanation", "abductive")
+        ):
             flow.append(
                 (
                     "KA-041",
@@ -579,12 +699,23 @@ class KAMasterController(KnowledgeAlgorithm):
                 )
             )
         elif any(term in lower for term in ("pattern", "recurring", "sequence")):
-            flow.append(("KA-045", {"stream": data.get("stream", data.get("data", []))}))
-        elif any(term in lower for term in ("trend", "trajectory", "forecast direction")):
-            flow.append(("KA-046", {"time_series": data.get("time_series", data.get("data", []))}))
+            flow.append(
+                ("KA-045", {"stream": data.get("stream", data.get("data", []))})
+            )
+        elif any(
+            term in lower for term in ("trend", "trajectory", "forecast direction")
+        ):
+            flow.append(
+                (
+                    "KA-046",
+                    {"time_series": data.get("time_series", data.get("data", []))},
+                )
+            )
         elif any(term in lower for term in ("sentiment", "tone", "emotion")):
             flow.append(("KA-047", {"text": data.get("text", query_text)}))
-        elif any(term in lower for term in ("model", "statistical", "bayesian", "structural")):
+        elif any(
+            term in lower for term in ("model", "statistical", "bayesian", "structural")
+        ):
             flow.append(
                 (
                     "KA-011",
@@ -599,33 +730,45 @@ class KAMasterController(KnowledgeAlgorithm):
                 [
                     ("KA-113", {"query": query_text}),
                     ("KA-001", {"query": query_text}),
-                    ("KA-019", {"findings": data.get("findings", []) or [{"content": query_text}]}),
+                    (
+                        "KA-019",
+                        {
+                            "findings": data.get("findings", [])
+                            or [{"content": query_text}]
+                        },
+                    ),
                 ]
             )
         return [(ka_id, payload) for ka_id, payload in flow if ka_id in self.algorithms]
 
     @staticmethod
-    def _summarize_flow(query: str, successful: list[dict[str, Any]], failed: list[dict[str, Any]]) -> str:
+    def _summarize_flow(
+        query: str, successful: list[dict[str, Any]], failed: list[dict[str, Any]]
+    ) -> str:
         if not successful:
             return f"Could not resolve query '{query}' because all selected KAs failed."
         if failed:
             return f"Resolved query '{query}' with {len(successful)} KA step(s); {len(failed)} step(s) degraded."
         return f"Resolved query '{query}' via {len(successful)} selected KA step(s)."
 
-    def _fallback_logic(self, input_data: BaseModel, error: Exception) -> dict[str, Any]:
+    def _fallback_logic(
+        self, input_data: BaseModel, error: Exception
+    ) -> dict[str, Any]:
         """Master-level fallback for orchestration failures."""
         return {
             "success": False,
             "system_state": "DEGRADED",
             "error": str(error),
             "fallback_engaged": True,
-            "message": "Orchestration failed. Entering safe mode."
+            "message": "Orchestration failed. Entering safe mode.",
         }
+
 
 @celery_app.task(name="ka_engine.run_ka_task")
 def run_ka_task(ka_id: str, input_data: dict[str, Any]):
     """Background task for long-running KAs."""
     from backend.knowledge_algorithms.ka_master_controller import get_controller
+
     master = get_controller()
     result = master.execute_typed(
         ka_id,
@@ -634,13 +777,16 @@ def run_ka_task(ka_id: str, input_data: dict[str, Any]):
     )
     return result.model_dump(mode="json", exclude_none=True)
 
+
 _controller_instance = None
+
 
 def get_controller() -> KAMasterController:
     global _controller_instance
     if _controller_instance is None:
         _controller_instance = KAMasterController({})
     return _controller_instance
+
 
 def run(context: dict[str, Any]) -> dict[str, Any]:
     # Redundant wrapper kept for compatibility, base class .run() handles internal logic

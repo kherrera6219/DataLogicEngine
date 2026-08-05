@@ -56,12 +56,16 @@ class DMRFOrchestrator:
         config: dict[str, Any] | None = None,
         ka_controller: Any | None = None,
     ):
-        self.desktop_mode = self._desktop_mode() if desktop_mode is None else desktop_mode
+        self.desktop_mode = (
+            self._desktop_mode() if desktop_mode is None else desktop_mode
+        )
         self.db_session = db_session
         # Operator-tunable DMRF settings (dmrf_config.json under AppData); the
         # loader returns deterministic defaults when no file is present.
         self.config = config if config is not None else DMRFDesktopConfig().load()
-        self.max_refinement_iterations = int(self.config.get("max_refinement_iterations", 3) or 3)
+        self.max_refinement_iterations = int(
+            self.config.get("max_refinement_iterations", 3) or 3
+        )
         self.router = router or DMRFRouter()
         self.classifier = classifier or DMRFTierClassifier(
             desktop_mode=self.desktop_mode,
@@ -98,7 +102,9 @@ class DMRFOrchestrator:
         self._record_step(result, "truth_gate", {"gate": gate_result})
         if not gate_result.get("passed", False):
             result.ok = False
-            result.warnings.append(str(gate_result.get("block_reason", "truth_gate_block")))
+            result.warnings.append(
+                str(gate_result.get("block_reason", "truth_gate_block"))
+            )
             return result
 
         tier = self.classifier.classify(query, context=context, offline=offline)
@@ -141,7 +147,9 @@ class DMRFOrchestrator:
             try:
                 self.memory.persist(result, session_id=context.get("truth_session_id"))
             except Exception as exc:
-                result.warnings.append(f"dmrf_memory_persist_failed:{type(exc).__name__}")
+                result.warnings.append(
+                    f"dmrf_memory_persist_failed:{type(exc).__name__}"
+                )
 
         tracking = self.tracker.record(result)
         self._record_step(result, "mlflow_tracking", {"tracking": tracking})
@@ -164,10 +172,78 @@ class DMRFOrchestrator:
         offline: bool,
         heuristic: TierClassification,
     ) -> TierClassification | None:
-        """Run the production-admitted KA-113 plan and merge it fail closed."""
+        """Run the production-admitted DMRF core-routing plan fail closed."""
+        manifest = getattr(self.ka_controller, "manifest", None)
+        available_kas = (
+            sorted(
+                canonical_id
+                for canonical_id, definition in manifest.entries.items()
+                if definition.admission.production_enabled
+            )
+            if manifest is not None
+            else []
+        )
+        candidate_intents = [
+            {
+                "intent_id": intent_id,
+                "description": description,
+                "keywords": keywords,
+                "required_slots": [],
+            }
+            for intent_id, description, keywords in (
+                ("GENERAL", "General analysis", ["assess", "compare", "review"]),
+                (
+                    "REASONING",
+                    "Reasoning and explanation",
+                    ["why", "explain", "causal", "hypothesis"],
+                ),
+                (
+                    "DATA",
+                    "Data retrieval and transformation",
+                    ["data", "retrieve", "schema", "archive"],
+                ),
+                ("ML", "Model lifecycle", ["model", "training", "evaluation"]),
+                (
+                    "OPERATIONS",
+                    "Operational control",
+                    ["health", "deploy", "cache", "alert"],
+                ),
+                (
+                    "SECURITY",
+                    "Security control",
+                    ["security", "attack", "authentication", "encryption"],
+                ),
+            )
+        ]
         request = KASelectionRequest(
-            requested_ids=["KA-005", "KA-113"],
-            shared_input={"query": query},
+            requested_ids=["KA-036", "KA-1073", "KA-031"],
+            ka_inputs={
+                "KA-004": {"query": query},
+                "KA-005": {"query": query},
+                "KA-113": {"query": query},
+                "KA-036": {
+                    "problem": query,
+                    "declared_step_count": int(context.get("declared_step_count") or 1),
+                    "dependency_count": int(context.get("dependency_count") or 0),
+                    "observed_latencies_ms": list(
+                        context.get("observed_routing_latencies_ms") or []
+                    ),
+                },
+                "KA-1073": {
+                    "utterance": query,
+                    "candidate_intents": candidate_intents,
+                    "minimum_match": 0.15,
+                    "ambiguity_margin": 0.05,
+                },
+                "KA-031": {
+                    "query": query,
+                    "query_class": "GENERAL",
+                    "complexity_tier": "standard",
+                    "policy_flags": ["local_first"] if offline else [],
+                    "available_kas": available_kas,
+                    "budget": {"max_kas": 10},
+                },
+            },
             context=KAExecutionContext(
                 request_id=str(context.get("request_id") or result.run_id),
                 run_id=result.run_id,
@@ -219,15 +295,125 @@ class DMRFOrchestrator:
             for canonical_id, execution in report.results.items()
             if execution.success
         }
+        selection_output = outputs.get("KA-031", {})
+        if report.status != KAPlanExecutionStatus.SUCCEEDED or not isinstance(
+            selection_output, dict
+        ):
+            self._record_step(
+                result,
+                "ka_complexity_router",
+                {
+                    "status": report.status.value,
+                    "plan_id": plan.plan_id,
+                    "selected_ids": list(plan.selected_ids),
+                    "execution_order": list(plan.execution_order),
+                    "required_failure": report.required_failure,
+                    "outputs": outputs,
+                    "traces": traces,
+                },
+            )
+            return None
+
+        boundary_request = KASelectionRequest(
+            requested_ids=["KA-1107"],
+            ka_inputs={
+                "KA-1107": {
+                    "planned_steps": [
+                        {
+                            "step_id": f"selected-{index}",
+                            "capability_id": capability_id,
+                            "layer": "L1",
+                            "query_class": "routing",
+                        }
+                        for index, capability_id in enumerate(
+                            selection_output.get("selected_pipeline", []), start=1
+                        )
+                    ],
+                    "allowed_capability_ids": available_kas,
+                    "allowed_layers": ["L1"],
+                    "allowed_query_classes": ["routing"],
+                }
+            },
+            prior_results={
+                canonical_id: report.results[canonical_id]
+                for canonical_id in ("KA-004", "KA-005")
+                if canonical_id in report.results
+            },
+            context=KAExecutionContext(
+                request_id=request.context.request_id,
+                run_id=result.run_id,
+                session_id=context.get("session_id"),
+                principal_id=context.get("principal_id"),
+                workflow="governed_dmrf_routing_boundary",
+                tier=heuristic.tier,
+                layer="L1",
+                budget=KABudget(
+                    deadline_ms=2_000,
+                    max_selected_algorithms=4,
+                    max_dependency_executions=4,
+                    max_recursion_depth=2,
+                    max_fan_out=4,
+                    max_parallelism=1,
+                    max_provider_calls=0,
+                    max_effects=0,
+                ),
+            ),
+            mode=KAExecutionMode.PRODUCTION,
+        )
+        boundary_plan = self.ka_controller.plan_algorithms(boundary_request)
+        if not boundary_plan.valid:
+            self._record_step(
+                result,
+                "ka_complexity_router",
+                {
+                    "status": "failed",
+                    "selected_ids": list(plan.selected_ids),
+                    "validation_errors": list(boundary_plan.validation_errors),
+                    "outputs": outputs,
+                    "traces": traces,
+                },
+            )
+            return None
+        boundary_report = await self.ka_controller.execute_algorithm_plan(
+            boundary_plan, boundary_request
+        )
+        outputs.update(
+            {
+                canonical_id: execution.output
+                for canonical_id, execution in boundary_report.results.items()
+                if execution.success
+            }
+        )
+        traces.update(
+            {
+                canonical_id: {
+                    "parent_ids": list(trace.parent_ids),
+                    "events": [
+                        event.model_dump(mode="json", exclude_none=True)
+                        for event in trace.events
+                    ],
+                }
+                for canonical_id, trace in boundary_report.traces.items()
+                if canonical_id in boundary_plan.selected_ids
+            }
+        )
         self._record_step(
             result,
             "ka_complexity_router",
             {
                 "status": report.status.value,
                 "plan_id": plan.plan_id,
-                "selected_ids": list(plan.selected_ids),
-                "execution_order": list(plan.execution_order),
-                "required_failure": report.required_failure,
+                "selected_ids": [
+                    *list(plan.selected_ids),
+                    *list(boundary_plan.selected_ids),
+                ],
+                "execution_order": [
+                    *list(plan.execution_order),
+                    *list(boundary_plan.execution_order),
+                ],
+                "required_failure": (
+                    report.required_failure or boundary_report.required_failure
+                ),
                 "outputs": outputs,
                 "traces": traces,
             },
@@ -235,7 +421,9 @@ class DMRFOrchestrator:
         ka_output = outputs.get("KA-113")
         if (
             report.status != KAPlanExecutionStatus.SUCCEEDED
+            or boundary_report.status != KAPlanExecutionStatus.SUCCEEDED
             or not isinstance(ka_output, dict)
+            or outputs.get("KA-1107", {}).get("plan_allowed") is not True
         ):
             return None
 
@@ -255,8 +443,7 @@ class DMRFOrchestrator:
         if (
             self.desktop_mode
             and offline
-            and TIER_ORDER[merged_tier]
-            > TIER_ORDER[self.classifier.offline_tier_cap]
+            and TIER_ORDER[merged_tier] > TIER_ORDER[self.classifier.offline_tier_cap]
         ):
             capped_from = merged_tier
             merged_tier = self.classifier.offline_tier_cap
@@ -287,7 +474,9 @@ class DMRFOrchestrator:
     def prometheus_lines(cls, prefix: str = "datalogicengine") -> list[str]:
         return cls._observability.prometheus_lines(prefix=prefix)
 
-    def _record_step(self, result: DMRFResult, name: str, outputs: dict[str, Any]) -> None:
+    def _record_step(
+        self, result: DMRFResult, name: str, outputs: dict[str, Any]
+    ) -> None:
         step = DMRFStep(name=name, outputs=outputs)
         snapshot = self.frost_bridge.snapshot_step(
             name,
@@ -302,4 +491,9 @@ class DMRFOrchestrator:
 
     @staticmethod
     def _desktop_mode() -> bool:
-        return os.environ.get("IS_DESKTOP_APP", "false").lower() in {"1", "true", "yes", "on"}
+        return os.environ.get("IS_DESKTOP_APP", "false").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }

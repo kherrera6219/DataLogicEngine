@@ -72,6 +72,22 @@ QUALIFIED_BATCHES = {
     "KA-1083",
     "KA-1093",
     "KA-1105",
+    "KA-003",
+    "KA-011",
+    "KA-015",
+    "KA-017",
+    "KA-025",
+    "KA-040",
+    "KA-018",
+    "KA-079",
+    "KA-1049",
+    "KA-1077",
+    "KA-1092",
+    "KA-031",
+    "KA-036",
+    "KA-1073",
+    "KA-1107",
+    "KA-Master",
 }
 
 
@@ -81,9 +97,9 @@ def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     assert matrix["status"] == "cp19_k_in_progress"
     assert matrix["invariants"] == {
         "canonical_capabilities": 213,
-        "qualified_capabilities": 58,
-        "incomplete_capabilities": 155,
-        "reviewed_capabilities": 58,
+        "qualified_capabilities": 74,
+        "incomplete_capabilities": 139,
+        "reviewed_capabilities": 74,
         "runtime_registries_added": 0,
         "findings_waived": False,
         "rebuild_authorized": False,
@@ -92,15 +108,12 @@ def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     assert matrix["evidence_counts"]["negative_selector"] == 213
     assert DEFAULT_JSON_PATH.read_text(encoding="utf-8") == json_text(matrix)
     assert DEFAULT_CSV_PATH.read_text(encoding="utf-8") == csv_text(matrix)
-    assert DEFAULT_MARKDOWN_PATH.read_text(encoding="utf-8") == markdown_text(
-        matrix
-    )
+    assert DEFAULT_MARKDOWN_PATH.read_text(encoding="utf-8") == markdown_text(matrix)
 
 
 def test_cp19k_completed_batches_have_every_required_evidence_class():
     rows = {
-        row["canonical_id"]: row
-        for row in build_matrix()["canonical_capabilities"]
+        row["canonical_id"]: row for row in build_matrix()["canonical_capabilities"]
     }
 
     assert {
@@ -112,8 +125,7 @@ def test_cp19k_completed_batches_have_every_required_evidence_class():
         row = rows[canonical_id]
         assert row["missing_evidence"] == []
         assert all(
-            evidence["status"] == "qualified"
-            for evidence in row["evidence"].values()
+            evidence["status"] == "qualified" for evidence in row["evidence"].values()
         )
         assert row["evidence"]["trace_proof"]["required_states"] == [
             "planned",
@@ -127,14 +139,14 @@ def test_cp19k_completed_batches_have_every_required_evidence_class():
         assert row["performance_budget_ms"] > 0
 
 
-def test_cp19k_does_not_overstate_unreviewed_ka_031():
+def test_cp19k_does_not_overstate_next_unreviewed_ka_034():
     row = next(
         row
         for row in build_matrix()["canonical_capabilities"]
-        if row["canonical_id"] == "KA-031"
+        if row["canonical_id"] == "KA-034"
     )
 
-    assert row["production_enabled"] is True
+    assert row["production_enabled"] is False
     assert row["qualification_status"] == "incomplete"
     assert {
         "semantic_test",
@@ -152,7 +164,7 @@ def test_cp19k_integrity_verifier_passes_without_closing_checkpoint():
 
     assert evidence["integrity_status"] == "pass"
     assert evidence["checkpoint_status"] == "in_progress"
-    assert evidence["qualified_capabilities"] == 58
-    assert evidence["incomplete_capabilities"] == 155
+    assert evidence["qualified_capabilities"] == 74
+    assert evidence["incomplete_capabilities"] == 139
     assert evidence["rebuild_authorized"] is False
     assert evidence["errors"] == []

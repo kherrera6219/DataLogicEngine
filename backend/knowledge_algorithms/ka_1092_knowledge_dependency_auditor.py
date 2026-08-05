@@ -29,6 +29,16 @@ class KA1092Input(BaseModel):
                         {"upstream_id": "a", "downstream_id": "b"},
                         {"upstream_id": "b", "downstream_id": "c"},
                     ],
+                    "dependency_results": {
+                        "KA-025": {
+                            "graph": {
+                                "edges": [
+                                    {"from": "a", "to": "b"},
+                                    {"from": "b", "to": "c"},
+                                ]
+                            }
+                        }
+                    },
                 }
             ]
         },
@@ -38,6 +48,7 @@ class KA1092Input(BaseModel):
     known_knowledge_ids: list[str] = Field(min_length=1, max_length=50_000)
     dependencies: list[DependencyEdge] = Field(max_length=200_000)
     maximum_depth: int = Field(default=20, ge=1, le=100)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_graph(self) -> KA1092Input:
@@ -64,6 +75,22 @@ class KA1092KnowledgeDependencyAuditor(KnowledgeAlgorithm):
         self.ka_id = "KA-1092"
 
     def _run_logic(self, input_data: KA1092Input) -> dict[str, Any]:
+        mapping = input_data.dependency_results.get("KA-025")
+        declared_edges = {
+            (item.upstream_id, item.downstream_id) for item in input_data.dependencies
+        }
+        dependency_consumed = None
+        if isinstance(mapping, dict):
+            mapped_edges = {
+                (str(item.get("from")), str(item.get("to")))
+                for item in mapping.get("graph", {}).get("edges", [])
+                if isinstance(item, dict)
+            }
+            if mapped_edges != declared_edges:
+                raise ValueError(
+                    "KA-025 dependency mapping does not match declared edges"
+                )
+            dependency_consumed = "KA-025"
         graph: dict[str, list[str]] = defaultdict(list)
         for edge in input_data.dependencies:
             graph[edge.upstream_id].append(edge.downstream_id)
@@ -98,8 +125,12 @@ class KA1092KnowledgeDependencyAuditor(KnowledgeAlgorithm):
             "success": True,
             "status": "knowledge_dependencies_audited",
             "downstream_impacts": rows,
-            "affected_knowledge_ids": sorted({row["affected_knowledge_id"] for row in rows}),
+            "affected_knowledge_ids": sorted(
+                {row["affected_knowledge_id"] for row in rows}
+            ),
             "truncated_at_maximum_depth": truncated,
+            "dependency_consumed": dependency_consumed,
+            "mapping_consistent": dependency_consumed == "KA-025",
             "mutation_applied": False,
             "deterministic": True,
             "limitations": (

@@ -1,0 +1,38 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-14-retrieval-provenance-scoring",
+  "validated_on": "2026-08-04",
+  "qualified_ids": ["KA-018", "KA-079", "KA-1049", "KA-1077", "KA-1092"],
+  "grouped_roadmap": {
+    "baseline_open_capabilities": 186,
+    "planned_batches": 36,
+    "completed_batches": [8, 9, 10, 11, 12, 13, 14, 15],
+    "next_batch": 16,
+    "remaining_batches": 28
+  },
+  "summary": {
+    "canonical_capabilities": 213,
+    "qualified_capabilities": 74,
+    "incomplete_capabilities": 139,
+    "production_enabled_capabilities": 153,
+    "dependency_edges": 143,
+    "dependency_cycles": 0,
+    "rebuild_authorized": false
+  },
+  "checks": [
+    {"name": "batches_13_15_semantics_and_owner_paths", "status": "pass", "result": "100 passed"},
+    {"name": "compatibility_bulk_and_depth_contracts", "status": "pass", "result": "482 passed, 2 known deprecation warnings"},
+    {"name": "knowledge_algorithm_suite", "status": "pass", "result": "849 passed, 3 known deprecation warnings"},
+    {"name": "governed_truthcore_phase19_simulation_integration", "status": "pass", "result": "262 passed"},
+    {"name": "full_source_suite", "status": "pass", "result": "2775 passed, 18 skipped, 35 known warnings"},
+    {"name": "qualification_and_runtime_authority", "status": "pass", "result": "74/213 qualified; 143 dependency edges; zero cycles"}
+  ],
+  "limitations": [
+    "CP19-K is incomplete: 139 per-KA rows remain open across 28 planned batches.",
+    "Retrieval and audit are bounded to supplied evidence records and apply no hidden vector, store, provider, trust, graph, knowledge, memory, or external effect.",
+    "No installed provider, retrieval, workflow, accessibility, independent-review, human-pilot, or soak acceptance is claimed.",
+    "This source batch does not authorize CP19-L, rebuilding, installation, signing, or release."
+  ]
+}

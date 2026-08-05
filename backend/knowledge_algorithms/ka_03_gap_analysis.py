@@ -2,6 +2,7 @@
 KA-003: Gap Analysis
 Purpose: Identify discrepancies between current and desired states.
 """
+
 import logging
 import json
 import os
@@ -14,13 +15,19 @@ logger = logging.getLogger(__name__)
 
 
 class KA003Input(BaseModel):
-    current_state: Dict[str, Any] = Field(default_factory=dict, description="The current state of the entity")
-    desired_state: Dict[str, Any] = Field(default_factory=dict, description="The target state of the entity")
+    current_state: Dict[str, Any] = Field(
+        default_factory=dict, description="The current state of the entity"
+    )
+    desired_state: Dict[str, Any] = Field(
+        default_factory=dict, description="The target state of the entity"
+    )
+
 
 class KA003GapAnalysis(KnowledgeAlgorithm):
     """
     KA-003: Performs structured Gap Analysis between current and desired states.
     """
+
     input_schema = KA003Input
 
     def __init__(self, context: Dict[str, Any]):
@@ -30,7 +37,9 @@ class KA003GapAnalysis(KnowledgeAlgorithm):
 
     def _load_config(self) -> Dict[str, Any]:
         try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_03_config.json")
+            config_path = os.path.join(
+                os.path.dirname(__file__), "config", "ka_03_config.json"
+            )
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
                     return json.load(f)
@@ -41,40 +50,62 @@ class KA003GapAnalysis(KnowledgeAlgorithm):
     def _run_logic(self, input_data: KA003Input) -> Dict[str, Any]:
         current = input_data.current_state
         desired = input_data.desired_state
-        
+
         self.log_execution_step("Gap Analysis", {"current_keys": list(current.keys())})
-        
+
         gaps = self._find_gaps(current, desired)
         impact_score = sum(g["impact"] for g in gaps)
-        
+
         return {
             "success": True,
+            "status": "declared_state_gap_measured",
             "gaps": gaps,
             "total_impact": impact_score,
-            "gap_count": len(gaps)
+            "gap_count": len(gaps),
+            "state_mutation_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "Gaps compare only supplied current and desired fields; impact is "
+                "a bounded review heuristic, not calibrated risk."
+            ),
         }
 
-    def _find_gaps(self, current: Dict[str, Any], desired: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _find_gaps(
+        self, current: Dict[str, Any], desired: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         gaps = []
         severity = self.config.get("severity_levels", {"high": 0.5})
-        
-        for key, desired_val in desired.items():
+
+        for key in sorted(desired):
+            desired_val = desired[key]
             if key not in current:
-                gaps.append({
-                    "type": "missing_field",
-                    "field": key,
-                    "expected": desired_val,
-                    "impact": severity.get("high", 0.5)
-                })
+                gaps.append(
+                    {
+                        "type": "missing_field",
+                        "field": key,
+                        "expected": desired_val,
+                        "impact": self._bounded_impact(severity.get("high", 0.5), 0.5),
+                    }
+                )
             elif current[key] != desired_val:
-                gaps.append({
-                    "type": "value_mismatch",
-                    "field": key,
-                    "actual": current[key],
-                    "expected": desired_val,
-                    "impact": severity.get("low", 0.1)
-                })
+                gaps.append(
+                    {
+                        "type": "value_mismatch",
+                        "field": key,
+                        "actual": current[key],
+                        "expected": desired_val,
+                        "impact": self._bounded_impact(severity.get("low", 0.1), 0.1),
+                    }
+                )
         return gaps
+
+    @staticmethod
+    def _bounded_impact(value: Any, default: float) -> float:
+        try:
+            return round(max(0.0, min(1.0, float(value))), 8)
+        except (TypeError, ValueError):
+            return default
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:

@@ -7,8 +7,8 @@
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 58 rows are fully
-qualified and 155 remain open. A row closes
+canonical capabilities. 74 rows are fully
+qualified and 139 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -32,6 +32,9 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-10-provider-model-preparation` | 2026-08-02 | 4 | App-owned dataset profiling, measured feature construction, measured tuning and evaluation, and an idempotent provider-owned training-admission record that explicitly applies no training |
 | `cp19-k-batch-11-provider-model-release` | 2026-08-04 | 5 | App-owned model-artifact profiling, causal version/experiment/pruning/quantization proposals, measured health admission, and an idempotent release-preparation record that explicitly applies no deployment |
 | `cp19-k-batch-12-knowledge-temporal-health` | 2026-08-04 | 7 | Causal confidence-drift, revalidation scheduling, temporal maintenance, trust-decay, failure-pattern, and obsolescence review with a content-free idempotent owner receipt and no knowledge lifecycle effect |
+| `cp19-k-batch-13-l1-context-dependencies` | 2026-08-04 | 6 | Deterministic L1 gap, analytical, temporal, jurisdiction, dependency, and hypothesis proposals through the truth-context owner with no knowledge mutation or external effect |
+| `cp19-k-batch-14-retrieval-provenance-scoring` | 2026-08-04 | 5 | Evidence-bound provenance, lexical retrieval, relevance, freshness, and dependency auditing through the retrieval owner without hidden store, vector, provider, or trust effects |
+| `cp19-k-batch-15-dmrf-core-routing` | 2026-08-04 | 5 | Canonical governed classification, complexity, algorithm-selection, boundary-enforcement, and controller authority with fail-closed routing and no capability self-selection |
 
 ## Gate decision
 

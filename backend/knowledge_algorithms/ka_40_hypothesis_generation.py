@@ -2,6 +2,7 @@
 KA-040: Hypothesis Generation
 Purpose: Generate testable hypotheses for unknown phenomena.
 """
+
 import logging
 import re
 from typing import Any, Dict, List
@@ -29,19 +30,37 @@ class KA040HypothesisGeneration(KnowledgeAlgorithm):
         self.ka_id = "KA-040"
 
     def _run_logic(self, input_data: KA040Input) -> Dict[str, Any]:
-        observation = input_data.observation or str(input_data.model_dump().get("query", ""))
-        variables = input_data.variables or self._infer_variables(observation, input_data.context)
+        observation = input_data.observation or str(
+            input_data.model_dump().get("query", "")
+        )
+        variables = input_data.variables or self._infer_variables(
+            observation, input_data.context
+        )
         max_hypotheses = max(1, min(10, self._safe_int(input_data.max_hypotheses, 5)))
 
-        self.log_execution_step("Generating Hypotheses", {"obs": observation[:80], "variables": len(variables)})
+        self.log_execution_step(
+            "Generating Hypotheses",
+            {"obs": observation[:80], "variables": len(variables)},
+        )
 
-        hypotheses = self._build_hypotheses(observation, variables, input_data.constraints, max_hypotheses)
+        hypotheses = self._build_hypotheses(
+            observation, variables, input_data.constraints, max_hypotheses
+        )
         return {
             "ka_id": self.ka_id,
             "success": True,
+            "status": "hypothesis_candidates_proposed",
             "hypotheses": hypotheses,
             "hypothesis_count": len(hypotheses),
             "method": "variable_signal_hypothesis_generation",
+            "calibrated_probability": False,
+            "hypotheses_validated": False,
+            "external_effect_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "Candidates are template-based test proposals from supplied terms; "
+                "they are not causal findings or calibrated probabilities."
+            ),
         }
 
     @classmethod
@@ -53,11 +72,31 @@ class KA040HypothesisGeneration(KnowledgeAlgorithm):
         max_hypotheses: int,
     ) -> List[Dict[str, Any]]:
         templates = [
-            ("causal", "{variable} is a direct driver of the observed change.", "Test whether changes in {variable} precede the observation."),
-            ("interaction", "{variable} interacts with another system factor to amplify the observation.", "Segment records by {variable} and compare effect size."),
-            ("threshold", "{variable} crossed a threshold that changed system behavior.", "Find breakpoints in {variable} around the observation window."),
-            ("measurement", "The observation is partly explained by a change in how {variable} is measured.", "Compare collection rules and missingness before and after the observation."),
-            ("confounder", "{variable} is correlated with an unobserved confounder.", "Control for adjacent variables and check whether the signal remains."),
+            (
+                "causal",
+                "{variable} is a direct driver of the observed change.",
+                "Test whether changes in {variable} precede the observation.",
+            ),
+            (
+                "interaction",
+                "{variable} interacts with another system factor to amplify the observation.",
+                "Segment records by {variable} and compare effect size.",
+            ),
+            (
+                "threshold",
+                "{variable} crossed a threshold that changed system behavior.",
+                "Find breakpoints in {variable} around the observation window.",
+            ),
+            (
+                "measurement",
+                "The observation is partly explained by a change in how {variable} is measured.",
+                "Compare collection rules and missingness before and after the observation.",
+            ),
+            (
+                "confounder",
+                "{variable} is correlated with an unobserved confounder.",
+                "Control for adjacent variables and check whether the signal remains.",
+            ),
         ]
         if not variables:
             variables = sorted(cls._tokens(observation))[:3] or ["primary factor"]
@@ -65,7 +104,10 @@ class KA040HypothesisGeneration(KnowledgeAlgorithm):
         hypotheses: List[Dict[str, Any]] = []
         for index, variable in enumerate(variables[:max_hypotheses]):
             kind, statement, test = templates[index % len(templates)]
-            confidence = round(0.72 - min(index, 5) * 0.07 + min(len(constraints), 3) * 0.02, 3)
+            priority_score = round(
+                1.0 / (index + 1) + min(len(constraints), 3) * 0.01,
+                3,
+            )
             hypotheses.append(
                 {
                     "id": f"H{index + 1}",
@@ -74,7 +116,8 @@ class KA040HypothesisGeneration(KnowledgeAlgorithm):
                     "rationale": f"Generated from observation terms and candidate variable '{variable}'.",
                     "test": test.format(variable=variable),
                     "constraints_considered": constraints,
-                    "confidence": max(0.25, min(0.9, confidence)),
+                    "priority_score": max(0.0, min(1.0, priority_score)),
+                    "evidence_status": "untested",
                 }
             )
         return hypotheses
@@ -91,8 +134,26 @@ class KA040HypothesisGeneration(KnowledgeAlgorithm):
 
     @staticmethod
     def _tokens(text: str) -> set[str]:
-        stopwords = {"the", "a", "an", "and", "or", "is", "are", "was", "were", "of", "to", "in", "for"}
-        return {token for token in re.findall(r"[a-z0-9]+", text.lower()) if len(token) > 3 and token not in stopwords}
+        stopwords = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "is",
+            "are",
+            "was",
+            "were",
+            "of",
+            "to",
+            "in",
+            "for",
+        }
+        return {
+            token
+            for token in re.findall(r"[a-z0-9]+", text.lower())
+            if len(token) > 3 and token not in stopwords
+        }
 
     @staticmethod
     def _safe_int(value: Any, default: int) -> int:

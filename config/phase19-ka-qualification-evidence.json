@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.02-cp19k.4",
+  "manifest_version": "2026.08.04-cp19k.5",
   "status": "cp19_k_in_progress",
   "batches": [
     {
@@ -145,6 +145,43 @@
         "KA-1105"
       ],
       "scope": "Causal confidence-drift, revalidation scheduling, temporal maintenance, trust-decay, failure-pattern, and obsolescence review with a content-free idempotent owner receipt and no knowledge lifecycle effect"
+    },
+    {
+      "batch_id": "cp19-k-batch-13-l1-context-dependencies",
+      "completed_on": "2026-08-04",
+      "canonical_ids": [
+        "KA-003",
+        "KA-011",
+        "KA-015",
+        "KA-017",
+        "KA-025",
+        "KA-040"
+      ],
+      "scope": "Deterministic L1 gap, analytical, temporal, jurisdiction, dependency, and hypothesis proposals through the truth-context owner with no knowledge mutation or external effect"
+    },
+    {
+      "batch_id": "cp19-k-batch-14-retrieval-provenance-scoring",
+      "completed_on": "2026-08-04",
+      "canonical_ids": [
+        "KA-018",
+        "KA-079",
+        "KA-1049",
+        "KA-1077",
+        "KA-1092"
+      ],
+      "scope": "Evidence-bound provenance, lexical retrieval, relevance, freshness, and dependency auditing through the retrieval owner without hidden store, vector, provider, or trust effects"
+    },
+    {
+      "batch_id": "cp19-k-batch-15-dmrf-core-routing",
+      "completed_on": "2026-08-04",
+      "canonical_ids": [
+        "KA-031",
+        "KA-036",
+        "KA-1073",
+        "KA-1107",
+        "KA-Master"
+      ],
+      "scope": "Canonical governed classification, complexity, algorithm-selection, boundary-enforcement, and controller authority with fail-closed routing and no capability self-selection"
     }
   ],
   "qualifications": {
@@ -1147,6 +1184,166 @@
         "rationale": "KA-1105 proposes revalidation only. The owner dispatches no request, updates no concept, and records only counts, digests, lifecycle states, and an integrity-checked receipt."
       },
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1105_semantic_contract"
+    },
+    "KA-003": {
+      "batch_id": "cp19-k-batch-13-l1-context-dependencies",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_003_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_003_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_003_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Bounded caller-supplied field comparison is deterministic and performs no provider, persistence, authorization, or external effect."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-003 returns a gap proposal only and applies no schema, data, or knowledge mutation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_003_semantic_contract"
+    },
+    "KA-011": {
+      "batch_id": "cp19-k-batch-13-l1-context-dependencies",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_011_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_011_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_011_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "The model summary is derived from bounded supplied values and invokes no provider, store, or privileged boundary."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-011 reports descriptive and heuristic intervals only and explicitly applies no calibrated or external effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_011_semantic_contract"
+    },
+    "KA-015": {
+      "batch_id": "cp19-k-batch-13-l1-context-dependencies",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_015_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_015_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_015_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Timezone-aware temporal comparison uses an explicit reference time and never reads the system clock or external state."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-015 returns temporal observations and applies no fact, schedule, or knowledge mutation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_015_semantic_contract"
+    },
+    "KA-017": {
+      "batch_id": "cp19-k-batch-13-l1-context-dependencies",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_017_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_017_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_017_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Jurisdiction mapping is restricted to caller-supplied candidates, aliases, scopes, and references and cannot infer legal applicability."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-017 returns a mapping proposal only and performs no lookup, policy decision, or registry update."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_017_semantic_contract"
+    },
+    "KA-025": {
+      "batch_id": "cp19-k-batch-13-l1-context-dependencies",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_025_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_025_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_025_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Dependency mapping is bounded to supplied nodes and edges and cannot query or modify a graph store."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-025 returns a dependency proposal with graph_mutated false and no authoritative effect port."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_025_semantic_contract"
+    },
+    "KA-040": {
+      "batch_id": "cp19-k-batch-13-l1-context-dependencies",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_040_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_040_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_040_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Hypotheses are deterministic bounded proposals and cannot access providers, stores, or privileged execution."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-040 labels evidence untested and reports priority scores rather than fabricated confidence or causal truth."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_040_semantic_contract"
+    },
+    "KA-018": {
+      "batch_id": "cp19-k-batch-14-retrieval-provenance-scoring",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_018_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_018_owning_path",
+      "trace_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_018_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Provenance status is calculated only from bounded supplied checks and cannot infer source trust or contact an external source."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-018 returns provenance observations and trace identity without updating evidence or trust state."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_018_semantic_contract"
+    },
+    "KA-079": {
+      "batch_id": "cp19-k-batch-14-retrieval-provenance-scoring",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_079_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_079_owning_path",
+      "trace_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_079_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Retrieval ranks only supplied records with explicit lexical matching and performs no vector, engine, provider, network, or store access."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-079 returns a deterministic ranking and creates no read, write, or external side effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_079_semantic_contract"
+    },
+    "KA-1049": {
+      "batch_id": "cp19-k-batch-14-retrieval-provenance-scoring",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1049_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1049_owning_path",
+      "trace_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1049_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Relevance scoring consumes bounded evidence records and does not retrieve, persist, or disclose additional content."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-1049 produces scores only and applies no ranking, store, provider, or graph mutation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1049_semantic_contract"
+    },
+    "KA-1077": {
+      "batch_id": "cp19-k-batch-14-retrieval-provenance-scoring",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1077_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1077_owning_path",
+      "trace_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1077_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Freshness scoring is restricted to caller-supplied timestamps and reference time with no clock, network, or persistence dependency."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-1077 calculates observational scores only and does not write memory or update evidence."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1077_semantic_contract"
+    },
+    "KA-1092": {
+      "batch_id": "cp19-k-batch-14-retrieval-provenance-scoring",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1092_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1092_owning_path",
+      "trace_test": "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1092_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "The auditor consumes the exact KA-025 dependency mapping and checks bounded edge consistency without graph access."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-1092 reports consistency findings only and performs no graph, knowledge, or policy mutation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1092_semantic_contract"
+    },
+    "KA-031": {
+      "batch_id": "cp19-k-batch-15-dmrf-core-routing",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_031_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_031_owning_path",
+      "trace_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_031_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Selection consumes exact admitted routing dependencies and returns a proposal without executing capabilities or contacting a provider."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-031 records execution_started false and applies no provider, persistence, or capability effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_031_semantic_contract"
+    },
+    "KA-036": {
+      "batch_id": "cp19-k-batch-15-dmrf-core-routing",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_036_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_036_owning_path",
+      "trace_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_036_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Complexity derives only from supplied problem structure and latency observations and has no hidden database read."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-036 returns a routing estimate only and performs no execution, provider, or persistence effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_036_semantic_contract"
+    },
+    "KA-1073": {
+      "batch_id": "cp19-k-batch-15-dmrf-core-routing",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1073_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_1073_owning_path",
+      "trace_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_1073_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Intent resolution is bounded to supplied taxonomy and deterministic text signals and cannot dispatch or authorize work."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-1073 returns an intent and clarification proposal only with no external or persistent effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1073_semantic_contract"
+    },
+    "KA-1107": {
+      "batch_id": "cp19-k-batch-15-dmrf-core-routing",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1107_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_1107_owning_path",
+      "trace_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_1107_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "The boundary enforcer fails closed against explicit capability, layer, and query-class allowlists and never executes the checked plan."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-1107 reports whether a plan is admissible and explicitly applies no execution or persistence effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1107_semantic_contract"
+    },
+    "KA-Master": {
+      "batch_id": "cp19-k-batch-15-dmrf-core-routing",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_master_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_master_owning_path",
+      "trace_test": "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_master_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "The authority descriptor proves one canonical manifest/controller boundary and disables KA-Master self-selection to prevent recursive or bypass execution."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-Master exposes controller authority only; ManifestKASelector plans and CanonicalKAController executes admitted child capabilities."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_master_semantic_contract"
     }
   }
 }

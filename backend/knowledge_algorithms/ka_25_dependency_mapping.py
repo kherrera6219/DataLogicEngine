@@ -73,6 +73,7 @@ class KA025DependencyMapping(KnowledgeAlgorithm):
         is_dag, depth, cycle = self._measure_dag(adjacency)
         return {
             "success": True,
+            "status": "dependency_graph_measured",
             "graph": {"nodes": nodes, "edges": edges},
             "meta": {
                 "depth": depth,
@@ -81,6 +82,12 @@ class KA025DependencyMapping(KnowledgeAlgorithm):
                 "unknown_dependencies": unknown_dependencies,
                 "measurement_status": "measured",
             },
+            "graph_mutation_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "The graph reflects declared node dependencies only; acyclicity "
+                "does not prove runtime causality or evidence validity."
+            ),
         }
 
     @staticmethod

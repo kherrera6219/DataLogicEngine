@@ -2,11 +2,11 @@
 KA-079: Data Retrieval
 Purpose: Optimize data lookup and search operations using indexed queries and vector search fallbacks.
 """
+
 import json
 import logging
 import os
 import re
-import time
 from typing import Any, Dict, List
 
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
@@ -17,7 +17,9 @@ logger = logging.getLogger(__name__)
 
 class KA079RetrievalInput(BaseModel):
     model_config = ConfigDict(extra="allow")
-    query: Any = Field(default_factory=dict, description="The query parameters for data lookup")
+    query: Any = Field(
+        default_factory=dict, description="The query parameters for data lookup"
+    )
     records: List[Dict[str, Any]] = Field(default_factory=list)
     max_results: Any = None
     filters: Dict[str, Any] = Field(default_factory=dict)
@@ -27,6 +29,7 @@ class KA079DataRetrieval(KnowledgeAlgorithm):
     """
     KA-079: Optimized local data retrieval and multi-engine search orchestration.
     """
+
     input_schema = KA079RetrievalInput
 
     def __init__(self, context: Dict[str, Any]):
@@ -36,7 +39,9 @@ class KA079DataRetrieval(KnowledgeAlgorithm):
 
     def _load_config(self) -> Dict[str, Any]:
         try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_79_config.json")
+            config_path = os.path.join(
+                os.path.dirname(__file__), "config", "ka_79_config.json"
+            )
             if os.path.exists(config_path):
                 with open(config_path, "r") as f:
                     return json.load(f)
@@ -45,37 +50,58 @@ class KA079DataRetrieval(KnowledgeAlgorithm):
             return {}
 
     def _run_logic(self, input_data: KA079RetrievalInput) -> Dict[str, Any]:
-        started = time.perf_counter()
         query_text, query_filters = self._normalize_query(input_data.query)
         filters = {**query_filters, **input_data.filters}
         records = input_data.records or self._records_from_context(input_data)
-        max_results = self._safe_int(input_data.max_results, self.config.get("max_results_size", 25))
+        max_results = self._safe_int(
+            input_data.max_results, self.config.get("max_results_size", 25)
+        )
 
         self.log_execution_step(
             "Executing Optimized Retrieval",
-            {"query": query_text[:80], "records": len(records), "filters": len(filters)},
+            {
+                "query": query_text[:80],
+                "records": len(records),
+                "filters": len(filters),
+            },
         )
 
         found_records = self._search_records(records, query_text, filters, max_results)
 
         return {
             "success": True,
+            "status": "supplied_records_ranked",
             "results_count": len(found_records),
             "results": found_records,
-            "retrieval_mode": "vector" if self.config.get("enable_vector_search") else "standard",
-            "engine_active": self.config.get("search_engine", "standard"),
+            "retrieval_mode": "deterministic_lexical_overlap",
+            "external_engine_used": False,
             "filters_applied": filters,
-            "execution_time_ms": round((time.perf_counter() - started) * 1000, 3),
             "local_only": True,
+            "store_mutation_applied": False,
+            "deterministic": True,
+            "limitations": (
+                "Ranking covers only supplied records using lexical overlap and "
+                "declared filters; it is not vector search or corpus completeness proof."
+            ),
         }
 
     @staticmethod
     def _normalize_query(query: Any) -> tuple[str, Dict[str, Any]]:
         if isinstance(query, dict):
-            query_text = str(query.get("text") or query.get("q") or query.get("query") or "")
+            query_text = str(
+                query.get("text") or query.get("q") or query.get("query") or ""
+            )
             filters = dict(query.get("filters") or {})
             for key, value in query.items():
-                if key not in {"text", "q", "query", "filters", "records", "documents", "max_results"}:
+                if key not in {
+                    "text",
+                    "q",
+                    "query",
+                    "filters",
+                    "records",
+                    "documents",
+                    "max_results",
+                }:
                     filters.setdefault(key, value)
             return query_text, filters
         return str(query or ""), {}
@@ -87,15 +113,24 @@ class KA079DataRetrieval(KnowledgeAlgorithm):
         if isinstance(query, dict):
             nested = query.get("records") or query.get("documents") or query.get("data")
             if isinstance(nested, list):
-                return [item if isinstance(item, dict) else {"content": str(item)} for item in nested]
+                return [
+                    item if isinstance(item, dict) else {"content": str(item)}
+                    for item in nested
+                ]
 
         data = raw.get("data")
         if isinstance(data, list):
-            return [item if isinstance(item, dict) else {"content": str(item)} for item in data]
+            return [
+                item if isinstance(item, dict) else {"content": str(item)}
+                for item in data
+            ]
         if isinstance(data, dict):
             nested = data.get("records") or data.get("documents") or data.get("items")
             if isinstance(nested, list):
-                return [item if isinstance(item, dict) else {"content": str(item)} for item in nested]
+                return [
+                    item if isinstance(item, dict) else {"content": str(item)}
+                    for item in nested
+                ]
             return [{"id": key, "content": value} for key, value in data.items()]
         return []
 
@@ -156,7 +191,9 @@ class KA079DataRetrieval(KnowledgeAlgorithm):
 
     @staticmethod
     def _tokens(text: str) -> set[str]:
-        return {token for token in re.findall(r"[a-z0-9]+", text.lower()) if len(token) > 1}
+        return {
+            token for token in re.findall(r"[a-z0-9]+", text.lower()) if len(token) > 1
+        }
 
     @staticmethod
     def _safe_int(value: Any, default: int) -> int:
