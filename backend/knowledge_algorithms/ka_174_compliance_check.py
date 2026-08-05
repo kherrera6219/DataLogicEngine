@@ -93,6 +93,7 @@ class KA174ComplianceCheck(KnowledgeAlgorithm):
                 row["status"] in {"pass", "not_applicable"} for row in assessments
             ),
             "certification_claimed": False,
+            "compliance_state_updated": False,
             "deterministic": True,
             "limitations": (
                 "This is an evidence-presence check, not legal interpretation, "

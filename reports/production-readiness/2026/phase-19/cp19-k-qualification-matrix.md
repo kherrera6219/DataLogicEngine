@@ -1,14 +1,14 @@
 # CP19-K per-KA qualification matrix
 
-**Matrix version:** `2026.08.04-cp19k.10`
+**Matrix version:** `2026.08.05-cp19k.11`
 **Status:** `cp19_k_in_progress`
 **Release decision:** NO-GO; rebuild not authorized
 
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 129 rows are fully
-qualified and 84 remain open. A row closes
+canonical capabilities. 137 rows are fully
+qualified and 76 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -46,6 +46,8 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-24-knowledge-lifecycle-analytics` | 2026-08-05 | 4 | Supplied-event analytics, lifecycle transition planning, policy-version diffs, and human-review escalation through the knowledge lifecycle owner without telemetry collection, mutation, or review dispatch |
 | `cp19-k-batch-25-l10-oversight-release` | 2026-08-05 | 5 | Bounded loopback, measured emergence candidates, human override normalization, introspection, and token entropy through the TruthCore L10 owner without autonomous loops, training, governance, or release effects |
 | `cp19-k-batch-26-truthgate-system-integrity` | 2026-08-05 | 5 | Observational disparity, declared component integrity, truth-floor arbitration, escalation, and cross-domain coupling decisions through TruthGate with exact policy dependencies and no containment or block effects |
+| `cp19-k-batch-27-knowledge-release-long-horizon` | 2026-08-05 | 2 | Dependency-gated release staging and recurring long-horizon goal-drift evidence through KnowledgeLifecycleService without direct release activation or containment |
+| `cp19-k-batch-28-truthgate-regulatory-compliance` | 2026-08-05 | 6 | Explicit regulatory, ethical, regression, fairness, compliance, and governance evidence evaluated through TruthGate without query inference, legal conclusions, causal claims, or compliance-state mutation |
 
 ## Gate decision
 

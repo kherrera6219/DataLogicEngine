@@ -2709,3 +2709,97 @@ def test_ka_1110_semantic_contract():
     _assert_pure_bounded_result("KA-1110", result)
     assert result.output["blocks_applied"] == 0
     assert result.output["dependencies_consumed"] == ["KA-005", "KA-1107"]
+
+
+def _batch_27_payload(canonical_id: str):
+    from tests.integration.phase19.test_truthmemory_truthlink_frost import (
+        _batch_27_inputs,
+    )
+
+    payload = dict(_batch_27_inputs()[canonical_id])
+    dependencies = {
+        "KA-1096": {"KA-1079": {"decision": "approve"}},
+        "KA-1111": {"KA-1112": {"audit_passed": True}},
+    }
+    payload["dependency_results"] = dependencies[canonical_id]
+    return payload
+
+
+def test_ka_1096_semantic_contract():
+    result = _execute("KA-1096", _batch_27_payload("KA-1096"))
+    _assert_bounded_result("KA-1096", result)
+    assert result.output["release_plans"][0]["decision"] == "stage"
+    assert result.output["releases_activated"] == 0
+    assert result.output["dependencies_consumed"] == ["KA-1079"]
+
+
+def test_ka_1111_semantic_contract():
+    result = _execute("KA-1111", _batch_27_payload("KA-1111"))
+    _assert_pure_bounded_result("KA-1111", result)
+    assert result.output["drift_detected"] is True
+    assert result.output["constraints_applied"] == 0
+    assert result.output["dependencies_consumed"] == ["KA-1112"]
+
+
+def _batch_28_payload(canonical_id: str):
+    from tests.integration.phase19.test_truthgate import _batch_28_inputs
+
+    payload = dict(_batch_28_inputs()[canonical_id])
+    dependencies = {
+        "KA-016": {
+            "KA-017": {"matches": [{"jurisdiction_id": "US-CA"}]},
+            "KA-018": {"status": "provenance_measured"},
+        },
+        "KA-1090": {
+            "KA-016": {"status": "regulatory_frameworks_mapped"},
+            "KA-1089": {"status": "policy_evolution_tracked"},
+        },
+    }
+    if canonical_id in dependencies:
+        payload["dependency_results"] = dependencies[canonical_id]
+    return payload
+
+
+def test_ka_016_semantic_contract():
+    result = _execute("KA-016", _batch_28_payload("KA-016"))
+    _assert_pure_bounded_result("KA-016", result)
+    assert result.output["status"] == "regulatory_frameworks_mapped"
+    assert result.output["query_content_inspected"] is False
+    assert result.output["legal_applicability_established"] is False
+
+
+def test_ka_027_semantic_contract():
+    result = _execute("KA-027", _batch_28_payload("KA-027"))
+    _assert_pure_bounded_result("KA-027", result)
+    assert result.output["status"] == "CRITICAL_FAILURE"
+    assert result.output["ethical_acceptability_established"] is False
+    assert result.output["actions_applied"] == 0
+
+
+def test_ka_1090_semantic_contract():
+    result = _execute("KA-1090", _batch_28_payload("KA-1090"))
+    _assert_pure_bounded_result("KA-1090", result)
+    assert result.output["candidate_accepted"] is True
+    assert result.output["dependencies_consumed"] == ["KA-016", "KA-1089"]
+    assert result.output["compliance_state_updated"] is False
+
+
+def test_ka_169_semantic_contract():
+    result = _execute("KA-169", _batch_28_payload("KA-169"))
+    _assert_pure_bounded_result("KA-169", result)
+    assert result.output["causal_discrimination_established"] is False
+    assert result.output["policy_actions_applied"] == 0
+
+
+def test_ka_174_semantic_contract():
+    result = _execute("KA-174", _batch_28_payload("KA-174"))
+    _assert_pure_bounded_result("KA-174", result)
+    assert result.output["certification_claimed"] is False
+    assert result.output["compliance_state_updated"] is False
+
+
+def test_ka_176_semantic_contract():
+    result = _execute("KA-176", _batch_28_payload("KA-176"))
+    _assert_pure_bounded_result("KA-176", result)
+    assert result.output["approvals_recorded"] == 0
+    assert result.output["governance_state_updated"] is False

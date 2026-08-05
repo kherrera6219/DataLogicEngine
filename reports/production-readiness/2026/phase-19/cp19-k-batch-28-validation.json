@@ -1,0 +1,23 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+  "validated_on": "2026-08-05",
+  "qualified_ids": ["KA-016", "KA-027", "KA-1090", "KA-169", "KA-174", "KA-176"],
+  "grouped_roadmap": {"baseline_open_capabilities": 186, "planned_batches": 36, "completed_batches": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28], "next_batch": 29, "remaining_batches": 15},
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 137, "incomplete_capabilities": 76, "production_enabled_capabilities": 174, "dependency_edges": 128, "dependency_cycles": 0, "rebuild_authorized": false},
+  "checks": [
+    {"name": "batches_27_28_named_semantics_and_owner_paths", "status": "pass", "result": "193 passed"},
+    {"name": "truthgate_regulatory_compliance_owner_boundary", "status": "pass", "result": "explicit governed evidence, exact dependencies, no query keyword inference, no legal or causal overclaim, and zero compliance or governance mutation"},
+    {"name": "knowledge_algorithm_suite", "status": "pass", "result": "912 passed, 3 known deprecation warnings"},
+    {"name": "governed_truthcore_phase19_simulation_integration", "status": "pass", "result": "377 passed"},
+    {"name": "typescript_sdk", "status": "pass", "result": "7 passed"},
+    {"name": "full_source_suite", "status": "pass", "result": "2910 passed, 18 skipped, 35 known warnings"}
+  ],
+  "limitations": [
+    "Regulatory mapping is limited to explicitly requested entries in a governed local catalog and establishes no legal applicability.",
+    "Ethical and fairness outputs are bounded evidence decisions; they establish neither ethical acceptability nor causal discrimination.",
+    "CP19-K remains incomplete and no installed, external, signing, rebuild, or release gate is closed."
+  ]
+}

@@ -477,6 +477,199 @@ def test_ka_1110_owning_path():
     assert output["blocks_applied"] == 0
 
 
+def _batch_28_inputs():
+    return {
+        "KA-017": {
+            "location": "California",
+            "entity_scope": "software",
+            "candidates": [
+                {
+                    "jurisdiction_id": "US-CA",
+                    "location_aliases": ["California"],
+                    "entity_scopes": ["software"],
+                    "regulation_refs": ["CCPA"],
+                }
+            ],
+        },
+        "KA-018": {
+            "source_id": "policy-source",
+            "source_type": "local_policy",
+            "content_sha256": "a" * 64,
+            "provenance_checks": [
+                {
+                    "check_id": "signature",
+                    "status": "passed",
+                    "authority_ref": "policy-owner",
+                }
+            ],
+        },
+        "KA-016": {
+            "query": "Assess declared privacy controls.",
+            "frameworks": ["GDPR"],
+        },
+        "KA-027": {
+            "recommendation": "Proceed only after owner review.",
+            "risk_factors": [
+                {
+                    "factor_id": "harm-1",
+                    "category": "harm",
+                    "severity": 0.8,
+                    "evidence_refs": ["trace-1"],
+                }
+            ],
+        },
+        "KA-1089": {
+            "policy_id": "privacy-policy",
+            "versions": [
+                {
+                    "version_id": "v1",
+                    "effective_on": "2026-01-01",
+                    "source_ref": "policy-v1",
+                    "requirements": [{"requirement_id": "r1", "text": "Log access."}],
+                },
+                {
+                    "version_id": "v2",
+                    "effective_on": "2026-07-01",
+                    "source_ref": "policy-v2",
+                    "requirements": [
+                        {"requirement_id": "r1", "text": "Log protected access."}
+                    ],
+                },
+            ],
+        },
+        "KA-1090": {
+            "baseline": [
+                {
+                    "control_id": "AC-1",
+                    "status": "pass",
+                    "evidence_refs": ["baseline"],
+                }
+            ],
+            "candidate": [
+                {
+                    "control_id": "AC-1",
+                    "status": "pass",
+                    "evidence_refs": ["candidate"],
+                }
+            ],
+        },
+        "KA-169": {
+            "groups": [
+                {
+                    "group_id": "a",
+                    "sample_count": 100,
+                    "positive_outcome_count": 50,
+                    "qualified_count": 50,
+                    "qualified_positive_count": 40,
+                },
+                {
+                    "group_id": "b",
+                    "sample_count": 100,
+                    "positive_outcome_count": 30,
+                    "qualified_count": 50,
+                    "qualified_positive_count": 25,
+                },
+            ],
+            "maximum_allowed_disparity": 0.1,
+        },
+        "KA-174": {
+            "controls": [
+                {
+                    "control_id": "AC-1",
+                    "applicability": "applicable",
+                    "implementation_status": "implemented",
+                    "required_evidence_types": ["test"],
+                    "evidence": {"test": ["test-report"]},
+                }
+            ]
+        },
+        "KA-176": {
+            "decisions": [
+                {
+                    "decision_id": "decision-1",
+                    "risk_class": "high",
+                    "policy_refs": ["policy-1"],
+                    "evidence_refs": ["trace-1"],
+                    "approval_roles": ["owner", "security"],
+                    "owner_recorded": True,
+                }
+            ],
+            "required_approval_roles": {"high": ["owner", "security"]},
+        },
+    }
+
+
+def _run_batch_28_owner(canonical_id: str):
+    operation = "entry" if canonical_id in {"KA-174", "KA-176"} else "layer_8"
+    execution = KnowledgeLifecycleCoordinator().execute_operation_sync(
+        owner="truthgate",
+        operation=operation,
+        requested_ids=[canonical_id],
+        ka_inputs=_batch_28_inputs(),
+        request_id=f"batch-28-{canonical_id}",
+        run_id=f"batch-28-run-{canonical_id}",
+        max_effects=4,
+        principal_id="truthgate-compliance-owner",
+        service_capabilities={"policy_decision_service"},
+    )
+    states = [
+        event.state.value
+        for event in execution.report.traces[canonical_id].events
+        if event.state.value not in {"dependency", "effect_proposed"}
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return execution.results[canonical_id]["output"]
+
+
+def test_ka_016_owning_path():
+    output = _run_batch_28_owner("KA-016")
+    assert output["status"] == "regulatory_frameworks_mapped"
+    assert output["dependencies_consumed"] == ["KA-017", "KA-018"]
+    assert output["legal_applicability_established"] is False
+
+
+def test_ka_027_owning_path():
+    output = _run_batch_28_owner("KA-027")
+    assert output["status"] == "CRITICAL_FAILURE"
+    assert output["ethical_acceptability_established"] is False
+    assert output["actions_applied"] == 0
+
+
+def test_ka_1090_owning_path():
+    output = _run_batch_28_owner("KA-1090")
+    assert output["candidate_accepted"] is True
+    assert output["dependencies_consumed"] == ["KA-016", "KA-1089"]
+    assert output["compliance_state_updated"] is False
+
+
+def test_ka_169_owning_path():
+    output = _run_batch_28_owner("KA-169")
+    assert output["audit_passed"] is False
+    assert output["causal_discrimination_established"] is False
+    assert output["policy_actions_applied"] == 0
+
+
+def test_ka_174_owning_path():
+    output = _run_batch_28_owner("KA-174")
+    assert output["all_applicable_controls_pass"] is True
+    assert output["certification_claimed"] is False
+    assert output["compliance_state_updated"] is False
+
+
+def test_ka_176_owning_path():
+    output = _run_batch_28_owner("KA-176")
+    assert output["assessments"][0]["valid"] is True
+    assert output["approvals_recorded"] == 0
+    assert output["governance_state_updated"] is False
+
+
 @pytest.mark.asyncio
 async def test_cp19h_entry_policy_ka_block_prevents_routing_and_provider():
     gateway = _Gateway()

@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.05-cp19k.8",
+  "manifest_version": "2026.08.05-cp19k.9",
   "status": "cp19_k_in_progress",
   "batches": [
     {
@@ -248,6 +248,18 @@
       "completed_on": "2026-08-05",
       "canonical_ids": ["KA-1045", "KA-1099", "KA-1104", "KA-1108", "KA-1110"],
       "scope": "Observational disparity, declared component integrity, truth-floor arbitration, escalation, and cross-domain coupling decisions through TruthGate with exact policy dependencies and no containment or block effects"
+    },
+    {
+      "batch_id": "cp19-k-batch-27-knowledge-release-long-horizon",
+      "completed_on": "2026-08-05",
+      "canonical_ids": ["KA-1096", "KA-1111"],
+      "scope": "Dependency-gated release staging and recurring long-horizon goal-drift evidence through KnowledgeLifecycleService without direct release activation or containment"
+    },
+    {
+      "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+      "completed_on": "2026-08-05",
+      "canonical_ids": ["KA-016", "KA-027", "KA-1090", "KA-169", "KA-174", "KA-176"],
+      "scope": "Explicit regulatory, ethical, regression, fairness, compliance, and governance evidence evaluated through TruthGate without query inference, legal conclusions, causal claims, or compliance-state mutation"
     }
   ],
   "qualifications": {
@@ -1960,6 +1972,86 @@
       "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_1110_owning_path", "rationale": "Coupling risk consumes exact query-class and reasoning-boundary decisions and fails closed on a denied boundary."},
       "effect_evidence": {"applicability": "not_applicable", "rationale": "The KA applies no network isolation or policy block."},
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1110_semantic_contract"
+    },
+    "KA-1096": {
+      "batch_id": "cp19-k-batch-27-knowledge-release-long-horizon",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1096_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1096_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1096_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1096_owning_path", "rationale": "Release staging consumes the exact KA-1079 promotion decision and rejects an unapproved dependency result."},
+      "effect_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1096_owning_path", "rationale": "KnowledgeLifecycleService owns release execution while KA-1096 returns a stage plan with zero releases activated."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1096_semantic_contract"
+    },
+    "KA-1111": {
+      "batch_id": "cp19-k-batch-27-knowledge-release-long-horizon",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1111_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1111_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1111_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1111_semantic_contract", "rationale": "Drift requires recurring explicit goal traces and consumes the exact KA-1112 introspection result."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The drift finding is advisory, applies zero constraints, and does not establish intent or containment authority."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1111_semantic_contract"
+    },
+    "KA-016": {
+      "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_016_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_016_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_016_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_016_semantic_contract", "rationale": "Mapping uses only explicitly requested catalog identifiers, never scans query content, and consumes exact jurisdiction and provenance dependencies."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The result is a governed local-catalog mapping and explicitly establishes no legal applicability."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_016_semantic_contract"
+    },
+    "KA-027": {
+      "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_027_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_027_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_027_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_027_semantic_contract", "rationale": "Ethical impact uses bounded declared risk factors and optional measured bias evidence rather than recommendation keyword scoring."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The evaluation grants no ethical approval and applies zero policy actions."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_027_semantic_contract"
+    },
+    "KA-1090": {
+      "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1090_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_1090_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_1090_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_1090_owning_path", "rationale": "Regression acceptance fails closed unless exact regulatory mapping and policy-evolution dependencies are ready."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The validator reports candidate acceptance but updates no compliance state."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1090_semantic_contract"
+    },
+    "KA-169": {
+      "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_169_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_169_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_169_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_169_semantic_contract", "rationale": "Fairness evidence is limited to supplied group outcomes and minimum sample thresholds."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Observed disparity is explicitly non-causal and applies zero policy actions."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_169_semantic_contract"
+    },
+    "KA-174": {
+      "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_174_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_174_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_174_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_174_owning_path", "rationale": "TruthGate evaluates explicitly supplied controls and evidence references without external compliance lookup."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The check records an allow or block decision and updates no compliance state."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_174_semantic_contract"
+    },
+    "KA-176": {
+      "batch_id": "cp19-k-batch-28-truthgate-regulatory-compliance",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_176_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_176_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_176_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_176_owning_path", "rationale": "Governance validation is bounded to explicit decision classification, evidence, and accountable role assignments."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "TruthGate returns a validation decision and updates no governance state."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_176_semantic_contract"
     }
   }
 }

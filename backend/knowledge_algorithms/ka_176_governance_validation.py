@@ -87,6 +87,7 @@ class KA176GovernanceValidation(KnowledgeAlgorithm):
             "status": "governance_validated",
             "assessments": assessments,
             "approvals_recorded": 0,
+            "governance_state_updated": False,
             "deterministic": True,
             "limitations": (
                 "The KA validates supplied governance records and does not "

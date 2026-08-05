@@ -143,6 +143,14 @@ QUALIFIED_BATCHES = {
     "KA-1110",
     "KA-1112",
     "KA-116",
+    "KA-016",
+    "KA-027",
+    "KA-1090",
+    "KA-1096",
+    "KA-1111",
+    "KA-169",
+    "KA-174",
+    "KA-176",
 }
 
 
@@ -152,9 +160,9 @@ def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     assert matrix["status"] == "cp19_k_in_progress"
     assert matrix["invariants"] == {
         "canonical_capabilities": 213,
-        "qualified_capabilities": 129,
-        "incomplete_capabilities": 84,
-        "reviewed_capabilities": 129,
+        "qualified_capabilities": 137,
+        "incomplete_capabilities": 76,
+        "reviewed_capabilities": 137,
         "runtime_registries_added": 0,
         "findings_waived": False,
         "rebuild_authorized": False,
@@ -194,14 +202,14 @@ def test_cp19k_completed_batches_have_every_required_evidence_class():
         assert row["performance_budget_ms"] > 0
 
 
-def test_cp19k_does_not_overstate_next_unreviewed_ka_1096():
+def test_cp19k_does_not_overstate_next_unreviewed_ka_057():
     row = next(
         row
         for row in build_matrix()["canonical_capabilities"]
-        if row["canonical_id"] == "KA-1096"
+        if row["canonical_id"] == "KA-057"
     )
 
-    assert row["production_enabled"] is True
+    assert row["production_enabled"] is False
     assert row["qualification_status"] == "incomplete"
     assert {
         "semantic_test",
@@ -219,7 +227,7 @@ def test_cp19k_integrity_verifier_passes_without_closing_checkpoint():
 
     assert evidence["integrity_status"] == "pass"
     assert evidence["checkpoint_status"] == "in_progress"
-    assert evidence["qualified_capabilities"] == 129
-    assert evidence["incomplete_capabilities"] == 84
+    assert evidence["qualified_capabilities"] == 137
+    assert evidence["incomplete_capabilities"] == 76
     assert evidence["rebuild_authorized"] is False
     assert evidence["errors"] == []

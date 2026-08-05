@@ -47,12 +47,15 @@ class KA1111Input(BaseModel):
 
     traces: list[GoalTrace] = Field(min_length=2, max_length=100_000)
     minimum_persistent_runs: int = Field(default=2, ge=2, le=100_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_runs(self) -> KA1111Input:
         identifiers = [item.run_id for item in self.traces]
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("run IDs must be unique")
+        if self.dependency_results and set(self.dependency_results) != {"KA-1112"}:
+            raise ValueError("dependency_results must contain KA-1112")
         return self
 
 
@@ -66,6 +69,9 @@ class KA1111LongHorizonGoalDriftMonitor(KnowledgeAlgorithm):
         self.ka_id = "KA-1111"
 
     def _run_logic(self, input_data: KA1111Input) -> dict[str, Any]:
+        introspection_passed = input_data.dependency_results.get(
+            "KA-1112", {}
+        ).get("audit_passed", True) is True
         occurrences: dict[str, list[str]] = defaultdict(list)
         for trace in sorted(input_data.traces, key=lambda row: row.sequence):
             undeclared = set(trace.observed_goal_ids) - set(trace.declared_goal_ids)
@@ -87,6 +93,9 @@ class KA1111LongHorizonGoalDriftMonitor(KnowledgeAlgorithm):
             "drift_detected": bool(alerts),
             "alerts": alerts,
             "constraints_applied": 0,
+            "introspection_passed": introspection_passed,
+            "owner_review_required": bool(alerts) or not introspection_passed,
+            "dependencies_consumed": sorted(input_data.dependency_results),
             "deterministic": True,
             "limitations": (
                 "Detection depends on stable caller-supplied goal identifiers and "

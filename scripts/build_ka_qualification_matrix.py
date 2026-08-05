@@ -310,7 +310,7 @@ def build_matrix() -> dict[str, Any]:
     qualified = status_counts["qualified"]
     return {
         "schema_version": "dle.cp19-k-qualification-matrix.v1",
-        "matrix_version": "2026.08.04-cp19k.10",
+        "matrix_version": "2026.08.05-cp19k.11",
         "status": (
             "cp19_k_complete" if qualified == len(rows) else "cp19_k_in_progress"
         ),

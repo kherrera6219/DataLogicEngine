@@ -694,3 +694,108 @@ def test_ka_1095_owning_path():
     output = _run_batch_24_owner("KA-1095")
     assert output["decisions"][0]["escalation_required"] is True
     assert output["reviews_dispatched"] == 0
+
+
+def _batch_27_inputs():
+    inputs = _batch_17_inputs()
+    inputs.update(
+        {
+            "KA-1096": {
+                "candidates": [
+                    {
+                        "release_id": "release-knowledge-1",
+                        "knowledge_version_ids": ["knowledge-1:v2"],
+                        "validation_status": "passed",
+                        "required_approvals": 1,
+                        "recorded_approvals": 1,
+                        "dependencies_ready": True,
+                        "rollback_plan_ref": "rollback-knowledge-1",
+                        "rollout_percent": 10,
+                    }
+                ]
+            },
+            "KA-1079": {
+                "knowledge_id": "knowledge-1",
+                "validation_status": "validated",
+                "confidence": 0.95,
+                "evidence_count": 3,
+                "citation_count": 2,
+                "contradiction_count": 0,
+                "provenance_complete": True,
+                "risk_class": "medium",
+            },
+            "KA-1111": {
+                "traces": [
+                    {
+                        "run_id": "run-1",
+                        "sequence": 1,
+                        "declared_goal_ids": ["owner-goal"],
+                        "observed_goal_ids": ["owner-goal", "latent-goal"],
+                    },
+                    {
+                        "run_id": "run-2",
+                        "sequence": 2,
+                        "declared_goal_ids": ["owner-goal"],
+                        "observed_goal_ids": ["owner-goal", "latent-goal"],
+                    },
+                ]
+            },
+            "KA-1112": {
+                "windows": [
+                    {
+                        "window_id": "window-1",
+                        "chaos_plan_count": 0,
+                        "unapproved_chaos_count": 0,
+                        "human_override_count": 0,
+                        "override_without_reason_count": 0,
+                        "drift_alert_count": 0,
+                        "unresolved_drift_count": 0,
+                    }
+                ]
+            },
+        }
+    )
+    return inputs
+
+
+def _run_batch_27_owner(canonical_id: str):
+    operation = "release" if canonical_id == "KA-1096" else "maintenance"
+    execution = KnowledgeLifecycleCoordinator().execute_operation_sync(
+        owner="truthmemory_truthlink_frost",
+        operation=operation,
+        requested_ids=[canonical_id],
+        ka_inputs=_batch_27_inputs(),
+        request_id=f"batch-27-{canonical_id}",
+        run_id=f"batch-27-run-{canonical_id}",
+        max_effects=4,
+        principal_id="knowledge-release-owner",
+        service_capabilities={"knowledge_lifecycle_service"},
+    )
+    states = [
+        event.state.value
+        for event in execution.report.traces[canonical_id].events
+        if event.state.value not in {"dependency", "effect_proposed"}
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return execution.results[canonical_id]["output"]
+
+
+def test_ka_1096_owning_path():
+    output = _run_batch_27_owner("KA-1096")
+    assert output["release_plans"][0]["decision"] == "stage"
+    assert output["releases_activated"] == 0
+    assert output["dependencies_consumed"] == ["KA-1079"]
+
+
+def test_ka_1111_owning_path():
+    output = _run_batch_27_owner("KA-1111")
+    assert output["drift_detected"] is True
+    assert output["constraints_applied"] == 0
+    assert output["dependencies_consumed"] == ["KA-1112"]

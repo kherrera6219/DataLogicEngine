@@ -111,6 +111,8 @@ class KA169FairnessAudit(KnowledgeAlgorithm):
                 else None
             ),
             "audit_passed": passed,
+            "causal_discrimination_established": False,
+            "policy_actions_applied": 0,
             "deterministic": True,
             "limitations": (
                 "Metrics depend on caller-defined groups and qualification labels "

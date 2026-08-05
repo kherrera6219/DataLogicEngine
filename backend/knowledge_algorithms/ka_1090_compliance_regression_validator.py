@@ -44,6 +44,7 @@ class KA1090Input(BaseModel):
 
     baseline: list[ControlResult] = Field(min_length=1, max_length=20_000)
     candidate: list[ControlResult] = Field(min_length=1, max_length=20_000)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_ids(self) -> KA1090Input:
@@ -51,6 +52,11 @@ class KA1090Input(BaseModel):
             identifiers = [item.control_id for item in collection]
             if len(identifiers) != len(set(identifiers)):
                 raise ValueError("control IDs must be unique within each result set")
+        if self.dependency_results and set(self.dependency_results) != {
+            "KA-016",
+            "KA-1089",
+        }:
+            raise ValueError("dependency_results must contain KA-016 and KA-1089")
         return self
 
 
@@ -64,6 +70,12 @@ class KA1090ComplianceRegressionValidator(KnowledgeAlgorithm):
         self.ka_id = "KA-1090"
 
     def _run_logic(self, input_data: KA1090Input) -> dict[str, Any]:
+        regulatory = input_data.dependency_results.get("KA-016", {})
+        policy = input_data.dependency_results.get("KA-1089", {})
+        policy_context_ready = not input_data.dependency_results or (
+            regulatory.get("status") == "regulatory_frameworks_mapped"
+            and policy.get("status") == "policy_evolution_tracked"
+        )
         baseline = {item.control_id: item for item in input_data.baseline}
         candidate = {item.control_id: item for item in input_data.candidate}
         regressions = []
@@ -93,7 +105,10 @@ class KA1090ComplianceRegressionValidator(KnowledgeAlgorithm):
             "regression_detected": bool(regressions),
             "regressions": regressions,
             "new_control_ids": sorted(candidate.keys() - baseline.keys()),
-            "candidate_accepted": not regressions,
+            "candidate_accepted": not regressions and policy_context_ready,
+            "policy_context_ready": policy_context_ready,
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "compliance_state_updated": False,
             "deterministic": True,
             "limitations": (
                 "This validates declared control-result regression only; it is "

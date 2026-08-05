@@ -2,13 +2,13 @@
 
 **Status:** Active
 
-**Plan version:** `2026.08.05-cp19k-grouped.9`
+**Plan version:** `2026.08.05-cp19k-grouped.10`
 
 **Baseline:** 27/213 qualified; 186 open
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batches 08-26 passed; 129/213 qualified, 84 open; Batch 27 next
+**Current checkpoint:** Batches 08-28 passed; 137/213 qualified, 76 open; Batch 29 next
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 
@@ -117,4 +117,4 @@ The machine-readable authority is
 `config/phase19-ka-grouped-batches.json`. Its integrity test proves exact
 186-row baseline coverage, one owner per batch, bounded batch size, unique
 membership, dependency-safe order, and exact reconciliation of completed
-batches with the current 84-row open matrix.
+batches with the current 76-row open matrix.

@@ -113,26 +113,25 @@ async def test_refinement_orchestrator_recovery(orchestrator, mock_ka_controller
     assert len(result["refinement_history"]) == 11
 
 def test_ka_016_regulatory_mapping():
-    """Verify KA-016 identifies regulations from query content."""
+    """Verify KA-016 maps only an explicitly requested governed framework."""
     context = {"tenant_id": "test"}
     ka = KA016RegulatoryMapping(context)
     
-    # Mock config
-    ka.config = {
-        "compliance_frameworks": {
-            "GDPR": {"obligations": ["PII Protection"], "risk_score": 0.8},
-            "HIPAA": {"obligations": ["Health Data Privacy"], "risk_score": 0.9}
-        },
-        "default_framework": "INTERNAL"
+    ka.catalog = {
+        "GDPR": {"obligations": ["PII Protection"], "risk_score": 0.8},
+        "HIPAA": {"obligations": ["Health Data Privacy"], "risk_score": 0.9},
     }
-    
-    # Test case: GDPR in query
-    input_data = KA016Input(query="Tell me about GDPR requirements", frameworks=[])
+
+    input_data = KA016Input(
+        query="Tell me about requirements",
+        frameworks=["GDPR"],
+    )
     result = ka._run_logic(input_data)
-    
+
     assert result["success"] is True
     assert any(m["framework"] == "GDPR" for m in result["mappings"])
     assert result["highest_risk"] == 0.8
+    assert result["query_content_inspected"] is False
 
 def test_ka_075_schema_mapping():
     """Verify KA-075 aligns source data to canonical schema."""
