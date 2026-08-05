@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.04-cp19k.7",
+  "manifest_version": "2026.08.05-cp19k.8",
   "status": "cp19_k_in_progress",
   "batches": [
     {
@@ -230,6 +230,24 @@
       "completed_on": "2026-08-04",
       "canonical_ids": ["KA-051", "KA-053", "KA-054", "KA-055", "KA-063"],
       "scope": "Content-free distillation, compression, cross-lingual alignment, multimodal review, and tuning proposals rejected from application by the release-gated KnowledgeLifecycleService with idempotent receipts"
+    },
+    {
+      "batch_id": "cp19-k-batch-24-knowledge-lifecycle-analytics",
+      "completed_on": "2026-08-05",
+      "canonical_ids": ["KA-1086", "KA-1088", "KA-1089", "KA-1095"],
+      "scope": "Supplied-event analytics, lifecycle transition planning, policy-version diffs, and human-review escalation through the knowledge lifecycle owner without telemetry collection, mutation, or review dispatch"
+    },
+    {
+      "batch_id": "cp19-k-batch-25-l10-oversight-release",
+      "completed_on": "2026-08-05",
+      "canonical_ids": ["KA-020", "KA-021", "KA-1106", "KA-1112", "KA-116"],
+      "scope": "Bounded loopback, measured emergence candidates, human override normalization, introspection, and token entropy through the TruthCore L10 owner without autonomous loops, training, governance, or release effects"
+    },
+    {
+      "batch_id": "cp19-k-batch-26-truthgate-system-integrity",
+      "completed_on": "2026-08-05",
+      "canonical_ids": ["KA-1045", "KA-1099", "KA-1104", "KA-1108", "KA-1110"],
+      "scope": "Observational disparity, declared component integrity, truth-floor arbitration, escalation, and cross-domain coupling decisions through TruthGate with exact policy dependencies and no containment or block effects"
     }
   ],
   "qualifications": {
@@ -1802,6 +1820,146 @@
       "security_evidence": {"applicability": "not_applicable", "rationale": "Tuning proposals consume caller-supplied aggregate metrics and feedback counts only."},
       "effect_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_063_owning_path", "rationale": "KnowledgeLifecycleService rejects any profile or model update without release authority."},
       "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_063_semantic_contract"
+    },
+    "KA-1086": {
+      "batch_id": "cp19-k-batch-24-knowledge-lifecycle-analytics",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1086_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1086_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1086_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1086_semantic_contract", "rationale": "The capability aggregates only supplied event identifiers and collects no telemetry."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Usage analytics is read-only and applies no knowledge lifecycle effect."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1086_semantic_contract"
+    },
+    "KA-1088": {
+      "batch_id": "cp19-k-batch-24-knowledge-lifecycle-analytics",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1088_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1088_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1088_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1088_owning_path", "rationale": "Transitions are bounded to explicit lifecycle state and authorization-relevant record fields."},
+      "effect_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1088_owning_path", "rationale": "The lifecycle owner consumes the proposal while the KA applies zero transitions."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1088_semantic_contract"
+    },
+    "KA-1089": {
+      "batch_id": "cp19-k-batch-24-knowledge-lifecycle-analytics",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1089_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1089_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1089_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1089_semantic_contract", "rationale": "Policy comparison is bounded to caller-supplied versioned requirements and source references."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Policy evolution tracking performs no store update or legal interpretation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1089_semantic_contract"
+    },
+    "KA-1095": {
+      "batch_id": "cp19-k-batch-24-knowledge-lifecycle-analytics",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1095_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1095_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1095_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1095_owning_path", "rationale": "Escalation uses explicit risk and reversibility signals and grants no approval."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The result proposes a review level and dispatches no reviewer or action."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1095_semantic_contract"
+    },
+    "KA-020": {
+      "batch_id": "cp19-k-batch-25-l10-oversight-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_020_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_020_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_020_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthcore_l10.py::test_ka_020_owning_path", "rationale": "Loopback consumes exact confidence and entropy dependencies and enforces an explicit pass budget."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "KA-020 proposes a loopback and never schedules or applies a reasoning pass."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_020_semantic_contract"
+    },
+    "KA-021": {
+      "batch_id": "cp19-k-batch-25-l10-oversight-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_021_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_021_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_021_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_021_semantic_contract", "rationale": "Emergence candidates require measured baseline deviation and trace corroboration instead of keyword scans."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The KA establishes no causal emergence and applies no owner action."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_021_semantic_contract"
+    },
+    "KA-1106": {
+      "batch_id": "cp19-k-batch-25-l10-oversight-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1106_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_1106_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_1106_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthcore_l10.py::test_ka_1106_owning_path", "rationale": "Override records retain explicit reviewer role, rationale, evidence references, and a stable digest."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "No override record is persisted and no training update is applied."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1106_semantic_contract"
+    },
+    "KA-1112": {
+      "batch_id": "cp19-k-batch-25-l10-oversight-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1112_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_1112_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_1112_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1112_semantic_contract", "rationale": "The introspection result is limited to supplied governance counters and declares no process or log inspection."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Audit findings are proposals and apply zero governance actions."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1112_semantic_contract"
+    },
+    "KA-116": {
+      "batch_id": "cp19-k-batch-25-l10-oversight-release",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_116_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_116_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_116_owning_path",
+      "security_evidence": {"applicability": "not_applicable", "rationale": "Entropy is a bounded local token-distribution measurement with no provider or store access."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The measurement does not establish system decay and cannot trigger reconciliation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_116_semantic_contract"
+    },
+    "KA-1045": {
+      "batch_id": "cp19-k-batch-26-truthgate-system-integrity",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1045_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_1045_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_1045_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1045_semantic_contract", "rationale": "Disparity requires minimum group sizes and remains explicitly observational and non-causal."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Population analysis returns measured flags and applies no policy decision."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1045_semantic_contract"
+    },
+    "KA-1099": {
+      "batch_id": "cp19-k-batch-26-truthgate-system-integrity",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1099_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_1099_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_1099_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_1099_owning_path", "rationale": "System integrity is bounded to explicit component state, hashes, and declared dependencies."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The KA performs no live scan, remediation, or knowledge-record mutation."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1099_semantic_contract"
+    },
+    "KA-1104": {
+      "batch_id": "cp19-k-batch-26-truthgate-system-integrity",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1104_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_1104_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_1104_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_1104_owning_path", "rationale": "Arbitration consumes exact impact and trust gates and never relaxes the truth floor."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The selected option remains unapplied and TruthGate retains policy authority."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1104_semantic_contract"
+    },
+    "KA-1108": {
+      "batch_id": "cp19-k-batch-26-truthgate-system-integrity",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1108_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_1108_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_1108_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_1108_owning_path", "rationale": "Escalation consumes the exact self-introspection audit and fails closed when it does not pass."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "Containment remains a proposal and zero containment actions are applied."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1108_semantic_contract"
+    },
+    "KA-1110": {
+      "batch_id": "cp19-k-batch-26-truthgate-system-integrity",
+      "limitation_review": "accepted_manifest_limitation",
+      "semantic_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1110_semantic_contract",
+      "owning_path_test": "tests/integration/phase19/test_truthgate.py::test_ka_1110_owning_path",
+      "trace_test": "tests/integration/phase19/test_truthgate.py::test_ka_1110_owning_path",
+      "security_evidence": {"applicability": "required", "reference": "tests/integration/phase19/test_truthgate.py::test_ka_1110_owning_path", "rationale": "Coupling risk consumes exact query-class and reasoning-boundary decisions and fails closed on a denied boundary."},
+      "effect_evidence": {"applicability": "not_applicable", "rationale": "The KA applies no network isolation or policy block."},
+      "performance_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1110_semantic_contract"
     }
   }
 }

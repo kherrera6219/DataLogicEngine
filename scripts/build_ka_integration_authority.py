@@ -147,7 +147,22 @@ OWNER_DEFINITIONS: dict[str, dict[str, Any]] = {
 # The restored design catalog described KA-1077 as a knowledge-store writer.
 # Its reviewed implementation only scores supplied signals and has no effect
 # port, so the integration authority must match the runtime contract.
-PURE_ADVISORY_OVERRIDES = {"KA-1077"}
+PURE_ADVISORY_OVERRIDES = {
+    "KA-020",
+    "KA-021",
+    "KA-1045",
+    "KA-1077",
+    "KA-1086",
+    "KA-1089",
+    "KA-1095",
+    "KA-1099",
+    "KA-1104",
+    "KA-1106",
+    "KA-1108",
+    "KA-1110",
+    "KA-1112",
+    "KA-116",
+}
 
 
 def _ids(start: int, end: int) -> set[str]:

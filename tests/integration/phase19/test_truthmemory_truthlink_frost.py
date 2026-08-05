@@ -82,7 +82,7 @@ def test_cp19h_validated_memory_commit_has_receipt_and_rolls_back(tmp_path):
     assert len(memory.graph.vertices) == 0
 
 
-def test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids():
+def test_cp19h_registry_preserves_experimental_boundaries_and_declared_shared_ids():
     coordinator = KnowledgeLifecycleCoordinator()
     manifest = coordinator.ka_controller.manifest
     registry_ids = [
@@ -92,7 +92,14 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_no_duplicate_ids()
         for canonical_id in canonical_ids
     ]
 
-    assert len(set(registry_ids)) == 80
+    # Two capabilities intentionally appear under distinct owner operations;
+    # the canonical ID authority remains unique.
+    assert len(set(registry_ids)) == 85
+    assert {
+        canonical_id
+        for canonical_id in registry_ids
+        if registry_ids.count(canonical_id) > 1
+    } == {"KA-053", "KA-1079"}
     assert set(registry_ids) <= set(manifest.entries)
     assert {
         "KA-051",
@@ -570,3 +577,120 @@ def test_ka_063_owning_path():
     assert len(output["suggestions"]) == 2
     assert output["profile_update_applied"] is False
     assert output["model_training_started"] is False
+
+
+def _batch_24_inputs():
+    return {
+        "KA-1086": {
+            "events": [
+                {
+                    "event_id": "use-1",
+                    "knowledge_id": "knowledge-1",
+                    "session_id": "session-1",
+                    "occurred_at": "2026-08-01T00:00:00Z",
+                    "action": "retrieved",
+                    "successful": True,
+                },
+                {
+                    "event_id": "use-2",
+                    "knowledge_id": "knowledge-1",
+                    "session_id": "session-2",
+                    "occurred_at": "2026-08-02T00:00:00Z",
+                    "action": "cited",
+                    "successful": True,
+                },
+            ]
+        },
+        "KA-1088": {
+            "records": [
+                {
+                    "knowledge_id": "knowledge-1",
+                    "current_state": "validated",
+                    "validation_passed": True,
+                    "confidence": 0.95,
+                }
+            ]
+        },
+        "KA-1089": {
+            "policy_id": "retention",
+            "versions": [
+                {
+                    "version_id": "v1",
+                    "effective_on": "2026-01-01",
+                    "source_ref": "policy-v1",
+                    "requirements": [{"requirement_id": "r1", "text": "Retain logs."}],
+                },
+                {
+                    "version_id": "v2",
+                    "effective_on": "2026-07-01",
+                    "source_ref": "policy-v2",
+                    "requirements": [
+                        {"requirement_id": "r1", "text": "Retain protected logs."}
+                    ],
+                },
+            ],
+        },
+        "KA-1095": {
+            "cases": [
+                {
+                    "case_id": "case-1",
+                    "risk_class": "high",
+                    "confidence": 0.5,
+                    "irreversible_effect": True,
+                    "affected_subject_count": 1,
+                }
+            ]
+        },
+    }
+
+
+def _run_batch_24_owner(canonical_id: str):
+    execution = KnowledgeLifecycleCoordinator().execute_operation_sync(
+        owner="truthmemory_truthlink_frost",
+        operation="maintenance",
+        requested_ids=[canonical_id],
+        ka_inputs=_batch_24_inputs(),
+        request_id=f"batch-24-{canonical_id}",
+        run_id=f"batch-24-run-{canonical_id}",
+        max_effects=2,
+        principal_id="owner-1",
+        service_capabilities={"knowledge_lifecycle_service"},
+    )
+    states = [
+        event.state.value
+        for event in execution.report.traces[canonical_id].events
+        if event.state.value not in {"dependency", "effect_proposed"}
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return execution.results[canonical_id]["output"]
+
+
+def test_ka_1086_owning_path():
+    output = _run_batch_24_owner("KA-1086")
+    assert output["analytics"][0]["event_count"] == 2
+    assert output["telemetry_collected"] is False
+
+
+def test_ka_1088_owning_path():
+    output = _run_batch_24_owner("KA-1088")
+    assert output["transition_plans"][0]["proposed_state"] == "active"
+    assert output["transitions_applied"] == 0
+
+
+def test_ka_1089_owning_path():
+    output = _run_batch_24_owner("KA-1089")
+    assert output["changes"][0]["changed_requirement_ids"] == ["r1"]
+    assert output["policy_store_updated"] is False
+
+
+def test_ka_1095_owning_path():
+    output = _run_batch_24_owner("KA-1095")
+    assert output["decisions"][0]["escalation_required"] is True
+    assert output["reviews_dispatched"] == 0

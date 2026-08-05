@@ -240,11 +240,11 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batches 01 through 23 are complete. Batches 19-23 add the five-node
+CP19-K batches 01 through 26 are complete. Batches 19-23 add the five-node
 Quad Persona foundation, L6 evidence/confidence/entropy validation, adaptive
 DMRF routing, retrieval-store maintenance, and knowledge-content evolution
 through their real DSQP, TruthCore, DMRF, retrieval, and TruthMemory owners. The
-generated 213-row matrix and verifier report 115 qualified and 98 incomplete,
+generated 213-row matrix and verifier report 129 qualified and 84 incomplete,
 with rebuild authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
@@ -252,8 +252,8 @@ KA-1081 admission, KA-037 limits provider tokens, KA-042 feeds KA-070, and the
 bounded counterfactual projection changes the provider prompt through the real
 job. SimulationJobRunner alone applies the plan/context/artifact effects and
 binds each to an authoritative receipt. Runtime manifest
-`2026.08.04-cp19k.7` retains 213 capabilities, 170 production-enabled
-capabilities, and 135 dependency edges with zero cycles. `KA-1101` and
+`2026.08.05-cp19k.8` retains 213 capabilities, 174 production-enabled
+capabilities, and 128 dependency edges with zero cycles. `KA-1101` and
 `KA-1103` remain unqualified because no production chaos or rollback action
 consumes their registry operations.
 
@@ -329,7 +329,12 @@ a separate fail-closed boundary, and proves `KA-Master` is canonical controller
 authority rather than a self-selecting capability. Batches 16-18 replace
 synthetic adversarial and graph findings, duplicated trust/integrity booleans,
 and direct quarantine language with bounded supplied observations and exact
-dependency results. Batch 24 is next.
+dependency results. Batches 19-23 complete persona, validation, routing, store,
+and content-evolution work. Batches 24-26 add lifecycle analytics, bounded L10
+oversight, and TruthGate system-integrity review through their real owners.
+KA-020, KA-021, and KA-116 no longer use config-driven or keyword-derived
+claims; loops, emergence, system decay, training, mutation, containment, and
+release remain unapplied. Batch 27 is next.
 
 The earlier 31 dependency alerts remain remediated. Ten newly published GitHub
 alerts reported on 2026-08-04 across `aiohttp`, `undici`, and `ip-address`, plus
@@ -337,7 +342,9 @@ one local `socket.io-parser` and three `cryptography` advisories, are remediated
 by the governed locks. Local Python and Node audits report zero vulnerabilities;
 lock governance passes and the 2026-08-04 live GitHub query reports zero open
 Dependabot alerts.
-The KA suite passes 890 tests; governed execution, TruthCore, Phase 19, and
+The KA suite passes 904 tests; the governed execution, TruthCore, Phase 19,
+and simulation integration set passes 369 tests; the TypeScript SDK passes
+seven tests; governed execution, TruthCore, Phase 19, and
 simulation integration pass 355; frontend type checking and all seven
 TypeScript SDK tests pass; the retained 430 frontend tests and production/
 Electron builds remain green; and the full source suite passes 2,866 tests with
@@ -1017,10 +1024,10 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 115/213 with grouped Batch 24, knowledge-lifecycle
-   analytics (`KA-1086`, `KA-1088`, `KA-1089`, and `KA-1095`), through the real
+1. Continue CP19-K from 129/213 with grouped Batch 27, knowledge release and
+   long-horizon review (`KA-1096` and `KA-1111`), through the real
    TruthMemory/TruthLink/FROST owner. Do not infer qualification from registry membership.
-2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 98 open
+2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 84 open
    rows unqualified until each named semantic, owning-path, trace, limitation,
    security, effect, and performance proof passes; direct tests or registry
    membership do not qualify an owning path.

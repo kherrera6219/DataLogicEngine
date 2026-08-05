@@ -37,12 +37,12 @@ SDKs.
 
 | Area | Current state |
 |---|---|
-| Canonical Knowledge Algorithms | 213 retained; 170 production-enabled |
-| Runtime authority | One generated manifest/controller; 135-edge acyclic dependency graph |
+| Canonical Knowledge Algorithms | 213 retained; 174 production-enabled |
+| Runtime authority | One generated manifest/controller; 128-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 115/213; 98 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batches 08-23 complete, Batch 24 next, 20 remain |
-| Latest source validation | 2,866 passed, 18 skipped, 35 known warnings |
+| Individually qualified KAs | 129/213; 84 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batches 08-26 complete, Batch 27 next, 17 remain |
+| Latest source validation | 2,894 passed, 18 skipped, 35 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
@@ -95,13 +95,16 @@ The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batches 08 through 23 are complete. Batches
+treated as one unsafe mega-batch. Batches 08 through 26 are complete. Batches
 19-23 complete the five-node Quad Persona foundation, evidence/confidence/
 entropy validation, adaptive DMRF routing, retrieval-store maintenance, and
 knowledge-content evolution through their real owners. Persona context is
 applied once by `PersonaContextService`; store and content changes remain
 idempotent, release-gated owner decisions with no hidden mutation. The current
-matrix has 98 open rows and Batch 24 is the knowledge-lifecycle analytics group.
+matrix has 84 open rows. Batches 24-26 add lifecycle analytics, bounded L10
+oversight, and TruthGate system-integrity decisions without autonomous loops,
+causal-emergence claims, training, mutation, containment, or release. Batch 27
+is the two-KA knowledge release/long-horizon group.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
@@ -264,7 +267,7 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-23 qualify 115/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-26 qualify 129/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
@@ -274,10 +277,11 @@ Open engineering and release acceptance:
   bounded retrieval, fail-closed routing, adversarial/privacy gating,
   knowledge trust/containment, bounded graph expansion/promotion, the complete
   five-node persona foundation, evidence/confidence/entropy validation, adaptive
-  routing, store maintenance, and content-evolution proposals; 98 rows remain open
-- The reviewed remaining roadmap contains 20 cohesive batches (24-43), each
-  bounded to one production owner and effect boundary. Batch 24 is the four-KA
-  knowledge-lifecycle analytics group. Grouping shares fixtures and transactions
+  routing, store maintenance, content evolution, lifecycle analytics, L10
+  oversight, and system-integrity proposals; 84 rows remain open
+- The reviewed remaining roadmap contains 17 cohesive batches (27-43), each
+  bounded to one production owner and effect boundary. Batch 27 is the two-KA
+  knowledge release/long-horizon group. Grouping shares fixtures and transactions
   but does not waive any individual semantic, owning-path, trace, security,
   effect, or performance proof
 - Two additional provider/gateway KAs remain open: API gateway and external

@@ -1,77 +1,95 @@
-"""
-KA-021: Emergence Detection
-Purpose: Detect novel patterns, unexpected insights, or emergent behaviors in reasoning traces.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any, List
+"""KA-021: deterministic detection of measured emergence candidates."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
 
-logger = logging.getLogger(__name__)
+class EmergenceObservation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    observation_id: str = Field(min_length=1, max_length=200)
+    metric_name: str = Field(min_length=1, max_length=200)
+    baseline_value: float
+    observed_value: float
+    tolerance: float = Field(ge=0)
+    corroborating_trace_ids: list[str] = Field(default_factory=list, max_length=1_000)
 
 
 class KA021Input(BaseModel):
-    findings: List[Dict[str, Any]] = Field(default_factory=list, description="Reasoning findings to scan for emergence")
-    entropy: float = Field(0.0, ge=0.0, description="Current system entropy level")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "observations": [
+                        {
+                            "observation_id": "obs-1",
+                            "metric_name": "plan_conflict_rate",
+                            "baseline_value": 0.1,
+                            "observed_value": 0.5,
+                            "tolerance": 0.2,
+                            "corroborating_trace_ids": ["trace-1", "trace-2"],
+                        }
+                    ]
+                }
+            ]
+        },
+    )
+
+    observations: list[EmergenceObservation] = Field(min_length=1, max_length=20_000)
+
+    @model_validator(mode="after")
+    def validate_ids(self) -> KA021Input:
+        identifiers = [item.observation_id for item in self.observations]
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError("observation IDs must be unique")
+        return self
+
 
 class KA021EmergenceDetection(KnowledgeAlgorithm):
-    """
-    KA-021: Scans for novelty and emergence signals in reasoning traces.
-    """
+    """Flag corroborated deviations without claiming causal novelty."""
+
     input_schema = KA021Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-021"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_21_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA021Input) -> Dict[str, Any]:
-        findings = input_data.findings
-        entropy = input_data.entropy
-        
-        self.log_execution_step("Detecting Emergence", {"finding_count": len(findings), "entropy": entropy})
-        
-        novelty_score = 0.0
-        signals = []
-        
-        if entropy > self.config.get("novelty_threshold", 0.7):
-            novelty_score += 0.4
-            signals.append("High Entropy Spike")
-            
-        if len(findings) > 10:
-            novelty_score += 0.3
-            signals.append("Fact Proliferation")
-            
-        keywords = ["breakthrough", "paradigm", "unexpected", "novel", "emergent"]
-        content_str = str(findings).lower()
-        if any(kw in content_str for kw in keywords):
-            novelty_score += 0.2
-            signals.append("Linguistic Novelty Detected")
-            
+    def _run_logic(self, input_data: KA021Input) -> dict[str, Any]:
+        candidates = []
+        for item in sorted(input_data.observations, key=lambda row: row.observation_id):
+            deviation = abs(item.observed_value - item.baseline_value)
+            traces = sorted(set(item.corroborating_trace_ids))
+            if deviation > item.tolerance and traces:
+                candidates.append(
+                    {
+                        "observation_id": item.observation_id,
+                        "metric_name": item.metric_name,
+                        "absolute_deviation": round(deviation, 8),
+                        "tolerance": item.tolerance,
+                        "corroborating_trace_ids": traces,
+                        "proposed_action": "owner_review",
+                    }
+                )
         return {
             "success": True,
-            "novelty_score": min(1.0, novelty_score),
-            "emergence_signals": signals,
-            "is_emergent": novelty_score >= self.config.get("novelty_threshold", 0.7)
+            "status": "emergence_candidates_assessed",
+            "is_emergent": bool(candidates),
+            "emergence_candidates": candidates,
+            "emergence_established": False,
+            "actions_applied": 0,
+            "deterministic": True,
+            "limitations": (
+                "A threshold deviation is only a review candidate. This does not "
+                "establish novelty, causation, or an emergent system property."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA021EmergenceDetection(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-021 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA021EmergenceDetection(context).run(context)

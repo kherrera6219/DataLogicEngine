@@ -44,12 +44,18 @@ class KA1104Input(BaseModel):
     options: list[ArbitrationOption] = Field(min_length=1, max_length=10_000)
     minimum_truth_confidence: float = Field(default=0.8, ge=0, le=1)
     maximum_harm_risk: float = Field(default=0.25, ge=0, le=1)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_ids(self) -> KA1104Input:
         identifiers = [item.option_id for item in self.options]
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("option IDs must be unique")
+        if self.dependency_results and set(self.dependency_results) != {
+            "KA-022",
+            "KA-024",
+        }:
+            raise ValueError("dependency_results must contain KA-022 and KA-024")
         return self
 
 
@@ -63,12 +69,20 @@ class KA1104TruthVsUtilityArbiter(KnowledgeAlgorithm):
         self.ka_id = "KA-1104"
 
     def _run_logic(self, input_data: KA1104Input) -> dict[str, Any]:
+        policy_allowed = not bool(
+            input_data.dependency_results.get("KA-022", {}).get(
+                "mitigation_required", False
+            )
+        ) and input_data.dependency_results.get("KA-024", {}).get(
+            "is_approved", True
+        ) is True
         eligible = [
             item
             for item in input_data.options
             if item.truth_confidence >= input_data.minimum_truth_confidence
             and item.harm_risk <= input_data.maximum_harm_risk
             and item.evidence_refs
+            and policy_allowed
         ]
         eligible.sort(
             key=lambda item: (
@@ -93,6 +107,7 @@ class KA1104TruthVsUtilityArbiter(KnowledgeAlgorithm):
                         else []
                     ),
                     *(["evidence_missing"] if not item.evidence_refs else []),
+                    *(["owner_policy_blocked"] if not policy_allowed else []),
                 ],
             }
             for item in sorted(input_data.options, key=lambda row: row.option_id)
@@ -106,6 +121,8 @@ class KA1104TruthVsUtilityArbiter(KnowledgeAlgorithm):
             "rejected_options": rejected,
             "truth_floor_relaxed": False,
             "decision_applied": False,
+            "owner_policy_allowed": policy_allowed,
+            "dependencies_consumed": sorted(input_data.dependency_results),
             "deterministic": True,
             "limitations": (
                 "The arbiter trusts caller-supplied truth, utility, harm, and "

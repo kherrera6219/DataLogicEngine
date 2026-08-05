@@ -42,9 +42,17 @@ class MockKAController:
 
         # Lane A: Emergence
         if ka_id == "KA-021":
+            observations = inputs["observations"]
             return _typed_result(
                 ka_id,
-                {"is_emergent": "emergent" in content},
+                {
+                    "is_emergent": any(
+                        abs(row["observed_value"] - row["baseline_value"])
+                        > row["tolerance"]
+                        and bool(row["corroborating_trace_ids"])
+                        for row in observations
+                    )
+                },
             )
         if ka_id == "KA-1108":
             interaction = inputs["interactions"][0]
@@ -213,6 +221,16 @@ class TestLayer10Controller:
         base_l10_input.l9_result["epistemic_report"]["current_output"] = (
             "This is an emergent pattern."
         )
+        base_l10_input.l9_result["emergence_observations"] = [
+            {
+                "observation_id": "measured-deviation",
+                "metric_name": "reasoning_path_deviation",
+                "baseline_value": 0.1,
+                "observed_value": 0.8,
+                "tolerance": 0.2,
+                "corroborating_trace_ids": ["trace-1"],
+            }
+        ]
 
         result = l10_controller.authorize(base_l10_input)
 

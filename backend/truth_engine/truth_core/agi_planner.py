@@ -136,8 +136,22 @@ class AGIPlannerService:
                         self.ka_controller,
                         "KA-021",
                         {
-                            'goals': [g.model_dump() for g in context.goals],
-                            'conflicts': [c.model_dump() for c in conflicts],
+                            "observations": [
+                                {
+                                    "observation_id": "post-plan-conflicts",
+                                    "metric_name": "unresolved_conflict_count",
+                                    "baseline_value": 0.0,
+                                    "observed_value": float(
+                                        sum(not conflict.resolved for conflict in conflicts)
+                                    ),
+                                    "tolerance": 0.0,
+                                    "corroborating_trace_ids": [
+                                        conflict.id
+                                        for conflict in conflicts
+                                        if not conflict.resolved
+                                    ],
+                                }
+                            ],
                         },
                     )
                     if require_output_field(ka021_result, "is_emergent"):

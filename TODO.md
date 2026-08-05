@@ -269,12 +269,19 @@ Phase 18 source baseline while completing the whole-application wiring.
         bounded owner receipt; reserved routing remains disabled; confidence is
         not presented as calibrated; and store/content mutation requires a
         separate idempotent owner or release transaction.
-      - The generated matrix and integrity verifier pass at 115/213 qualified
-        and 98 incomplete; rebuild authorization remains false. Runtime
-        manifest `2026.08.04-cp19k.7` retains 213 capabilities, 170 production-
-        enabled capabilities, and a 135-edge zero-cycle graph. The 890-test KA
-        suite, 355 governed/TruthCore/Phase-19/simulation integration tests, and
-        2,866-test full source suite pass; the source suite has 18 skipped and
+      - Batches 24-26 passed 2026-08-05: lifecycle analytics, transition
+        planning, policy evolution, human escalation, bounded L10 loop/release
+        oversight, and TruthGate system-integrity decisions now execute through
+        their real owners. Keyword/config-driven KA-020, KA-021, and KA-116
+        behavior was replaced by measured deterministic contracts; no KA starts
+        a loop, establishes causal emergence or system decay, trains, mutates,
+        dispatches, contains, blocks, or releases.
+      - The generated matrix and integrity verifier pass at 129/213 qualified
+        and 84 incomplete; rebuild authorization remains false. Runtime
+        manifest `2026.08.05-cp19k.8` retains 213 capabilities, 174 production-
+        enabled capabilities, and a 128-edge zero-cycle graph. The 904-test KA
+        suite, 369 governed/TruthCore/Phase-19/simulation integration tests, and
+        2,894-test full source suite pass; the source suite has 18 skipped and
         35 known warnings.
       - Parallel candidate training-dataset exporter review passed after
         hardening: owner-authenticated API, app-owned output containment,
@@ -291,8 +298,8 @@ Phase 18 source baseline while completing the whole-application wiring.
         `cryptography` advisories, are remediated in the governed locks. Local
         `pip-audit` and `npm audit` report zero vulnerabilities; the 2026-08-04
         live GitHub query reports zero open Dependabot alerts.
-      - Next: execute grouped Batch 24 (`KA-1086`, `KA-1088`, `KA-1089`, and
-        `KA-1095`) through the real TruthMemory/TruthLink/FROST owner. Keep every later batch
+      - Next: execute grouped Batch 27 (`KA-1096` and `KA-1111`) through the
+        real TruthMemory/TruthLink/FROST owner. Keep every later batch
         open until its named individual and owner/effect evidence passes.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
@@ -1021,7 +1028,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-23 qualify 115/213 rows, 98 remain open in 20 grouped batches, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-26 qualify 129/213 rows, 84 remain open in 17 grouped batches, and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -1043,8 +1050,8 @@ Complete CP19-K by closing the generated 213-row matrix with one individually
 named semantic test, positive/negative selector proof, real owning-path
 assertion, explicit limitation, causal trace proof, and applicable security,
 effect, and performance evidence for every canonical capability. Proceed next
-with grouped Batch 24 (`KA-1086`, `KA-1088`, `KA-1089`, and `KA-1095`),
-knowledge-lifecycle analytics, using the reviewed 36-batch roadmap and the real
+with grouped Batch 27 (`KA-1096` and `KA-1111`), knowledge release and
+long-horizon review, using the reviewed 36-batch roadmap and the real
 TruthMemory/TruthLink/FROST owner. Do not treat source qualification as installed
 acceptance.
 

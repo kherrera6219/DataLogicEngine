@@ -199,9 +199,21 @@ class EmergenceDetectionController:
 
         # KA-021: Emergence Detection (General)
         try:
+            observations = input_data.l9_result.get("emergence_observations")
+            if not isinstance(observations, list) or not observations:
+                observations = [
+                    {
+                        "observation_id": input_data.simulation_id,
+                        "metric_name": "reasoning_trace_step_count",
+                        "baseline_value": float(len(input_data.reasoning_trace)),
+                        "observed_value": float(len(input_data.reasoning_trace)),
+                        "tolerance": 0.0,
+                        "corroborating_trace_ids": [input_data.simulation_id],
+                    }
+                ]
             ka_res = self._execute_ka(
                 "KA-021",
-                {"content": content, "trace": input_data.reasoning_trace},
+                {"observations": observations},
                 kas_invoked,
             )
             if self._required_output_value("KA-021", ka_res, "is_emergent"):

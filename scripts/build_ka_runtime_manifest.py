@@ -682,6 +682,8 @@ CP19_H_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
 # CanonicalKAController is the authority and must never recursively select its
 # compatibility wrapper as a production algorithm.
 CP19_K_ADMISSION_IDS = {
+    "KA-020",
+    "KA-021",
     "KA-002",
     "KA-014",
     "KA-015",
@@ -701,6 +703,8 @@ CP19_K_ADMISSION_IDS = {
     "KA-1042",
     "KA-1073",
     "KA-1102",
+    "KA-1106",
+    "KA-116",
 }
 
 CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
@@ -725,7 +729,22 @@ CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
 
 # The restored design catalog marked KA-1077 as a memory writer. The reviewed
 # implementation only ranks supplied signals and explicitly applies no write.
-CP19_K_PURE_ADVISORY_OVERRIDES = {"KA-1077"}
+CP19_K_PURE_ADVISORY_OVERRIDES = {
+    "KA-020",
+    "KA-021",
+    "KA-1045",
+    "KA-1077",
+    "KA-1086",
+    "KA-1089",
+    "KA-1095",
+    "KA-1099",
+    "KA-1104",
+    "KA-1106",
+    "KA-1108",
+    "KA-1110",
+    "KA-1112",
+    "KA-116",
+}
 
 # CP19-K batches 12-18 make owner-consumed dependencies explicit and remove
 # stale design edges that would otherwise trigger unrelated maintenance or
@@ -818,6 +837,28 @@ CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
             "prerequisite."
         ),
     },
+    "KA-1088": {
+        "dependencies": [],
+        "rationale": (
+            "Lifecycle planning consumes explicit record state, validation, "
+            "confidence, drift, and retirement fields; analytics, compression, "
+            "pruning, and scheduling remain separate owner evidence."
+        ),
+    },
+    "KA-1099": {
+        "dependencies": [],
+        "rationale": (
+            "System-component integrity audits explicit component state and "
+            "hash evidence; knowledge-record regression gates remain separate."
+        ),
+    },
+    "KA-1106": {
+        "dependencies": [],
+        "rationale": (
+            "Human-override normalization consumes an explicit completed "
+            "override record and does not silently initiate escalation."
+        ),
+    },
 }
 
 CP19_H_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
@@ -865,7 +906,7 @@ CP19_H_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
 
 CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     "schema_version": "dle.ka-subsystem-registry.v1",
-    "registry_version": "2026.08.04-cp19k.2",
+    "registry_version": "2026.08.05-cp19k.3",
     "owners": {
         "truthcore_l1_l5": {
             "context_dependencies": [
@@ -887,6 +928,15 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
                 "KA-1041",
                 "KA-1042",
                 "KA-1102",
+            ],
+        },
+        "truthcore_l10": {
+            "oversight_release": [
+                "KA-020",
+                "KA-021",
+                "KA-1106",
+                "KA-1112",
+                "KA-116",
             ],
         },
         "truthgate": {
@@ -1398,7 +1448,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.04-cp19k.7",
+        "manifest_version": "2026.08.05-cp19k.8",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

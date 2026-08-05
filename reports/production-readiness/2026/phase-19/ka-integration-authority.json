@@ -1542,7 +1542,6 @@
       "primary_owner_title": "TruthCore Layer 10",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "governed_request",
@@ -1550,20 +1549,20 @@
         "trace_evaluation"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "containment_and_release",
       "declared_layers": [
         "L10",
         "L7"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "governed_execution_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_021.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_021.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_021_semantic_contract",
       "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_021_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
@@ -7002,7 +7001,6 @@
       "primary_owner_title": "TruthMemory, TruthLink, and FROST",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "retrieval_graph_memory",
@@ -7011,19 +7009,19 @@
         "truthcore"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "knowledge_lifecycle",
       "declared_layers": [
         "L10"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "knowledge_lifecycle_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1086.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1086.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1086_semantic_contract",
       "integration_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1086_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
@@ -7142,7 +7140,6 @@
       "primary_owner_title": "TruthMemory, TruthLink, and FROST",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "retrieval_graph_memory",
@@ -7151,20 +7148,20 @@
         "truthcore"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "knowledge_lifecycle",
       "declared_layers": [
         "L10",
         "L8"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "knowledge_lifecycle_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1089.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1089.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1089_semantic_contract",
       "integration_test": "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1089_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
@@ -8071,7 +8068,6 @@
       "primary_owner_title": "TruthCore Layer 10",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "governed_request",
@@ -8079,19 +8075,19 @@
         "trace_evaluation"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "containment_and_release",
       "declared_layers": [
         "L10"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "governed_execution_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1106.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1106.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1106_semantic_contract",
       "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_1106_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
@@ -8410,7 +8406,6 @@
       "primary_owner_title": "TruthCore Layer 10",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "governed_request",
@@ -8418,19 +8413,19 @@
         "trace_evaluation"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "containment_and_release",
       "declared_layers": [
         "L10"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "governed_execution_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1112.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1112.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1112_semantic_contract",
       "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_ka_1112_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [

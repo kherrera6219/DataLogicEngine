@@ -168,6 +168,8 @@ class KA1045BiasPatternAnalyzer(KnowledgeAlgorithm):
             "comparisons": comparisons,
             "bias_patterns": flags,
             "risk_alerts": flags,
+            "disparity_detected": bool(flags),
+            "causal_bias_established": False,
             "measurement_status": "observational",
             "limitations": (
                 "Observed outcome differences do not establish discrimination, "

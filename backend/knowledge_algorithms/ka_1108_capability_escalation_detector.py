@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
@@ -45,6 +45,13 @@ class KA1108Input(BaseModel):
     interactions: list[CapabilityInteraction] = Field(
         min_length=1, max_length=100_000
     )
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_dependencies(self) -> KA1108Input:
+        if self.dependency_results and set(self.dependency_results) != {"KA-1112"}:
+            raise ValueError("dependency_results must contain KA-1112")
+        return self
 
 
 class KA1108CapabilityEscalationDetector(KnowledgeAlgorithm):
@@ -57,6 +64,9 @@ class KA1108CapabilityEscalationDetector(KnowledgeAlgorithm):
         self.ka_id = "KA-1108"
 
     def _run_logic(self, input_data: KA1108Input) -> dict[str, Any]:
+        introspection_passed = input_data.dependency_results.get(
+            "KA-1112", {}
+        ).get("audit_passed", True) is True
         alerts = []
         for item in sorted(
             input_data.interactions, key=lambda row: row.interaction_id
@@ -78,12 +88,22 @@ class KA1108CapabilityEscalationDetector(KnowledgeAlgorithm):
                         "proposed_action": "contain_and_review",
                     }
                 )
+        if not introspection_passed:
+            alerts.append(
+                {
+                    "interaction_id": "system-self-introspection",
+                    "severity": "critical",
+                    "reasons": ["self_introspection_audit_failed"],
+                    "proposed_action": "contain_and_review",
+                }
+            )
         return {
             "success": True,
             "status": "capability_escalation_assessed",
             "escalation_detected": bool(alerts),
             "alerts": alerts,
             "containment_actions_applied": 0,
+            "dependencies_consumed": sorted(input_data.dependency_results),
             "deterministic": True,
             "limitations": (
                 "The detector evaluates supplied interaction counters and flags; "

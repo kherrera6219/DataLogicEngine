@@ -1,9 +1,9 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.08.04-cp19k.7",
+  "manifest_version": "2026.08.05-cp19k.8",
   "canonical_capabilities": 213,
-  "dependency_edges": 135,
+  "dependency_edges": 128,
   "dependency_cycles": 0,
   "dependency_result_contract": "dle.ka-execution-result.v1#output",
   "dependency_input_field": "dependency_results",
@@ -27,12 +27,9 @@
       "rationale": "Knowledge integrity consumes regression results before any quarantine or promotion decision."
     },
     "KA-1099": {
-      "dependencies": [
-        "KA-065",
-        "KA-117"
-      ],
+      "dependencies": [],
       "matches_approved_order": true,
-      "rationale": "The system integrity audit aggregates completed regression and knowledge-integrity results."
+      "rationale": "System-component integrity audits explicit component state and hash evidence; knowledge-record regression gates remain separate."
     },
     "KA-1111": {
       "dependencies": [
@@ -363,6 +360,16 @@
       "dependencies": [],
       "matches_approved_order": true,
       "rationale": "Field-level privacy transformation consumes explicit field labels and must not trigger DMRF plan-boundary enforcement as a hidden prerequisite."
+    },
+    "KA-1088": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Lifecycle planning consumes explicit record state, validation, confidence, drift, and retirement fields; analytics, compression, pruning, and scheduling remain separate owner evidence."
+    },
+    "KA-1106": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "Human-override normalization consumes an explicit completed override record and does not silently initiate escalation."
     }
   },
   "structured_execution": {

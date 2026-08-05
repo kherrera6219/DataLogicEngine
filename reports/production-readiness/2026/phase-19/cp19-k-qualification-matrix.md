@@ -7,8 +7,8 @@
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 115 rows are fully
-qualified and 98 remain open. A row closes
+canonical capabilities. 129 rows are fully
+qualified and 84 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -43,6 +43,9 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-21-dmrf-adaptive-routing` | 2026-08-04 | 3 | Fail-closed reserved-slot enforcement plus ambiguity and fast-path advice through governed DMRF with no payload echo, autonomous clarification, learning update, safety-layer skip, or routing mutation |
 | `cp19-k-batch-22-retrieval-store-maintenance` | 2026-08-04 | 8 | Cache, ontology, alignment, lineage, patch, conflict, pruning, and tier proposals reviewed by KnowledgeStoreService with idempotent no-mutation receipts and no rollback required |
 | `cp19-k-batch-23-knowledge-content-evolution` | 2026-08-04 | 5 | Content-free distillation, compression, cross-lingual alignment, multimodal review, and tuning proposals rejected from application by the release-gated KnowledgeLifecycleService with idempotent receipts |
+| `cp19-k-batch-24-knowledge-lifecycle-analytics` | 2026-08-05 | 4 | Supplied-event analytics, lifecycle transition planning, policy-version diffs, and human-review escalation through the knowledge lifecycle owner without telemetry collection, mutation, or review dispatch |
+| `cp19-k-batch-25-l10-oversight-release` | 2026-08-05 | 5 | Bounded loopback, measured emergence candidates, human override normalization, introspection, and token entropy through the TruthCore L10 owner without autonomous loops, training, governance, or release effects |
+| `cp19-k-batch-26-truthgate-system-integrity` | 2026-08-05 | 5 | Observational disparity, declared component integrity, truth-floor arbitration, escalation, and cross-domain coupling decisions through TruthGate with exact policy dependencies and no containment or block effects |
 
 ## Gate decision
 

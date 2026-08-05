@@ -1,0 +1,23 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-26-truthgate-system-integrity",
+  "validated_on": "2026-08-05",
+  "qualified_ids": ["KA-1045", "KA-1099", "KA-1104", "KA-1108", "KA-1110"],
+  "grouped_roadmap": {"baseline_open_capabilities": 186, "planned_batches": 36, "completed_batches": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "next_batch": 27, "remaining_batches": 17},
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 129, "incomplete_capabilities": 84, "production_enabled_capabilities": 174, "dependency_edges": 128, "dependency_cycles": 0, "rebuild_authorized": false},
+  "checks": [
+    {"name": "batches_24_26_named_semantics_and_owner_paths", "status": "pass", "result": "178 passed"},
+    {"name": "truthgate_system_integrity_owner_boundary", "status": "pass", "result": "exact policy dependencies, fail-closed proposals, observational disparity, and declared component evidence through TruthGate"},
+    {"name": "knowledge_algorithm_suite", "status": "pass", "result": "904 passed, 3 known deprecation warnings"},
+    {"name": "governed_truthcore_phase19_simulation_integration", "status": "pass", "result": "369 passed"},
+    {"name": "typescript_sdk", "status": "pass", "result": "7 passed"},
+    {"name": "full_source_suite", "status": "pass", "result": "2894 passed, 18 skipped, 35 known warnings"}
+  ],
+  "limitations": [
+    "Population disparity is observational and system integrity audits only supplied component evidence.",
+    "TruthGate KAs propose arbitration, escalation, coupling, containment, or block decisions and apply no effect.",
+    "CP19-K remains incomplete and no installed, external, signing, rebuild, or release gate is closed."
+  ]
+}

@@ -326,6 +326,157 @@ async def test_ka_024_owning_path(monkeypatch: pytest.MonkeyPatch):
     ] == "block"
 
 
+def _batch_26_inputs():
+    return {
+        "KA-004": {"query": "Review system integrity"},
+        "KA-005": {"query": "Review system integrity"},
+        "KA-022": {
+            "recommendation": "allow bounded release",
+            "impact_scores": {"governed_risk": 0.1},
+        },
+        "KA-024": {"confidence": 1.0, "risk_score": 0.1},
+        "KA-1045": {
+            "outputs_corpus": [
+                {"record_id": "a1", "group": "a", "outcome": 0.8},
+                {"record_id": "a2", "group": "a", "outcome": 0.8},
+                {"record_id": "b1", "group": "b", "outcome": 0.5},
+                {"record_id": "b2", "group": "b", "outcome": 0.5},
+            ]
+        },
+        "KA-1099": {
+            "components": [
+                {"component_id": "api", "status": "ready"},
+                {
+                    "component_id": "worker",
+                    "status": "ready",
+                    "required_dependency_ids": ["api"],
+                },
+            ]
+        },
+        "KA-1104": {
+            "options": [
+                {
+                    "option_id": "bounded-release",
+                    "truth_confidence": 0.95,
+                    "utility_score": 0.8,
+                    "harm_risk": 0.1,
+                    "evidence_refs": ["trace-1"],
+                }
+            ]
+        },
+        "KA-1107": {
+            "planned_steps": [
+                {
+                    "step_id": "integrity-review",
+                    "capability_id": "KA-1110",
+                    "layer": "L8",
+                    "query_class": "governed_validation",
+                }
+            ],
+            "allowed_capability_ids": ["KA-1110"],
+            "allowed_layers": ["L8"],
+            "allowed_query_classes": ["governed_validation"],
+        },
+        "KA-1112": {
+            "windows": [
+                {
+                    "window_id": "window-1",
+                    "chaos_plan_count": 0,
+                    "unapproved_chaos_count": 0,
+                    "human_override_count": 0,
+                    "override_without_reason_count": 0,
+                    "drift_alert_count": 0,
+                    "unresolved_drift_count": 0,
+                }
+            ]
+        },
+        "KA-1108": {
+            "interactions": [
+                {
+                    "interaction_id": "interaction-1",
+                    "source_capability_id": "KA-1045",
+                    "target_capability_id": "KA-1104",
+                    "observed_invocations": 1,
+                    "authorized_invocations": 1,
+                }
+            ]
+        },
+        "KA-1110": {
+            "links": [
+                {
+                    "link_id": "link-1",
+                    "source_domain": "governed",
+                    "target_domain": "governed",
+                    "sensitivity": "low",
+                    "authorized": True,
+                    "planned_capability_ids": ["KA-1110"],
+                }
+            ]
+        },
+    }
+
+
+def _run_batch_26_owner(canonical_id: str):
+    execution = KnowledgeLifecycleCoordinator().execute_operation_sync(
+        owner="truthgate",
+        operation="layer_8",
+        requested_ids=[canonical_id],
+        ka_inputs=_batch_26_inputs(),
+        request_id=f"batch-26-{canonical_id}",
+        run_id=f"batch-26-run-{canonical_id}",
+        max_effects=2,
+        principal_id="truthgate-owner",
+        service_capabilities={"policy_decision_service"},
+    )
+    states = [
+        event.state.value
+        for event in execution.report.traces[canonical_id].events
+        if event.state.value not in {"dependency", "effect_proposed"}
+    ]
+    assert states == [
+        "planned",
+        "candidate",
+        "selected",
+        "admitted",
+        "executing",
+        "executed",
+    ]
+    return execution.results[canonical_id]["output"]
+
+
+def test_ka_1045_owning_path():
+    output = _run_batch_26_owner("KA-1045")
+    assert output["disparity_detected"] is True
+    assert output["causal_bias_established"] is False
+
+
+def test_ka_1099_owning_path():
+    output = _run_batch_26_owner("KA-1099")
+    assert output["integrity_valid"] is True
+    assert output["measurement_status"] == "declared_component_evidence"
+
+
+def test_ka_1104_owning_path():
+    output = _run_batch_26_owner("KA-1104")
+    assert output["selected_option_id"] == "bounded-release"
+    assert output["dependencies_consumed"] == ["KA-022", "KA-024"]
+    assert output["decision_applied"] is False
+
+
+def test_ka_1108_owning_path():
+    output = _run_batch_26_owner("KA-1108")
+    assert output["escalation_detected"] is False
+    assert output["dependencies_consumed"] == ["KA-1112"]
+    assert output["containment_actions_applied"] == 0
+
+
+def test_ka_1110_owning_path():
+    output = _run_batch_26_owner("KA-1110")
+    assert output["assessments"][0]["decision"] == "review"
+    assert output["dependencies_consumed"] == ["KA-005", "KA-1107"]
+    assert output["blocks_applied"] == 0
+
+
 @pytest.mark.asyncio
 async def test_cp19h_entry_policy_ka_block_prevents_routing_and_provider():
     gateway = _Gateway()

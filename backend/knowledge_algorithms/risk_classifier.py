@@ -47,7 +47,6 @@ _OVERRIDES: dict[str, tuple[RiskTier, str]] = {
     "KA-010": (RiskTier.WRITE, "Creates knowledge-graph nodes"),
     "KA-011": (RiskTier.WRITE, "Creates or updates knowledge edges"),
     "KA-012": (RiskTier.WRITE, "Updates node metadata"),
-    "KA-020": (RiskTier.WRITE, "Persists simulation state"),
     "KA-030": (RiskTier.WRITE, "Writes audit evidence records"),
     "KA-031": (RiskTier.WRITE, "Updates compliance records"),
     "KA-050": (RiskTier.WRITE, "Stores model routing policy"),
@@ -56,7 +55,6 @@ _OVERRIDES: dict[str, tuple[RiskTier, str]] = {
     # Destructive-tier KAs
     "KA-013": (RiskTier.DESTRUCTIVE, "Deletes knowledge-graph nodes and their edges"),
     "KA-014": (RiskTier.DESTRUCTIVE, "Bulk-removes knowledge edges"),
-    "KA-021": (RiskTier.DESTRUCTIVE, "Purges simulation session data"),
     "KA-061": (RiskTier.DESTRUCTIVE, "Blocks and discards the current query pipeline"),
     "KA-080": (RiskTier.DESTRUCTIVE, "Overwrites model routing policy"),
     "KA-113": (RiskTier.DESTRUCTIVE, "Routes to Tier-4 refinement, discarding lower-tier output"),

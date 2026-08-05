@@ -1,87 +1,100 @@
-"""
-KA-020: Loopback Trigger
-Purpose: Evaluate state and decide whether to initiate a recursive reasoning loopback pass.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
+"""KA-020: deterministic L10 loopback-decision proposal."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA020Input(BaseModel):
-    pass_count: int = Field(1, ge=1)
-    final_confidence: float = Field(1.0, ge=0.0, le=1.0)
-    entropy_level: float = Field(0.0, ge=0.0)
-    gap_count: int = Field(0, ge=0)
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "pass_count": 1,
+                    "max_passes": 3,
+                    "final_confidence": 0.72,
+                    "entropy_level": 0.6,
+                    "gap_count": 1,
+                }
+            ]
+        },
+    )
+
+    pass_count: int = Field(default=1, ge=1, le=100)
+    max_passes: int = Field(default=3, ge=1, le=100)
+    final_confidence: float = Field(default=1.0, ge=0, le=1)
+    entropy_level: float = Field(default=0.0, ge=0, le=1)
+    gap_count: int = Field(default=0, ge=0, le=1_000_000)
+    minimum_confidence: float = Field(default=0.85, ge=0, le=1)
+    maximum_entropy: float = Field(default=0.4, ge=0, le=1)
+    dependency_results: dict[str, dict[str, Any]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_dependencies(self) -> KA020Input:
+        if self.dependency_results and set(self.dependency_results) != {
+            "KA-014",
+            "KA-1102",
+        }:
+            raise ValueError("dependency_results must contain KA-014 and KA-1102")
+        return self
+
 
 class KA020LoopbackTrigger(KnowledgeAlgorithm):
-    """
-    KA-020: Control gate for recursive system loopbacks.
-    """
+    """Propose another bounded reasoning pass without starting one."""
+
     input_schema = KA020Input
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-020"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_20_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA020Input) -> Dict[str, Any]:
-        current_pass = input_data.pass_count
+    def _run_logic(self, input_data: KA020Input) -> dict[str, Any]:
         confidence = input_data.final_confidence
         entropy = input_data.entropy_level
-        unresolved_gaps = input_data.gap_count
-        
-        self.log_execution_step("Loopback Evaluation", {
-            "pass": current_pass,
-            "conf": confidence,
-            "entropy": entropy
-        })
-        
-        max_passes = self.config.get("max_passes", 3)
-        conf_threshold = self.config.get("confidence_threshold", 0.85)
-        entropy_threshold = self.config.get("entropy_threshold", 0.4)
-        
-        should_loop = False
-        reason = []
-        if current_pass < max_passes:
-            if confidence < conf_threshold:
-                should_loop = True
-                reason.append(f"Confidence {confidence:.2f} below threshold {conf_threshold}")
-            if entropy > entropy_threshold:
-                should_loop = True
-                reason.append(f"Entropy {entropy:.2f} above threshold {entropy_threshold}")
-            if unresolved_gaps > 0:
-                should_loop = True
-                reason.append(f"Unresolved gaps: {unresolved_gaps}")
-        else:
-            reason.append(f"Max passes ({max_passes}) reached.")
-            
+        if input_data.dependency_results:
+            confidence = float(
+                input_data.dependency_results["KA-014"].get(
+                    "confidence_index", confidence
+                )
+            )
+            entropy = float(
+                input_data.dependency_results["KA-1102"].get(
+                    "normalized_entropy", entropy
+                )
+            )
+        reasons = []
+        budget_available = input_data.pass_count < input_data.max_passes
+        if confidence < input_data.minimum_confidence:
+            reasons.append("confidence_below_minimum")
+        if entropy > input_data.maximum_entropy:
+            reasons.append("entropy_above_maximum")
+        if input_data.gap_count:
+            reasons.append("unresolved_gaps")
+        should_loop = budget_available and bool(reasons)
+        if not budget_available:
+            reasons.append("pass_budget_exhausted")
         return {
             "success": True,
+            "status": "loopback_decision_proposed",
             "should_loopback": should_loop,
-            "reasoning": "; ".join(reason),
-            "next_pass": current_pass + 1 if should_loop else current_pass
+            "reason_codes": reasons,
+            "measured_confidence": round(confidence, 8),
+            "measured_entropy": round(entropy, 8),
+            "next_pass": input_data.pass_count + 1 if should_loop else input_data.pass_count,
+            "loopback_applied": False,
+            "dependencies_consumed": sorted(input_data.dependency_results),
+            "deterministic": True,
+            "limitations": (
+                "This proposes a bounded loop decision from supplied or committed "
+                "measurements. GovernedExecutionService alone may schedule a pass."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA020LoopbackTrigger(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-020 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA020LoopbackTrigger(context).run(context)
