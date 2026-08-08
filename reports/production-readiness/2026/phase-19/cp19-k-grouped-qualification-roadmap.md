@@ -2,13 +2,13 @@
 
 **Status:** Active
 
-**Plan version:** `2026.08.05-cp19k-grouped.11`
+**Plan version:** `2026.08.08-cp19k-grouped.16`
 
 **Baseline:** 27/213 qualified; 186 open
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batches 08-29 passed; 143/213 qualified, 70 open; Batch 30 next
+**Current checkpoint:** Batches 08-34 passed; 171/213 qualified, 42 open; Batch 35 next
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 
@@ -79,14 +79,14 @@ open prerequisite.
 | 24 | Knowledge lifecycle analytics — **passed 2026-08-05** | TruthMemory/TruthLink/FROST | 1086, 1088, 1089, 1095 | 4 |
 | 25 | L10 oversight and release — **passed 2026-08-05** | TruthCore L10 | 020, 021, 1106, 1112, 116 | 5 |
 | 26 | System-integrity gate — **passed 2026-08-05** | TruthGate | 1045, 1099, 1104, 1108, 1110 | 5 |
-| 27 | Knowledge release/long-horizon | TruthMemory/TruthLink/FROST | 1096, 1111 | 2 |
-| 28 | Regulatory/compliance gate | TruthGate | 016, 027, 1090, 169, 174, 176 | 6 |
-| 29 | Persona adaptation | DSQP/Quad Persona | 057, 068, 069, 1037, 1075, 1084 | 6 |
-| 30 | L6 planning control | TruthCore L6-L8 | 006, 007, 060 | 3 |
-| 31 | L6 advanced reasoning | TruthCore L6-L8 | 066, 067, 1036, 1044, 1047, 1085 | 6 |
-| 32 | L9 synthesis/explainability | TruthCore L9 | 008, 019, 056, 1038, 1087 | 5 |
-| 33 | Exact L9 loop suite | TruthCore L9 | L9-KA-001 through L9-KA-007 | 7 |
-| 34 | Exact L10 release suite | TruthCore L10 | L10-KA-001 through L10-KA-007 | 7 |
+| 27 | Knowledge release/long-horizon — **passed 2026-08-05** | TruthMemory/TruthLink/FROST | 1096, 1111 | 2 |
+| 28 | Regulatory/compliance gate — **passed 2026-08-05** | TruthGate | 016, 027, 1090, 169, 174, 176 | 6 |
+| 29 | Persona adaptation — **passed 2026-08-05** | DSQP/Quad Persona | 057, 068, 069, 1037, 1075, 1084 | 6 |
+| 30 | L6 planning control — **passed 2026-08-08** | TruthCore L6-L8 | 006, 007, 060 | 3 |
+| 31 | L6 advanced reasoning — **passed 2026-08-08** | TruthCore L6-L8 | 066, 067, 1036, 1044, 1047, 1085 | 6 |
+| 32 | L9 synthesis/explainability — **passed 2026-08-08** | TruthCore L9 | 008, 019, 056, 1038, 1087 | 5 |
+| 33 | Exact L9 loop suite — **passed 2026-08-08** | TruthCore L9 | L9-KA-001 through L9-KA-007 | 7 |
+| 34 | Exact L10 release suite — **passed 2026-08-08** | TruthCore L10 | L10-KA-001 through L10-KA-007 | 7 |
 | 35 | L1 inference/mapping | TruthCore L1-L5 | 041, 043, 044, 049 | 4 |
 | 36 | L1 signal analysis | TruthCore L1-L5 | 039, 045, 046, 047, 165, 167 | 6 |
 | 37 | L1 language/identity/explanation | TruthCore L1-L5 | 048, 050, 161, 162, 163, 168, 178 | 7 |
@@ -117,4 +117,4 @@ The machine-readable authority is
 `config/phase19-ka-grouped-batches.json`. Its integrity test proves exact
 186-row baseline coverage, one owner per batch, bounded batch size, unique
 membership, dependency-safe order, and exact reconciliation of completed
-batches with the current 70-row open matrix.
+batches with the current 42-row open matrix.

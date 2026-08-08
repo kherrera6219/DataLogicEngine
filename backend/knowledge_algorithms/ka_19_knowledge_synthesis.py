@@ -5,16 +5,19 @@ Purpose: Merge and unify multiple knowledge fragments and findings into a consis
 import logging
 import json
 import os
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
 
 class KA019Input(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     findings: List[Dict[str, Any]] = Field(default_factory=list, description="A list of knowledge fragments to synthesize")
+    dependency_results: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 class KA019KnowledgeSynthesis(KnowledgeAlgorithm):
     """
@@ -39,16 +42,20 @@ class KA019KnowledgeSynthesis(KnowledgeAlgorithm):
 
     def _run_logic(self, input_data: KA019Input) -> Dict[str, Any]:
         findings = input_data.findings
+        dependencies = input_data.dependency_results
         self.log_execution_step("Synthesizing Results", {"findingsCount": len(findings)})
         
         unified_state = {cat: [] for cat in self.config.get("categories", ["FACT", "ASSUMPTION"])}
-        for f in findings:
+        for index, f in enumerate(findings):
             cat = f.get("category", "FACT").upper()
             if cat in unified_state:
+                confidence = max(0.0, min(1.0, float(f.get("confidence", 0.5))))
                 unified_state[cat].append({
+                    "finding_id": str(f.get("id") or f"finding-{index + 1}"),
                     "content": f.get("content", ""),
-                    "confidence": f.get("confidence", 0.5),
-                    "source_ka": f.get("source_ka", "unknown")
+                    "confidence": confidence,
+                    "source_ka": f.get("source_ka", "unknown"),
+                    "evidence_refs": sorted(set(f.get("evidence_refs") or [])),
                 })
                 
         for cat in unified_state:
@@ -57,11 +64,30 @@ class KA019KnowledgeSynthesis(KnowledgeAlgorithm):
         return {
             "success": True,
             "unified_knowledge": unified_state,
-            "summary_points": self._generate_summary(unified_state)
+            "summary_points": self._generate_summary(unified_state),
+            "dependencies_consumed": sorted(dependencies),
+            "knowledge_persisted": False,
+            "deterministic": True,
+            "limitations": (
+                "Synthesis organizes caller-supplied findings and does not "
+                "resolve factual contradictions or establish truth."
+            ),
         }
 
     def _resolve_conflicts(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        return sorted(items, key=lambda x: x["confidence"], reverse=True)
+        best: Dict[str, Dict[str, Any]] = {}
+        for item in items:
+            signature = " ".join(str(item["content"]).lower().split())
+            current = best.get(signature)
+            if current is None or (item["confidence"], item["finding_id"]) > (
+                current["confidence"],
+                current["finding_id"],
+            ):
+                best[signature] = item
+        return sorted(
+            best.values(),
+            key=lambda item: (-item["confidence"], item["finding_id"]),
+        )
 
     def _generate_summary(self, state: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         summary = []

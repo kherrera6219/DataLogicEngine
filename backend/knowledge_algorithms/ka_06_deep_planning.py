@@ -5,20 +5,24 @@ Purpose: Decompose complex problems into detailed, hierarchical execution plans.
 import logging
 import json
 import os
-import uuid
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
 
 logger = logging.getLogger(__name__)
 
 
 class KA006Input(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     problem: str = Field(..., description="The complex problem to decompose into a plan")
     requested_depth: int = Field(1, ge=1, le=5, description="The hierarchical depth of the plan")
     active_rules: List[str] = Field(default_factory=list, description="Optional active rules to incorporate")
     user_role: str = Field("standard", description="User role context for access gating")
+    dependency_results: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 
 class KA006DeepPlanning(KnowledgeAlgorithm):
@@ -49,66 +53,158 @@ class KA006DeepPlanning(KnowledgeAlgorithm):
         
         self.log_execution_step("Generating Deep Plan", {"problem": problem, "depth": depth})
         
-        plan = self._generate_plan(problem, depth, active_rules)
+        dependencies = input_data.dependency_results
+        gap_result = dependencies.get("KA-003", {})
+        classification = dependencies.get("KA-005", {})
+        query_type = str(
+            classification.get("query_type")
+            or classification.get("classification")
+            or classification.get("category")
+            or "unclassified"
+        )
+        plan = self._generate_plan(
+            problem,
+            depth,
+            active_rules,
+            gaps=list(gap_result.get("identified_gaps") or gap_result.get("gaps") or []),
+            query_type=query_type,
+        )
+        plan_identity = {
+            "problem": problem,
+            "depth": depth,
+            "rules": sorted(set(active_rules)),
+            "steps": plan,
+        }
         
         return {
             "success": True,
-            "plan_id": f"plan-{uuid.uuid4().hex[:8]}",
+            "plan_id": stable_identifier("plan", plan_identity),
             "plan_steps": plan,
-            "complexity_estimate": self._estimate_complexity(plan)
+            "complexity_estimate": self._estimate_complexity(plan),
+            "query_type": query_type,
+            "dependencies_consumed": sorted(dependencies),
+            "candidate_only": True,
+            "execution_started": False,
+            "limitations": (
+                "This is a bounded deterministic candidate plan. The governed "
+                "execution service must authorize, schedule, and receipt every effect."
+            ),
         }
 
-    def _generate_plan(self, problem: str, depth: int, active_rules: List[str] = None) -> List[Dict[str, Any]]:
-        q = problem.lower()
-        
-        steps = []
-        # Step 1: Base gathering is always required
-        steps.append({"id": "s1", "action": "Information Gathering", "target": "internal_kb"})
-        
-        # Categorize query to inject specialized steps dynamically
-        # 1. Compliance/Audit Intent
-        if any(term in q for term in ["compliance", "audit", "gdpr", "hipaa", "sox", "regulatory"]):
-            steps.append({"id": "s2_reg", "action": "Regulatory Check", "target": "compliance_engine", "depends_on": ["s1"]})
-            steps.append({"id": "s2_pii", "action": "PII Detection", "target": "pii_redactor", "depends_on": ["s1"]})
-            
-        # 2. Database/Retrieval Intent
-        if any(term in q for term in ["search", "fetch", "retrieve", "corpus", "ingest", "dbs"]):
-            steps.append({"id": "s3_db", "action": "Vector Database Scan", "target": "chromadb_adapter", "depends_on": ["s1"]})
-            steps.append({"id": "s3_filter", "action": "Entity Proximity Filtering", "target": "proximity_calculator", "depends_on": ["s3_db"]})
-            
-        # 3. Security/Adversarial Intent
-        if any(term in q for term in ["security", "adversarial", "jailbreak", "override", "bypass"]):
-            steps.append({"id": "s4_shield", "action": "Adversarial Guardrail Scan", "target": "ai_guardrail", "depends_on": ["s1"]})
-            steps.append({"id": "s4_inject", "action": "Injection Defense Check", "target": "injection_defense", "depends_on": ["s4_shield"]})
-            
-        # 4. Temporal/Trend Intent
-        if any(term in q for term in ["trend", "history", "projection", "forecast", "time"]):
-            steps.append({"id": "s5_time", "action": "Temporal Regression Calibration", "target": "temporal_calculator", "depends_on": ["s1"]})
-
-        # Add a default reasoning simulation step if none of the above are matched (keeps plans interesting)
-        if len(steps) == 1:
-            steps.append({"id": "s_sim", "action": "Scenario Simulation", "target": "L5_simulator", "depends_on": ["s1"]})
-            
-        # Append final synthesis step, which dynamically depends on the last step(s) added
-        last_step_ids = [step["id"] for step in steps if step["id"] != "s1"]
-        if not last_step_ids:
-            last_step_ids = ["s1"]
-            
-        steps.append({"id": "s_synthesis", "action": "Final Synthesis", "target": "report_generator", "depends_on": last_step_ids})
+    def _generate_plan(
+        self,
+        problem: str,
+        depth: int,
+        active_rules: List[str] | None = None,
+        *,
+        gaps: List[Any] | None = None,
+        query_type: str = "unclassified",
+    ) -> List[Dict[str, Any]]:
+        query = problem.lower()
+        rules = sorted({str(rule).strip() for rule in active_rules or [] if str(rule).strip()})
+        normalized_gaps = sorted(
+            {
+                str(gap.get("gap") or gap.get("description") or gap)
+                if isinstance(gap, dict)
+                else str(gap)
+                for gap in gaps or []
+                if str(gap).strip()
+            }
+        )
+        steps: List[Dict[str, Any]] = [
+            {
+                "id": "s1",
+                "action": "Frame objective and acceptance criteria",
+                "inputs": [problem],
+                "depends_on": [],
+            },
+            {
+                "id": "s2",
+                "action": "Resolve declared evidence gaps",
+                "inputs": normalized_gaps,
+                "depends_on": ["s1"],
+            },
+            {
+                "id": "s3",
+                "action": "Apply active constraints",
+                "inputs": rules,
+                "depends_on": ["s2"],
+            },
+            {
+                "id": "s4",
+                "action": "Prepare reviewable execution proposal",
+                "inputs": [query_type],
+                "depends_on": ["s3"],
+            },
+        ]
+        review_steps: List[Dict[str, Any]] = []
+        if any(
+            term in query
+            for term in ["compliance", "audit", "gdpr", "hipaa", "sox", "regulatory"]
+        ):
+            review_steps.extend(
+                [
+                    {
+                        "id": "s2_reg",
+                        "action": "Prepare regulatory evidence review",
+                        "inputs": [],
+                        "depends_on": ["s1"],
+                    },
+                    {
+                        "id": "s2_pii",
+                        "action": "Prepare privacy and sensitive-data review",
+                        "inputs": [],
+                        "depends_on": ["s1"],
+                    },
+                ]
+            )
+        if any(
+            term in query
+            for term in ["security", "adversarial", "jailbreak", "override", "bypass"]
+        ):
+            review_steps.extend(
+                [
+                    {
+                        "id": "s4_shield",
+                        "action": "Prepare adversarial-boundary review",
+                        "inputs": [],
+                        "depends_on": ["s1"],
+                    },
+                    {
+                        "id": "s4_inject",
+                        "action": "Prepare injection-defense review",
+                        "inputs": [],
+                        "depends_on": ["s4_shield"],
+                    },
+                ]
+            )
+        steps.extend(review_steps)
+        steps.append(
+            {
+                "id": "s_synthesis",
+                "action": "Synthesize reviewable candidate plan",
+                "inputs": [],
+                "depends_on": ["s4", *(step["id"] for step in review_steps)],
+            }
+        )
         
         # Expand sub-steps based on depth parameter
         if depth > 1:
             for step in steps:
                 step["sub_steps"] = [
-                    {"id": f"{step['id']}_sub1", "action": f"Prepare {step['action']}", "status": "PENDING"},
-                    {"id": f"{step['id']}_sub2", "action": f"Execute {step['action']}", "status": "PENDING"}
+                    {
+                        "id": f"{step['id']}_sub{level - 1}",
+                        "action": f"Refine level {level}: {step['action']}",
+                        "status": "PROPOSED",
+                    }
+                    for level in range(2, depth + 1)
                 ]
 
         # Configure step durations and state from configuration
         default_duration = self.config.get("default_step_duration_ms", 100)
         for step in steps:
             step["estimated_duration_ms"] = default_duration
-            step["status"] = "PENDING"
+            step["status"] = "PROPOSED"
             
         return steps
 

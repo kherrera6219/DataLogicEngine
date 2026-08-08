@@ -94,7 +94,7 @@ def test_cp19h_registry_preserves_experimental_boundaries_and_declared_shared_id
 
     # Two capabilities intentionally appear under distinct owner operations;
     # the canonical ID authority remains unique.
-    assert len(set(registry_ids)) == 91
+    assert len(set(registry_ids)) == 119
     assert {
         canonical_id
         for canonical_id in registry_ids

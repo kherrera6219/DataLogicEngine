@@ -8,14 +8,26 @@ import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 logger = logging.getLogger(__name__)
 
 
 class KA060LoadBalancerInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     branches: List[Dict[str, Any]] = Field(default_factory=list, description="Reasoning branches to evaluate for load balancing")
-    total_budget: int = Field(100, description="The total computational budget to distribute")
+    total_budget: int = Field(100, ge=0, le=1_000_000, description="The total computational budget to distribute")
+    dependency_results: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_branch_ids(self):
+        identifiers = [str(branch.get("id") or "").strip() for branch in self.branches]
+        if not all(identifiers):
+            raise ValueError("every branch requires a non-empty id")
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError("branch ids must be unique")
+        return self
 
 class KA060CognitiveLoadBalancer(KnowledgeAlgorithm):
     """
@@ -41,6 +53,9 @@ class KA060CognitiveLoadBalancer(KnowledgeAlgorithm):
     def _run_logic(self, input_data: KA060LoadBalancerInput) -> Dict[str, Any]:
         branches = input_data.branches
         total_budget = input_data.total_budget
+        dependencies = input_data.dependency_results
+        estimate = dependencies.get("KA-1080", {})
+        budget_admission = dependencies.get("KA-1081", {})
         self.log_execution_step("Balancing Cognitive Load", {"branch_count": len(branches)})
         
         pruned_branches = []
@@ -48,23 +63,54 @@ class KA060CognitiveLoadBalancer(KnowledgeAlgorithm):
         threshold = self.config.get("min_yield_threshold", 0.2)
         pruning_enabled = self.config.get("pruning_enabled", True)
         
-        active_count = 0
-        for b in branches:
-             if b.get("expected_yield", 0.5) < threshold and pruning_enabled:
-                  pruned_branches.append(b.get("id"))
-             else:
-                  active_count += 1
-                  
-        for b in branches:
-             bid = b.get("id")
-             if bid not in pruned_branches:
-                  allocations[bid] = total_budget // max(1, active_count)
+        if budget_admission and budget_admission.get("allowed") is not True:
+            pruned_branches = sorted(str(branch["id"]) for branch in branches)
+            return {
+                "success": True,
+                "status": "budget_blocked",
+                "resource_allocations": {},
+                "pruned_branches": pruned_branches,
+                "branches_kept": 0,
+                "unallocated_budget": total_budget,
+                "dependencies_consumed": sorted(dependencies),
+                "execution_started": False,
+            }
+
+        active = []
+        for branch in branches:
+            expected_yield = max(0.0, min(1.0, float(branch.get("expected_yield", 0.5))))
+            complexity = max(0.0, float(branch.get("complexity", 1.0)))
+            if expected_yield < threshold and pruning_enabled:
+                pruned_branches.append(str(branch["id"]))
+            else:
+                active.append((str(branch["id"]), expected_yield * max(1.0, complexity)))
+
+        total_weight = sum(weight for _, weight in active)
+        remaining = total_budget
+        for index, (branch_id, weight) in enumerate(sorted(active)):
+            allocation = (
+                remaining
+                if index == len(active) - 1
+                else int(total_budget * weight / total_weight)
+                if total_weight
+                else 0
+            )
+            allocations[branch_id] = allocation
+            remaining -= allocation
                   
         return {
             "success": True,
             "resource_allocations": allocations,
-            "pruned_branches": pruned_branches,
-            "branches_kept": len(allocations)
+            "pruned_branches": sorted(pruned_branches),
+            "branches_kept": len(allocations),
+            "unallocated_budget": remaining,
+            "estimate_reviewed": bool(estimate),
+            "dependencies_consumed": sorted(dependencies),
+            "execution_started": False,
+            "limitations": (
+                "Allocations are advisory ceilings derived from caller-supplied "
+                "yield and complexity estimates; no branch is scheduled or executed."
+            ),
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

@@ -1,14 +1,14 @@
 # CP19-K per-KA qualification matrix
 
-**Matrix version:** `2026.08.05-cp19k.12`
+**Matrix version:** `2026.08.08-cp19k.17`
 **Status:** `cp19_k_in_progress`
 **Release decision:** NO-GO; rebuild not authorized
 
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 143 rows are fully
-qualified and 70 remain open. A row closes
+canonical capabilities. 171 rows are fully
+qualified and 42 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -49,6 +49,11 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-27-knowledge-release-long-horizon` | 2026-08-05 | 2 | Dependency-gated release staging and recurring long-horizon goal-drift evidence through KnowledgeLifecycleService without direct release activation or containment |
 | `cp19-k-batch-28-truthgate-regulatory-compliance` | 2026-08-05 | 6 | Explicit regulatory, ethical, regression, fairness, compliance, and governance evidence evaluated through TruthGate without query inference, legal conclusions, causal claims, or compliance-state mutation |
 | `cp19-k-batch-29-persona-adaptation` | 2026-08-05 | 6 | Explicit persona, domain, locale, convergence, representation, and cross-instance agreement proposals through the manifest-governed DSQP owner without content rewriting, locale or emotion inference, profile mutation, fairness claims, consensus application, or external requests |
+| `cp19-k-batch-30-l6-planning-control` | 2026-08-08 | 3 | Deterministic candidate planning, dependency-bound recursion admission, and bounded branch allocation through GovernedExecutionService without scheduling or execution effects |
+| `cp19-k-batch-31-l6-advanced-reasoning` | 2026-08-08 | 6 | Bounded causal candidates, structural analogies, Pareto ranking, traceable composition, approved-candidate selection, and statistical deviation evidence without autonomous execution or truth claims |
+| `cp19-k-batch-32-l9-synthesis-explainability` | 2026-08-08 | 5 | Evidence-honest critique, synthesis, trace-only narrative, cross-modal evidence fusion, and explicit explanation coverage without hidden reasoning, provider calls, extraction, or persistence |
+| `cp19-k-batch-33-l9-exact-loop-suite` | 2026-08-08 | 7 | Exact dependency-ordered L9 trace, drift, persona, meta-evaluation, readiness, recursion, and loop-control DAG with bounded termination and no applied refinement |
+| `cp19-k-batch-34-l10-exact-release-suite` | 2026-08-08 | 7 | Exact dependency-ordered L10 entropy, awareness, redaction, ethics, trust, escalation, and containment evidence with fail-closed release decisions and no persistence or dispatch effect |
 
 ## Gate decision
 

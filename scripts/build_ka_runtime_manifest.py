@@ -682,6 +682,10 @@ CP19_H_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
 # CanonicalKAController is the authority and must never recursively select its
 # compatibility wrapper as a production algorithm.
 CP19_K_ADMISSION_IDS = {
+    "KA-006",
+    "KA-007",
+    "KA-008",
+    "KA-019",
     "KA-020",
     "KA-021",
     "KA-002",
@@ -696,18 +700,28 @@ CP19_K_ADMISSION_IDS = {
     "KA-051",
     "KA-054",
     "KA-055",
+    "KA-056",
     "KA-057",
     "KA-058",
     "KA-059",
     "KA-063",
+    "KA-060",
+    "KA-066",
+    "KA-067",
     "KA-068",
     "KA-069",
     "KA-1037",
+    "KA-1036",
+    "KA-1038",
+    "KA-1044",
+    "KA-1047",
     "KA-1041",
     "KA-1042",
     "KA-1075",
     "KA-1073",
     "KA-1084",
+    "KA-1085",
+    "KA-1087",
     "KA-1102",
     "KA-1106",
     "KA-116",
@@ -736,11 +750,25 @@ CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
 # The restored design catalog marked KA-1077 as a memory writer. The reviewed
 # implementation only ranks supplied signals and explicitly applies no write.
 CP19_K_PURE_ADVISORY_OVERRIDES = {
+    "KA-006",
+    "KA-007",
+    "KA-008",
+    "KA-019",
     "KA-020",
     "KA-021",
+    "KA-056",
+    "KA-060",
+    "KA-066",
+    "KA-067",
+    "KA-1036",
+    "KA-1038",
+    "KA-1044",
+    "KA-1047",
     "KA-1045",
     "KA-1077",
     "KA-1086",
+    "KA-1085",
+    "KA-1087",
     "KA-1089",
     "KA-1095",
     "KA-1099",
@@ -750,12 +778,28 @@ CP19_K_PURE_ADVISORY_OVERRIDES = {
     "KA-1110",
     "KA-1112",
     "KA-116",
+    *(f"L9-KA-{number:03d}" for number in range(1, 8)),
+    *(f"L10-KA-{number:03d}" for number in range(1, 8)),
 }
 
 # CP19-K batches 12-18 make owner-consumed dependencies explicit and remove
 # stale design edges that would otherwise trigger unrelated maintenance or
 # simulation work inside pure context/routing decisions.
 CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-019": {
+        "dependencies": [],
+        "rationale": (
+            "Knowledge synthesis organizes explicit findings and must not "
+            "silently initiate evidence or persona-consensus workflows."
+        ),
+    },
+    "KA-1047": {
+        "dependencies": [],
+        "rationale": (
+            "Meta-selection consumes explicit approved performance history and "
+            "must not trigger learning, temporal maintenance, or routing effects."
+        ),
+    },
     "KA-002": {
         "dependencies": [],
         "rationale": (
@@ -912,7 +956,7 @@ CP19_H_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
 
 CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     "schema_version": "dle.ka-subsystem-registry.v1",
-    "registry_version": "2026.08.05-cp19k.4",
+    "registry_version": "2026.08.08-cp19k.5",
     "owners": {
         "dsqp_quad_persona": {
             "adaptation": [
@@ -945,6 +989,27 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
                 "KA-1042",
                 "KA-1102",
             ],
+            "planning_control": ["KA-006", "KA-007", "KA-060"],
+            "advanced_reasoning": [
+                "KA-066",
+                "KA-067",
+                "KA-1036",
+                "KA-1044",
+                "KA-1047",
+                "KA-1085",
+            ],
+        },
+        "truthcore_l9": {
+            "synthesis_explainability": [
+                "KA-008",
+                "KA-019",
+                "KA-056",
+                "KA-1038",
+                "KA-1087",
+            ],
+            "exact_loop_suite": [
+                *(f"L9-KA-{number:03d}" for number in range(1, 8)),
+            ],
         },
         "truthcore_l10": {
             "oversight_release": [
@@ -953,6 +1018,9 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
                 "KA-1106",
                 "KA-1112",
                 "KA-116",
+            ],
+            "exact_release_suite": [
+                *(f"L10-KA-{number:03d}" for number in range(1, 8)),
             ],
         },
         "truthgate": {
@@ -1464,7 +1532,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.05-cp19k.10",
+        "manifest_version": "2026.08.08-cp19k.15",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

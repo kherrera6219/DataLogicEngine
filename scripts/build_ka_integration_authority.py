@@ -148,11 +148,25 @@ OWNER_DEFINITIONS: dict[str, dict[str, Any]] = {
 # Its reviewed implementation only scores supplied signals and has no effect
 # port, so the integration authority must match the runtime contract.
 PURE_ADVISORY_OVERRIDES = {
+    "KA-006",
+    "KA-007",
+    "KA-008",
+    "KA-019",
     "KA-020",
     "KA-021",
+    "KA-056",
+    "KA-060",
+    "KA-066",
+    "KA-067",
+    "KA-1036",
+    "KA-1038",
+    "KA-1044",
+    "KA-1047",
     "KA-1045",
     "KA-1077",
     "KA-1086",
+    "KA-1085",
+    "KA-1087",
     "KA-1089",
     "KA-1095",
     "KA-1099",
@@ -162,6 +176,8 @@ PURE_ADVISORY_OVERRIDES = {
     "KA-1110",
     "KA-1112",
     "KA-116",
+    *(f"L9-KA-{number:03d}" for number in range(1, 8)),
+    *(f"L10-KA-{number:03d}" for number in range(1, 8)),
 }
 
 
@@ -291,6 +307,25 @@ SECURITY_OPERATIONS_IDS = (
 L9_OWNER_IDS = {"KA-008", "KA-019", "KA-056", "KA-1087"}
 L10_OWNER_IDS = {"KA-020", "KA-021", "KA-116"}
 L6_L8_OWNER_IDS = {"KA-014"}
+
+BATCH_30_34_IDS = {
+    "KA-006",
+    "KA-007",
+    "KA-008",
+    "KA-019",
+    "KA-056",
+    "KA-060",
+    "KA-066",
+    "KA-067",
+    "KA-1036",
+    "KA-1038",
+    "KA-1044",
+    "KA-1047",
+    "KA-1085",
+    "KA-1087",
+    *(f"L9-KA-{number:03d}" for number in range(1, 8)),
+    *(f"L10-KA-{number:03d}" for number in range(1, 8)),
+}
 
 REQUIRED_SAFETY_IDS = (
     TRUTHGATE_IDS
@@ -517,6 +552,12 @@ def _entry(row: dict[str, Any]) -> dict[str, Any]:
     )
     effectful = effect_class == "effect_oriented_review_required"
     test_slug = _slug(canonical_id)
+    integration_test = (
+        "tests/integration/phase19/test_truthcore_batches_30_34.py"
+        f"::test_{test_slug}_owning_path"
+        if canonical_id in BATCH_30_34_IDS
+        else f"tests/integration/phase19/test_{owner}.py::test_{test_slug}_owning_path"
+    )
     return {
         "canonical_id": canonical_id,
         "name": row["name"],
@@ -545,9 +586,7 @@ def _entry(row: dict[str, Any]) -> dict[str, Any]:
             "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py"
             f"::test_{test_slug}_semantic_contract"
         ),
-        "integration_test": (
-            f"tests/integration/phase19/test_{owner}.py::test_{test_slug}_owning_path"
-        ),
+        "integration_test": integration_test,
         "trace_assertion": (
             "planned_selected_admitted_executed_terminal_state"
             + ("_authoritative_effect_receipt" if effectful else "")

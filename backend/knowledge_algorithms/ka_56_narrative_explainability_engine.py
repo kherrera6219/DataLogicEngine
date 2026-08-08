@@ -8,14 +8,17 @@ import os
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
 
 class KA056Input(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     trace_dag: Dict[str, Any] = Field(default_factory=dict, description="The execution trace DAG to explain")
     decision_log: List[Dict[str, Any]] = Field(default_factory=list, description="The log of decisions made during execution")
+    audience: str = Field(default="operator", min_length=1, max_length=100)
 
 class KA056NarrativeExplainabilityEngine(KnowledgeAlgorithm):
     """
@@ -44,20 +47,46 @@ class KA056NarrativeExplainabilityEngine(KnowledgeAlgorithm):
         self.log_execution_step("Generating Decision Rationale", {"decision_count": len(decision_log)})
         
         explanations = []
-        for d in decision_log:
-             explanations.append({
-                 "step": d.get("step_id"),
-                 "action": d.get("action"),
-                 "rationale": f"Action taken because {d.get('reason_code', 'DEFAULT_LOGIC')} was triggered with confidence {d.get('confidence', 0.5)}.",
-                 "pivot_point": d.get("is_pivot", False)
-             })
-             
-        summary = f"Processed {len(decision_log)} decision nodes. High-level path: {trace_dag.get('summary_path', 'N/A')}"
+        for index, decision in enumerate(
+            sorted(decision_log, key=lambda row: str(row.get("step_id") or ""))
+        ):
+            step_id = str(decision.get("step_id") or f"step-{index + 1}")
+            reason_code = str(decision.get("reason_code") or "reason_not_recorded")
+            confidence = decision.get("confidence")
+            rationale = f"{step_id} recorded reason code {reason_code}."
+            if confidence is not None:
+                rationale += f" Recorded confidence: {float(confidence):.3f}."
+            explanations.append(
+                {
+                    "step": step_id,
+                    "action": decision.get("action"),
+                    "rationale": rationale,
+                    "reason_code": reason_code,
+                    "confidence": confidence,
+                    "evidence_refs": sorted(set(decision.get("evidence_refs") or [])),
+                    "pivot_point": bool(decision.get("is_pivot", False)),
+                }
+            )
+
+        path = trace_dag.get("summary_path")
+        summary = (
+            f"Explained {len(explanations)} recorded decision nodes"
+            + (f" across path {path}." if path else ".")
+        )
         return {
             "success": True,
             "narrative_summary": summary,
             "step_by_step_rationale": explanations,
-            "audience_vibe": self.config.get("audience_vibe", "professional")
+            "audience": input_data.audience,
+            "audience_vibe": self.config.get("audience_vibe", "professional"),
+            "explanation_generated_from_recorded_trace_only": True,
+            "provider_called": False,
+            "deterministic": True,
+            "limitations": (
+                "The narrative restates recorded decisions and evidence links; "
+                "it does not verify correctness, fill missing reasons, or reveal "
+                "hidden reasoning."
+            ),
         }
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:

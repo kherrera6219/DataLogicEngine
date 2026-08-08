@@ -5682,15 +5682,25 @@ consume exact analysis/bias dependencies; and cross-instance consensus remains
 agreement-only. No content rewrite, profile/model mutation, fairness or truth
 claim, consensus application, provider call, or external request occurs.
 
-The generated matrix and verifier pass at 143/213 qualified and 70 incomplete.
-Batches 08 through 29 are complete, 14 planned batches remain, and Batch 30,
-L6 planning control (`KA-006`, `KA-007`, and `KA-060`), is next. Runtime
-manifest `2026.08.05-cp19k.10` retains 213 capabilities, 180
-production-enabled capabilities, and a 128-edge zero-cycle
+Batch 30 adds deterministic planning, recursion-control, and cognitive-budget
+proposals through TruthCore L6-L8 without starting a task, schedule, recursion,
+provider call, or execution. Batch 31 adds six supplied-evidence advanced-
+reasoning candidates without establishing causal truth, applying analogy,
+learning, or persisting a selection. Batch 32 adds trace-backed critique,
+synthesis, explanation, and coverage measurement without hidden-reasoning,
+provider, loop, or persistence effects. Batches 33-34 individually prove every
+exact L9 and L10 KA through their real owner DAGs while leaving refinement,
+persistence, containment, escalation, and release to the orchestrator.
+
+The generated matrix and verifier pass at 171/213 qualified and 42 incomplete.
+Batches 08 through 34 are complete, nine planned batches remain, and Batch 35,
+L1 inference mapping (`KA-041`, `KA-043`, `KA-044`, and `KA-049`), is next.
+Runtime manifest `2026.08.08-cp19k.15` retains 213 capabilities, 194
+production-enabled capabilities, and a 123-edge zero-cycle
 dependency graph. Rebuild authorization remains false, and all rebuilt-
 installed, accessibility, provider, independent-review, pilot, and soak gates
-remain open. The 918-test KA suite, 383 governed/TruthCore/Phase-19/simulation
-integration tests, seven TypeScript SDK tests, and 2,922-test full source suite
+remain open. The 946-test KA suite, 353 Phase-19/governed/TruthCore integration
+tests, seven TypeScript SDK tests, and 2,978-test full source suite
 pass with 18 skipped and 32
 known warnings.
 
@@ -5713,6 +5723,11 @@ Evidence:
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-27-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-28-validation.json`;
 - `reports/production-readiness/2026/phase-19/cp19-k-batch-29-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-30-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-31-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-32-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-33-validation.json`;
+- `reports/production-readiness/2026/phase-19/cp19-k-batch-34-validation.json`;
 - `config/phase19-ka-qualification-evidence.json`;
 - `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
 - `tests/knowledge_algorithms/test_phase19_per_ka_semantics.py`;
@@ -6169,8 +6184,8 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-29 now truthfully
-qualify 143 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-34 now truthfully
+qualify 171 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
 measured provider monitoring, content-free authenticated observability, causal
@@ -6181,12 +6196,13 @@ routing, adversarial/privacy gating, knowledge trust/containment, bounded graph
 expansion/promotion, Quad Persona foundation, L6 evidence/confidence/entropy,
 adaptive DMRF routing, store maintenance, content evolution, lifecycle
 analytics, L10 oversight, TruthGate system integrity, knowledge release/drift
-review, regulatory/compliance evidence, and bounded persona adaptation, leaving
-70 of 213 rows open. The
+review, regulatory/compliance evidence, bounded persona adaptation, planning
+control, advanced reasoning, synthesis/explainability, and the exact L9/L10
+suites, leaving 42 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, current 128-edge acyclic dependency graph, bounded structured
+fixtures, current 123-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
@@ -6200,9 +6216,9 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batches 08 through 29 are complete and 14 remain. Continue
-CP19-K with Batch 30, L6 planning control (`KA-006`, `KA-007`, and `KA-060`),
-through the real TruthCore L6-L8 owner without inferring production enablement
+batches (08-43); Batches 08 through 34 are complete and nine remain. Continue
+CP19-K with Batch 35, L1 inference mapping (`KA-041`, `KA-043`, `KA-044`, and
+`KA-049`), through the real TruthCore L1-L5 owner without inferring production enablement
 from registry membership. Keep every later row incomplete until its individual
 owner/effect evidence exists.
 

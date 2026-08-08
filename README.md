@@ -37,12 +37,12 @@ SDKs.
 
 | Area | Current state |
 |---|---|
-| Canonical Knowledge Algorithms | 213 retained; 180 production-enabled |
-| Runtime authority | One generated manifest/controller; 128-edge acyclic dependency graph |
+| Canonical Knowledge Algorithms | 213 retained; 194 production-enabled |
+| Runtime authority | One generated manifest/controller; 123-edge acyclic dependency graph |
 | Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 143/213; 70 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batches 08-29 complete, Batch 30 next, 14 remain |
-| Latest source validation | 2,922 passed, 18 skipped, 32 known warnings |
+| Individually qualified KAs | 171/213; 42 remain open |
+| Grouped qualification roadmap | 36 batches (08-43); Batches 08-34 complete, Batch 35 next, 9 remain |
+| Latest source validation | 2,978 passed, 18 skipped, 32 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
 | Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
 
@@ -95,13 +95,13 @@ The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batches 08 through 29 are complete. Batches
+treated as one unsafe mega-batch. Batches 08 through 34 are complete. Batches
 19-23 complete the five-node Quad Persona foundation, evidence/confidence/
 entropy validation, adaptive DMRF routing, retrieval-store maintenance, and
 knowledge-content evolution through their real owners. Persona context is
 applied once by `PersonaContextService`; store and content changes remain
 idempotent, release-gated owner decisions with no hidden mutation. The current
-matrix has 70 open rows. Batches 24-26 add lifecycle analytics, bounded L10
+matrix has 42 open rows. Batches 24-26 add lifecycle analytics, bounded L10
 oversight, and TruthGate system-integrity decisions without autonomous loops,
 causal-emergence claims, training, mutation, containment, or release. Batch 27
 adds dependency-gated release staging and long-horizon drift review. Batch 28
@@ -110,8 +110,13 @@ decisions through TruthGate without legal, causal, or mutation overclaims.
 Batch 29 adds explicit persona, domain, locale, convergence, representation,
 and agreement proposals through the DSQP owner. It performs no locale/emotion
 inference, content rewriting, profile mutation, fairness claim, consensus
-application, or external request. Batch 30, the three-KA L6 planning-control
-group, is next.
+application, or external request. Batches 30-32 add bounded planning/recursion/
+load decisions, supplied-evidence advanced-reasoning candidates, and trace-only
+synthesis/explainability through their real TruthCore owners. Batches 33-34
+individually qualify the exact seven-KA L9 loop and seven-KA L10 release-gate
+suites without directly applying refinement, persistence, containment,
+escalation, or release. Batch 35, the four-KA L1 inference-mapping group, is
+next.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
@@ -285,7 +290,7 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-29 qualify 143/213 rows, including causal
+- Active Phase 19 CP19-K: batches 01-34 qualify 171/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
@@ -297,10 +302,13 @@ Open engineering and release acceptance:
   five-node persona foundation, evidence/confidence/entropy validation, adaptive
   routing, store maintenance, content evolution, lifecycle analytics, L10
   oversight, system-integrity proposals, release/drift review, and regulatory/
-  compliance evidence and bounded persona adaptation; 70 rows remain open
-- The reviewed remaining roadmap contains 14 cohesive batches (30-43), each
-  bounded to one production owner and effect boundary. Batch 30 is the three-KA
-  L6 planning-control group. Grouping shares fixtures and transactions
+  compliance evidence, bounded persona adaptation, planning control, advanced
+  reasoning, synthesis/explainability, and the exact L9/L10 suites; 42 rows
+  remain open
+- The reviewed remaining roadmap contains nine cohesive batches (35-43), each
+  bounded to one production owner and effect boundary. Batch 35 is the four-KA
+  L1 inference-mapping group (`KA-041`, `KA-043`, `KA-044`, and `KA-049`).
+  Grouping shares fixtures and transactions
   but does not waive any individual semantic, owning-path, trace, security,
   effect, or performance proof
 - Two additional provider/gateway KAs remain open: API gateway and external

@@ -2870,3 +2870,360 @@ def test_ka_1084_semantic_contract():
     assert result.output["truth_established"] is False
     assert result.output["consensus_applied"] is False
     assert result.output["external_requests"] == 0
+
+
+def _batch_30_34_payloads() -> dict[str, dict]:
+    complete_trace = {
+        f"layer{layer}": {"output": {"status": "complete"}}
+        for layer in range(1, 9)
+    }
+    return {
+        "KA-006": {
+            "problem": "Prepare a bounded release review",
+            "requested_depth": 2,
+            "active_rules": ["human approval required"],
+            "dependency_results": {
+                "KA-003": {"gaps": ["rollback evidence"]},
+                "KA-005": {"category": "technical"},
+            },
+        },
+        "KA-007": {
+            "current_depth": 1,
+            "current_state": {"candidate": "release-a"},
+            "confidence": 0.9,
+            "dependency_results": {
+                "KA-014": {"composite_confidence": 0.8},
+                "KA-1081": {"allowed": True},
+                "KA-1102": {"normalized_entropy": 0.4},
+            },
+        },
+        "KA-060": {
+            "branches": [
+                {"id": "high", "expected_yield": 0.8, "complexity": 2},
+                {"id": "low", "expected_yield": 0.1, "complexity": 1},
+            ],
+            "total_budget": 100,
+            "dependency_results": {
+                "KA-1080": {"estimate": {"tokens": 100}},
+                "KA-1081": {"allowed": True},
+            },
+        },
+        "KA-066": {
+            "events": [{"id": "a", "timestamp": 1}, {"id": "b", "timestamp": 2}],
+            "dependencies": [{"source": "a", "target": "b", "weight": 0.9}],
+        },
+        "KA-067": {
+            "source_domain": {
+                "relations": [
+                    {"entity": "queue", "predicate": "feeds", "roles": ["buffer"]}
+                ]
+            },
+            "target_domain": {
+                "entities": [{"name": "inbox", "roles": ["buffer"]}]
+            },
+        },
+        "KA-1036": {
+            "objectives": [{"name": "quality", "direction": "maximize"}],
+            "options": [
+                {"option_id": "a", "metrics": {"quality": 0.9}},
+                {"option_id": "b", "metrics": {"quality": 0.7}},
+            ],
+        },
+        "KA-1044": {
+            "composition_goal": "reduce recovery time",
+            "sources": [
+                {
+                    "source_id": "a",
+                    "statement": "Runbooks reduce delay.",
+                    "concepts": ["recovery"],
+                    "confidence": 0.9,
+                },
+                {
+                    "source_id": "b",
+                    "statement": "Checks detect failure.",
+                    "concepts": ["recovery"],
+                    "confidence": 0.8,
+                },
+            ],
+        },
+        "KA-1047": {
+            "problem_signature": "retrieve evidence",
+            "required_capabilities": ["retrieval"],
+            "performance_history": [
+                {
+                    "canonical_id": "KA-079",
+                    "version": "1.0.0",
+                    "capabilities": ["retrieval"],
+                    "quality_score": 0.9,
+                    "success_rate": 0.95,
+                    "p95_latency_ms": 50,
+                    "risk_class": "low",
+                }
+            ],
+        },
+        "KA-1085": {
+            "baselines": [
+                {"feature": "steps", "mean": 10, "standard_deviation": 2}
+            ],
+            "observations": [
+                {"observation_id": "run-1", "features": {"steps": 20}}
+            ],
+        },
+        "KA-008": {
+            "output_content": "The control is enabled.",
+            "required_points": ["control enabled"],
+            "validation_results": [{"passed": True}],
+        },
+        "KA-019": {
+            "findings": [
+                {
+                    "id": "f1",
+                    "category": "fact",
+                    "content": "Control enabled",
+                    "confidence": 0.9,
+                    "evidence_refs": ["e1"],
+                }
+            ],
+            "dependency_results": {"KA-009": {}, "KA-030": {}},
+        },
+        "KA-056": {
+            "trace_dag": {"summary_path": "L1-L8"},
+            "decision_log": [
+                {
+                    "step_id": "s1",
+                    "action": "validate",
+                    "reason_code": "evidence_passed",
+                    "confidence": 0.9,
+                    "evidence_refs": ["e1"],
+                }
+            ],
+        },
+        "KA-1038": {
+            "evidence": [
+                {
+                    "evidence_id": "e1",
+                    "modality": "text",
+                    "extracted_content": "Control enabled",
+                    "claims": ["Control enabled"],
+                }
+            ]
+        },
+        "KA-1087": {
+            "critical_steps": [
+                {"step_id": "s1", "description": "validate", "required_evidence_refs": ["e1"]}
+            ],
+            "explanation_segments": [
+                {
+                    "segment_id": "x1",
+                    "text": "validated",
+                    "covers_step_ids": ["s1"],
+                    "evidence_refs": ["e1"],
+                }
+            ],
+        },
+        "L9-KA-001": {"trace": complete_trace, "layers": list(range(1, 9))},
+        "L9-KA-002": {
+            "original_query": "Retain 30 records",
+            "final_solution": "Retain 30 records after review",
+        },
+        "L9-KA-003": {
+            "domain_confidences": [{"domain": "safety", "confidence": 0.98}]
+        },
+        "L9-KA-004": {
+            "solution": {"overall_confidence": 0.98},
+            "trace": complete_trace,
+        },
+        "L9-KA-005": {
+            "convergence_action": "refine",
+            "dependency_results": {
+                "L9-KA-006": {"measurement_coverage": 1.0, "readiness_score": 0.8}
+            },
+        },
+        "L9-KA-006": {
+            "l8_confidence": 0.98,
+            "dependency_results": {
+                "L9-KA-001": {"integrity_score": 1.0},
+                "L9-KA-002": {"drift_score": 0.0},
+                "L9-KA-003": {"measured": True, "min_score": 0.98},
+                "L9-KA-004": {"evaluation_score": 1.0},
+            },
+        },
+        "L9-KA-007": {
+            "iteration": 1,
+            "previous_scores": [0.7, 0.8],
+            "dependency_results": {
+                "L9-KA-005": {"trigger_refinement": True},
+                "L9-KA-006": {"readiness_score": 0.8},
+            },
+        },
+        "L10-KA-001": {"content": "bounded bounded evidence"},
+        "L10-KA-002": {"content": "A bounded operator response."},
+        "L10-KA-003": {"content": "Contact person@example.com"},
+        "L10-KA-004": {"content": "Provide a transparent bounded review."},
+        "L10-KA-005": {
+            "dependency_results": {
+                "L10-KA-001": {"divergence_detected": False},
+                "L10-KA-002": {"level": "none"},
+                "L10-KA-003": {"redactions_found": 0},
+                "L10-KA-004": {"violations": []},
+                "L10-KA-006": {"passed": True, "decayed_confidence": 0.98},
+                "L10-KA-007": {"escalation_required": False},
+            }
+        },
+        "L10-KA-006": {"confidence": 1.0, "threshold": 0.95},
+        "L10-KA-007": {"request_id": "r1", "confidence": 0.5},
+    }
+
+
+_BATCH_30_34_EXPECTED = {
+    "KA-006": ("execution_started", False),
+    "KA-007": ("recursion_applied", False),
+    "KA-060": ("execution_started", False),
+    "KA-066": ("inference_method", "deterministic_temporal_dependency_scoring"),
+    "KA-067": ("transfer_applied", False),
+    "KA-1036": ("deterministic", True),
+    "KA-1044": ("knowledge_persisted", False),
+    "KA-1047": ("execution_started", False),
+    "KA-1085": ("anomaly_count", 1),
+    "KA-008": ("assessment_complete", True),
+    "KA-019": ("knowledge_persisted", False),
+    "KA-056": ("provider_called", False),
+    "KA-1038": ("extraction_performed", False),
+    "KA-1087": ("coverage_complete", True),
+    "L9-KA-001": ("trace_complete", True),
+    "L9-KA-002": ("drift_detected", False),
+    "L9-KA-003": ("consensus", True),
+    "L9-KA-004": ("evaluation_score", 1.0),
+    "L9-KA-005": ("trigger_refinement", True),
+    "L9-KA-006": ("status", "measured"),
+    "L9-KA-007": ("continue", True),
+    "L10-KA-001": ("success", True),
+    "L10-KA-002": ("awareness_detected", False),
+    "L10-KA-003": ("sensitive_values_returned", False),
+    "L10-KA-004": ("passed", True),
+    "L10-KA-005": ("release_authorized", True),
+    "L10-KA-006": ("passed", True),
+    "L10-KA-007": ("reviews_dispatched", 0),
+}
+
+
+def _assert_batch_30_34_semantics(canonical_id: str) -> None:
+    payload = _batch_30_34_payloads()[canonical_id]
+    first = _execute(canonical_id, payload)
+    second = _execute(canonical_id, payload)
+    _assert_bounded_result(canonical_id, first)
+    assert first.output == second.output
+    key, value = _BATCH_30_34_EXPECTED[canonical_id]
+    assert first.output[key] == value
+
+
+def test_ka_006_semantic_contract():
+    _assert_batch_30_34_semantics("KA-006")
+
+
+def test_ka_007_semantic_contract():
+    _assert_batch_30_34_semantics("KA-007")
+
+
+def test_ka_060_semantic_contract():
+    _assert_batch_30_34_semantics("KA-060")
+
+
+def test_ka_066_semantic_contract():
+    _assert_batch_30_34_semantics("KA-066")
+
+
+def test_ka_067_semantic_contract():
+    _assert_batch_30_34_semantics("KA-067")
+
+
+def test_ka_1036_semantic_contract():
+    _assert_batch_30_34_semantics("KA-1036")
+
+
+def test_ka_1044_semantic_contract():
+    _assert_batch_30_34_semantics("KA-1044")
+
+
+def test_ka_1047_semantic_contract():
+    _assert_batch_30_34_semantics("KA-1047")
+
+
+def test_ka_1085_semantic_contract():
+    _assert_batch_30_34_semantics("KA-1085")
+
+
+def test_ka_008_semantic_contract():
+    _assert_batch_30_34_semantics("KA-008")
+
+
+def test_ka_019_semantic_contract():
+    _assert_batch_30_34_semantics("KA-019")
+
+
+def test_ka_056_semantic_contract():
+    _assert_batch_30_34_semantics("KA-056")
+
+
+def test_ka_1038_semantic_contract():
+    _assert_batch_30_34_semantics("KA-1038")
+
+
+def test_ka_1087_semantic_contract():
+    _assert_batch_30_34_semantics("KA-1087")
+
+
+def test_l9_ka_001_semantic_contract():
+    _assert_batch_30_34_semantics("L9-KA-001")
+
+
+def test_l9_ka_002_semantic_contract():
+    _assert_batch_30_34_semantics("L9-KA-002")
+
+
+def test_l9_ka_003_semantic_contract():
+    _assert_batch_30_34_semantics("L9-KA-003")
+
+
+def test_l9_ka_004_semantic_contract():
+    _assert_batch_30_34_semantics("L9-KA-004")
+
+
+def test_l9_ka_005_semantic_contract():
+    _assert_batch_30_34_semantics("L9-KA-005")
+
+
+def test_l9_ka_006_semantic_contract():
+    _assert_batch_30_34_semantics("L9-KA-006")
+
+
+def test_l9_ka_007_semantic_contract():
+    _assert_batch_30_34_semantics("L9-KA-007")
+
+
+def test_l10_ka_001_semantic_contract():
+    _assert_batch_30_34_semantics("L10-KA-001")
+
+
+def test_l10_ka_002_semantic_contract():
+    _assert_batch_30_34_semantics("L10-KA-002")
+
+
+def test_l10_ka_003_semantic_contract():
+    _assert_batch_30_34_semantics("L10-KA-003")
+
+
+def test_l10_ka_004_semantic_contract():
+    _assert_batch_30_34_semantics("L10-KA-004")
+
+
+def test_l10_ka_005_semantic_contract():
+    _assert_batch_30_34_semantics("L10-KA-005")
+
+
+def test_l10_ka_006_semantic_contract():
+    _assert_batch_30_34_semantics("L10-KA-006")
+
+
+def test_l10_ka_007_semantic_contract():
+    _assert_batch_30_34_semantics("L10-KA-007")

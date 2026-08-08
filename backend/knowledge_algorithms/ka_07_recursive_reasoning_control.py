@@ -9,16 +9,19 @@ import hashlib
 from typing import Dict, Any, List
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
 
 class KA007Input(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     current_depth: int = Field(0, ge=0)
     state_history: List[str] = Field(default_factory=list)
     current_state: Dict[str, Any] = Field(default_factory=dict)
     confidence: float = Field(1.0, ge=0.0, le=1.0)
+    dependency_results: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
     """
@@ -48,13 +51,40 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
         
         self.log_execution_step("Checking Recursion Bounds", {"depth": current_depth})
         
-        # 1. Depth Check
+        dependencies = input_data.dependency_results
+        confidence_result = dependencies.get("KA-014", {})
+        budget_result = dependencies.get("KA-1081", {})
+        entropy_result = dependencies.get("KA-1102", {})
+        dependency_confidence = confidence_result.get("composite_confidence")
+        if dependency_confidence is None:
+            dependency_confidence = confidence_result.get("overall_confidence")
+        confidence = (
+            min(input_data.confidence, float(dependency_confidence))
+            if dependency_confidence is not None
+            else input_data.confidence
+        )
+
+        common = {
+            "dependencies_consumed": sorted(dependencies),
+            "recursion_applied": False,
+            "scheduling_applied": False,
+        }
+
+        # 1. Budget admission and depth checks
+        if budget_result and budget_result.get("allowed") is not True:
+            return {
+                "success": True,
+                "allow_recursion": False,
+                "reason": "Simulation budget dependency blocked recursion",
+                **common,
+            }
         max_depth = self.config.get("max_recursion_depth", 5)
         if current_depth >= max_depth:
             return {
                 "success": True,
                 "allow_recursion": False,
-                "reason": f"Maximum recursion depth {max_depth} reached"
+                "reason": f"Maximum recursion depth {max_depth} reached",
+                **common,
             }
             
         # 2. State Loop Detection
@@ -62,13 +92,21 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
              return {
                 "success": True,
                 "allow_recursion": False,
-                "reason": "Recursion loop detected (duplicate state)"
+                "reason": "Recursion loop detected (duplicate state)",
+                **common,
             }
             
         # 3. Confidence/Entropy check
-        confidence = input_data.confidence
         decay = self.config.get("confidence_decay_factor", 0.9)
         threshold = self.config.get("termination_threshold", 0.05)
+        normalized_entropy = entropy_result.get("normalized_entropy")
+        if normalized_entropy is not None and float(normalized_entropy) > 0.95:
+            return {
+                "success": True,
+                "allow_recursion": False,
+                "reason": "Measured entropy exceeds the recursion safety ceiling",
+                **common,
+            }
         
         effective_confidence = confidence * (decay ** current_depth)
         
@@ -76,14 +114,17 @@ class KA007RecursiveReasoningControl(KnowledgeAlgorithm):
             return {
                 "success": True,
                 "allow_recursion": False,
-                "reason": f"Effective confidence {effective_confidence:.4f} below threshold {threshold}"
+                "reason": f"Effective confidence {effective_confidence:.4f} below threshold {threshold}",
+                **common,
             }
 
         return {
             "success": True,
             "allow_recursion": True,
             "next_depth": current_depth + 1,
-            "effective_confidence": effective_confidence
+            "effective_confidence": effective_confidence,
+            "decision": "recursion_proposed",
+            **common,
         }
 
     def _is_looping(self, current_state: Dict[str, Any], history: List[str]) -> bool:

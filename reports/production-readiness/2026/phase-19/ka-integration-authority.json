@@ -754,7 +754,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_006.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_006.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_006_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_006_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_006_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
@@ -784,7 +784,6 @@
       "primary_owner_title": "TruthCore Layers 6-8",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "governed_request",
@@ -793,19 +792,19 @@
         "truthgate"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "candidate_validation",
       "declared_layers": [
         "L7"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "governed_execution_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_007.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_007.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_007_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_007_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_007_owning_path",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [
           "core/simulation/refinement_workflow.py:246",
@@ -851,7 +850,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_008.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_008.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_008_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_ka_008_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_008_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -1474,7 +1473,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_019.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_019.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_019_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_ka_019_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_019_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -3206,7 +3205,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_056.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_056.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_056_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_ka_056_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_056_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -3370,7 +3369,6 @@
       "primary_owner_title": "TruthCore Layers 6-8",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "governed_request",
@@ -3379,19 +3377,19 @@
         "truthgate"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "candidate_validation",
       "declared_layers": [
         "L7"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "governed_execution_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_060.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_060.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_060_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_060_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_060_owning_path",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [],
@@ -3669,7 +3667,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_066.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_066.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_066_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_066_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_066_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -3697,7 +3695,6 @@
       "primary_owner_title": "TruthCore Layers 6-8",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "governed_request",
@@ -3706,19 +3703,19 @@
         "truthgate"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "candidate_validation",
       "declared_layers": [
         "L7"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "governed_execution_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_067.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_067.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_067_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_067_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_067_owning_path",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [],
@@ -5384,7 +5381,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1036.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1036.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1036_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_1036_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_1036_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -5480,7 +5477,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1038.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1038.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1038_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_ka_1038_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_1038_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -5801,7 +5798,6 @@
       "primary_owner_title": "TruthCore Layers 6-8",
       "consumer_paths": [
         "api_sdk_desktop_evaluation",
-        "authoritative_effect_service",
         "canonical_controller",
         "contract_parity",
         "governed_request",
@@ -5810,19 +5806,19 @@
         "truthgate"
       ],
       "selector_policy": "select_only_when_manifest_predicates_and_dependencies_match",
-      "required_or_optional": "conditional_effect_proposal",
+      "required_or_optional": "conditional",
       "stage": "candidate_validation",
       "declared_layers": [
         "L7"
       ],
-      "effect_class": "effect_oriented_review_required",
-      "effect_port": "governed_execution_service",
-      "effect_transaction": "proposal_requires_authoritative_policy_idempotency_transaction_receipt",
+      "effect_class": "pure_or_advisory_review_required",
+      "effect_port": null,
+      "effect_transaction": "not_applicable_pure_or_advisory_result",
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1044.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1044.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1044_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_1044_owning_path",
-      "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_1044_owning_path",
+      "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
@@ -5961,7 +5957,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1047.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1047.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1047_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_1047_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_1047_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -6974,7 +6970,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1085.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1085.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1085_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_1085_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_1085_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -7066,7 +7062,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1087.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1087.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1087_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_ka_1087_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_ka_1087_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -9948,7 +9944,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l10_ka_001.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l10_ka_001.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_001_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_001_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_001_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -9994,7 +9990,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l10_ka_002.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l10_ka_002.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_002_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_002_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_002_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10040,7 +10036,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l10_ka_003.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l10_ka_003.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_003_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_003_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_003_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10087,7 +10083,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l10_ka_004.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l10_ka_004.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_004_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_004_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_004_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10134,7 +10130,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l10_ka_005.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l10_ka_005.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_005_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_005_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_005_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10181,7 +10177,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l10_ka_006.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l10_ka_006.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_006_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_006_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_006_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10231,7 +10227,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l10_ka_007.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l10_ka_007.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_007_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l10.py::test_l10_ka_007_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_007_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10280,7 +10276,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l9_ka_001.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l9_ka_001.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l9_ka_001_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_001_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_001_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10332,7 +10328,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l9_ka_002.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l9_ka_002.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l9_ka_002_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_002_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_002_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10381,7 +10377,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l9_ka_003.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l9_ka_003.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l9_ka_003_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_003_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_003_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10429,7 +10425,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l9_ka_004.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l9_ka_004.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l9_ka_004_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_004_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_004_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10477,7 +10473,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l9_ka_005.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l9_ka_005.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l9_ka_005_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_005_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_005_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10527,7 +10523,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l9_ka_006.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l9_ka_006.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l9_ka_006_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_006_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_006_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -10575,7 +10571,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/l9_ka_007.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/l9_ka_007.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l9_ka_007_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_truthcore_l9.py::test_l9_ka_007_owning_path",
+      "integration_test": "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_007_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],

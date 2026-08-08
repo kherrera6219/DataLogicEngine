@@ -1,0 +1,22 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-31-l6-advanced-reasoning",
+  "validated_on": "2026-08-08",
+  "qualified_ids": ["KA-066", "KA-067", "KA-1036", "KA-1044", "KA-1047", "KA-1085"],
+  "grouped_roadmap": {"baseline_open_capabilities": 186, "planned_batches": 36, "completed_batches": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34], "next_batch": 35, "remaining_batches": 9},
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 171, "incomplete_capabilities": 42, "production_enabled_capabilities": 194, "dependency_edges": 123, "dependency_cycles": 0, "rebuild_authorized": false},
+  "checks": [
+    {"name": "batches_30_34_named_semantics_owner_paths_and_authority", "status": "pass", "result": "216 passed"},
+    {"name": "advanced_reasoning_owner_boundary", "status": "pass", "result": "supplied-evidence causal, structural analogy, Pareto, composition, selection, and anomaly candidates with no provider, transfer, learning, or persistence effect"},
+    {"name": "knowledge_algorithm_suite", "status": "pass", "result": "946 passed"},
+    {"name": "phase19_governed_truthcore_integration", "status": "pass", "result": "353 passed"},
+    {"name": "typescript_sdk", "status": "pass", "result": "7 passed"},
+    {"name": "full_source_suite", "status": "pass", "result": "2978 passed, 18 skipped, 32 known warnings"}
+  ],
+  "limitations": [
+    "The outputs are bounded heuristic candidates and do not establish causal truth, valid transfer, novelty, optimality, or autonomous selection.",
+    "CP19-K remains incomplete and no installed, external, signing, rebuild, or release gate is closed."
+  ]
+}

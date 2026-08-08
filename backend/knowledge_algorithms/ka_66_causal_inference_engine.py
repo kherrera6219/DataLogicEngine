@@ -59,7 +59,7 @@ class KA066CausalInferenceEngine(KnowledgeAlgorithm):
             "success": True,
             "causal_graph_fragment": accepted,
             "candidate_claims": causal_claims,
-            "inference_method": self.config.get("inference_method", "deterministic_temporal_dependency_scoring"),
+            "inference_method": "deterministic_temporal_dependency_scoring",
             "threshold": threshold,
         }
 
