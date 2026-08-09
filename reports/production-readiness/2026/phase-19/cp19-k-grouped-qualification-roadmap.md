@@ -2,13 +2,13 @@
 
 **Status:** Active
 
-**Plan version:** `2026.08.08-cp19k-grouped.16`
+**Plan version:** `2026.08.08-cp19k-grouped.21`
 
 **Baseline:** 27/213 qualified; 186 open
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batches 08-34 passed; 171/213 qualified, 42 open; Batch 35 next
+**Current checkpoint:** Batches 08-39 passed; 195/213 qualified, 18 open; Batch 40 next
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 

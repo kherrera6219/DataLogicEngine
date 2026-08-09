@@ -99,9 +99,9 @@ def test_phase18_controller_executes_layer9_class_adapter():
     assert result.output["layers_analyzed"] == 0
 
 
-def test_phase18_controller_blocks_next_unqualified_production_execution():
+def test_phase18_controller_blocks_disabled_production_execution():
     result = CanonicalKAController().execute(
-        {"ka_id": "KA-041", "mode": "production", "input": {}}
+        {"ka_id": "KA-033", "mode": "production", "input": {}}
     )
 
     assert result.success is False

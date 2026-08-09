@@ -1,9 +1,9 @@
 {
   "schema_version": "dle.cp19-c-selector-dag-verification.v1",
   "status": "pass",
-  "manifest_version": "2026.08.08-cp19k.15",
+  "manifest_version": "2026.08.08-cp19k.20",
   "canonical_capabilities": 213,
-  "dependency_edges": 123,
+  "dependency_edges": 119,
   "dependency_cycles": 0,
   "dependency_result_contract": "dle.ka-execution-result.v1#output",
   "dependency_input_field": "dependency_results",
@@ -279,6 +279,11 @@
       ],
       "matches_approved_order": true,
       "rationale": "Chaos admission consumes the simulation budget decision and system-integrity state before an authoritative fault service may consider the proposal."
+    },
+    "KA-1114": {
+      "dependencies": [],
+      "matches_approved_order": true,
+      "rationale": "External research consumes explicit gateway-authenticated approval, connector, domain, source, and time budgets in one owner transaction; it must not silently trigger unrelated routing and policy KAs."
     },
     "KA-019": {
       "dependencies": [],

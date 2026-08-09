@@ -54,6 +54,7 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "2026.08.04-cp19k.6",
         "2026.08.04-cp19k.7",
         "2026.08.08-cp19k.15",
+        "2026.08.08-cp19k.20",
     }
     assert registry["schema_version"] == "dle.refinement-workflow-registry.v1"
     assert registry["owner"] == "governed_execution_orchestrator"
@@ -73,14 +74,18 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "cp19_j_product_workflow_authority": 155,
     }
     enabled_count = sum(entry.admission.production_enabled for entry in entries)
-    if manifest.manifest_version == "2026.08.08-cp19k.15":
+    if manifest.manifest_version == "2026.08.08-cp19k.20":
+        assert enabled_count == 211
+    elif manifest.manifest_version == "2026.08.08-cp19k.15":
         assert enabled_count == 194
     elif manifest.manifest_version == "2026.08.04-cp19k.7":
         assert enabled_count == 170
     else:
         assert enabled_count == expected_enabled[manifest.status]
     dependency_edges = sum(len(entry.contract.dependencies) for entry in entries)
-    if manifest.manifest_version == "2026.08.08-cp19k.15":
+    if manifest.manifest_version == "2026.08.08-cp19k.20":
+        assert dependency_edges == 119
+    elif manifest.manifest_version == "2026.08.08-cp19k.15":
         assert dependency_edges == 123
     elif manifest.manifest_version == "2026.08.04-cp19k.7":
         assert dependency_edges == 135

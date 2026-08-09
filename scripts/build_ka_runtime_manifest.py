@@ -725,6 +725,23 @@ CP19_K_ADMISSION_IDS = {
     "KA-1102",
     "KA-1106",
     "KA-116",
+    "KA-039",
+    "KA-041",
+    "KA-043",
+    "KA-044",
+    "KA-045",
+    "KA-046",
+    "KA-047",
+    "KA-048",
+    "KA-049",
+    "KA-050",
+    "KA-161",
+    "KA-162",
+    "KA-163",
+    "KA-165",
+    "KA-167",
+    "KA-168",
+    "KA-178",
 }
 
 CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
@@ -778,6 +795,23 @@ CP19_K_PURE_ADVISORY_OVERRIDES = {
     "KA-1110",
     "KA-1112",
     "KA-116",
+    "KA-039",
+    "KA-041",
+    "KA-043",
+    "KA-044",
+    "KA-045",
+    "KA-046",
+    "KA-047",
+    "KA-048",
+    "KA-049",
+    "KA-050",
+    "KA-161",
+    "KA-162",
+    "KA-163",
+    "KA-165",
+    "KA-167",
+    "KA-168",
+    "KA-178",
     *(f"L9-KA-{number:03d}" for number in range(1, 8)),
     *(f"L10-KA-{number:03d}" for number in range(1, 8)),
 }
@@ -786,6 +820,14 @@ CP19_K_PURE_ADVISORY_OVERRIDES = {
 # stale design edges that would otherwise trigger unrelated maintenance or
 # simulation work inside pure context/routing decisions.
 CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-1114": {
+        "dependencies": [],
+        "rationale": (
+            "External research consumes explicit gateway-authenticated approval, "
+            "connector, domain, source, and time budgets in one owner transaction; "
+            "it must not silently trigger unrelated routing and policy KAs."
+        ),
+    },
     "KA-019": {
         "dependencies": [],
         "rationale": (
@@ -956,7 +998,7 @@ CP19_H_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
 
 CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     "schema_version": "dle.ka-subsystem-registry.v1",
-    "registry_version": "2026.08.08-cp19k.5",
+    "registry_version": "2026.08.08-cp19k.6",
     "owners": {
         "dsqp_quad_persona": {
             "adaptation": [
@@ -976,6 +1018,24 @@ CP19_H_SUBSYSTEM_REGISTRY: dict[str, Any] = {
                 "KA-017",
                 "KA-025",
                 "KA-040",
+            ],
+            "inference_mapping": ["KA-041", "KA-043", "KA-044", "KA-049"],
+            "signal_analysis": [
+                "KA-039",
+                "KA-045",
+                "KA-046",
+                "KA-047",
+                "KA-165",
+                "KA-167",
+            ],
+            "language_identity_explanation": [
+                "KA-048",
+                "KA-050",
+                "KA-161",
+                "KA-162",
+                "KA-163",
+                "KA-168",
+                "KA-178",
             ],
         },
         "truthcore_l6_l8": {
@@ -1229,7 +1289,7 @@ CP19_I_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
 
 CP19_I_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     "schema_version": "dle.ka-extended-subsystem-registry.v1",
-    "registry_version": "2026.07.25-cp19i.1",
+    "registry_version": "2026.08.08-cp19k.2",
     "owners": {
         "simulation": {
             "planning": ["KA-1080", "KA-1081", "KA-037", "KA-032"],
@@ -1264,7 +1324,7 @@ CP19_I_SUBSYSTEM_REGISTRY: dict[str, Any] = {
             "model_lifecycle": [
                 *(f"KA-{number:03d}" for number in range(81, 91)),
             ],
-            "external_research": ["KA-1114"],
+            "external_research": ["KA-111", "KA-1114"],
         },
         "security_operations_lifecycle": {
             "observability": [
@@ -1275,7 +1335,7 @@ CP19_I_SUBSYSTEM_REGISTRY: dict[str, Any] = {
                 "KA-1097",
                 "KA-1098",
             ],
-            "messaging": ["KA-110", "KA-112", "KA-114", "KA-115"],
+            "messaging": ["KA-093", "KA-110", "KA-112", "KA-114", "KA-115"],
             "security": [
                 *(f"KA-{number:03d}" for number in range(136, 140)),
                 "KA-175",
@@ -1532,7 +1592,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.08-cp19k.15",
+        "manifest_version": "2026.08.08-cp19k.20",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

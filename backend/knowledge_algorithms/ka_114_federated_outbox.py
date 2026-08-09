@@ -1,56 +1,83 @@
-"""
-KA-114: Federated Claim Outbox
-Purpose: Select and package validated claims for cross-tenant sharing.
-"""
-import logging
-from typing import Dict, Any
-from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-from backend.truth_engine.federated_sync import FederatedSyncEngine
-from backend.ukg_db import UkgDatabaseManager
+"""KA-114: validated federated-outbox proposal."""
 
-logger = logging.getLogger(__name__)
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
+from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
+
+
+class FederatedOutboxClaim(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str = Field(min_length=1, max_length=200)
+    source_tenant_ref: str = Field(min_length=1, max_length=200)
+    content_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    evidence_refs: list[str] = Field(min_length=1, max_length=1_000)
+    release_approved: bool
+    recipient_refs: list[str] = Field(min_length=1, max_length=1_000)
+
+
+class KA114Input(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    claims: list[FederatedOutboxClaim] = Field(default_factory=list, max_length=1_000)
+
 
 class KA114FederatedOutbox(KnowledgeAlgorithm):
-    def __init__(self, context: Dict[str, Any]):
+    """Package explicitly released claim references without broadcasting."""
+
+    input_schema = KA114Input
+
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-114"
-        self.db_mgr = UkgDatabaseManager(tenant_id=context.get("tenant_id"))
-        self.sync_engine = FederatedSyncEngine(self.db_mgr)
 
-    def _run_logic(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Find local L5 claims and prepare them for sharing.
-        """
-        # 1. Get high-confidence nodes
-        try:
-            claims = self.db_mgr.get_nodes_by_type("claim", limit=10)
-        except RuntimeError:
-            # Contract tests execute KAs outside Flask app context.
-            claims = []
-        
-        shared_count = 0
-        for node in claims:
-            # Only share if level is high enough (L5)
-            if node.get("level") >= 5:
-                if self.sync_engine.prepare_for_sharing(node):
-                    shared_count += 1
-                    
-        # 2. Broadcast
-        if shared_count > 0:
-            self.sync_engine.broadcast_outbox()
-            return {
-                "success": True,
-                "claims_shared": shared_count,
-                "broadcast_status": "complete",
-                "recipients": "federated_mesh"
+    def _run_logic(self, input_data: KA114Input) -> dict[str, Any]:
+        accepted = [claim for claim in input_data.claims if claim.release_approved]
+        rejected_ids = sorted(
+            claim.claim_id for claim in input_data.claims if not claim.release_approved
+        )
+        packets = [
+            {
+                "claim_id": claim.claim_id,
+                "source_tenant_ref": claim.source_tenant_ref,
+                "content_sha256": claim.content_sha256,
+                "evidence_refs": sorted(set(claim.evidence_refs)),
+                "recipient_refs": sorted(set(claim.recipient_refs)),
             }
-            
+            for claim in sorted(accepted, key=lambda row: row.claim_id)
+        ]
+        proposal_id = stable_identifier("federated-outbox", packets)
         return {
             "success": True,
+            "proposal_id": proposal_id,
+            "packets": packets,
+            "rejected_claim_ids": rejected_ids,
             "claims_shared": 0,
-            "message": "No suitable high-confidence claims found."
+            "broadcast_status": "not_started",
+            "effect_proposal": (
+                {
+                    "effect_id": proposal_id,
+                    "kind": "enqueue_federated_outbox",
+                    "status": "proposed",
+                    "service": "operations_control_service",
+                    "payload": {"packets": packets},
+                }
+                if packets
+                else None
+            ),
+            "authoritative_receipt": None,
+            "deterministic": True,
+            "limitations": (
+                "Only released content hashes and evidence references are packaged; "
+                "the KA performs no tenant lookup, database read, or broadcast."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    algo = KA114FederatedOutbox(context)
-    return algo.run(context)
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA114FederatedOutbox(context).run(context)

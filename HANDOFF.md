@@ -240,11 +240,11 @@ CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
 clean-source, rebuilding, installed acceptance, and production launch gates
 remain unauthorized.
 
-CP19-K batches 01 through 34 are complete. Batches 19-23 add the five-node
+CP19-K batches 01 through 39 are complete. Batches 19-23 add the five-node
 Quad Persona foundation, L6 evidence/confidence/entropy validation, adaptive
 DMRF routing, retrieval-store maintenance, and knowledge-content evolution
 through their real DSQP, TruthCore, DMRF, retrieval, and TruthMemory owners. The
-generated 213-row matrix and verifier report 171 qualified and 42 incomplete,
+generated 213-row matrix and verifier report 195 qualified and 18 incomplete,
 with rebuild authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
@@ -252,8 +252,8 @@ KA-1081 admission, KA-037 limits provider tokens, KA-042 feeds KA-070, and the
 bounded counterfactual projection changes the provider prompt through the real
 job. SimulationJobRunner alone applies the plan/context/artifact effects and
 binds each to an authoritative receipt. Runtime manifest
-`2026.08.08-cp19k.15` retains 213 capabilities, 194 production-enabled
-capabilities, and 123 dependency edges with zero cycles. `KA-1101` and
+`2026.08.08-cp19k.20` retains 213 capabilities, 211 production-enabled
+capabilities, and 119 dependency edges with zero cycles. `KA-1101` and
 `KA-1103` remain unqualified because no production chaos or rollback action
 consumes their registry operations.
 
@@ -348,8 +348,17 @@ explainability, Batch 33's exact seven-KA L9 suite, and Batch 34's exact
 seven-KA L10 suite now pass through their real TruthCore owners. Planning and
 recursion remain proposals; reasoning consumes supplied evidence; explanations
 are trace-backed; and no refinement, provider, persistence, containment,
-escalation, or release effect is directly applied. Batch 35, L1 inference
-mapping (`KA-041`, `KA-043`, `KA-044`, and `KA-049`), is next.
+escalation, or release effect is directly applied. Batches 35-37 add bounded
+inference mapping, signal analysis, and language/identity/explanation evidence
+without causal, calibrated-confidence, profile, merge, provider, or release
+overclaims. Batch 38 moves API gateway and external research behind explicit
+authentication, policy, rate, domain, source, time, and citation controls;
+ProviderGatewayService alone invokes the approved connector and records the
+receipt. Batch 39 removes direct delivery/database behavior and false delivery
+claims from messaging KAs; OperationsControlService alone applies effects with
+durable record IDs, receipts, and ledger records. Batch 40, operations health
+and recovery (`KA-107`, `KA-108`, `KA-109`, `KA-1097`, `KA-1098`, and
+`KA-138`), is next.
 
 The earlier 31 dependency alerts remain remediated. Ten newly published GitHub
 alerts reported on 2026-08-04 across `aiohttp`, `undici`, and `ip-address`, plus
@@ -357,11 +366,11 @@ one local `socket.io-parser` and three `cryptography` advisories, are remediated
 by the governed locks. Local Python and Node audits report zero vulnerabilities;
 lock governance passes and the 2026-08-04 live GitHub query reports zero open
 Dependabot alerts.
-The KA suite passes 946 tests; the Phase 19, governed execution, and TruthCore
-integration set passes 353 tests; the TypeScript SDK passes
+The KA suite passes 970 tests; the Phase 19, governed execution, and TruthCore
+integration set passes 378 tests; the TypeScript SDK passes
 seven tests; frontend type checking and all seven TypeScript SDK tests pass;
 the retained 430 frontend tests and production/Electron builds remain green;
-and the full source suite passes 2,978 tests with
+and the full source suite passes 3,027 tests with
 18 skipped and 32 known warnings. Read:
 
 A parallel candidate training-dataset exporter was reviewed before publication
@@ -1038,10 +1047,11 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 171/213 with grouped Batch 35, L1 inference mapping
-   (`KA-041`, `KA-043`, `KA-044`, and `KA-049`), through the real TruthCore L1-L5 owner.
+1. Continue CP19-K from 195/213 with grouped Batch 40, operations health and
+   recovery (`KA-107`, `KA-108`, `KA-109`, `KA-1097`, `KA-1098`, and
+   `KA-138`), through the real operations owner.
    Do not infer qualification from registry membership.
-2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 42 open
+2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 18 open
    rows unqualified until each named semantic, owning-path, trace, limitation,
    security, effect, and performance proof passes; direct tests or registry
    membership do not qualify an owning path.

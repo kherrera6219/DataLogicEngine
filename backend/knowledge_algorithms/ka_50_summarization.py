@@ -2,6 +2,7 @@
 KA-050: Summarization
 Purpose: Summarize text or data.
 """
+
 import logging
 import re
 from typing import Any, Dict, List
@@ -14,9 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class KA050Input(BaseModel):
-    model_config = ConfigDict(extra="allow")
-    text: str = ""
-    max_length: int = 100
+    model_config = ConfigDict(extra="forbid")
+    text: str
+    max_length: int = Field(default=100, ge=40, le=100_000)
     focus_terms: List[str] = Field(default_factory=list)
     style: str = "paragraph"
 
@@ -31,7 +32,7 @@ class KA050Summarization(KnowledgeAlgorithm):
     def _run_logic(self, input_data: KA050Input) -> Dict[str, Any]:
         text = input_data.text
         max_len = max(40, int(input_data.max_length or 100))
-        
+
         self.log_execution_step("Summarizing", {"len": len(text)})
 
         sentences = self._split_sentences(text)
@@ -46,14 +47,27 @@ class KA050Summarization(KnowledgeAlgorithm):
             "summary_sentence_count": len(selected),
             "compression_ratio": round(len(summary) / len(text), 3) if text else 0.0,
             "method": "extractive_frequency_rank",
+            "source_only": True,
+            "content_released": False,
+            "deterministic": True,
+            "limitations": (
+                "The summary is an extractive selection from supplied text and "
+                "does not verify facts, preserve every nuance, or release content."
+            ),
         }
 
     @staticmethod
     def _split_sentences(text: str) -> List[str]:
-        return [part.strip() for part in re.split(r"(?<=[.!?])\s+", text.strip()) if part.strip()]
+        return [
+            part.strip()
+            for part in re.split(r"(?<=[.!?])\s+", text.strip())
+            if part.strip()
+        ]
 
     @classmethod
-    def _select_sentences(cls, sentences: List[str], focus_terms: List[str], max_len: int) -> List[str]:
+    def _select_sentences(
+        cls, sentences: List[str], focus_terms: List[str], max_len: int
+    ) -> List[str]:
         if not sentences:
             return []
         frequencies = cls._term_frequencies(" ".join(sentences))
@@ -63,7 +77,9 @@ class KA050Summarization(KnowledgeAlgorithm):
             terms = cls._tokens(sentence)
             term_score = sum(frequencies.get(term, 0) for term in terms)
             focus_score = 2.5 * len(terms & focus)
-            position_score = 1.0 if index == 0 else 0.3 if index == len(sentences) - 1 else 0.0
+            position_score = (
+                1.0 if index == 0 else 0.3 if index == len(sentences) - 1 else 0.0
+            )
             scored.append((term_score + focus_score + position_score, index, sentence))
         scored.sort(key=lambda item: (-item[0], item[1]))
 
@@ -101,8 +117,29 @@ class KA050Summarization(KnowledgeAlgorithm):
 
     @staticmethod
     def _tokens(text: str) -> set[str]:
-        stopwords = {"the", "a", "an", "and", "or", "of", "to", "in", "on", "for", "with", "is", "are", "was", "were"}
-        return {token for token in re.findall(r"[a-z0-9]+", text.lower()) if token not in stopwords}
+        stopwords = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "of",
+            "to",
+            "in",
+            "on",
+            "for",
+            "with",
+            "is",
+            "are",
+            "was",
+            "were",
+        }
+        return {
+            token
+            for token in re.findall(r"[a-z0-9]+", text.lower())
+            if token not in stopwords
+        }
+
 
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
@@ -111,5 +148,3 @@ def run(context: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"KA-050 Failed: {e}")
         return {"success": False, "error": str(e)}
-
-

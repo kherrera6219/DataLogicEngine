@@ -1,0 +1,19 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "in_progress",
+  "batch_id": "cp19-k-batch-35-inference-mapping",
+  "validated_on": "2026-08-08",
+  "qualified_ids": ["KA-041", "KA-043", "KA-044", "KA-049"],
+  "grouped_roadmap": {"baseline_open_capabilities": 186, "planned_batches": 36, "completed_batches": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], "next_batch": 40, "remaining_batches": 4},
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 195, "incomplete_capabilities": 18, "production_enabled_capabilities": 211, "dependency_edges": 119, "dependency_cycles": 0, "rebuild_authorized": false},
+  "checks": [
+    {"name": "batches_35_39_semantics_owner_paths_and_authority", "status": "pass", "result": "298 passed"},
+    {"name": "inference_mapping_boundary", "status": "pass", "result": "explicit evidence produces candidates only; no causal truth, transfer, validation, or persistence effect"},
+    {"name": "knowledge_algorithm_suite", "status": "pass", "result": "970 passed"},
+    {"name": "phase19_governed_truthcore_integration", "status": "pass", "result": "378 passed"},
+    {"name": "typescript_sdk", "status": "pass", "result": "7 passed"},
+    {"name": "full_source_suite", "status": "pass", "result": "3027 passed, 18 skipped, 32 known warnings"}
+  ],
+  "limitations": ["Inference outputs are unverified candidates and establish no causal truth.", "CP19-K remains incomplete and no installed, external, signing, rebuild, or release gate is closed."]
+}

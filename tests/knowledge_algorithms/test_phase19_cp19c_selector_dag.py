@@ -125,7 +125,7 @@ def test_cp19c_manifest_dependency_graph_is_acyclic_and_namespaced():
             len(definition.contract.dependencies)
             for definition in manifest.entries.values()
         )
-        == 123
+        == 119
     )
     assert manifest.entries["KA-081"].contract.dependencies == [
         "KA-085",

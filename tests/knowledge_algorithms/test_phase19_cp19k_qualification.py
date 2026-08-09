@@ -171,6 +171,30 @@ QUALIFIED_BATCHES = {
     "KA-056",
     "KA-1038",
     "KA-1087",
+    "KA-039",
+    "KA-041",
+    "KA-043",
+    "KA-044",
+    "KA-045",
+    "KA-046",
+    "KA-047",
+    "KA-048",
+    "KA-049",
+    "KA-050",
+    "KA-093",
+    "KA-110",
+    "KA-111",
+    "KA-112",
+    "KA-114",
+    "KA-115",
+    "KA-161",
+    "KA-162",
+    "KA-163",
+    "KA-165",
+    "KA-167",
+    "KA-168",
+    "KA-178",
+    "KA-1114",
     *(f"L9-KA-{number:03d}" for number in range(1, 8)),
     *(f"L10-KA-{number:03d}" for number in range(1, 8)),
 }
@@ -182,9 +206,9 @@ def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     assert matrix["status"] == "cp19_k_in_progress"
     assert matrix["invariants"] == {
         "canonical_capabilities": 213,
-        "qualified_capabilities": 171,
-        "incomplete_capabilities": 42,
-        "reviewed_capabilities": 171,
+        "qualified_capabilities": 195,
+        "incomplete_capabilities": 18,
+        "reviewed_capabilities": 195,
         "runtime_registries_added": 0,
         "findings_waived": False,
         "rebuild_authorized": False,
@@ -224,14 +248,14 @@ def test_cp19k_completed_batches_have_every_required_evidence_class():
         assert row["performance_budget_ms"] > 0
 
 
-def test_cp19k_does_not_overstate_next_unreviewed_ka_041():
+def test_cp19k_does_not_overstate_next_unreviewed_ka_107():
     row = next(
         row
         for row in build_matrix()["canonical_capabilities"]
-        if row["canonical_id"] == "KA-041"
+        if row["canonical_id"] == "KA-107"
     )
 
-    assert row["production_enabled"] is False
+    assert row["production_enabled"] is True
     assert row["qualification_status"] == "incomplete"
     assert {
         "semantic_test",
@@ -249,7 +273,7 @@ def test_cp19k_integrity_verifier_passes_without_closing_checkpoint():
 
     assert evidence["integrity_status"] == "pass"
     assert evidence["checkpoint_status"] == "in_progress"
-    assert evidence["qualified_capabilities"] == 171
-    assert evidence["incomplete_capabilities"] == 42
+    assert evidence["qualified_capabilities"] == 195
+    assert evidence["incomplete_capabilities"] == 18
     assert evidence["rebuild_authorized"] is False
     assert evidence["errors"] == []

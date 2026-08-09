@@ -14,7 +14,7 @@ import math
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Callable
 
 from backend.governed_execution.knowledge_lifecycle import (
     KnowledgeLifecycleCoordinator,
@@ -817,6 +817,179 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             "alert_recommended": bool(output.get("alert_recommended")),
             "notification_applied": False,
         }
+
+    def execute_external_research(
+        self,
+        *,
+        request_id: str,
+        principal_id: str,
+        sub_question: str,
+        allowed_domains: list[str],
+        maximum_sources: int,
+        timebox_seconds: int,
+        connector_id: str,
+        authentication_verified: bool,
+        policy_approved: bool,
+        rate_limit_allowed: bool,
+        connector_approved: bool,
+        human_approved: bool,
+        connector_call: Callable[[dict[str, Any]], dict[str, Any]],
+        record_receipt: Callable[[dict[str, Any]], str],
+        cancelled: bool = False,
+    ) -> dict[str, Any]:
+        """Run bounded external research through the provider owner and ledger."""
+        if cancelled:
+            raise ExtendedSubsystemError("External research request was cancelled")
+        execution = self.execute_operation_sync(
+            owner="provider_gateway",
+            operation="external_research",
+            requested_ids=["KA-111", "KA-1114"],
+            ka_inputs={
+                "KA-111": {
+                    "path": "/internal/research",
+                    "method": "POST",
+                    "principal_id": principal_id,
+                    "authentication_verified": authentication_verified,
+                    "policy_approved": policy_approved,
+                    "rate_limit_allowed": rate_limit_allowed,
+                    "rate_limit_remaining": 1,
+                    "route_target": connector_id,
+                },
+                "KA-1114": {
+                    "sub_question": sub_question,
+                    "allowed_domains": allowed_domains,
+                    "maximum_sources": maximum_sources,
+                    "timebox_seconds": timebox_seconds,
+                    "connector_id": connector_id,
+                    "connector_approved": connector_approved,
+                    "policy_approved": policy_approved,
+                    "human_approved": human_approved,
+                },
+            },
+            request_id=request_id,
+            run_id=f"external-research:{request_id}",
+            max_effects=2,
+            principal_id=principal_id,
+            tier="provider_gateway",
+            layer="external_research",
+            service_capabilities={"provider_gateway_service"},
+        )
+        outputs = self.execution_outputs(execution)
+        if outputs["KA-111"].get("decision") != "admit":
+            raise ExtendedSubsystemError("Gateway admission blocked external research")
+        research = outputs["KA-1114"]
+        if research.get("decision") != "admit":
+            raise ExtendedSubsystemError("Research policy blocked external research")
+        request_payload = dict(research.get("research_request") or {})
+        result = connector_call(request_payload)
+        if not isinstance(result, dict):
+            raise ExtendedSubsystemError(
+                "Research connector returned an invalid result"
+            )
+        citations = result.get("citations")
+        if not isinstance(citations, list) or not citations:
+            raise ExtendedSubsystemError("Research result requires citations")
+        if len(citations) > maximum_sources:
+            raise ExtendedSubsystemError("Research result exceeded the source budget")
+        allowed = {domain.casefold() for domain in allowed_domains}
+        for citation in citations:
+            if not isinstance(citation, dict):
+                raise ExtendedSubsystemError(
+                    "Research result returned an invalid citation"
+                )
+            domain = str(citation.get("domain") or "").casefold()
+            if domain not in allowed:
+                raise ExtendedSubsystemError("Research result used a disallowed domain")
+        proposal_ids = [
+            str(outputs[canonical_id]["effect_proposal"]["effect_id"])
+            for canonical_id in ("KA-111", "KA-1114")
+            if isinstance(outputs[canonical_id].get("effect_proposal"), dict)
+        ]
+        receipt = self.bind_effect_receipt(
+            service="ProviderGatewayService",
+            operation="external_research:connector_call",
+            resource_id=str(research["request_id"]),
+            request_payload=request_payload,
+            result_payload=result,
+            idempotency_key=request_id,
+            ka_execution=execution,
+            proposal_ids=proposal_ids,
+        )
+        ledger_record_id = str(record_receipt(receipt.to_dict()) or "").strip()
+        if not ledger_record_id:
+            raise ExtendedSubsystemError("Research receipt was not durably recorded")
+        return {
+            "execution": execution,
+            "result": result,
+            "receipt": receipt,
+            "ledger_record_id": ledger_record_id,
+        }
+
+    def execute_delivery_boundary(
+        self,
+        *,
+        request_id: str,
+        principal_id: str,
+        ka_inputs: dict[str, dict[str, Any]],
+        delivery_call: Callable[[dict[str, Any]], dict[str, Any]],
+        record_receipt: Callable[[dict[str, Any]], str],
+    ) -> dict[str, Any]:
+        """Apply reviewed delivery proposals only through OperationsControlService."""
+        requested_ids = ["KA-093", "KA-110", "KA-112", "KA-114", "KA-115"]
+        execution = self.execute_operation_sync(
+            owner="security_operations_lifecycle",
+            operation="messaging",
+            requested_ids=requested_ids,
+            ka_inputs=ka_inputs,
+            request_id=request_id,
+            run_id=f"delivery:{request_id}",
+            max_effects=len(requested_ids),
+            principal_id=principal_id,
+            tier="operations",
+            layer="delivery",
+            service_capabilities={"operations_control_service"},
+        )
+        outputs = self.execution_outputs(execution)
+        applied = []
+        for canonical_id in requested_ids:
+            proposal = outputs[canonical_id].get("effect_proposal")
+            if not isinstance(proposal, dict):
+                continue
+            result = delivery_call(dict(proposal))
+            if not isinstance(result, dict) or result.get("status") not in {
+                "enqueued",
+                "delivered",
+            }:
+                raise ExtendedSubsystemError("Delivery service did not apply proposal")
+            resource_id = str(result.get("record_id") or "").strip()
+            if not resource_id:
+                raise ExtendedSubsystemError(
+                    "Delivery result requires a durable record ID"
+                )
+            receipt = self.bind_effect_receipt(
+                service="OperationsControlService",
+                operation=str(proposal.get("kind") or "delivery"),
+                resource_id=resource_id,
+                request_payload=proposal,
+                result_payload=result,
+                idempotency_key=f"{request_id}:{proposal['effect_id']}",
+                ka_execution=execution,
+                proposal_ids=[str(proposal["effect_id"])],
+            )
+            ledger_record_id = str(record_receipt(receipt.to_dict()) or "").strip()
+            if not ledger_record_id:
+                raise ExtendedSubsystemError(
+                    "Delivery receipt was not durably recorded"
+                )
+            applied.append(
+                {
+                    "canonical_id": canonical_id,
+                    "result": result,
+                    "receipt": receipt,
+                    "ledger_record_id": ledger_record_id,
+                }
+            )
+        return {"execution": execution, "applied": applied}
 
     def plan_simulation(
         self,

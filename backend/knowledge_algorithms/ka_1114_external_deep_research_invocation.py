@@ -79,6 +79,18 @@ class KA1114ExternalDeepResearchInvocation(KnowledgeAlgorithm):
             "provider_called": False,
             "network_accessed": False,
             "memory_written": False,
+            "effect_proposal": (
+                {
+                    "effect_id": request_id,
+                    "kind": "invoke_external_research_connector",
+                    "status": "proposed",
+                    "service": "provider_gateway_service",
+                    "payload": request,
+                }
+                if not blockers
+                else None
+            ),
+            "authoritative_receipt": None,
             "deterministic": True,
             "limitations": (
                 "An approved connector must perform bounded research and return "

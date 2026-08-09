@@ -2,6 +2,7 @@
 KA-045: Pattern Recognition
 Purpose: Identify recurring patterns in data.
 """
+
 import logging
 from collections import Counter
 from typing import Any, Dict, List
@@ -13,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 class KA045Input(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     stream: List[Any] = Field(default_factory=list)
-    min_repetitions: int = 2
-    window_size: int = 3
+    min_repetitions: int = Field(default=2, ge=2, le=10_000)
+    window_size: int = Field(default=3, ge=2, le=10_000)
 
 
 class KA045PatternRecognition(KnowledgeAlgorithm):
@@ -35,7 +36,9 @@ class KA045PatternRecognition(KnowledgeAlgorithm):
 
         patterns = []
         patterns.extend(self._repeated_values(data_stream, min_repetitions))
-        patterns.extend(self._repeated_windows(data_stream, window_size, min_repetitions))
+        patterns.extend(
+            self._repeated_windows(data_stream, window_size, min_repetitions)
+        )
         patterns.extend(self._monotonic_runs(data_stream))
         return {
             "ka_id": self.ka_id,
@@ -43,24 +46,46 @@ class KA045PatternRecognition(KnowledgeAlgorithm):
             "patterns": patterns,
             "pattern_count": len(patterns),
             "method": "repeat_window_monotonic_detection",
+            "deterministic": True,
+            "limitations": (
+                "Patterns are exact repeats or measured monotonic runs; support "
+                "ratios are descriptive and not calibrated confidence."
+            ),
         }
 
     @staticmethod
-    def _repeated_values(stream: List[Any], min_repetitions: int) -> List[Dict[str, Any]]:
+    def _repeated_values(
+        stream: List[Any], min_repetitions: int
+    ) -> List[Dict[str, Any]]:
         counts = Counter(map(str, stream))
         return [
-            {"type": "repeated_value", "value": value, "count": count, "confidence": min(0.95, count / max(1, len(stream)))}
+            {
+                "type": "repeated_value",
+                "value": value,
+                "count": count,
+                "support_ratio": count / max(1, len(stream)),
+            }
             for value, count in counts.items()
             if count >= min_repetitions
         ]
 
     @staticmethod
-    def _repeated_windows(stream: List[Any], window_size: int, min_repetitions: int) -> List[Dict[str, Any]]:
+    def _repeated_windows(
+        stream: List[Any], window_size: int, min_repetitions: int
+    ) -> List[Dict[str, Any]]:
         if len(stream) < window_size * min_repetitions:
             return []
-        windows = Counter(tuple(map(str, stream[index:index + window_size])) for index in range(len(stream) - window_size + 1))
+        windows = Counter(
+            tuple(map(str, stream[index : index + window_size]))
+            for index in range(len(stream) - window_size + 1)
+        )
         return [
-            {"type": "repeated_sequence", "sequence": list(window), "count": count, "confidence": min(0.95, 0.4 + count * 0.15)}
+            {
+                "type": "repeated_sequence",
+                "sequence": list(window),
+                "count": count,
+                "support_count": count,
+            }
             for window, count in windows.items()
             if count >= min_repetitions
         ]
@@ -80,11 +105,25 @@ class KA045PatternRecognition(KnowledgeAlgorithm):
                 direction = current_direction
             elif current_direction and current_direction != direction:
                 if index - start >= 3:
-                    runs.append({"type": "monotonic_run", "direction": "increasing" if direction > 0 else "decreasing", "length": index - start, "confidence": 0.8})
+                    runs.append(
+                        {
+                            "type": "monotonic_run",
+                            "direction": "increasing"
+                            if direction > 0
+                            else "decreasing",
+                            "length": index - start,
+                        }
+                    )
                 start = index - 1
                 direction = current_direction
         if len(numeric) - start >= 3 and direction:
-            runs.append({"type": "monotonic_run", "direction": "increasing" if direction > 0 else "decreasing", "length": len(numeric) - start, "confidence": 0.8})
+            runs.append(
+                {
+                    "type": "monotonic_run",
+                    "direction": "increasing" if direction > 0 else "decreasing",
+                    "length": len(numeric) - start,
+                }
+            )
         return runs
 
     @staticmethod

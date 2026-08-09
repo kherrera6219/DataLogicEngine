@@ -2,6 +2,7 @@
 KA-043: Causal Inference
 Purpose: Infer cause-effect relationships.
 """
+
 import logging
 import re
 from typing import Any, Dict, List
@@ -30,7 +31,7 @@ class KA043CausalInference(KnowledgeAlgorithm):
     def _run_logic(self, input_data: KA043Input) -> Dict[str, Any]:
         effect = input_data.effect
         candidates = input_data.candidates
-        
+
         self.log_execution_step("Inferring Cause", {"effect": effect})
 
         scored = [
@@ -38,13 +39,17 @@ class KA043CausalInference(KnowledgeAlgorithm):
             for index, candidate in enumerate(candidates)
         ]
         scored.sort(key=lambda item: (-item["score"], item["rank"]))
-        best = scored[0] if scored else {
-            "candidate": "Unknown",
-            "score": 0.0,
-            "confidence": 0.0,
-            "signals": {},
-            "explanation": "No candidate causes were supplied.",
-        }
+        best = (
+            scored[0]
+            if scored
+            else {
+                "candidate": "Unknown",
+                "score": 0.0,
+                "confidence": 0.0,
+                "signals": {},
+                "explanation": "No candidate causes were supplied.",
+            }
+        )
 
         return {
             "ka_id": "KA-043",
@@ -62,20 +67,40 @@ class KA043CausalInference(KnowledgeAlgorithm):
                 for item in scored
             ],
             "effect": effect,
+            "causal_claim_established": False,
+            "candidate_only": True,
+            "deterministic": True,
+            "limitations": (
+                "Confidence is an uncalibrated supplied-evidence support score; "
+                "ranking does not establish intervention-level causality."
+            ),
         }
 
     @classmethod
-    def _score_candidate(cls, candidate: Any, effect: str, evidence: List[Any], rank: int) -> Dict[str, Any]:
+    def _score_candidate(
+        cls, candidate: Any, effect: str, evidence: List[Any], rank: int
+    ) -> Dict[str, Any]:
         normalized = cls._normalize_candidate(candidate)
         candidate_text = normalized["name"]
         effect_terms = cls._tokens(effect)
         candidate_terms = cls._tokens(candidate_text)
-        evidence_terms = cls._tokens(" ".join(cls._evidence_text(item) for item in evidence))
-        explicit_score = float(normalized.get("score", normalized.get("correlation", 0.0)) or 0.0)
+        evidence_terms = cls._tokens(
+            " ".join(cls._evidence_text(item) for item in evidence)
+        )
+        explicit_score = float(
+            normalized.get("score", normalized.get("correlation", 0.0)) or 0.0
+        )
         temporal = cls._temporal_signal(normalized, evidence)
         mechanism = cls._mechanism_signal(normalized, effect_terms)
-        overlap = len((candidate_terms | set(normalized.get("keywords", []))) & (effect_terms | evidence_terms))
-        evidence_mentions = sum(1 for item in evidence if candidate_text.lower() in cls._evidence_text(item).lower())
+        overlap = len(
+            (candidate_terms | set(normalized.get("keywords", [])))
+            & (effect_terms | evidence_terms)
+        )
+        evidence_mentions = sum(
+            1
+            for item in evidence
+            if candidate_text.lower() in cls._evidence_text(item).lower()
+        )
 
         signals = {
             "explicit_score": min(1.0, max(0.0, explicit_score)),
@@ -92,9 +117,7 @@ class KA043CausalInference(KnowledgeAlgorithm):
             "evidence_mentions": 0.15,
         }
         score = sum(signals[name] * weight for name, weight in weights.items())
-        if score == 0 and rank == 0:
-            score = 0.35
-        confidence = round(max(0.05, min(0.95, 0.35 + score * 0.6)), 3)
+        confidence = round(min(1.0, max(0.0, score)), 3)
         return {
             "candidate": candidate_text,
             "score": round(score, 4),
@@ -107,14 +130,38 @@ class KA043CausalInference(KnowledgeAlgorithm):
     @staticmethod
     def _normalize_candidate(candidate: Any) -> Dict[str, Any]:
         if isinstance(candidate, dict):
-            name = str(candidate.get("name") or candidate.get("cause") or candidate.get("id") or candidate)
+            name = str(
+                candidate.get("name")
+                or candidate.get("cause")
+                or candidate.get("id")
+                or candidate
+            )
             return {**candidate, "name": name}
         return {"name": str(candidate)}
 
     @staticmethod
     def _tokens(text: str) -> set[str]:
-        stopwords = {"the", "a", "an", "is", "are", "was", "were", "of", "to", "and", "in", "on", "for", "with"}
-        return {token for token in re.findall(r"[a-z0-9]+", text.lower()) if token not in stopwords}
+        stopwords = {
+            "the",
+            "a",
+            "an",
+            "is",
+            "are",
+            "was",
+            "were",
+            "of",
+            "to",
+            "and",
+            "in",
+            "on",
+            "for",
+            "with",
+        }
+        return {
+            token
+            for token in re.findall(r"[a-z0-9]+", text.lower())
+            if token not in stopwords
+        }
 
     @staticmethod
     def _evidence_text(item: Any) -> str:
@@ -128,7 +175,9 @@ class KA043CausalInference(KnowledgeAlgorithm):
             return 1.0
         if candidate.get("precedes_effect") is False:
             return 0.0
-        if candidate.get("timestamp") and any(isinstance(item, dict) and item.get("effect_timestamp") for item in evidence):
+        if candidate.get("timestamp") and any(
+            isinstance(item, dict) and item.get("effect_timestamp") for item in evidence
+        ):
             return 0.75
         return 0.4 if evidence else 0.2
 
@@ -152,6 +201,7 @@ class KA043CausalInference(KnowledgeAlgorithm):
         }
         return f"Ranked by {labels[strongest]} with local deterministic scoring."
 
+
 def run(context: Dict[str, Any]) -> Dict[str, Any]:
     try:
         algo = KA043CausalInference(context)
@@ -159,5 +209,3 @@ def run(context: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"KA-043 Failed: {e}")
         return {"success": False, "error": str(e)}
-
-

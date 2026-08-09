@@ -5692,15 +5692,18 @@ provider, loop, or persistence effects. Batches 33-34 individually prove every
 exact L9 and L10 KA through their real owner DAGs while leaving refinement,
 persistence, containment, escalation, and release to the orchestrator.
 
-The generated matrix and verifier pass at 171/213 qualified and 42 incomplete.
-Batches 08 through 34 are complete, nine planned batches remain, and Batch 35,
-L1 inference mapping (`KA-041`, `KA-043`, `KA-044`, and `KA-049`), is next.
-Runtime manifest `2026.08.08-cp19k.15` retains 213 capabilities, 194
-production-enabled capabilities, and a 123-edge zero-cycle
+The generated matrix and verifier pass at 195/213 qualified and 18 incomplete.
+Batches 08 through 39 are complete, four planned batches remain, and Batch 40,
+operations health/recovery (`KA-107`, `KA-108`, `KA-109`, `KA-1097`,
+`KA-1098`, and `KA-138`), is next. Batches 35-37 bound inference, signal, and
+language/identity evidence; Batch 38 gates external research through the real
+provider owner; and Batch 39 gates delivery through the real operations owner.
+Runtime manifest `2026.08.08-cp19k.20` retains 213 capabilities, 211
+production-enabled capabilities, and a 119-edge zero-cycle
 dependency graph. Rebuild authorization remains false, and all rebuilt-
 installed, accessibility, provider, independent-review, pilot, and soak gates
-remain open. The 946-test KA suite, 353 Phase-19/governed/TruthCore integration
-tests, seven TypeScript SDK tests, and 2,978-test full source suite
+remain open. The 970-test KA suite, 378 Phase-19/governed/TruthCore integration
+tests, seven TypeScript SDK tests, and the 3,027-test full source suite
 pass with 18 skipped and 32
 known warnings.
 
@@ -6184,8 +6187,8 @@ exit gate.
 
 ## 34. Immediate next action
 
-CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-34 now truthfully
-qualify 171 rows, including the causal simulation core, MCP admission/result
+CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-39 now truthfully
+qualify 195 rows, including the causal simulation core, MCP admission/result
 release governance, content-free structured logging with durable audit/receipt
 records, fail-closed recovery planning, provider context-budget enforcement,
 measured provider monitoring, content-free authenticated observability, causal
@@ -6198,11 +6201,12 @@ adaptive DMRF routing, store maintenance, content evolution, lifecycle
 analytics, L10 oversight, TruthGate system integrity, knowledge release/drift
 review, regulatory/compliance evidence, bounded persona adaptation, planning
 control, advanced reasoning, synthesis/explainability, and the exact L9/L10
-suites, leaving 42 of 213 rows open. The
+suites, bounded inference/signal/language evidence, owner-controlled external
+research, and owner-receipted operations delivery, leaving 18 of 213 rows open. The
 generated matrix and integrity verifier keep rebuild authorization false. The
 213-row owner/consumer
 authority, typed result boundary, 213 positive and 213 negative selector
-fixtures, current 123-edge acyclic dependency graph, bounded structured
+fixtures, current 119-edge acyclic dependency graph, bounded structured
 execution, truthful plan/execution states, and the causal typed L1-L10 product
 lifecycle with full fail-closed L9/L10 safety and causal KA-backed axes 8-11
 persona preparation plus the one bounded 12-step refinement subgraph are
@@ -6216,9 +6220,9 @@ The authenticated product surface now adds principal-owned encrypted durable
 runs, exact-risk confirmation, cancellation/recovery, 12 API paths, generated
 Python/TypeScript SDK parity, and real-backend desktop history/result/trace/
 artifact/effect review. The reviewed completion roadmap contains 36 cohesive
-batches (08-43); Batches 08 through 34 are complete and nine remain. Continue
-CP19-K with Batch 35, L1 inference mapping (`KA-041`, `KA-043`, `KA-044`, and
-`KA-049`), through the real TruthCore L1-L5 owner without inferring production enablement
+batches (08-43); Batches 08 through 39 are complete and four remain. Continue
+CP19-K with Batch 40, operations health/recovery (`KA-107`, `KA-108`, `KA-109`,
+`KA-1097`, `KA-1098`, and `KA-138`), through the real operations owner without inferring production enablement
 from registry membership. Keep every later row incomplete until its individual
 owner/effect evidence exists.
 

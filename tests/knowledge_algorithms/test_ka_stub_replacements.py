@@ -909,32 +909,50 @@ def test_ka109_reports_real_local_health_components():
     assert result["output"]["uptime_seconds"] > 0
 
 
-def test_ka111_authorizes_routes_and_rate_limits_locally():
+def test_ka111_consumes_authoritative_gateway_controls_without_credentials():
     ka = KA111APIGateway({})
 
     allowed = ka.run(
         KA111Input(
-            headers={"X-API-Key": "local-dev-key"},
             path="/search/documents",
-            request_count=3,
+            principal_id="owner-1",
+            authentication_verified=True,
+            policy_approved=True,
+            rate_limit_allowed=True,
+            rate_limit_remaining=17,
+            route_target="retrieval_service",
         )
     )
-    denied = ka.run(KA111Input(headers={}, path="/search/documents"))
+    denied = ka.run(
+        KA111Input(
+            path="/search/documents",
+            principal_id="owner-1",
+            authentication_verified=False,
+            policy_approved=True,
+            rate_limit_allowed=True,
+            rate_limit_remaining=17,
+            route_target="retrieval_service",
+        )
+    )
     limited = ka.run(
         KA111Input(
-            headers={"X-API-Key": "local-dev-key"},
             path="/search/documents",
-            request_count=99,
+            principal_id="owner-1",
+            authentication_verified=True,
+            policy_approved=True,
+            rate_limit_allowed=False,
+            rate_limit_remaining=0,
+            route_target="retrieval_service",
         )
     )
 
     assert allowed["success"] is True
     assert allowed["output"]["route_target"] == "retrieval_service"
-    assert allowed["output"]["rate_limit_remaining"] >= 0
-    assert denied["success"] is False
-    assert denied["output"]["status_code"] == 401
-    assert limited["success"] is False
-    assert limited["output"]["status_code"] == 429
+    assert allowed["output"]["forwarded"] is False
+    assert denied["output"]["decision"] == "block"
+    assert "authentication_not_verified" in denied["output"]["blockers"]
+    assert limited["output"]["decision"] == "block"
+    assert "rate_limit_exceeded" in limited["output"]["blockers"]
 
 
 def test_ka_master_dispatches_selected_flow(monkeypatch):
@@ -1264,8 +1282,6 @@ def test_ka069_cultural_context_adapter():
     assert result_asia["output"]["locale_detected"] is False
     assert result_asia["output"]["content_rewritten"] is False
     assert (
-        result_asia["output"]["numeric_format_specifications"]["rate"][
-            "decimal_places"
-        ]
+        result_asia["output"]["numeric_format_specifications"]["rate"]["decimal_places"]
         == 0
     )

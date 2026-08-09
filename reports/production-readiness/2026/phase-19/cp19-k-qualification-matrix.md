@@ -1,14 +1,14 @@
 # CP19-K per-KA qualification matrix
 
-**Matrix version:** `2026.08.08-cp19k.17`
+**Matrix version:** `2026.08.08-cp19k.22`
 **Status:** `cp19_k_in_progress`
 **Release decision:** NO-GO; rebuild not authorized
 
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 171 rows are fully
-qualified and 42 remain open. A row closes
+canonical capabilities. 195 rows are fully
+qualified and 18 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -54,6 +54,11 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-32-l9-synthesis-explainability` | 2026-08-08 | 5 | Evidence-honest critique, synthesis, trace-only narrative, cross-modal evidence fusion, and explicit explanation coverage without hidden reasoning, provider calls, extraction, or persistence |
 | `cp19-k-batch-33-l9-exact-loop-suite` | 2026-08-08 | 7 | Exact dependency-ordered L9 trace, drift, persona, meta-evaluation, readiness, recursion, and loop-control DAG with bounded termination and no applied refinement |
 | `cp19-k-batch-34-l10-exact-release-suite` | 2026-08-08 | 7 | Exact dependency-ordered L10 entropy, awareness, redaction, ethics, trust, escalation, and containment evidence with fail-closed release decisions and no persistence or dispatch effect |
+| `cp19-k-batch-35-inference-mapping` | 2026-08-08 | 4 | Evidence-bounded abductive, causal-candidate, analogical, and relation mappings through TruthCore without truth, transfer, persistence, or causal-effect claims |
+| `cp19-k-batch-36-signal-analysis` | 2026-08-08 | 6 | Deterministic anomaly, pattern, trend, sentiment, bias-indicator, and temporal-correlation measurements through TruthCore without invented confidence calibration or state effects |
+| `cp19-k-batch-37-language-identity-explanation` | 2026-08-08 | 7 | Bounded extractive language, entity, identity, and explanation evidence through TruthCore without provider calls, content release, profile mutation, or graph merge |
+| `cp19-k-batch-38-provider-api-external-research` | 2026-08-08 | 2 | Authoritative authentication, policy, rate, domain, source, time, and citation controls consumed by ProviderGatewayService before the approved connector runs, with a durable receipt and ledger record |
+| `cp19-k-batch-39-operations-delivery-messaging` | 2026-08-08 | 5 | Proposal-only notification, webhook, alert, outbox, and inbox KAs whose effects are applied only by OperationsControlService with authoritative record IDs, receipts, and ledger records |
 
 ## Gate decision
 

@@ -1,31 +1,31 @@
 {
   "schema_version": "dle.cp19-k-qualification-matrix.v1",
-  "matrix_version": "2026.08.08-cp19k.17",
+  "matrix_version": "2026.08.08-cp19k.22",
   "status": "cp19_k_in_progress",
   "phase": 19,
   "checkpoint": "CP19-K",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.08-cp19k.15",
+  "manifest_version": "2026.08.08-cp19k.20",
   "evidence_source": "config/phase19-ka-qualification-evidence.json",
   "invariants": {
     "canonical_capabilities": 213,
-    "qualified_capabilities": 171,
-    "incomplete_capabilities": 42,
-    "reviewed_capabilities": 171,
+    "qualified_capabilities": 195,
+    "incomplete_capabilities": 18,
+    "reviewed_capabilities": 195,
     "runtime_registries_added": 0,
     "findings_waived": false,
     "rebuild_authorized": false
   },
   "evidence_counts": {
-    "semantic_test": 171,
+    "semantic_test": 195,
     "positive_selector": 213,
     "negative_selector": 213,
-    "owning_path_test": 171,
-    "limitation_review": 171,
-    "trace_proof": 171,
-    "security_review": 171,
-    "effect_review": 171,
-    "performance_evidence": 171
+    "owning_path_test": 195,
+    "limitation_review": 195,
+    "trace_proof": 195,
+    "security_review": 195,
+    "effect_review": 195,
+    "performance_evidence": 195
   },
   "batches": [
     {
@@ -436,6 +436,65 @@
         "L10-KA-007"
       ],
       "scope": "Exact dependency-ordered L10 entropy, awareness, redaction, ethics, trust, escalation, and containment evidence with fail-closed release decisions and no persistence or dispatch effect"
+    },
+    {
+      "batch_id": "cp19-k-batch-35-inference-mapping",
+      "completed_on": "2026-08-08",
+      "canonical_ids": [
+        "KA-041",
+        "KA-043",
+        "KA-044",
+        "KA-049"
+      ],
+      "scope": "Evidence-bounded abductive, causal-candidate, analogical, and relation mappings through TruthCore without truth, transfer, persistence, or causal-effect claims"
+    },
+    {
+      "batch_id": "cp19-k-batch-36-signal-analysis",
+      "completed_on": "2026-08-08",
+      "canonical_ids": [
+        "KA-039",
+        "KA-045",
+        "KA-046",
+        "KA-047",
+        "KA-165",
+        "KA-167"
+      ],
+      "scope": "Deterministic anomaly, pattern, trend, sentiment, bias-indicator, and temporal-correlation measurements through TruthCore without invented confidence calibration or state effects"
+    },
+    {
+      "batch_id": "cp19-k-batch-37-language-identity-explanation",
+      "completed_on": "2026-08-08",
+      "canonical_ids": [
+        "KA-048",
+        "KA-050",
+        "KA-161",
+        "KA-162",
+        "KA-163",
+        "KA-168",
+        "KA-178"
+      ],
+      "scope": "Bounded extractive language, entity, identity, and explanation evidence through TruthCore without provider calls, content release, profile mutation, or graph merge"
+    },
+    {
+      "batch_id": "cp19-k-batch-38-provider-api-external-research",
+      "completed_on": "2026-08-08",
+      "canonical_ids": [
+        "KA-111",
+        "KA-1114"
+      ],
+      "scope": "Authoritative authentication, policy, rate, domain, source, time, and citation controls consumed by ProviderGatewayService before the approved connector runs, with a durable receipt and ledger record"
+    },
+    {
+      "batch_id": "cp19-k-batch-39-operations-delivery-messaging",
+      "completed_on": "2026-08-08",
+      "canonical_ids": [
+        "KA-093",
+        "KA-110",
+        "KA-112",
+        "KA-114",
+        "KA-115"
+      ],
+      "scope": "Proposal-only notification, webhook, alert, outbox, and inbox KAs whose effects are applied only by OperationsControlService with authoritative record IDs, receipts, and ledger records"
     }
   ],
   "canonical_capabilities": [
@@ -3142,17 +3201,17 @@
       "name": "Anomaly Detection",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Named scores and classifications are heuristics, not calibrated probabilities.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-36-signal-analysis",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_039_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3165,18 +3224,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_039_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_039_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_039_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_039_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3187,34 +3246,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_039_semantic_contract",
+          "rationale": "Strict bounded z-score or IQR inputs produce local measurement evidence only."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "Anomaly measurement changes no state."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_039_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-040",
@@ -3292,17 +3343,17 @@
       "name": "Abductive Reasoning",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Requires explicit owner opt-in, recorded parameters/seed when stochastic, and cannot appear as a production validator.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-35-inference-mapping",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_041_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3315,18 +3366,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_041_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_041_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_041_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_041_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3337,34 +3388,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_041_semantic_contract",
+          "rationale": "Hypotheses must be explicit evidence-bounded candidates and are never synthesized from arbitrary input tokens."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No hypothesis is validated or persisted."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_041_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-042",
@@ -3442,17 +3485,17 @@
       "name": "Causal Inference",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Requires explicit owner opt-in, recorded parameters/seed when stochastic, and cannot appear as a production validator.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-35-inference-mapping",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_043_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3465,18 +3508,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_043_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_043_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_043_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_043_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3487,51 +3530,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_043_semantic_contract",
+          "rationale": "Supplied evidence-fit scores remain uncalibrated and cannot establish causality."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No causal claim or graph update is applied."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_043_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-044",
       "name": "Analogical Mapping",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Named scores and classifications are heuristics, not calibrated probabilities.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-35-inference-mapping",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_044_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3544,18 +3579,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_044_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_044_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_044_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_044_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3566,51 +3601,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_044_semantic_contract",
+          "rationale": "Only explicit structural mappings are compared and all transfer claims remain candidates."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No cross-domain transfer is applied."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_044_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-045",
       "name": "Pattern Recognition",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Named scores and classifications are heuristics, not calibrated probabilities.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-36-signal-analysis",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_045_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3623,18 +3650,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_045_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_045_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_045_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_045_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3645,51 +3672,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_045_semantic_contract",
+          "rationale": "Pattern evidence reports measured support counts and ratios rather than fabricated confidence."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "Pattern recognition is pure."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_045_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-046",
       "name": "Trend Analysis",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Named scores and classifications are heuristics, not calibrated probabilities.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-36-signal-analysis",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_046_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3702,18 +3721,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_046_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_046_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_046_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_046_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3724,51 +3743,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_046_semantic_contract",
+          "rationale": "Trend output reports measurement coverage and does not invent calibrated certainty."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "Trend analysis is observational."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_046_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-047",
       "name": "Sentiment Analysis",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Named scores and classifications are heuristics, not calibrated probabilities.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-36-signal-analysis",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_047_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3781,18 +3792,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_047_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_047_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_047_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_047_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3803,51 +3814,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_047_semantic_contract",
+          "rationale": "Lexicon matches are disclosed as matched terms rather than confidence or psychological inference."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "Sentiment labeling changes no profile or content."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_047_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-048",
       "name": "Entity Extraction",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Named scores and classifications are heuristics, not calibrated probabilities.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-37-language-identity-explanation",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_048_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3860,18 +3863,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_048_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_048_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_048_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_048_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3882,51 +3885,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_048_semantic_contract",
+          "rationale": "Entities are exact regex matches with no fabricated confidence or identity inference."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "Entities are not persisted."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_048_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-049",
       "name": "Relation Extraction",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Named scores and classifications are heuristics, not calibrated probabilities.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-35-inference-mapping",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_049_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -3939,18 +3934,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_049_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_049_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_049_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_049_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -3961,51 +3956,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_049_semantic_contract",
+          "rationale": "Relations are extracted deterministically from bounded source text and remain unverified."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "Extracted relations are not persisted."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_049_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-050",
       "name": "Summarization",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Named scores and classifications are heuristics, not calibrated probabilities.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-37-language-identity-explanation",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_050_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -4018,18 +4005,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_050_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_050_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_050_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_050_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -4040,34 +4027,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_050_semantic_contract",
+          "rationale": "The summary is source-only, bounded, and explicitly unreleased."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No content is released or persisted."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_050_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-051",
@@ -7061,12 +7040,12 @@
       "effect_port": "operations_control_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-39-operations-delivery-messaging",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_093_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -7079,18 +7058,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_093_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_093_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_093_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_093_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -7101,34 +7080,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_093_semantic_contract",
+          "rationale": "Recipients and allowed channels are explicit and the KA makes no delivery claim."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_093_owning_path",
+          "rationale": "OperationsControlService alone delivers and binds the authoritative record ID, receipt, and ledger entry."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_093_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-094",
@@ -11409,12 +11380,12 @@
       "effect_port": "operations_control_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-39-operations-delivery-messaging",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_110_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -11427,18 +11398,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_110_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_110_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_110_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_110_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -11449,34 +11420,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_110_semantic_contract",
+          "rationale": "Webhook publication remains a bounded proposal with no direct network access."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_110_owning_path",
+          "rationale": "The owner applies the delivery through the injected service and records its receipt."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_110_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1100",
@@ -12222,12 +12185,12 @@
       "effect_port": "provider_gateway_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-38-provider-api-external-research",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_111_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -12240,18 +12203,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_111_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_111_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_111_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_111_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -12262,34 +12225,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_111_owning_path",
+          "rationale": "The KA consumes authoritative authentication, policy, and rate decisions and never parses caller credentials."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_111_owning_path",
+          "rationale": "ProviderGatewayService alone invokes the approved connector and binds a durable SHA-256 receipt and ledger record."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_111_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-1110",
@@ -12514,12 +12469,12 @@
       "effect_port": "provider_gateway_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-38-provider-api-external-research",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1114_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -12532,18 +12487,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_1114_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_1114_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_provider_gateway.py::test_ka_1114_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_1114_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -12554,34 +12509,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_1114_owning_path",
+          "rationale": "Explicit domain, source, time, citation, and connector controls fail closed before egress."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_1114_owning_path",
+          "rationale": "The owner validates returned citations and source budget before recording the applied connector receipt."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1114_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-112",
@@ -12593,12 +12540,12 @@
       "effect_port": "operations_control_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-39-operations-delivery-messaging",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_112_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -12611,18 +12558,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_112_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_112_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_112_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_112_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -12633,34 +12580,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_112_semantic_contract",
+          "rationale": "Alert routing is proposal-only and consumes explicit bounded destinations."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_112_owning_path",
+          "rationale": "The owner applies and records the alert queue effect."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_112_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-113",
@@ -12743,12 +12682,12 @@
       "effect_port": "operations_control_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-39-operations-delivery-messaging",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_114_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -12761,18 +12700,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_114_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_114_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_114_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_114_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -12783,34 +12722,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_114_semantic_contract",
+          "rationale": "Only explicitly released hashed claim references can be packaged and the KA performs no database or network work."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_114_owning_path",
+          "rationale": "OperationsControlService owns federated delivery and records its authoritative receipt."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_114_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-115",
@@ -12822,12 +12753,12 @@
       "effect_port": "operations_control_service",
       "limitation": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
       "performance_budget_ms": 1000,
-      "batch_id": null,
+      "batch_id": "cp19-k-batch-39-operations-delivery-messaging",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_115_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -12840,18 +12771,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_115_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_115_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_115_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_115_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -12862,34 +12793,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_115_semantic_contract",
+          "rationale": "Inbound claim references require explicit signature and source authorization and remain proposals."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_115_owning_path",
+          "rationale": "OperationsControlService alone applies ingestion and records the durable receipt and ledger entry."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_115_semantic_contract",
-          "matches_authority_target": false,
+          "matches_authority_target": true,
           "budget_ms": 1000
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-116",
@@ -13338,17 +13261,17 @@
       "name": "Translation",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Phase 19 capability limitation review required.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-37-language-identity-explanation",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_161_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -13361,18 +13284,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_161_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_161_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_161_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_161_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -13383,51 +13306,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_161_semantic_contract",
+          "rationale": "Language analysis remains local, bounded, and provider-free."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No content or profile is changed."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_161_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-162",
       "name": "Paraphrasing",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Phase 19 capability limitation review required.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-37-language-identity-explanation",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_162_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -13440,18 +13355,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_162_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_162_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_162_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_162_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -13462,51 +13377,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_162_semantic_contract",
+          "rationale": "Cross-lingual evidence uses supplied local values and makes no provider request."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No translation or rewrite is applied."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_162_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-163",
       "name": "Style Transfer",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Phase 19 capability limitation review required.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-37-language-identity-explanation",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_163_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -13519,18 +13426,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_163_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_163_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_163_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_163_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -13541,51 +13448,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_163_semantic_contract",
+          "rationale": "Explanation planning exposes only supplied evidence references and generates no content."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No explanation is published."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_163_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-165",
       "name": "Topic Modeling",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Phase 19 capability limitation review required.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-36-signal-analysis",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_165_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -13598,18 +13497,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_165_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_165_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_165_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_165_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -13620,51 +13519,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_165_semantic_contract",
+          "rationale": "Bias indicators are limited to explicit hinted-term frequency and cannot establish discrimination."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No mitigation or policy effect is applied."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_165_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-167",
       "name": "Keyword Extraction",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Phase 19 capability limitation review required.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-36-signal-analysis",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_167_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -13677,18 +13568,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_167_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_167_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_167_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_167_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -13699,51 +13590,43 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_167_semantic_contract",
+          "rationale": "Temporal correlation is bounded to supplied series and is explicitly non-causal."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "Correlation measurement changes no state."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_167_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-168",
       "name": "Explainability",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Phase 19 capability limitation review required.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-37-language-identity-explanation",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_168_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -13756,18 +13639,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_168_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_168_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_168_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_168_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -13778,34 +13661,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_168_semantic_contract",
+          "rationale": "Identity factors must be explicit; sensitive traits are never inferred."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No profile or identity record is changed."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_168_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-169",
@@ -14309,17 +14184,17 @@
       "name": "Identity Resolution",
       "primary_owner": "truthcore_l1_l5",
       "stage": "candidate_preparation",
-      "production_enabled": false,
+      "production_enabled": true,
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
-      "limitation": "Phase 19 capability limitation review required.",
-      "performance_budget_ms": 1000,
-      "batch_id": null,
+      "limitation": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+      "performance_budget_ms": 750,
+      "batch_id": "cp19-k-batch-37-language-identity-explanation",
       "evidence": {
         "semantic_test": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_178_semantic_contract",
-          "matches_authority_target": false
+          "matches_authority_target": true
         },
         "positive_selector": {
           "status": "qualified",
@@ -14332,18 +14207,18 @@
           "schema_version": "dle.ka-selector-fixture.v1"
         },
         "owning_path_test": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_178_owning_path",
-          "matches_authority_target": false
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_178_owning_path",
+          "matches_authority_target": true
         },
         "limitation_review": {
-          "status": "missing",
-          "disposition": null
+          "status": "qualified",
+          "disposition": "accepted_manifest_limitation"
         },
         "trace_proof": {
-          "status": "missing",
-          "reference": "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_178_owning_path",
-          "matches_authority_target": false,
+          "status": "qualified",
+          "reference": "tests/integration/phase19/test_batches_35_39.py::test_ka_178_owning_path",
+          "matches_authority_target": true,
           "required_states": [
             "planned",
             "candidate",
@@ -14354,34 +14229,26 @@
           ]
         },
         "security_review": {
-          "status": "missing",
-          "applicability": "review_required",
-          "reference": null,
-          "rationale": null
+          "status": "qualified",
+          "applicability": "required",
+          "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_178_semantic_contract",
+          "rationale": "Record linkage candidates preserve source identity and do not assert equivalence."
         },
         "effect_review": {
-          "status": "missing",
-          "applicability": "review_required",
+          "status": "qualified",
+          "applicability": "not_applicable",
           "reference": null,
-          "rationale": null
+          "rationale": "No records are merged."
         },
         "performance_evidence": {
-          "status": "missing",
+          "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_178_semantic_contract",
-          "matches_authority_target": false,
-          "budget_ms": 1000
+          "matches_authority_target": true,
+          "budget_ms": 750
         }
       },
-      "missing_evidence": [
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence"
-      ],
-      "qualification_status": "incomplete"
+      "missing_evidence": [],
+      "qualification_status": "qualified"
     },
     {
       "canonical_id": "KA-179",

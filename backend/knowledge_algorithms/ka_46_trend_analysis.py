@@ -2,6 +2,7 @@
 KA-046: Trend Analysis
 Purpose: Analyze data trends over time.
 """
+
 import logging
 import statistics
 from typing import Any, Dict, List
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class KA046Input(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     time_series: List[Any] = Field(default_factory=list)
 
 
@@ -31,7 +32,11 @@ class KA046TrendAnalysis(KnowledgeAlgorithm):
         slope, intercept = self._linear_regression(numeric)
         volatility = statistics.stdev(numeric) if len(numeric) > 1 else 0.0
         trend = "upward" if slope > 0.05 else "downward" if slope < -0.05 else "flat"
-        change_pct = ((numeric[-1] - numeric[0]) / abs(numeric[0])) if len(numeric) > 1 and numeric[0] else 0.0
+        change_pct = (
+            ((numeric[-1] - numeric[0]) / abs(numeric[0]))
+            if len(numeric) > 1 and numeric[0]
+            else 0.0
+        )
         return {
             "ka_id": self.ka_id,
             "success": True,
@@ -41,7 +46,12 @@ class KA046TrendAnalysis(KnowledgeAlgorithm):
             "change_percent": round(change_pct, 4),
             "volatility": round(volatility, 4),
             "points_analyzed": len(numeric),
-            "confidence": round(min(0.95, max(0.25, len(numeric) / 10)), 3),
+            "measurement_coverage": min(1.0, len(numeric) / 10),
+            "deterministic": True,
+            "limitations": (
+                "The index-based linear fit is descriptive, ignores irregular time "
+                "intervals, and does not forecast future values."
+            ),
         }
 
     @staticmethod
@@ -64,7 +74,11 @@ class KA046TrendAnalysis(KnowledgeAlgorithm):
         mean_x = statistics.mean(xs)
         mean_y = statistics.mean(values)
         denominator = sum((x - mean_x) ** 2 for x in xs)
-        slope = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, values)) / denominator if denominator else 0.0
+        slope = (
+            sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, values)) / denominator
+            if denominator
+            else 0.0
+        )
         intercept = mean_y - slope * mean_x
         return slope, intercept
 

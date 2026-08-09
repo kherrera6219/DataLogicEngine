@@ -1,61 +1,88 @@
-"""
-KA-093: Notification
-Purpose: Route messages and system status updates to various stakeholder channels (Slack, Email, SMS).
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
+"""KA-093: bounded notification-routing proposal."""
+
+from __future__ import annotations
+
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import load_config, stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA093NotificationInput(BaseModel):
-    message: str = Field(..., description="The content of the notification message")
-    severity: str = Field("info", description="The severity level (e.g., info, warning, critical)")
+    model_config = ConfigDict(extra="forbid")
+
+    message: str = Field(min_length=1, max_length=100_000)
+    severity: Literal["info", "warning", "critical"] = "info"
+    allowed_channels: list[Literal["email", "slack", "webhook", "sms"]] = Field(
+        default_factory=lambda: ["email", "webhook"], max_length=4
+    )
+    recipient_refs: list[str] = Field(min_length=1, max_length=1_000)
+
 
 class KA093Notification(KnowledgeAlgorithm):
-    """
-    KA-093: Multi-channel notification routing and delivery engine.
-    """
+    """Select permitted notification routes without claiming delivery."""
+
     input_schema = KA093NotificationInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-093"
-        self.config = self._load_config()
+        self.config = load_config(__file__, "ka_93_config.json")
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_93_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA093NotificationInput) -> Dict[str, Any]:
-        severity = input_data.severity
-        self.log_execution_step("Routing Notification", {"severity": severity})
-        
-        target_channels = self.config.get("priority_rules", {}).get(severity, ["email"])
-        routing_report = [{"channel": ch, "status": "DELIVERED", "timestamp": "now"} for ch in target_channels]
-        
+    def _run_logic(self, input_data: KA093NotificationInput) -> dict[str, Any]:
+        configured = self.config.get("priority_rules", {}).get(
+            input_data.severity, ["email"]
+        )
+        allowed = set(input_data.allowed_channels)
+        channels = sorted(
+            {str(channel) for channel in configured if channel in allowed}
+        )
+        proposal_id = stable_identifier(
+            "notification",
+            {
+                "message": input_data.message,
+                "severity": input_data.severity,
+                "channels": channels,
+                "recipient_refs": sorted(set(input_data.recipient_refs)),
+            },
+        )
         return {
             "success": True,
-            "dispatched_to": target_channels,
-            "routing_report": routing_report,
-            "severity_level": severity
+            "proposal_id": proposal_id,
+            "severity_level": input_data.severity,
+            "proposed_channels": channels,
+            "recipient_refs": sorted(set(input_data.recipient_refs)),
+            "routing_report": [
+                {"channel": channel, "status": "proposed"} for channel in channels
+            ],
+            "dispatched_to": [],
+            "delivered": False,
+            "effect_proposal": (
+                {
+                    "effect_id": proposal_id,
+                    "kind": "enqueue_notification",
+                    "status": "proposed",
+                    "service": "operations_control_service",
+                    "payload": {
+                        "message": input_data.message,
+                        "severity": input_data.severity,
+                        "channels": channels,
+                        "recipient_refs": sorted(set(input_data.recipient_refs)),
+                    },
+                }
+                if channels
+                else None
+            ),
+            "authoritative_receipt": None,
+            "deterministic": True,
+            "limitations": (
+                "The KA selects caller-permitted routes. OperationsControlService "
+                "must durably enqueue and receipt any delivery."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA093Notification(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-093 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA093Notification(context).run(context)

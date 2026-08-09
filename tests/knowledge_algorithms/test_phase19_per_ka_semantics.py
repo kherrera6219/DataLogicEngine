@@ -2874,8 +2874,7 @@ def test_ka_1084_semantic_contract():
 
 def _batch_30_34_payloads() -> dict[str, dict]:
     complete_trace = {
-        f"layer{layer}": {"output": {"status": "complete"}}
-        for layer in range(1, 9)
+        f"layer{layer}": {"output": {"status": "complete"}} for layer in range(1, 9)
     }
     return {
         "KA-006": {
@@ -2918,9 +2917,7 @@ def _batch_30_34_payloads() -> dict[str, dict]:
                     {"entity": "queue", "predicate": "feeds", "roles": ["buffer"]}
                 ]
             },
-            "target_domain": {
-                "entities": [{"name": "inbox", "roles": ["buffer"]}]
-            },
+            "target_domain": {"entities": [{"name": "inbox", "roles": ["buffer"]}]},
         },
         "KA-1036": {
             "objectives": [{"name": "quality", "direction": "maximize"}],
@@ -2962,12 +2959,8 @@ def _batch_30_34_payloads() -> dict[str, dict]:
             ],
         },
         "KA-1085": {
-            "baselines": [
-                {"feature": "steps", "mean": 10, "standard_deviation": 2}
-            ],
-            "observations": [
-                {"observation_id": "run-1", "features": {"steps": 20}}
-            ],
+            "baselines": [{"feature": "steps", "mean": 10, "standard_deviation": 2}],
+            "observations": [{"observation_id": "run-1", "features": {"steps": 20}}],
         },
         "KA-008": {
             "output_content": "The control is enabled.",
@@ -3010,7 +3003,11 @@ def _batch_30_34_payloads() -> dict[str, dict]:
         },
         "KA-1087": {
             "critical_steps": [
-                {"step_id": "s1", "description": "validate", "required_evidence_refs": ["e1"]}
+                {
+                    "step_id": "s1",
+                    "description": "validate",
+                    "required_evidence_refs": ["e1"],
+                }
             ],
             "explanation_segments": [
                 {
@@ -3026,9 +3023,7 @@ def _batch_30_34_payloads() -> dict[str, dict]:
             "original_query": "Retain 30 records",
             "final_solution": "Retain 30 records after review",
         },
-        "L9-KA-003": {
-            "domain_confidences": [{"domain": "safety", "confidence": 0.98}]
-        },
+        "L9-KA-003": {"domain_confidences": [{"domain": "safety", "confidence": 0.98}]},
         "L9-KA-004": {
             "solution": {"overall_confidence": 0.98},
             "trace": complete_trace,
@@ -3227,3 +3222,322 @@ def test_l10_ka_006_semantic_contract():
 
 def test_l10_ka_007_semantic_contract():
     _assert_batch_30_34_semantics("L10-KA-007")
+
+
+def _batch_35_39_payloads() -> dict[str, dict]:
+    digest = "a" * 64
+    return {
+        "KA-039": {"data": [1, 1, 1, 10], "method": "zscore", "threshold": 1.4},
+        "KA-041": {
+            "observation": "Cache misses preceded latency",
+            "explanations": [
+                {
+                    "hypothesis": "Cache miss spike",
+                    "rationale": "cache miss latency",
+                    "prior": 0.7,
+                }
+            ],
+            "evidence": ["Cache miss spike preceded latency"],
+        },
+        "KA-043": {
+            "effect": "Ground is wet",
+            "candidates": [
+                {
+                    "name": "Rain",
+                    "mechanism": "rain wets ground",
+                    "precedes_effect": True,
+                }
+            ],
+            "evidence": ["Rain occurred before the ground was wet"],
+        },
+        "KA-044": {
+            "source": {"name": "gateway", "attributes": {"role": "routing"}},
+            "target_domain": "service mesh",
+            "target_candidates": [
+                {"name": "sidecar", "attributes": {"role": "routing"}}
+            ],
+        },
+        "KA-049": {
+            "text": "Alice works for Acme Corp.",
+            "entities": ["Alice", "Acme Corp"],
+        },
+        "KA-045": {"stream": [1, 2, 1, 2, 1, 2], "window_size": 2},
+        "KA-046": {"time_series": [1, 2, 3, 4]},
+        "KA-047": {"text": "The service is stable and reliable."},
+        "KA-165": {
+            "documents": [
+                {
+                    "document_id": "d1",
+                    "text": "audit evidence audit",
+                    "topic_hint": "governance",
+                }
+            ]
+        },
+        "KA-167": {
+            "documents": [{"document_id": "d1", "text": "audit evidence audit"}]
+        },
+        "KA-048": {"text": "Email owner@example.com on 2026-08-08."},
+        "KA-050": {
+            "text": "Evidence is retained. Release remains blocked.",
+            "max_length": 80,
+        },
+        "KA-161": {
+            "source_language": "en",
+            "target_language": "es",
+            "segments": [
+                {
+                    "segment_id": "s1",
+                    "source_text": "Hello",
+                    "translated_text": "Hola",
+                    "evidence_ref": "provider-1",
+                    "confidence": 0.95,
+                }
+            ],
+        },
+        "KA-162": {
+            "source_text": "The service retains audit logs.",
+            "required_terms": ["service", "audit logs"],
+            "candidates": [
+                {
+                    "candidate_id": "p1",
+                    "text": "Audit logs are retained by the service.",
+                    "evidence_ref": "provider-1",
+                }
+            ],
+        },
+        "KA-163": {
+            "text": "Utilize the service in order to audit.",
+            "target_style": "plain",
+        },
+        "KA-168": {
+            "decision_id": "decision-1",
+            "outcome": "review",
+            "factors": [
+                {
+                    "factor_id": "risk",
+                    "label": "Risk threshold",
+                    "contribution": 0.8,
+                    "evidence_refs": ["trace-1"],
+                }
+            ],
+        },
+        "KA-178": {
+            "records": [
+                {
+                    "record_id": "r1",
+                    "identifiers": [
+                        {
+                            "identifier_type": "email",
+                            "value": "owner@example.com",
+                            "verified": True,
+                        }
+                    ],
+                },
+                {
+                    "record_id": "r2",
+                    "identifiers": [
+                        {
+                            "identifier_type": "email",
+                            "value": "OWNER@example.com",
+                            "verified": True,
+                        }
+                    ],
+                },
+            ]
+        },
+        "KA-093": {
+            "message": "Release remains blocked",
+            "severity": "critical",
+            "allowed_channels": ["slack"],
+            "recipient_refs": ["operations-owner"],
+        },
+        "KA-110": {
+            "message": {"status": "ready"},
+            "topic": "system_events",
+            "entity_id": "run-1",
+        },
+        "KA-111": {
+            "path": "/internal/research",
+            "method": "POST",
+            "principal_id": "owner-1",
+            "authentication_verified": True,
+            "policy_approved": True,
+            "rate_limit_allowed": True,
+            "rate_limit_remaining": 1,
+            "route_target": "research-provider",
+        },
+        "KA-112": {
+            "payload": {"task": "review"},
+            "queue": "background_tasks",
+            "job_type": "review",
+            "entity_id": "run-1",
+        },
+        "KA-114": {
+            "claims": [
+                {
+                    "claim_id": "claim-1",
+                    "source_tenant_ref": "tenant-1",
+                    "content_sha256": digest,
+                    "evidence_refs": ["trace-1"],
+                    "release_approved": True,
+                    "recipient_refs": ["tenant-2"],
+                }
+            ]
+        },
+        "KA-115": {
+            "incoming_claims": [
+                {
+                    "claim_id": "claim-2",
+                    "source_tenant_ref": "tenant-2",
+                    "content_sha256": digest,
+                    "evidence_refs": ["trace-2"],
+                    "signature_verified": True,
+                    "source_authorized": True,
+                }
+            ]
+        },
+        "KA-1114": {
+            "sub_question": "What evidence supports the control?",
+            "allowed_domains": ["nist.gov"],
+            "maximum_sources": 2,
+            "timebox_seconds": 60,
+            "connector_id": "research-provider",
+            "connector_approved": True,
+            "policy_approved": True,
+            "human_approved": True,
+        },
+    }
+
+
+_BATCH_35_37_IDS = {
+    "KA-039",
+    "KA-041",
+    "KA-043",
+    "KA-044",
+    "KA-045",
+    "KA-046",
+    "KA-047",
+    "KA-048",
+    "KA-049",
+    "KA-050",
+    "KA-161",
+    "KA-162",
+    "KA-163",
+    "KA-165",
+    "KA-167",
+    "KA-168",
+    "KA-178",
+}
+
+
+def _assert_batch_35_39_semantics(canonical_id: str) -> None:
+    payload = _batch_35_39_payloads()[canonical_id]
+    first = _execute(canonical_id, payload)
+    second = _execute(canonical_id, payload)
+    if canonical_id in _BATCH_35_37_IDS:
+        _assert_pure_bounded_result(canonical_id, first)
+    else:
+        assert first.success
+        assert (
+            first.duration_ms
+            <= load_manifest().entries[canonical_id].contract.performance_budget_ms
+        )
+        assert first.output.get("authoritative_receipt") is None
+    assert first.output == second.output
+    assert first.output.get("deterministic", True) is True
+
+
+def test_ka_039_semantic_contract():
+    _assert_batch_35_39_semantics("KA-039")
+
+
+def test_ka_041_semantic_contract():
+    _assert_batch_35_39_semantics("KA-041")
+
+
+def test_ka_043_semantic_contract():
+    _assert_batch_35_39_semantics("KA-043")
+
+
+def test_ka_044_semantic_contract():
+    _assert_batch_35_39_semantics("KA-044")
+
+
+def test_ka_049_semantic_contract():
+    _assert_batch_35_39_semantics("KA-049")
+
+
+def test_ka_045_semantic_contract():
+    _assert_batch_35_39_semantics("KA-045")
+
+
+def test_ka_046_semantic_contract():
+    _assert_batch_35_39_semantics("KA-046")
+
+
+def test_ka_047_semantic_contract():
+    _assert_batch_35_39_semantics("KA-047")
+
+
+def test_ka_165_semantic_contract():
+    _assert_batch_35_39_semantics("KA-165")
+
+
+def test_ka_167_semantic_contract():
+    _assert_batch_35_39_semantics("KA-167")
+
+
+def test_ka_048_semantic_contract():
+    _assert_batch_35_39_semantics("KA-048")
+
+
+def test_ka_050_semantic_contract():
+    _assert_batch_35_39_semantics("KA-050")
+
+
+def test_ka_161_semantic_contract():
+    _assert_batch_35_39_semantics("KA-161")
+
+
+def test_ka_162_semantic_contract():
+    _assert_batch_35_39_semantics("KA-162")
+
+
+def test_ka_163_semantic_contract():
+    _assert_batch_35_39_semantics("KA-163")
+
+
+def test_ka_168_semantic_contract():
+    _assert_batch_35_39_semantics("KA-168")
+
+
+def test_ka_178_semantic_contract():
+    _assert_batch_35_39_semantics("KA-178")
+
+
+def test_ka_111_semantic_contract():
+    _assert_batch_35_39_semantics("KA-111")
+
+
+def test_ka_1114_semantic_contract():
+    _assert_batch_35_39_semantics("KA-1114")
+
+
+def test_ka_093_semantic_contract():
+    _assert_batch_35_39_semantics("KA-093")
+
+
+def test_ka_110_semantic_contract():
+    _assert_batch_35_39_semantics("KA-110")
+
+
+def test_ka_112_semantic_contract():
+    _assert_batch_35_39_semantics("KA-112")
+
+
+def test_ka_114_semantic_contract():
+    _assert_batch_35_39_semantics("KA-114")
+
+
+def test_ka_115_semantic_contract():
+    _assert_batch_35_39_semantics("KA-115")
