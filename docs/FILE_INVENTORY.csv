@@ -1034,9 +1034,9 @@ docs\DOCUMENTATION_CROSSWALK.md,33207,.md,2026-08-02 07:24:38 UTC
 docs\evaluation\AI_SYSTEM_CARD.md,9372,.md,2026-07-26 07:42:49 UTC
 docs\evaluation\golden_corpus_v1.json,5783,.json,2026-07-26 00:45:54 UTC
 docs\evaluation\provider_model_matrix_v1.json,1464,.json,2026-07-14 05:11:18 UTC
-docs\FILE_INVENTORY.csv,214225,.csv,2026-08-09 02:13:40 UTC
+docs\FILE_INVENTORY.csv,214864,.csv,2026-08-09 02:17:19 UTC
 docs\generated\PRODUCTION_CONTRACT_INDEX.md,4001,.md,2026-08-04 21:42:38 UTC
-docs\GENERATED_STRUCTURE.md,84849,.md,2026-08-09 02:13:51 UTC
+docs\GENERATED_STRUCTURE.md,84849,.md,2026-08-09 02:17:24 UTC
 docs\INDEPENDENT_REVIEW_RECORD.md,6822,.md,2026-07-15 07:25:16 UTC
 docs\INSTALLATION_GUIDE.md,8665,.md,2026-07-25 06:20:59 UTC
 docs\INTERFACE_INTEGRATION.md,13421,.md,2026-08-02 07:47:34 UTC
@@ -1152,7 +1152,7 @@ frontend\components\ClientErrorBootstrap.test.tsx,2249,.tsx,2026-06-19 06:33:28 
 frontend\components\ClientErrorBootstrap.tsx,277,.tsx,2026-02-16 09:52:33 UTC
 frontend\components\CloudDisclosureBanner.test.tsx,1564,.tsx,2026-07-14 06:39:08 UTC
 frontend\components\CloudDisclosureBanner.tsx,2521,.tsx,2026-07-14 06:31:05 UTC
-frontend\components\ConfirmationDialog.test.tsx,5470,.tsx,2026-06-19 06:33:28 UTC
+frontend\components\ConfirmationDialog.test.tsx,5455,.tsx,2026-08-09 02:19:56 UTC
 frontend\components\ConfirmationDialog.tsx,3018,.tsx,2026-05-13 20:17:08 UTC
 frontend\components\Dashboard\CommandBar.test.tsx,4504,.tsx,2026-06-19 06:33:28 UTC
 frontend\components\Dashboard\CommandBar.tsx,4879,.tsx,2026-06-19 06:33:28 UTC

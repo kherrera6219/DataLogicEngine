@@ -5,7 +5,7 @@ import { ConfirmationDialog, RiskTier } from './ConfirmationDialog';
 
 // Mock Dialog component with minimal props
 vi.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ children, open, onOpenChange }: any) => (
+  Dialog: ({ children, open }: any) => (
     <div data-testid="dialog" data-open={open}>
       {open && children}
     </div>
