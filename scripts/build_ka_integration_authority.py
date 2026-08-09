@@ -193,6 +193,13 @@ PURE_ADVISORY_OVERRIDES = {
     "KA-167",
     "KA-168",
     "KA-178",
+    "KA-104",
+    "KA-105",
+    "KA-109",
+    "KA-1098",
+    "KA-138",
+    "KA-139",
+    "KA-183",
     *(f"L9-KA-{number:03d}" for number in range(1, 8)),
     *(f"L10-KA-{number:03d}" for number in range(1, 8)),
 }
@@ -369,6 +376,26 @@ BATCH_35_39_IDS = {
     "KA-168",
     "KA-178",
     "KA-1114",
+}
+BATCH_40_43_IDS = {
+    "KA-101",
+    "KA-102",
+    "KA-103",
+    "KA-104",
+    "KA-105",
+    "KA-107",
+    "KA-108",
+    "KA-109",
+    "KA-138",
+    "KA-139",
+    "KA-180",
+    "KA-181",
+    "KA-183",
+    "KA-1097",
+    "KA-1098",
+    "KA-1100",
+    "KA-1101",
+    "KA-1103",
 }
 
 REQUIRED_SAFETY_IDS = (
@@ -597,7 +624,9 @@ def _entry(row: dict[str, Any]) -> dict[str, Any]:
     effectful = effect_class == "effect_oriented_review_required"
     test_slug = _slug(canonical_id)
     integration_test = (
-        f"tests/integration/phase19/test_batches_35_39.py::test_{test_slug}_owning_path"
+        f"tests/integration/phase19/test_batches_40_43.py::test_{test_slug}_owning_path"
+        if canonical_id in BATCH_40_43_IDS
+        else f"tests/integration/phase19/test_batches_35_39.py::test_{test_slug}_owning_path"
         if canonical_id in BATCH_35_39_IDS
         else "tests/integration/phase19/test_truthcore_batches_30_34.py"
         f"::test_{test_slug}_owning_path"

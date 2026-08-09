@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
@@ -75,9 +76,15 @@ class KA1100AutonomousSystemEvolutionController(KnowledgeAlgorithm):
                 blockers.append("rollback_plan_missing")
             if item.risk_score > input_data.maximum_risk_score:
                 blockers.append("risk_above_limit")
-            if item.affected_capability_count > input_data.maximum_affected_capabilities:
+            if (
+                item.affected_capability_count
+                > input_data.maximum_affected_capabilities
+            ):
                 blockers.append("scope_above_limit")
-            if item.change_class in {"algorithm", "schema", "security"} and not item.human_approved:
+            if (
+                item.change_class in {"algorithm", "schema", "security"}
+                and not item.human_approved
+            ):
                 blockers.append("human_approval_required")
             decisions.append(
                 {
@@ -86,11 +93,27 @@ class KA1100AutonomousSystemEvolutionController(KnowledgeAlgorithm):
                     "blockers": blockers,
                 }
             )
+        proposals_by_id = {item.proposal_id: item for item in input_data.proposals}
+        effect_proposals = [
+            {
+                "effect_id": stable_identifier(
+                    "system-evolution-canary", {"proposal_id": item["proposal_id"]}
+                ),
+                "kind": "start_system_evolution_canary",
+                "status": "proposed",
+                "service": "operations_control_service",
+                "payload": proposals_by_id[item["proposal_id"]].model_dump(),
+            }
+            for item in decisions
+            if item["decision"] == "admit_to_canary"
+        ]
         return {
             "success": True,
             "status": "system_evolution_evaluated",
             "decisions": decisions,
             "changes_applied": 0,
+            "effect_proposals": effect_proposals,
+            "authoritative_receipts": [],
             "autonomous_code_change": False,
             "deterministic": True,
             "limitations": (

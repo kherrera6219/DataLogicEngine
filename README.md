@@ -38,13 +38,13 @@ SDKs.
 | Area | Current state |
 |---|---|
 | Canonical Knowledge Algorithms | 213 retained; 211 production-enabled |
-| Runtime authority | One generated manifest/controller; 119-edge acyclic dependency graph |
-| Current checkpoint | CP19-K per-KA production qualification |
-| Individually qualified KAs | 195/213; 18 remain open |
-| Grouped qualification roadmap | 36 batches (08-43); Batches 08-39 complete, Batch 40 next, 4 remain |
-| Latest source validation | 3,027 passed, 18 skipped, 32 known warnings |
+| Runtime authority | One generated manifest/controller; 112-edge acyclic dependency graph |
+| Current checkpoint | CP19-K complete; CP19-L clean-source qualification next |
+| Individually qualified KAs | 213/213; zero open rows |
+| Grouped qualification roadmap | 36 batches (08-43); all complete |
+| Latest source validation | 3,070 passed, 18 skipped, 32 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
-| Release decision | **NO-GO** until CP19-K, CP19-L, CP19-M, and retained installed gates pass |
+| Release decision | **NO-GO** until CP19-L, CP19-M, and retained installed gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
 classification, simulation planning/resource/counterfactual effects, and MCP
@@ -95,13 +95,13 @@ The 186-row baseline backlog has been reviewed into 36 dependency-safe batches
 of two to eight KAs. The 28 security/operations rows are intentionally split
 across five owner/effect boundaries—observability, delivery/messaging,
 health/recovery, cryptography/vulnerability, and topology/evolution—rather than
-treated as one unsafe mega-batch. Batches 08 through 39 are complete. Batches
+treated as one unsafe mega-batch. Batches 08 through 43 are complete. Batches
 19-23 complete the five-node Quad Persona foundation, evidence/confidence/
 entropy validation, adaptive DMRF routing, retrieval-store maintenance, and
 knowledge-content evolution through their real owners. Persona context is
 applied once by `PersonaContextService`; store and content changes remain
 idempotent, release-gated owner decisions with no hidden mutation. The current
-matrix has 18 open rows. Batches 24-26 add lifecycle analytics, bounded L10
+matrix has zero open rows. Batches 24-26 add lifecycle analytics, bounded L10
 oversight, and TruthGate system-integrity decisions without autonomous loops,
 causal-emergence claims, training, mutation, containment, or release. Batch 27
 adds dependency-gated release staging and long-horizon drift review. Batch 28
@@ -122,8 +122,14 @@ overclaims. Batch 38 consumes authoritative authentication, policy, rate,
 domain, source, time, and citation controls before the approved research
 connector runs. Batch 39 keeps notification, webhook, alert, federated outbox,
 and federated inbox KAs proposal-only; OperationsControlService alone applies
-delivery with durable record IDs, SHA-256 receipts, and ledger records. Batch
-40, the six-KA operations health/recovery group, is next.
+delivery with durable record IDs, SHA-256 receipts, and ledger records. Batches
+40-43 complete supplied-evidence health and benchmark analysis, explicit
+recovery/backup/performance proposals, metadata-only crypto and key lifecycle,
+scanner and purple-team analysis, bounded chaos and checkpoint rollback,
+configuration/dependency/communication proposals, pure routing/scaling advice,
+and bounded evolution canaries. OperationsControlService and
+SimulationJobService alone apply effects and must bind each one to a durable
+SHA-256 receipt and ledger record.
 
 The desktop also includes an owner-operated candidate training-dataset export
 tool. It creates SFT or status-labelled PRM records only from explicitly
@@ -297,7 +303,7 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
-- Active Phase 19 CP19-K: batches 01-39 qualify 195/213 rows, including causal
+- Completed Phase 19 CP19-K: batches 01-43 qualify all 213/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
   provider context-budget enforcement, measured provider monitoring, and the
@@ -312,13 +318,9 @@ Open engineering and release acceptance:
   compliance evidence, bounded persona adaptation, planning control, advanced
   reasoning, synthesis/explainability, the exact L9/L10 suites, bounded
   inference/signal/language evidence, owner-controlled external research, and
-  owner-receipted operations delivery; 18 rows
-  remain open
-- The reviewed remaining roadmap contains four cohesive batches (40-43), each
-  bounded to one production owner and effect boundary. Batch 40 is operations
-  health/recovery (`KA-107`, `KA-108`, `KA-109`, `KA-1097`, `KA-1098`, and
-  `KA-138`).
-  Grouping shares fixtures and transactions
+  owner-receipted operations delivery, health/recovery, crypto/key operations,
+  simulation chaos/rollback, and topology/evolution; zero rows remain open
+- The reviewed 36-batch roadmap is complete. Grouping shares fixtures and transactions
   but does not waive any individual semantic, owning-path, trace, security,
   effect, or performance proof
 - API gateway and external deep research are individually qualified through

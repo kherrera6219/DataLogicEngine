@@ -1,0 +1,21 @@
+{
+  "schema_version": "dle.cp19-k-completion-validation.v1",
+  "status": "pass",
+  "checkpoint": "CP19-K",
+  "checkpoint_status": "complete",
+  "validated_on": "2026-08-08",
+  "matrix_version": "2026.08.08-cp19k.26",
+  "manifest_version": "2026.08.08-cp19k.24",
+  "grouped_plan_version": "2026.08.08-cp19k-grouped.25",
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 213, "incomplete_capabilities": 0, "reviewed_capabilities": 213, "production_enabled_capabilities": 211, "dependency_edges": 112, "dependency_cycles": 0, "runtime_registries_added": 0, "findings_waived": false, "rebuild_authorized": false},
+  "validation": {
+    "qualification_verifier": "PASS; 213/213 qualified; checkpoint complete",
+    "knowledge_algorithm_suite": "991 passed",
+    "phase19_governed_truthcore_simulation_integration": "458 passed",
+    "typescript_sdk": "7 passed",
+    "full_source_suite": "3070 passed, 18 skipped, 32 known warnings"
+  },
+  "next_checkpoint": "CP19-L clean-source qualification",
+  "release_decision": "NO-GO",
+  "limitations": ["CP19-K is source qualification only. It does not authorize rebuilding and closes no retained installed, signed, manual, external, pilot, or soak acceptance gate."]
+}

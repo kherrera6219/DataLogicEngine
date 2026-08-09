@@ -1,14 +1,14 @@
 # CP19-K per-KA qualification matrix
 
-**Matrix version:** `2026.08.08-cp19k.22`
-**Status:** `cp19_k_in_progress`
+**Matrix version:** `2026.08.08-cp19k.26`
+**Status:** `cp19_k_complete`
 **Release decision:** NO-GO; rebuild not authorized
 
 ## Current result
 
 The generated matrix contains all 213
-canonical capabilities. 195 rows are fully
-qualified and 18 remain open. A row closes
+canonical capabilities. 213 rows are fully
+qualified and 0 remain open. A row closes
 only when its individually reviewed evidence has an exact named semantic test,
 both selector fixtures, a real owning-path test, an accepted limitation, causal
 trace proof, and applicable security, effect, and performance evidence.
@@ -59,8 +59,11 @@ The complete row detail is in `ka-qualification-matrix.json` and
 | `cp19-k-batch-37-language-identity-explanation` | 2026-08-08 | 7 | Bounded extractive language, entity, identity, and explanation evidence through TruthCore without provider calls, content release, profile mutation, or graph merge |
 | `cp19-k-batch-38-provider-api-external-research` | 2026-08-08 | 2 | Authoritative authentication, policy, rate, domain, source, time, and citation controls consumed by ProviderGatewayService before the approved connector runs, with a durable receipt and ledger record |
 | `cp19-k-batch-39-operations-delivery-messaging` | 2026-08-08 | 5 | Proposal-only notification, webhook, alert, outbox, and inbox KAs whose effects are applied only by OperationsControlService with authoritative record IDs, receipts, and ledger records |
+| `cp19-k-batch-40-operations-health-recovery` | 2026-08-08 | 6 | Explicit recovery and backup plans, supplied health and benchmark evidence, bounded performance proposals, and predictive health through OperationsControlService with durable effect receipts |
+| `cp19-k-batch-41-operations-crypto-vulnerability` | 2026-08-08 | 4 | Declared purple-team and scanner evidence plus metadata-only crypto and key lifecycle proposals applied only through OperationsControlService receipts |
+| `cp19-k-batch-42-simulation-chaos-rollback` | 2026-08-08 | 2 | Bounded chaos admission and verified checkpoint rollback proposals applied only by SimulationJobService with durable receipts |
+| `cp19-k-batch-43-operations-topology-evolution` | 2026-08-08 | 6 | Explicit configuration, dependency, communication, routing, scaling, and canary evolution decisions with no infrastructure claims before owner-receipted application |
 
 ## Gate decision
 
-CP19-K remains active. This partial matrix does not authorize CP19-L, rebuilding,
-installed acceptance, signing, or production/public release.
+CP19-K is complete. This source qualification authorizes CP19-L only; it does not authorize rebuilding, installed acceptance, signing, or production/public release.

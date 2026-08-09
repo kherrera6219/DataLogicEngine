@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
@@ -93,16 +94,33 @@ class KA1101ChaosInjectionGovernor(KnowledgeAlgorithm):
                     "blockers": blockers,
                 }
             )
+        proposals_by_id = {item.proposal_id: item for item in input_data.proposals}
+        effect_proposals = [
+            {
+                "effect_id": stable_identifier(
+                    "chaos-injection", {"proposal_id": item["proposal_id"]}
+                ),
+                "kind": "execute_bounded_chaos_injection",
+                "status": "proposed",
+                "service": "simulation_job_service",
+                "payload": proposals_by_id[item["proposal_id"]].model_dump(),
+            }
+            for item in decisions
+            if item["decision"] == "approve_plan"
+        ]
         return {
             "success": True,
             "status": "chaos_injection_governed",
             "decisions": decisions,
             "faults_injected": 0,
+            "effect_proposals": effect_proposals,
+            "authoritative_receipts": [],
             "effect_service_required": True,
             "deterministic": True,
             "limitations": (
                 "Approval is a policy decision only. A separately authorized "
-                "chaos service must enforce environment controls and rollback."
+                "simulation job must enforce environment controls, verify monitoring, "
+                "apply the fault, and issue a durable receipt."
             ),
         }
 

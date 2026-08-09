@@ -72,6 +72,8 @@ def _example_from_json_schema(
 
     value_type = definition.get("type")
     if value_type == "string":
+        if definition.get("pattern") == r"^[a-fA-F0-9]{64}$":
+            return "a" * 64
         return "test_string"
     if value_type == "integer":
         return max(1, int(definition.get("minimum", 1)))

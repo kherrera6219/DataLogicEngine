@@ -1,60 +1,96 @@
-"""
-KA-102: Dependency Injection
-Purpose: Orchestrate component instantiation and wire dependencies across the system to ensure modularity.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
+"""KA-102: explicit dependency-binding proposal."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
-from pydantic import BaseModel, Field
 
-logger = logging.getLogger(__name__)
+class DependencyBinding(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    service_key: str = Field(min_length=1, max_length=200)
+    implementation_ref: str = Field(min_length=1, max_length=2_000)
+    contract_ref: str = Field(min_length=1, max_length=2_000)
+    implementation_approved: bool
 
 
 class KA102InjectionInput(BaseModel):
-    requesting_module: str = Field("main", description="The module name requesting dependency injection")
+    model_config = ConfigDict(extra="forbid")
+
+    requesting_module: str = Field(min_length=1, max_length=500)
+    bindings: list[DependencyBinding] = Field(min_length=1, max_length=1_000)
+    rollback_plan_ref: str = Field(min_length=1, max_length=2_000)
+    owner_approved: bool
+
+    @model_validator(mode="after")
+    def validate_binding_keys(self) -> KA102InjectionInput:
+        keys = [item.service_key for item in self.bindings]
+        if len(keys) != len(set(keys)):
+            raise ValueError("dependency service keys must be unique")
+        return self
+
 
 class KA102DependencyInjection(KnowledgeAlgorithm):
-    """
-    KA-102: IoC and dependency injection orchestration engine for system modularity.
-    """
+    """Validate explicit bindings without instantiating or injecting services."""
+
     input_schema = KA102InjectionInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-102"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_102_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA102InjectionInput) -> Dict[str, Any]:
-        requesting_module = input_data.requesting_module
-        self.log_execution_step("Injecting Dependencies", {"module": requesting_module})
-        
-        dep_map = self.config.get("dependency_map", {"storage": "S3Provider", "cache": "RedisCache"})
-        injected = [{"key": k, "impl": v, "status": "INJECTED"} for k, v in dep_map.items()]
-        
+    def _run_logic(self, input_data: KA102InjectionInput) -> dict[str, Any]:
+        blockers = []
+        if not input_data.owner_approved:
+            blockers.append("owner_approval_required")
+        if any(not item.implementation_approved for item in input_data.bindings):
+            blockers.append("implementation_not_approved")
+        bindings = [
+            {
+                "service_key": item.service_key,
+                "implementation_ref": item.implementation_ref,
+                "contract_ref": item.contract_ref,
+            }
+            for item in sorted(input_data.bindings, key=lambda row: row.service_key)
+        ]
+        proposal_id = stable_identifier(
+            "dependency-bindings",
+            {"requesting_module": input_data.requesting_module, "bindings": bindings},
+        )
+        admitted = not blockers
         return {
             "success": True,
-            "container_status": "READY",
-            "injected_count": len(injected),
-            "injection_report": injected
+            "status": "dependency_bindings_evaluated",
+            "decision": "admit" if admitted else "block",
+            "blockers": blockers,
+            "bindings": bindings,
+            "injected_count": 0,
+            "container_changed": False,
+            "effect_proposal": (
+                {
+                    "effect_id": proposal_id,
+                    "kind": "apply_dependency_bindings",
+                    "status": "proposed",
+                    "service": "operations_control_service",
+                    "payload": {
+                        "requesting_module": input_data.requesting_module,
+                        "bindings": bindings,
+                        "rollback_plan_ref": input_data.rollback_plan_ref,
+                    },
+                }
+                if admitted
+                else None
+            ),
+            "authoritative_receipt": None,
+            "deterministic": True,
+            "limitations": "No service is instantiated or injected by this KA.",
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA102DependencyInjection(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-102 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA102DependencyInjection(context).run(context)

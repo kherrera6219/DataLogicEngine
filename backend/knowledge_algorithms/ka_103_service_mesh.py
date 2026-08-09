@@ -1,62 +1,83 @@
-"""
-KA-103: Service Mesh
-Purpose: Manage service-to-service communication, including mutual TLS, retries, and circuit breaking.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
+"""KA-103: bounded service-communication policy proposal."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA103MeshInput(BaseModel):
-    target_service: str = Field("ka_registry_svc", description="The service to apply mesh policies to")
+    model_config = ConfigDict(extra="forbid")
+
+    target_service: str = Field(min_length=1, max_length=200)
+    policy_ref: str = Field(min_length=1, max_length=2_000)
+    policy_sha256: str = Field(pattern=r"^[a-fA-F0-9]{64}$")
+    mtls_required: bool = True
+    maximum_retry_attempts: int = Field(ge=0, le=10)
+    circuit_breaker_required: bool = True
+    policy_approved: bool
+    rollback_plan_ref: str = Field(min_length=1, max_length=2_000)
+
 
 class KA103ServiceMesh(KnowledgeAlgorithm):
-    """
-    KA-103: Service-to-service traffic and security orchestration engine for mesh security.
-    """
+    """Propose an approved policy without asserting live mesh state."""
+
     input_schema = KA103MeshInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-103"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_103_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA103MeshInput) -> Dict[str, Any]:
-        target_service = input_data.target_service
-        self.log_execution_step("Enforcing Mesh Policies", {"target": target_service})
-        
-        mTLS = self.config.get("mTLS_enabled", True)
-        retries = self.config.get("retry_policy", {}).get("max_attempts", 3)
-        
+    def _run_logic(self, input_data: KA103MeshInput) -> dict[str, Any]:
+        blockers = [] if input_data.policy_approved else ["policy_not_approved"]
+        proposal_id = stable_identifier(
+            "service-policy",
+            {
+                "target_service": input_data.target_service,
+                "policy_ref": input_data.policy_ref,
+                "policy_sha256": input_data.policy_sha256.lower(),
+            },
+        )
+        admitted = not blockers
         return {
             "success": True,
-            "mesh_status": "ACTIVE",
-            "mtls_verified": mTLS,
-            "max_retries_configured": retries,
-            "circuit_breaker_state": "CLOSED",
-            "policy_version": "v1.4.2"
+            "status": "service_policy_evaluated",
+            "decision": "admit" if admitted else "block",
+            "blockers": blockers,
+            "mesh_active": False,
+            "mtls_verified": False,
+            "policy_applied": False,
+            "effect_proposal": (
+                {
+                    "effect_id": proposal_id,
+                    "kind": "apply_service_communication_policy",
+                    "status": "proposed",
+                    "service": "operations_control_service",
+                    "payload": {
+                        "target_service": input_data.target_service,
+                        "policy_ref": input_data.policy_ref,
+                        "policy_sha256": input_data.policy_sha256.lower(),
+                        "mtls_required": input_data.mtls_required,
+                        "maximum_retry_attempts": input_data.maximum_retry_attempts,
+                        "circuit_breaker_required": input_data.circuit_breaker_required,
+                        "rollback_plan_ref": input_data.rollback_plan_ref,
+                    },
+                }
+                if admitted
+                else None
+            ),
+            "authoritative_receipt": None,
+            "deterministic": True,
+            "limitations": (
+                "The KA does not configure a mesh, verify mTLS, inspect traffic, "
+                "or change retry and circuit-breaker state."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA103ServiceMesh(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-103 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA103ServiceMesh(context).run(context)

@@ -49,6 +49,13 @@ class KA138Input(BaseModel):
     series: list[HealthSeries] = Field(min_length=1, max_length=10_000)
     forecast_steps: int = Field(default=1, ge=1, le=1_000)
 
+    @model_validator(mode="after")
+    def validate_series_keys(self) -> KA138Input:
+        keys = [(item.component_id, item.metric) for item in self.series]
+        if len(keys) != len(set(keys)):
+            raise ValueError("component and metric pairs must be unique")
+        return self
+
 
 class KA138PredictiveHealth(KnowledgeAlgorithm):
     """Project a least-squares trend without claiming live health telemetry."""

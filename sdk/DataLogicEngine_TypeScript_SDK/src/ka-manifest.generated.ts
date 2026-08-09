@@ -3,7 +3,7 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.08.08-cp19k.20",
+  "manifest_version": "2026.08.08-cp19k.24",
   "status": "cp19_j_product_workflow_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
@@ -36,12 +36,8 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "rationale": "Goal-drift monitoring evaluates history and long-horizon plans before the evolution controller admits an action."
       },
       "KA-1100": {
-        "dependencies": [
-          "KA-1107",
-          "KA-1108",
-          "KA-1111"
-        ],
-        "rationale": "Evolution admission consumes escalation, capability, and prior goal-drift constraints; it is not a prerequisite of the monitor."
+        "dependencies": [],
+        "rationale": "System-evolution admission consumes explicit validation, rollback, scope, risk, and human-approval evidence and must not silently run reasoning, introspection, or release KAs."
       },
       "L9-KA-006": {
         "dependencies": [
@@ -239,11 +235,12 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "rationale": "Simulation budget admission consumes the canonical bounded cost estimate rather than independently trusting a duplicate estimate."
       },
       "KA-1101": {
-        "dependencies": [
-          "KA-1081",
-          "KA-1099"
-        ],
-        "rationale": "Chaos admission consumes the simulation budget decision and system-integrity state before an authoritative fault service may consider the proposal."
+        "dependencies": [],
+        "rationale": "Chaos admission consumes explicit environment, magnitude, duration, rollback, monitoring, service-allowlist, and human-approval evidence."
+      },
+      "KA-1103": {
+        "dependencies": [],
+        "rationale": "Rollback planning validates the explicit checkpoint chain and target hash without silently starting simulation planning or admission."
       },
       "KA-1114": {
         "dependencies": [],
@@ -896,7 +893,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     },
     "extended_subsystem_execution_registry": {
       "schema_version": "dle.ka-extended-subsystem-registry.v1",
-      "registry_version": "2026.08.08-cp19k.2",
+      "registry_version": "2026.08.08-cp19k.3",
       "owners": {
         "simulation": {
           "planning": [
@@ -10671,7 +10668,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_i_production_qualified",
+        "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -10688,9 +10685,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
-        "guarantee": "Produces one bounded deterministic subsystem decision or effect proposal from declared service state through the canonical selector and controller.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
@@ -11701,7 +11698,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_i_production_qualified",
+        "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -11718,9 +11715,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
-        "guarantee": "Produces one bounded deterministic subsystem decision or effect proposal from declared service state through the canonical selector and controller.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
@@ -13843,7 +13840,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_i_production_qualified",
+        "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [],
@@ -13860,13 +13857,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
-        "guarantee": "Produces one bounded deterministic subsystem decision or effect proposal from declared service state through the canonical selector and controller.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
-        "classification": "production_validator",
+        "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
@@ -14695,7 +14692,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_i_production_qualified",
+        "status": "cp19_k_production_qualified",
         "inputs": [
           "Test suites",
           "outputs"
@@ -14726,13 +14723,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": true,
         "audit_events": true,
-        "limitations": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
-        "guarantee": "Produces one bounded deterministic subsystem decision or effect proposal from declared service state through the canonical selector and controller.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
-        "classification": "production_validator",
+        "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
@@ -14985,11 +14982,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [
-          "KA-1107",
-          "KA-1108",
-          "KA-1111"
-        ],
+        "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [
@@ -15093,10 +15086,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [
-          "KA-1081",
-          "KA-1099"
-        ],
+        "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [
@@ -15286,10 +15276,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "subsystems": [
           "UKG/USKD Core"
         ],
-        "dependencies": [
-          "KA-032",
-          "KA-1081"
-        ],
+        "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [
@@ -17110,7 +17097,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_i_production_qualified",
+        "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17129,13 +17116,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
-        "guarantee": "Produces one bounded deterministic subsystem decision or effect proposal from declared service state through the canonical selector and controller.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
-        "classification": "production_validator",
+        "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
@@ -17191,7 +17178,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_i_production_qualified",
+        "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -17210,13 +17197,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
-        "guarantee": "Produces one bounded deterministic subsystem decision or effect proposal from declared service state through the canonical selector and controller.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
-        "classification": "production_validator",
+        "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },
@@ -18714,7 +18701,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
       },
       "contract": {
         "version": "dle.ka-execution.v1",
-        "status": "cp19_i_production_qualified",
+        "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
         "categories": [
@@ -18733,13 +18720,13 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "writes_memory": false,
         "produces_artifacts": false,
         "audit_events": false,
-        "limitations": "The result does not call a provider or connector, start a job, change configuration, emit a notification, mutate infrastructure, or apply another effect. Only the owning authoritative service may act and issue an idempotent verified receipt.",
-        "guarantee": "Produces one bounded deterministic subsystem decision or effect proposal from declared service state through the canonical selector and controller.",
-        "performance_budget_ms": 1000
+        "limitations": "The result is a supplied-evidence measurement or routing proposal; it does not establish external truth, execute a selected plan, or apply persistence or provider effects.",
+        "guarantee": "Produces a bounded deterministic owner-consumed decision from explicit inputs without provider calls or direct effects.",
+        "performance_budget_ms": 750
       },
       "admission": {
         "production_enabled": true,
-        "classification": "production_validator",
+        "classification": "deterministic_heuristic",
         "deterministic": true,
         "direct_execution": "canonical_selector_required"
       },

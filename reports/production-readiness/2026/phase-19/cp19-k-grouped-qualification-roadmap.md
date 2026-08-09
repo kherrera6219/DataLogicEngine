@@ -1,14 +1,14 @@
 # CP19-K Grouped Qualification Roadmap
 
-**Status:** Active
+**Status:** Complete
 
-**Plan version:** `2026.08.08-cp19k-grouped.21`
+**Plan version:** `2026.08.08-cp19k-grouped.25`
 
 **Baseline:** 27/213 qualified; 186 open
 
 **Planned work:** 36 cohesive batches, numbered 08 through 43
 
-**Current checkpoint:** Batches 08-39 passed; 195/213 qualified, 18 open; Batch 40 next
+**Current checkpoint:** Batches 08-43 passed; 213/213 qualified, zero open; CP19-K complete
 **Release effect:** None; CP19-L, rebuilding, CP19-M, and every retained
 installed/manual/external gate remain unauthorized
 
@@ -35,7 +35,7 @@ each effect to the correct owning-service receipt.
 
 ## Group totals
 
-| Primary owner | Open KAs | Planned batches |
+| Primary owner | Baseline KAs | Planned batches |
 |---|---:|---:|
 | Security/operations lifecycle | 28 | 5 |
 | TruthMemory/TruthLink/FROST | 24 | 5 |
@@ -87,15 +87,15 @@ open prerequisite.
 | 32 | L9 synthesis/explainability — **passed 2026-08-08** | TruthCore L9 | 008, 019, 056, 1038, 1087 | 5 |
 | 33 | Exact L9 loop suite — **passed 2026-08-08** | TruthCore L9 | L9-KA-001 through L9-KA-007 | 7 |
 | 34 | Exact L10 release suite — **passed 2026-08-08** | TruthCore L10 | L10-KA-001 through L10-KA-007 | 7 |
-| 35 | L1 inference/mapping | TruthCore L1-L5 | 041, 043, 044, 049 | 4 |
-| 36 | L1 signal analysis | TruthCore L1-L5 | 039, 045, 046, 047, 165, 167 | 6 |
-| 37 | L1 language/identity/explanation | TruthCore L1-L5 | 048, 050, 161, 162, 163, 168, 178 | 7 |
-| 38 | Provider API/external research | provider/gateway | 111, 1114 | 2 |
-| 39 | Operations delivery/messaging | security/operations | 093, 110, 112, 114, 115 | 5 |
-| 40 | Operations health/recovery | security/operations | 107, 108, 109, 1097, 1098, 138 | 6 |
-| 41 | Operations crypto/vulnerability | security/operations | 139, 180, 181, 183 | 4 |
-| 42 | Simulation chaos/rollback | simulation | 1101, 1103 | 2 |
-| 43 | Operations topology/evolution | security/operations | 101-105, 1100 | 6 |
+| 35 | L1 inference/mapping — **passed 2026-08-08** | TruthCore L1-L5 | 041, 043, 044, 049 | 4 |
+| 36 | L1 signal analysis — **passed 2026-08-08** | TruthCore L1-L5 | 039, 045, 046, 047, 165, 167 | 6 |
+| 37 | L1 language/identity/explanation — **passed 2026-08-08** | TruthCore L1-L5 | 048, 050, 161, 162, 163, 168, 178 | 7 |
+| 38 | Provider API/external research — **passed 2026-08-08** | provider/gateway | 111, 1114 | 2 |
+| 39 | Operations delivery/messaging — **passed 2026-08-08** | security/operations | 093, 110, 112, 114, 115 | 5 |
+| 40 | Operations health/recovery — **passed 2026-08-08** | security/operations | 107, 108, 109, 1097, 1098, 138 | 6 |
+| 41 | Operations crypto/vulnerability — **passed 2026-08-08** | security/operations | 139, 180, 181, 183 | 4 |
+| 42 | Simulation chaos/rollback — **passed 2026-08-08** | simulation | 1101, 1103 | 2 |
+| 43 | Operations topology/evolution — **passed 2026-08-08** | security/operations | 101-105, 1100 | 6 |
 
 ## Qualification contract for every batch
 
@@ -116,5 +116,5 @@ Effect-oriented batches must additionally prove that:
 The machine-readable authority is
 `config/phase19-ka-grouped-batches.json`. Its integrity test proves exact
 186-row baseline coverage, one owner per batch, bounded batch size, unique
-membership, dependency-safe order, and exact reconciliation of completed
-batches with the current 42-row open matrix.
+membership, dependency-safe order, and exact reconciliation of all completed
+batches with the current zero-row open matrix.

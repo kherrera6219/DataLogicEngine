@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
@@ -59,7 +60,10 @@ class KA1103Input(BaseModel):
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("checkpoint IDs must be unique")
         known = set(identifiers)
-        if self.current_checkpoint_id not in known or self.target_checkpoint_id not in known:
+        if (
+            self.current_checkpoint_id not in known
+            or self.target_checkpoint_id not in known
+        ):
             raise ValueError("current and target checkpoints must exist")
         if any(
             item.parent_checkpoint_id and item.parent_checkpoint_id not in known
@@ -95,15 +99,53 @@ class KA1103SimulationStateRollbackManager(KnowledgeAlgorithm):
             blockers.append("target_not_ancestor")
         if not target.verified:
             blockers.append("target_not_verified")
+        current = checkpoints[input_data.current_checkpoint_id]
+        if target.sequence >= current.sequence:
+            blockers.append("target_sequence_not_earlier")
+        for child_id in path[:-1]:
+            parent_id = checkpoints[child_id].parent_checkpoint_id
+            if (
+                parent_id
+                and checkpoints[parent_id].sequence >= checkpoints[child_id].sequence
+            ):
+                blockers.append("checkpoint_sequence_invalid")
+                break
+        approved = not blockers
+        effect_proposal = (
+            {
+                "effect_id": stable_identifier(
+                    "simulation-rollback",
+                    {
+                        "simulation_id": input_data.simulation_id,
+                        "current_checkpoint_id": input_data.current_checkpoint_id,
+                        "target_checkpoint_id": input_data.target_checkpoint_id,
+                        "target_state_sha256": target.state_sha256.lower(),
+                    },
+                ),
+                "kind": "execute_verified_simulation_rollback",
+                "status": "proposed",
+                "service": "simulation_job_service",
+                "payload": {
+                    "simulation_id": input_data.simulation_id,
+                    "rollback_path": path,
+                    "target_checkpoint_id": input_data.target_checkpoint_id,
+                    "target_state_sha256": target.state_sha256.lower(),
+                },
+            }
+            if approved
+            else None
+        )
         return {
             "success": True,
             "status": "simulation_rollback_evaluated",
             "simulation_id": input_data.simulation_id,
-            "decision": "approve_plan" if not blockers else "block",
-            "rollback_path": path if not blockers else [],
-            "target_state_sha256": target.state_sha256,
+            "decision": "approve_plan" if approved else "block",
+            "rollback_path": path if approved else [],
+            "target_state_sha256": target.state_sha256.lower(),
             "blockers": blockers,
             "rollback_applied": False,
+            "effect_proposal": effect_proposal,
+            "authoritative_receipt": None,
             "effect_service_required": True,
             "deterministic": True,
             "limitations": (

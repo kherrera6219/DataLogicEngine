@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-04 |
+| Last reviewed | 2026-08-08 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.62.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.63.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K complete, CP19-L next |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -144,7 +144,7 @@ Phase 18 source baseline while completing the whole-application wiring.
       Forty-one focused workflow, six Python SDK, seven TypeScript SDK, 426
       frontend, and 2,557 full-source tests pass; the source suite has 19
       skipped and 35 known warnings.
-- [ ] **CP19-K — per-KA proof:** close the generated 213-row matrix with one
+- [x] **CP19-K — per-KA proof:** close the generated 213-row matrix with one
       individually named semantic test, positive/negative selector fixtures,
       real owning-path assertion, limitation, trace proof, and applicable
       security/effect/performance evidence for every KA.
@@ -298,12 +298,20 @@ Phase 18 source baseline while completing the whole-application wiring.
         research consumes authoritative auth/policy/rate/domain/source/time
         controls; and delivery/messaging effects require owner record IDs,
         SHA-256 receipts, and durable ledger records.
-      - The generated matrix and integrity verifier pass at 195/213 qualified
-        and 18 incomplete; rebuild authorization remains false. Runtime
-        manifest `2026.08.08-cp19k.20` retains 213 capabilities, 211 production-
-        enabled capabilities, and a 119-edge zero-cycle graph. The KA
-        suite, Phase-19/governed/TruthCore integration tests, and
-        3,027-test full source suite pass; the source suite has 18 skipped and
+      - Batches 40-43 passed 2026-08-08: operations health/recovery, crypto and
+        key lifecycle, simulation chaos/rollback, and topology/evolution close
+        the final 18 rows. Legacy local-probe, environment-read, active-mesh,
+        failover/RPO/RTO, injected-service, scaling, and fake-node claims were
+        removed. Effectful KAs now emit bounded proposals applied only by
+        OperationsControlService or SimulationJobService with durable,
+        hash-bound receipts; seven advisory KAs remain effect-free.
+      - The generated matrix and integrity verifier pass at 213/213 qualified
+        and zero incomplete; CP19-K is complete and rebuild authorization
+        remains false. Runtime manifest `2026.08.08-cp19k.24` retains 213
+        capabilities, 211 production-enabled capabilities, and a 112-edge
+        zero-cycle graph. The 991-test KA suite, 458-test Phase-19/governed/
+        TruthCore/simulation integration set, seven TypeScript SDK tests, and
+        3,070-test full source suite pass; the source suite has 18 skipped and
         32 known warnings.
       - Parallel candidate training-dataset exporter review passed after
         hardening: owner-authenticated API, app-owned output containment,
@@ -320,10 +328,8 @@ Phase 18 source baseline while completing the whole-application wiring.
         `cryptography` advisories, are remediated in the governed locks. Local
         `pip-audit` and `npm audit` report zero vulnerabilities; the 2026-08-04
         live GitHub query reports zero open Dependabot alerts.
-      - Next: execute grouped Batch 40 (`KA-107`, `KA-108`, `KA-109`,
-        `KA-1097`, `KA-1098`, and `KA-138`) through the real operations
-        health/recovery owner. Keep every
-        later batch open until its named individual and owner/effect evidence passes.
+      - Next: execute CP19-L clean-source qualification. Only a passing CP19-L
+        checkpoint may authorize the release-candidate rebuild.
 - [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.
@@ -1051,7 +1057,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-J passed, CP19-K batches 01-39 qualify 195/213 rows, 18 remain open in four grouped batches, and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-K passed with 213/213 individually qualified and rebuild remains blocked through CP19-L** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -1069,14 +1075,10 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Complete CP19-K by closing the generated 213-row matrix with one individually
-named semantic test, positive/negative selector proof, real owning-path
-assertion, explicit limitation, causal trace proof, and applicable security,
-effect, and performance evidence for every canonical capability. Proceed next
-with grouped Batch 40 (`KA-107`, `KA-108`, `KA-109`, `KA-1097`, `KA-1098`,
-and `KA-138`), health/recovery through the real operations owner, using the
-reviewed 36-batch roadmap.
-Do not treat source qualification as installed acceptance.
+Execute CP19-L clean-source qualification across focused/full backend, SDK,
+frontend, Electron/browser, security, docs/governance, environment,
+packaging-smoke, source-cleanliness, and no-capability-reduction gates. Do not
+treat CP19-K source qualification as installed acceptance.
 
 Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
 locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run

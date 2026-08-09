@@ -1,66 +1,105 @@
-"""
-KA-105: Scalability Manager
-Purpose: Manage horizontal and vertical scaling of system resources based on real-time load triggers.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
+"""KA-105: bounded scaling recommendation."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA105ScalabilityInput(BaseModel):
-    metrics: Dict[str, float] = Field(default_factory=dict, description="Real-time system metrics for scaling evaluation")
-    current_replicas: int = Field(2, ge=1, description="The number of currently active service replicas")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "examples": [
+                {
+                    "cpu_utilization": 0.8,
+                    "memory_utilization": 0.5,
+                    "cpu_scale_up_threshold": 0.75,
+                    "memory_scale_up_threshold": 0.8,
+                    "scale_down_threshold": 0.25,
+                    "current_replicas": 2,
+                    "minimum_replicas": 1,
+                    "maximum_replicas": 5,
+                    "cooldown_elapsed": True,
+                }
+            ]
+        },
+    )
+
+    cpu_utilization: float = Field(ge=0, le=1)
+    memory_utilization: float = Field(ge=0, le=1)
+    cpu_scale_up_threshold: float = Field(gt=0, le=1)
+    memory_scale_up_threshold: float = Field(gt=0, le=1)
+    scale_down_threshold: float = Field(ge=0, lt=1)
+    current_replicas: int = Field(ge=1, le=10_000)
+    minimum_replicas: int = Field(ge=1, le=10_000)
+    maximum_replicas: int = Field(ge=1, le=10_000)
+    cooldown_elapsed: bool
+
+    @model_validator(mode="after")
+    def validate_bounds(self) -> KA105ScalabilityInput:
+        if not self.minimum_replicas <= self.current_replicas <= self.maximum_replicas:
+            raise ValueError("current replicas must be within declared bounds")
+        if self.minimum_replicas > self.maximum_replicas:
+            raise ValueError("minimum replicas must not exceed maximum replicas")
+        if self.scale_down_threshold >= min(
+            self.cpu_scale_up_threshold, self.memory_scale_up_threshold
+        ):
+            raise ValueError("scale-down threshold must be below scale-up thresholds")
+        return self
+
 
 class KA105ScalabilityManager(KnowledgeAlgorithm):
-    """
-    KA-105: Resource scalability and elasticity engine for adaptive infrastructure.
-    """
+    """Recommend a single bounded replica change without applying it."""
+
     input_schema = KA105ScalabilityInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-105"
-        self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_105_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    return json.load(f)
-            return {}
-        except Exception:
-            return {}
-
-    def _run_logic(self, input_data: KA105ScalabilityInput) -> Dict[str, Any]:
-        metrics = input_data.metrics
-        current_replicas = input_data.current_replicas
-        self.log_execution_step("Evaluating Scaling Needs", {"metrics": metrics})
-        
-        triggers = self.config.get("scaling_triggers", {"cpu_threshold": 0.85, "memory_threshold": 0.9})
-        needs_scale_up = metrics.get("cpu_usage", 0) > triggers.get("cpu_threshold", 0.85)
-        
-        target_replicas = current_replicas + 1 if needs_scale_up else current_replicas
-        
+    def _run_logic(self, input_data: KA105ScalabilityInput) -> dict[str, Any]:
+        target = input_data.current_replicas
+        reason = "within_thresholds"
+        if not input_data.cooldown_elapsed:
+            reason = "cooldown_active"
+        elif (
+            input_data.cpu_utilization >= input_data.cpu_scale_up_threshold
+            or input_data.memory_utilization >= input_data.memory_scale_up_threshold
+        ):
+            target = min(input_data.current_replicas + 1, input_data.maximum_replicas)
+            reason = "scale_up_threshold_reached"
+        elif (
+            input_data.cpu_utilization <= input_data.scale_down_threshold
+            and input_data.memory_utilization <= input_data.scale_down_threshold
+        ):
+            target = max(input_data.current_replicas - 1, input_data.minimum_replicas)
+            reason = "scale_down_threshold_reached"
         return {
             "success": True,
-            "scaling_action": "SCALE_UP" if needs_scale_up else "NONE",
-            "current_replicas": current_replicas,
-            "target_replicas": target_replicas,
-            "enabled": self.config.get("auto_scaling_enabled", True),
-            "cooldown_active": False
+            "status": "scaling_recommendation_created",
+            "current_replicas": input_data.current_replicas,
+            "recommended_replicas": target,
+            "recommendation": (
+                "scale_up"
+                if target > input_data.current_replicas
+                else "scale_down"
+                if target < input_data.current_replicas
+                else "hold"
+            ),
+            "reason": reason,
+            "scaling_applied": False,
+            "measurement_status": "caller_supplied",
+            "deterministic": True,
+            "limitations": (
+                "The recommendation assumes supplied utilization is authoritative; "
+                "OperationsControlService owns any scaling action."
+            ),
         }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        algo = KA105ScalabilityManager(context)
-        return algo.run(context)
-    except Exception as e:
-        logger.error(f"KA-105 Failed: {e}")
-        return {"success": False, "error": str(e)}
+
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA105ScalabilityManager(context).run(context)

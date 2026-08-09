@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.0.3 |
+| Document version | v1.0.4 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-04 |
+| Last reviewed | 2026-08-08 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.62.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.63.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K active |
+| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K complete, CP19-L next |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -236,15 +236,16 @@ Alembic has 26 revisions and one head `0a1b2c3d4e5f`. Forty-one focused
 workflow, six Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests
 pass; the source suite has 19 skipped and 35 known warnings.
 
-CP19-A through CP19-J authorize CP19-K only; complete per-KA proof,
-clean-source, rebuilding, installed acceptance, and production launch gates
-remain unauthorized.
+CP19-A through CP19-K are complete. CP19-K closes every individual per-KA
+semantic, selector, owning-path, limitation, trace, security, effect, and
+performance row. Clean-source qualification, rebuilding, installed acceptance,
+and production launch gates remain unauthorized.
 
-CP19-K batches 01 through 39 are complete. Batches 19-23 add the five-node
+CP19-K batches 01 through 43 are complete. Batches 19-23 add the five-node
 Quad Persona foundation, L6 evidence/confidence/entropy validation, adaptive
 DMRF routing, retrieval-store maintenance, and knowledge-content evolution
 through their real DSQP, TruthCore, DMRF, retrieval, and TruthMemory owners. The
-generated 213-row matrix and verifier report 195 qualified and 18 incomplete,
+generated 213-row matrix and verifier report 213 qualified and zero incomplete,
 with rebuild authorization false. Batch 02 moves
 KA-005/KA-113 from evaluation-only legacy helpers onto the real production DMRF
 selector plan. Batch 03 corrects simulation overstatement: KA-1080 now feeds
@@ -252,10 +253,10 @@ KA-1081 admission, KA-037 limits provider tokens, KA-042 feeds KA-070, and the
 bounded counterfactual projection changes the provider prompt through the real
 job. SimulationJobRunner alone applies the plan/context/artifact effects and
 binds each to an authoritative receipt. Runtime manifest
-`2026.08.08-cp19k.20` retains 213 capabilities, 211 production-enabled
-capabilities, and 119 dependency edges with zero cycles. `KA-1101` and
-`KA-1103` remain unqualified because no production chaos or rollback action
-consumes their registry operations.
+`2026.08.08-cp19k.24` retains 213 capabilities, 211 production-enabled
+capabilities, and 112 dependency edges with zero cycles. `KA-1101` and
+`KA-1103` now execute through SimulationJobService, which alone applies the
+admitted chaos or rollback proposal and records the authoritative receipt.
 
 Batch 04 makes the MCP credential, policy, and access outputs causal before the
 connector call. Connector effects now receive authoritative receipts bound to
@@ -356,9 +357,11 @@ authentication, policy, rate, domain, source, time, and citation controls;
 ProviderGatewayService alone invokes the approved connector and records the
 receipt. Batch 39 removes direct delivery/database behavior and false delivery
 claims from messaging KAs; OperationsControlService alone applies effects with
-durable record IDs, receipts, and ledger records. Batch 40, operations health
-and recovery (`KA-107`, `KA-108`, `KA-109`, `KA-1097`, `KA-1098`, and
-`KA-138`), is next.
+durable record IDs, receipts, and ledger records. Batches 40-43 close the final
+18 rows across health/recovery, crypto/vulnerability, simulation chaos/
+rollback, and topology/evolution. Seven advisory KAs remain effect-free; all
+other changes are proposal-only until OperationsControlService or
+SimulationJobService returns a durable, hash-bound receipt and ledger record.
 
 The earlier 31 dependency alerts remain remediated. Ten newly published GitHub
 alerts reported on 2026-08-04 across `aiohttp`, `undici`, and `ip-address`, plus
@@ -366,11 +369,11 @@ one local `socket.io-parser` and three `cryptography` advisories, are remediated
 by the governed locks. Local Python and Node audits report zero vulnerabilities;
 lock governance passes and the 2026-08-04 live GitHub query reports zero open
 Dependabot alerts.
-The KA suite passes 970 tests; the Phase 19, governed execution, and TruthCore
-integration set passes 378 tests; the TypeScript SDK passes
+The KA suite passes 991 tests; the Phase 19, governed execution, TruthCore, and
+simulation integration set passes 458 tests; the TypeScript SDK passes
 seven tests; frontend type checking and all seven TypeScript SDK tests pass;
 the retained 430 frontend tests and production/Electron builds remain green;
-and the full source suite passes 3,027 tests with
+and the full source suite passes 3,070 tests with
 18 skipped and 32 known warnings. Read:
 
 A parallel candidate training-dataset exporter was reviewed before publication
@@ -1047,22 +1050,18 @@ replacement. See
 
 ## Exact next action
 
-1. Continue CP19-K from 195/213 with grouped Batch 40, operations health and
-   recovery (`KA-107`, `KA-108`, `KA-109`, `KA-1097`, `KA-1098`, and
-   `KA-138`), through the real operations owner.
-   Do not infer qualification from registry membership.
-2. Follow the reviewed 36-batch roadmap in dependency order. Keep all 18 open
-   rows unqualified until each named semantic, owning-path, trace, limitation,
-   security, effect, and performance proof passes; direct tests or registry
-   membership do not qualify an owning path.
-3. Preserve canonical IDs, every distinct capability, one implementation
-   owner, one primary subsystem owner, and one governed answer path while
-   preparing CP19-L clean-source qualification.
-4. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
+1. Execute CP19-L clean-source qualification across focused/full backend, SDK,
+   frontend, Electron/browser, security, documentation/governance,
+   environment, packaging-smoke, source-cleanliness, and
+   no-capability-reduction gates.
+2. Preserve all 213 canonical IDs, every distinct capability, one
+   implementation owner, one primary subsystem owner, and one governed answer
+   path. Keep rebuild authorization false unless every CP19-L gate passes.
+3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
    execute CP19-M plus the retained clean-machine object-store,
    protected-volume, backup/restore, security/license, accessibility, provider,
    gateway, pilot, and soak acceptance.
-5. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution
+4. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution
    NO-GO, automatic-update disablement, and object-store production-approval
    false until their exact installed and independent evidence exists.
 

@@ -5240,7 +5240,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_101.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_101.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_101_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_101_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_101_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -5287,7 +5287,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_102.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_102.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_102_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_102_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_102_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -5332,7 +5332,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_103.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_103.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_103_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_103_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_103_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -5574,7 +5574,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_104.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_104.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_104_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_104_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_104_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -6096,7 +6096,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_105.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_105.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_105_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_105_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_105_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -6187,7 +6187,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_107.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_107.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_107_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_107_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_107_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -6674,7 +6674,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_108.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_108.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_108_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_108_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_108_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -7202,7 +7202,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_109.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_109.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_109_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_109_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_109_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -7595,7 +7595,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1097.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1097.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1097_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_1097_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_1097_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -7643,7 +7643,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1098.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1098.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1098_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_1098_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_1098_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -7797,7 +7797,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1100.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1100.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1100_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_1100_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_1100_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -7848,7 +7848,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1101.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1101.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1101_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_simulation.py::test_ka_1101_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_1101_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -7943,7 +7943,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_1103.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_1103.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1103_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_simulation.py::test_ka_1103_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_1103_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -8887,7 +8887,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_138.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_138.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_138_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_138_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_138_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -8934,7 +8934,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_139.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_139.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_139_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_139_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_139_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -9665,7 +9665,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_180.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_180.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_180_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_180_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_180_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -9712,7 +9712,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_181.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_181.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_181_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_181_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_181_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state_authoritative_effect_receipt",
       "current_wiring": {
         "detected_execution_call_sites": [],
@@ -9805,7 +9805,7 @@
       "positive_fixture": "tests/knowledge_algorithms/phase19/ka_183.json#positive_selector",
       "negative_fixture": "tests/knowledge_algorithms/phase19/ka_183.json#negative_selector",
       "functional_test": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_183_semantic_contract",
-      "integration_test": "tests/integration/phase19/test_security_operations_lifecycle.py::test_ka_183_owning_path",
+      "integration_test": "tests/integration/phase19/test_batches_40_43.py::test_ka_183_owning_path",
       "trace_assertion": "planned_selected_admitted_executed_terminal_state",
       "current_wiring": {
         "detected_execution_call_sites": [],

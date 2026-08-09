@@ -742,6 +742,13 @@ CP19_K_ADMISSION_IDS = {
     "KA-167",
     "KA-168",
     "KA-178",
+    "KA-104",
+    "KA-105",
+    "KA-109",
+    "KA-1098",
+    "KA-138",
+    "KA-139",
+    "KA-183",
 }
 
 CP19_K_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
@@ -820,6 +827,28 @@ CP19_K_PURE_ADVISORY_OVERRIDES = {
 # stale design edges that would otherwise trigger unrelated maintenance or
 # simulation work inside pure context/routing decisions.
 CP19_K_DEPENDENCY_OVERRIDES: dict[str, dict[str, Any]] = {
+    "KA-1100": {
+        "dependencies": [],
+        "rationale": (
+            "System-evolution admission consumes explicit validation, rollback, "
+            "scope, risk, and human-approval evidence and must not silently run "
+            "reasoning, introspection, or release KAs."
+        ),
+    },
+    "KA-1101": {
+        "dependencies": [],
+        "rationale": (
+            "Chaos admission consumes explicit environment, magnitude, duration, "
+            "rollback, monitoring, service-allowlist, and human-approval evidence."
+        ),
+    },
+    "KA-1103": {
+        "dependencies": [],
+        "rationale": (
+            "Rollback planning validates the explicit checkpoint chain and target "
+            "hash without silently starting simulation planning or admission."
+        ),
+    },
     "KA-1114": {
         "dependencies": [],
         "rationale": (
@@ -1289,7 +1318,7 @@ CP19_I_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
 
 CP19_I_SUBSYSTEM_REGISTRY: dict[str, Any] = {
     "schema_version": "dle.ka-extended-subsystem-registry.v1",
-    "registry_version": "2026.08.08-cp19k.2",
+    "registry_version": "2026.08.08-cp19k.3",
     "owners": {
         "simulation": {
             "planning": ["KA-1080", "KA-1081", "KA-037", "KA-032"],
@@ -1592,7 +1621,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.08-cp19k.20",
+        "manifest_version": "2026.08.08-cp19k.24",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

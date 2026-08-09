@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-04 |
+| Last reviewed | 2026-08-08 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 19 CP19-K completion**: qualified all 213 canonical Knowledge
+  Algorithms through individually named semantic, selector, owning-path,
+  limitation, trace, security, effect, and performance evidence. Final Batches
+  40-43 add receipted operations health/recovery, metadata-only crypto/key
+  lifecycle, simulation chaos/rollback, and topology/evolution boundaries while
+  removing legacy infrastructure overclaims. CP19-L is next; rebuilding and
+  release remain unauthorized.
 - **Newly published dependency advisory remediation**: upgraded `aiohttp` to
   3.14.3 and `cryptography` to 50.0.0 in the governed Python source and hash
   lock; added frontend overrides for `undici` 7.29.0, resolved `ip-address` 10.4.0, and

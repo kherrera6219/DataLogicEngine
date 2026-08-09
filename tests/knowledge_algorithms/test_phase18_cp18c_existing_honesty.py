@@ -181,7 +181,7 @@ def test_ka_108_backup_strategy_returns_coordinated_backup_proposal_only():
     assert result.output["backup_created"] is False
     assert result.output["backup_id"] is None
     assert result.output["verification_status"] == "not_run"
-    assert result.output["effect_proposal"]["service"] == "managed_backup_service"
+    assert result.output["effect_proposal"]["service"] == "operations_control_service"
 
 
 def test_ka_110_integration_bus_returns_durable_outbox_proposal_only():

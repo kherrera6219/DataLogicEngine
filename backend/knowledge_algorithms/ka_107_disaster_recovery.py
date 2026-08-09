@@ -1,77 +1,86 @@
-"""
-KA-107: Disaster Recovery
-Purpose: Orchestrate multi-region failover and system recovery in the event of major infrastructure failures.
-"""
-import logging
-import json
-import os
-from typing import Dict, Any
+"""KA-107: bounded disaster-recovery admission proposal."""
+
+from __future__ import annotations
+
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
-
-from pydantic import BaseModel, Field
-
-logger = logging.getLogger(__name__)
 
 
 class KA107RecoveryInput(BaseModel):
-    failure_id: str = Field("none", description="The ID of the failure event to recover from")
+    model_config = ConfigDict(extra="forbid")
+
+    failure_id: str = Field(min_length=1, max_length=200)
+    failure_confirmed: bool
+    recovery_plan_ref: str = Field(min_length=1, max_length=2_000)
+    target_environment: Literal["local_recovery", "secondary_node"]
+    latest_backup_verified: bool
+    owner_approved: bool
+
 
 class KA107DisasterRecovery(KnowledgeAlgorithm):
-    """
-    KA-107: System failover and recovery orchestration engine with resilience patterns.
-    """
+    """Admit an explicit recovery plan without initiating failover."""
+
     input_schema = KA107RecoveryInput
 
-    def __init__(self, context: Dict[str, Any]):
+    def __init__(self, context: dict[str, Any]):
         super().__init__(context, None, None, None)
         self.ka_id = "KA-107"
-        self.config = self._load_config()
 
-    def _default_config(self) -> Dict[str, Any]:
-        return {
-            "recovery_plan": "standard_failover",
-            "failover_region": "us-east-1",
-            "rpo_minutes": 5,
-            "rto_minutes": 15,
-        }
-
-    def _load_config(self) -> Dict[str, Any]:
-        try:
-            config_path = os.path.join(os.path.dirname(__file__), "config", "ka_107_config.json")
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    loaded = json.load(f) or {}
-                    return {**self._default_config(), **loaded}
-            return self._default_config()
-        except Exception:
-            return self._default_config()
-
-    def _run_logic(self, input_data: KA107RecoveryInput) -> Dict[str, Any]:
-        failure_id = input_data.failure_id
-        self.log_execution_step("Executing Recovery Plan", {"plan": self.config.get("recovery_plan", "standard_failover")})
-        
-        failover_region = self.config.get("failover_region", "us-east-1")
-        
+    def _run_logic(self, input_data: KA107RecoveryInput) -> dict[str, Any]:
+        blockers = []
+        if not input_data.failure_confirmed:
+            blockers.append("failure_not_confirmed")
+        if not input_data.latest_backup_verified:
+            blockers.append("backup_not_verified")
+        if not input_data.owner_approved:
+            blockers.append("owner_approval_required")
+        proposal_id = stable_identifier(
+            "disaster-recovery",
+            {
+                "failure_id": input_data.failure_id,
+                "recovery_plan_ref": input_data.recovery_plan_ref,
+                "target_environment": input_data.target_environment,
+            },
+        )
+        admitted = not blockers
         return {
             "success": True,
-            "recovery_status": "READY_FOR_FAILOVER" if failure_id != "none" else "IDLE",
-            "target_region": failover_region,
-            "rpo_attained": f"{self.config.get('rpo_minutes', 5)}m",
-            "rto_attained": f"{self.config.get('rto_minutes', 15)}m",
-            "data_sync_status": "SYNCHRONIZED"
+            "status": "recovery_plan_evaluated",
+            "decision": "admit" if admitted else "block",
+            "blockers": blockers,
+            "failure_id": input_data.failure_id,
+            "recovery_started": False,
+            "failover_applied": False,
+            "rpo_attained": None,
+            "rto_attained": None,
+            "data_sync_verified": False,
+            "effect_proposal": (
+                {
+                    "effect_id": proposal_id,
+                    "kind": "execute_disaster_recovery",
+                    "status": "proposed",
+                    "service": "operations_control_service",
+                    "payload": {
+                        "failure_id": input_data.failure_id,
+                        "recovery_plan_ref": input_data.recovery_plan_ref,
+                        "target_environment": input_data.target_environment,
+                    },
+                }
+                if admitted
+                else None
+            ),
+            "authoritative_receipt": None,
+            "deterministic": True,
+            "limitations": (
+                "OperationsControlService must execute and verify recovery; this KA "
+                "does not measure RPO/RTO, synchronize data, or initiate failover."
+            ),
         }
 
-    def _fallback_logic(self, input_data: KA107RecoveryInput, error: Exception) -> Dict[str, Any]:
-        """Failsafe: Trigger emergency failover to a hardcoded region if the orchestrator fails."""
-        self.logger.critical(f"Disaster Recovery ORCHESTRATOR FAILURE: {str(error)}")
-        return {
-            "success": False,
-            "recovery_status": "EMERGENCY_FAILOVER_TRIGGERED",
-            "target_region": "us-east-1_FAILSAFE",
-            "fallback_active": True,
-            "message": "Orchestrator failure. Hardcoded failover initiated."
-        }
 
-def run(context: Dict[str, Any]) -> Dict[str, Any]:
-    algo = KA107DisasterRecovery(context)
-    return algo.run(context)
+def run(context: dict[str, Any]) -> dict[str, Any]:
+    return KA107DisasterRecovery(context).run(context)

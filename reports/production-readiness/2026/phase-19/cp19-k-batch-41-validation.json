@@ -1,0 +1,15 @@
+{
+  "schema_version": "dle.cp19-k-batch-validation.v1",
+  "status": "pass",
+  "checkpoint_status": "complete",
+  "batch_id": "cp19-k-batch-41-operations-crypto-vulnerability",
+  "validated_on": "2026-08-08",
+  "qualified_ids": ["KA-139", "KA-180", "KA-181", "KA-183"],
+  "summary": {"canonical_capabilities": 213, "qualified_capabilities": 213, "incomplete_capabilities": 0, "production_enabled_capabilities": 211, "dependency_edges": 112, "dependency_cycles": 0, "rebuild_authorized": false},
+  "checks": [
+    {"name": "semantic_and_owner_paths", "status": "pass", "result": "Four individually named semantic and owning-path proofs pass"},
+    {"name": "effect_boundary", "status": "pass", "result": "Crypto and key lifecycle remain metadata-only proposals until OperationsControlService records a durable receipt; scanner and purple-team analysis remain effect-free"},
+    {"name": "full_validation", "status": "pass", "result": "991 KA, 458 integration, 7 TypeScript SDK, and 3070 full-source tests pass"}
+  ],
+  "limitations": ["Source qualification does not prove installed cryptographic key protection, scanner execution, remediation, or purple-team effectiveness."]
+}

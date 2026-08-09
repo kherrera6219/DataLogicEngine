@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
@@ -47,6 +48,13 @@ class KA180Input(BaseModel):
 
     requests: list[EncryptionRequest] = Field(min_length=1, max_length=10_000)
 
+    @model_validator(mode="after")
+    def validate_request_ids(self) -> KA180Input:
+        identifiers = [item.request_id for item in self.requests]
+        if len(identifiers) != len(set(identifiers)):
+            raise ValueError("encryption request IDs must be unique")
+        return self
+
 
 class KA180EncryptionManager(KnowledgeAlgorithm):
     """Admit crypto-service requests without handling plaintext or key material."""
@@ -81,12 +89,30 @@ class KA180EncryptionManager(KnowledgeAlgorithm):
                     else None,
                 }
             )
+        effect_proposals = [
+            {
+                "effect_id": stable_identifier(
+                    "crypto-operation", {"request_id": item["request_id"]}
+                ),
+                "kind": "execute_protected_crypto_operation",
+                "status": "proposed",
+                "service": "operations_control_service",
+                "payload": {
+                    "request_id": item["request_id"],
+                    **item["crypto_request"],
+                },
+            }
+            for item in plans
+            if item["decision"] == "admit"
+        ]
         return {
             "success": True,
             "status": "encryption_requests_evaluated",
             "plans": plans,
             "plaintext_or_key_material_processed": False,
             "operations_applied": 0,
+            "effect_proposals": effect_proposals,
+            "authoritative_receipts": [],
             "deterministic": True,
             "limitations": (
                 "An authoritative OS-backed crypto service must generate nonces, "

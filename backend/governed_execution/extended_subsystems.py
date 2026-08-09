@@ -991,6 +991,266 @@ class ExtendedSubsystemCoordinator(KnowledgeLifecycleCoordinator):
             )
         return {"execution": execution, "applied": applied}
 
+    @staticmethod
+    def _effect_proposals(
+        outputs: dict[str, dict[str, Any]], requested_ids: list[str]
+    ) -> list[tuple[str, dict[str, Any]]]:
+        proposals: list[tuple[str, dict[str, Any]]] = []
+        for canonical_id in requested_ids:
+            output = outputs[canonical_id]
+            single = output.get("effect_proposal")
+            if isinstance(single, dict):
+                proposals.append((canonical_id, dict(single)))
+            many = output.get("effect_proposals")
+            if isinstance(many, list):
+                proposals.extend(
+                    (canonical_id, dict(proposal))
+                    for proposal in many
+                    if isinstance(proposal, dict)
+                )
+        effect_ids = [str(proposal.get("effect_id") or "") for _, proposal in proposals]
+        if any(not effect_id for effect_id in effect_ids):
+            raise ExtendedSubsystemError("Effect proposal requires an effect ID")
+        if len(effect_ids) != len(set(effect_ids)):
+            raise ExtendedSubsystemError("Effect proposal IDs must be unique")
+        return proposals
+
+    def _execute_receipted_operation(
+        self,
+        *,
+        owner: str,
+        operation: str,
+        requested_ids: list[str],
+        ka_inputs: dict[str, dict[str, Any]],
+        request_id: str,
+        principal_id: str,
+        tier: str,
+        layer: str,
+        service_name: str,
+        service_capability: str,
+        max_effects: int,
+        effect_call: Callable[[dict[str, Any]], dict[str, Any]],
+        record_receipt: Callable[[dict[str, Any]], str],
+    ) -> dict[str, Any]:
+        execution = self.execute_operation_sync(
+            owner=owner,
+            operation=operation,
+            requested_ids=requested_ids,
+            ka_inputs=ka_inputs,
+            request_id=request_id,
+            run_id=f"{layer}:{request_id}",
+            max_effects=max_effects,
+            principal_id=principal_id,
+            tier=tier,
+            layer=layer,
+            service_capabilities={service_capability},
+        )
+        outputs = self.execution_outputs(execution)
+        applied = []
+        for canonical_id, proposal in self._effect_proposals(outputs, requested_ids):
+            result = effect_call(dict(proposal))
+            if not isinstance(result, dict) or result.get("status") not in {
+                "applied",
+                "completed",
+                "created",
+                "verified",
+            }:
+                raise ExtendedSubsystemError(
+                    f"{service_name} did not apply the proposed effect"
+                )
+            resource_id = str(
+                result.get("record_id") or result.get("resource_id") or ""
+            ).strip()
+            if not resource_id:
+                raise ExtendedSubsystemError(
+                    f"{service_name} result requires a durable record ID"
+                )
+            effect_id = str(proposal["effect_id"])
+            receipt = self.bind_effect_receipt(
+                service=service_name,
+                operation=str(proposal.get("kind") or operation),
+                resource_id=resource_id,
+                request_payload=proposal,
+                result_payload=result,
+                idempotency_key=f"{request_id}:{effect_id}",
+                ka_execution=execution,
+                proposal_ids=[effect_id],
+            )
+            ledger_record_id = str(record_receipt(receipt.to_dict()) or "").strip()
+            if not ledger_record_id:
+                raise ExtendedSubsystemError(
+                    f"{service_name} receipt was not durably recorded"
+                )
+            applied.append(
+                {
+                    "canonical_id": canonical_id,
+                    "proposal": proposal,
+                    "result": result,
+                    "receipt": receipt,
+                    "ledger_record_id": ledger_record_id,
+                }
+            )
+        return {"execution": execution, "outputs": outputs, "applied": applied}
+
+    def execute_health_recovery_boundary(
+        self,
+        *,
+        request_id: str,
+        principal_id: str,
+        ka_inputs: dict[str, dict[str, Any]],
+        effect_call: Callable[[dict[str, Any]], dict[str, Any]],
+        record_receipt: Callable[[dict[str, Any]], str],
+    ) -> dict[str, Any]:
+        """Apply health/recovery proposals through OperationsControlService."""
+        executions = [
+            self._execute_receipted_operation(
+                owner="security_operations_lifecycle",
+                operation=operation,
+                requested_ids=requested_ids,
+                ka_inputs=ka_inputs,
+                request_id=f"{request_id}:{operation}",
+                principal_id=principal_id,
+                tier="operations",
+                layer=layer,
+                service_name="OperationsControlService",
+                service_capability="operations_control_service",
+                max_effects=max_effects,
+                effect_call=effect_call,
+                record_receipt=record_receipt,
+            )
+            for operation, requested_ids, layer, max_effects in (
+                (
+                    "service_control",
+                    ["KA-107", "KA-108", "KA-109", "KA-1097", "KA-1098"],
+                    "health_recovery",
+                    3,
+                ),
+                ("security", ["KA-138"], "predictive_health", 0),
+            )
+        ]
+        return {
+            "executions": [item["execution"] for item in executions],
+            "outputs": {
+                canonical_id: output
+                for item in executions
+                for canonical_id, output in item["outputs"].items()
+            },
+            "applied": [effect for item in executions for effect in item["applied"]],
+        }
+
+    def execute_security_crypto_boundary(
+        self,
+        *,
+        request_id: str,
+        principal_id: str,
+        ka_inputs: dict[str, dict[str, Any]],
+        effect_call: Callable[[dict[str, Any]], dict[str, Any]],
+        record_receipt: Callable[[dict[str, Any]], str],
+    ) -> dict[str, Any]:
+        """Apply approved cryptographic effects through OperationsControlService."""
+        return self._execute_receipted_operation(
+            owner="security_operations_lifecycle",
+            operation="security",
+            requested_ids=["KA-139", "KA-180", "KA-181", "KA-183"],
+            ka_inputs=ka_inputs,
+            request_id=request_id,
+            principal_id=principal_id,
+            tier="operations",
+            layer="security_crypto",
+            service_name="OperationsControlService",
+            service_capability="operations_control_service",
+            max_effects=2,
+            effect_call=effect_call,
+            record_receipt=record_receipt,
+        )
+
+    def execute_simulation_resilience_boundary(
+        self,
+        *,
+        request_id: str,
+        principal_id: str,
+        ka_inputs: dict[str, dict[str, Any]],
+        effect_call: Callable[[dict[str, Any]], dict[str, Any]],
+        record_receipt: Callable[[dict[str, Any]], str],
+    ) -> dict[str, Any]:
+        """Apply chaos and rollback proposals through SimulationJobService."""
+        executions = [
+            self._execute_receipted_operation(
+                owner="simulation",
+                operation=operation,
+                requested_ids=[canonical_id],
+                ka_inputs=ka_inputs,
+                request_id=f"{request_id}:{canonical_id}",
+                principal_id=principal_id,
+                tier="simulation",
+                layer=layer,
+                service_name="SimulationJobService",
+                service_capability="simulation_job_service",
+                max_effects=1,
+                effect_call=effect_call,
+                record_receipt=record_receipt,
+            )
+            for operation, canonical_id, layer in (
+                ("chaos_admission", "KA-1101", "chaos_injection"),
+                ("rollback", "KA-1103", "simulation_rollback"),
+            )
+        ]
+        return {
+            "executions": [item["execution"] for item in executions],
+            "outputs": {
+                canonical_id: output
+                for item in executions
+                for canonical_id, output in item["outputs"].items()
+            },
+            "applied": [effect for item in executions for effect in item["applied"]],
+        }
+
+    def execute_topology_evolution_boundary(
+        self,
+        *,
+        request_id: str,
+        principal_id: str,
+        ka_inputs: dict[str, dict[str, Any]],
+        effect_call: Callable[[dict[str, Any]], dict[str, Any]],
+        record_receipt: Callable[[dict[str, Any]], str],
+    ) -> dict[str, Any]:
+        """Apply topology and evolution proposals through OperationsControlService."""
+        executions = [
+            self._execute_receipted_operation(
+                owner="security_operations_lifecycle",
+                operation=operation,
+                requested_ids=requested_ids,
+                ka_inputs=ka_inputs,
+                request_id=f"{request_id}:{operation}",
+                principal_id=principal_id,
+                tier="operations",
+                layer=layer,
+                service_name="OperationsControlService",
+                service_capability="operations_control_service",
+                max_effects=max_effects,
+                effect_call=effect_call,
+                record_receipt=record_receipt,
+            )
+            for operation, requested_ids, layer, max_effects in (
+                (
+                    "service_control",
+                    ["KA-101", "KA-102", "KA-103", "KA-104", "KA-105"],
+                    "topology",
+                    3,
+                ),
+                ("evolution", ["KA-1100"], "evolution", 1),
+            )
+        ]
+        return {
+            "executions": [item["execution"] for item in executions],
+            "outputs": {
+                canonical_id: output
+                for item in executions
+                for canonical_id, output in item["outputs"].items()
+            },
+            "applied": [effect for item in executions for effect in item["applied"]],
+        }
+
     def plan_simulation(
         self,
         *,

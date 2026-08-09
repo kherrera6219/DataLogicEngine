@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from backend.knowledge_algorithms.production_utils import stable_identifier
 from core.knowledge_algorithm.ka_base import KnowledgeAlgorithm
 
 
@@ -95,16 +96,38 @@ class KA1097SystemPerformanceOptimizer(KnowledgeAlgorithm):
                     "proposed_setting": round(proposed, 8),
                 }
             )
+        effect_proposals = [
+            {
+                "effect_id": stable_identifier(
+                    "performance-setting",
+                    {
+                        "component_id": item["component_id"],
+                        "metric": item["metric"],
+                        "proposed_setting": item["proposed_setting"],
+                    },
+                ),
+                "kind": "apply_performance_setting_canary",
+                "status": "proposed",
+                "service": "operations_control_service",
+                "payload": item,
+            }
+            for item in proposals
+            if not item["budget_met"]
+            and item["proposed_setting"] != item["current_setting"]
+        ]
         return {
             "success": True,
             "status": "system_performance_tuning_proposed",
             "proposals": proposals,
             "settings_applied": 0,
+            "effect_proposals": effect_proposals,
+            "authoritative_receipts": [],
             "measurement_status": "caller_supplied",
             "deterministic": True,
             "limitations": (
                 "Proposals use caller-supplied measurements and monotonic setting "
-                "assumptions. They require canary validation before application."
+                "assumptions. OperationsControlService must apply and receipt a "
+                "separately authorized canary before any setting change."
             ),
         }
 

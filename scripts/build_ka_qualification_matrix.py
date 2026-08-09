@@ -310,7 +310,7 @@ def build_matrix() -> dict[str, Any]:
     qualified = status_counts["qualified"]
     return {
         "schema_version": "dle.cp19-k-qualification-matrix.v1",
-        "matrix_version": "2026.08.08-cp19k.22",
+        "matrix_version": "2026.08.08-cp19k.26",
         "status": (
             "cp19_k_complete" if qualified == len(rows) else "cp19_k_in_progress"
         ),
@@ -367,6 +367,15 @@ def csv_text(payload: dict[str, Any]) -> str:
 
 def markdown_text(payload: dict[str, Any]) -> str:
     invariants = payload["invariants"]
+    gate_decision = (
+        "CP19-K is complete. This source qualification authorizes CP19-L only; "
+        "it does not authorize rebuilding, installed acceptance, signing, or "
+        "production/public release."
+        if payload["status"] == "cp19_k_complete"
+        else "CP19-K remains active. This partial matrix does not authorize "
+        "CP19-L, rebuilding, installed acceptance, signing, or "
+        "production/public release."
+    )
     batch_rows = "\n".join(
         "| `{batch_id}` | {completed_on} | {count} | {scope} |".format(
             batch_id=batch["batch_id"],
@@ -402,8 +411,7 @@ The complete row detail is in `ka-qualification-matrix.json` and
 
 ## Gate decision
 
-CP19-K remains active. This partial matrix does not authorize CP19-L, rebuilding,
-installed acceptance, signing, or production/public release.
+{gate_decision}
 """
 
 

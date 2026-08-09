@@ -3541,3 +3541,337 @@ def test_ka_114_semantic_contract():
 
 def test_ka_115_semantic_contract():
     _assert_batch_35_39_semantics("KA-115")
+
+
+def _batch_40_43_payloads() -> dict[str, dict]:
+    digest_a = "a" * 64
+    digest_b = "b" * 64
+    return {
+        "KA-107": {
+            "failure_id": "failure-1",
+            "failure_confirmed": True,
+            "recovery_plan_ref": "recovery-plan-1",
+            "target_environment": "local_recovery",
+            "latest_backup_verified": True,
+            "owner_approved": True,
+        },
+        "KA-108": {
+            "target": "data_plane",
+            "components": ["postgresql", "redis"],
+        },
+        "KA-109": {
+            "components": [
+                {
+                    "component_id": "postgresql",
+                    "status": "healthy",
+                    "required": True,
+                    "liveness_passed": True,
+                    "readiness_passed": True,
+                    "evidence_ref": "health-observation-1",
+                }
+            ]
+        },
+        "KA-1097": {
+            "metrics": [
+                {
+                    "component_id": "retrieval",
+                    "metric": "latency_ms",
+                    "observed": 200,
+                    "target_maximum": 100,
+                    "current_setting": 4,
+                    "minimum_setting": 1,
+                    "maximum_setting": 8,
+                }
+            ],
+            "maximum_adjustment_ratio": 0.25,
+        },
+        "KA-1098": {
+            "results": [
+                {
+                    "case_id": "case-1",
+                    "suite": "retrieval",
+                    "passed": True,
+                    "score": 0.9,
+                    "latency_ms": 100,
+                },
+                {
+                    "case_id": "case-2",
+                    "suite": "retrieval",
+                    "passed": True,
+                    "score": 0.8,
+                    "latency_ms": 120,
+                },
+            ],
+            "minimum_pass_ratio": 0.8,
+            "minimum_mean_score": 0.8,
+        },
+        "KA-138": {
+            "series": [
+                {
+                    "component_id": "worker",
+                    "metric": "queue_depth",
+                    "values": [10, 20, 30],
+                    "warning_threshold": 35,
+                    "critical_threshold": 50,
+                }
+            ],
+            "forecast_steps": 2,
+        },
+        "KA-139": {
+            "scenarios": [
+                {
+                    "scenario_id": "scenario-1",
+                    "technique_id": "T1001",
+                    "severity": "high",
+                    "expected_detection_control_ids": ["detect-1"],
+                    "expected_response_control_ids": ["respond-1"],
+                }
+            ],
+            "observed_control_ids": ["detect-1", "respond-1"],
+        },
+        "KA-180": {
+            "requests": [
+                {
+                    "request_id": "enc-1",
+                    "operation": "encrypt",
+                    "object_ref": "artifact-1",
+                    "key_ref": "key-1",
+                    "algorithm": "AES-256-GCM",
+                    "purpose": "at-rest protection",
+                    "caller_authorized": True,
+                    "key_active": True,
+                }
+            ]
+        },
+        "KA-181": {
+            "evaluation_date": "2026-08-08",
+            "keys": [
+                {
+                    "key_ref": "key-1",
+                    "status": "active",
+                    "created_on": "2026-01-01",
+                    "rotate_by": "2026-07-01",
+                    "protected_storage_verified": True,
+                    "usage_count": 100,
+                }
+            ],
+        },
+        "KA-183": {
+            "findings": [
+                {
+                    "finding_id": "CVE-1",
+                    "component_ref": "package-a@1",
+                    "severity": "high",
+                    "status": "open",
+                    "scanner_ref": "scan-1",
+                    "fixed_version": "2",
+                }
+            ]
+        },
+        "KA-1101": {
+            "proposals": [
+                {
+                    "proposal_id": "chaos-1",
+                    "environment": "test",
+                    "fault_type": "latency",
+                    "target_service": "redis",
+                    "magnitude": 0.1,
+                    "duration_seconds": 30,
+                    "rollback_verified": True,
+                    "monitoring_ready": True,
+                }
+            ],
+            "allowed_services": ["redis"],
+        },
+        "KA-1103": {
+            "simulation_id": "simulation-1",
+            "current_checkpoint_id": "c2",
+            "target_checkpoint_id": "c1",
+            "checkpoints": [
+                {
+                    "checkpoint_id": "c1",
+                    "sequence": 1,
+                    "state_sha256": digest_a,
+                    "verified": True,
+                },
+                {
+                    "checkpoint_id": "c2",
+                    "sequence": 2,
+                    "state_sha256": digest_b,
+                    "parent_checkpoint_id": "c1",
+                    "verified": True,
+                },
+            ],
+        },
+        "KA-101": {
+            "target_environment": "staging",
+            "configuration_ref": "configuration-1",
+            "configuration_sha256": digest_a,
+            "setting_names": ["retrieval_limit", "request_timeout"],
+            "rollback_plan_ref": "rollback-configuration-1",
+            "owner_approved": True,
+        },
+        "KA-102": {
+            "requesting_module": "retrieval_service",
+            "bindings": [
+                {
+                    "service_key": "repository",
+                    "implementation_ref": "local-repository-v1",
+                    "contract_ref": "repository-contract-v1",
+                    "implementation_approved": True,
+                }
+            ],
+            "rollback_plan_ref": "rollback-binding-1",
+            "owner_approved": True,
+        },
+        "KA-103": {
+            "target_service": "retrieval-service",
+            "policy_ref": "service-policy-1",
+            "policy_sha256": digest_b,
+            "mtls_required": True,
+            "maximum_retry_attempts": 2,
+            "circuit_breaker_required": True,
+            "policy_approved": True,
+            "rollback_plan_ref": "rollback-policy-1",
+        },
+        "KA-104": {
+            "batch_size": 10,
+            "algorithm": "capacity_ratio",
+            "active_nodes": [
+                {
+                    "node_id": "node-a",
+                    "active_connections": 10,
+                    "capacity": 100,
+                    "healthy": True,
+                },
+                {
+                    "node_id": "node-b",
+                    "active_connections": 30,
+                    "capacity": 100,
+                    "healthy": True,
+                },
+            ],
+        },
+        "KA-105": {
+            "cpu_utilization": 0.8,
+            "memory_utilization": 0.5,
+            "cpu_scale_up_threshold": 0.75,
+            "memory_scale_up_threshold": 0.8,
+            "scale_down_threshold": 0.25,
+            "current_replicas": 2,
+            "minimum_replicas": 1,
+            "maximum_replicas": 5,
+            "cooldown_elapsed": True,
+        },
+        "KA-1100": {
+            "proposals": [
+                {
+                    "proposal_id": "proposal-1",
+                    "change_class": "configuration",
+                    "validation_passed": True,
+                    "rollback_plan_ref": "rollback-1",
+                    "affected_capability_count": 1,
+                    "expected_improvement": 0.2,
+                    "risk_score": 0.1,
+                    "human_approved": True,
+                }
+            ]
+        },
+    }
+
+
+_BATCH_40_43_PURE_IDS = {
+    "KA-104",
+    "KA-105",
+    "KA-109",
+    "KA-1098",
+    "KA-138",
+    "KA-139",
+    "KA-183",
+}
+
+
+def _assert_batch_40_43_semantics(canonical_id: str) -> None:
+    payload = _batch_40_43_payloads()[canonical_id]
+    first = _execute(canonical_id, payload)
+    second = _execute(canonical_id, payload)
+    if canonical_id in _BATCH_40_43_PURE_IDS:
+        _assert_pure_bounded_result(canonical_id, first)
+    else:
+        _assert_bounded_result(canonical_id, first)
+        assert first.output.get("authoritative_receipt") is None
+        assert first.output.get("authoritative_receipts", []) == []
+    assert first.output == second.output
+    assert first.output["deterministic"] is True
+
+
+def test_ka_107_semantic_contract():
+    _assert_batch_40_43_semantics("KA-107")
+
+
+def test_ka_108_semantic_contract():
+    _assert_batch_40_43_semantics("KA-108")
+
+
+def test_ka_109_semantic_contract():
+    _assert_batch_40_43_semantics("KA-109")
+
+
+def test_ka_1097_semantic_contract():
+    _assert_batch_40_43_semantics("KA-1097")
+
+
+def test_ka_1098_semantic_contract():
+    _assert_batch_40_43_semantics("KA-1098")
+
+
+def test_ka_138_semantic_contract():
+    _assert_batch_40_43_semantics("KA-138")
+
+
+def test_ka_139_semantic_contract():
+    _assert_batch_40_43_semantics("KA-139")
+
+
+def test_ka_180_semantic_contract():
+    _assert_batch_40_43_semantics("KA-180")
+
+
+def test_ka_181_semantic_contract():
+    _assert_batch_40_43_semantics("KA-181")
+
+
+def test_ka_183_semantic_contract():
+    _assert_batch_40_43_semantics("KA-183")
+
+
+def test_ka_1101_semantic_contract():
+    _assert_batch_40_43_semantics("KA-1101")
+
+
+def test_ka_1103_semantic_contract():
+    _assert_batch_40_43_semantics("KA-1103")
+
+
+def test_ka_101_semantic_contract():
+    _assert_batch_40_43_semantics("KA-101")
+
+
+def test_ka_102_semantic_contract():
+    _assert_batch_40_43_semantics("KA-102")
+
+
+def test_ka_103_semantic_contract():
+    _assert_batch_40_43_semantics("KA-103")
+
+
+def test_ka_104_semantic_contract():
+    _assert_batch_40_43_semantics("KA-104")
+
+
+def test_ka_105_semantic_contract():
+    _assert_batch_40_43_semantics("KA-105")
+
+
+def test_ka_1100_semantic_contract():
+    _assert_batch_40_43_semantics("KA-1100")

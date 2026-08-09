@@ -899,14 +899,37 @@ def test_ka106_uses_deterministic_circuit_breaker_policy():
     assert half_open_result["output"]["circuit_state"] == "HALF_OPEN"
 
 
-def test_ka109_reports_real_local_health_components():
-    result = KA109SystemHealth({}).run(KA109HealthInput(check_mode="deep"))
+def test_ka109_aggregates_supplied_health_without_local_probes():
+    result = KA109SystemHealth({}).run(
+        KA109HealthInput(
+            components=[
+                {
+                    "component_id": "python_runtime",
+                    "status": "healthy",
+                    "required": True,
+                    "liveness_passed": True,
+                    "readiness_passed": True,
+                    "evidence_ref": "runtime-health-1",
+                },
+                {
+                    "component_id": "ka_registry",
+                    "status": "healthy",
+                    "required": True,
+                    "liveness_passed": True,
+                    "readiness_passed": True,
+                    "evidence_ref": "registry-health-1",
+                },
+            ]
+        )
+    )
 
     assert result["success"] is True
-    assert result["output"]["overall_status"] in {"HEALTHY", "DEGRADED"}
-    assert result["output"]["sub_component_health"]["python_runtime"]["status"] == "ok"
-    assert result["output"]["sub_component_health"]["ka_registry"]["exists"] is True
-    assert result["output"]["uptime_seconds"] > 0
+    assert result["output"]["overall_status"] == "healthy"
+    assert result["output"]["readiness_verified"] is True
+    assert result["output"]["components_polled"] == 0
+    assert (
+        result["output"]["measurement_status"] == "authoritative_observations_supplied"
+    )
 
 
 def test_ka111_consumes_authoritative_gateway_controls_without_credentials():
@@ -1110,20 +1133,31 @@ def test_ka006_dynamic_intent_security_depth():
 
 
 def test_ka101_environment_management():
-    import platform
-
     from backend.knowledge_algorithms.ka_101_environment_management import (
         KA101EnvInput,
         KA101EnvironmentManagement,
     )
 
     ka = KA101EnvironmentManagement({})
-    result = ka.run(KA101EnvInput(env="production"))
+    result = ka.run(
+        KA101EnvInput(
+            target_environment="production",
+            configuration_ref="production-configuration-1",
+            configuration_sha256="a" * 64,
+            setting_names=["provider_active", "retrieval_limit"],
+            rollback_plan_ref="rollback-configuration-1",
+            owner_approved=True,
+        )
+    )
     assert result["success"] is True
-    assert result["output"]["resolved_env"] == "production"
-    assert result["output"]["os_platform"] == platform.system()
-    assert "provider_active" in result["output"]
-    assert len(result["output"]["config_checksum"]) == 8
+    assert result["output"]["decision"] == "admit"
+    assert result["output"]["setting_names"] == [
+        "provider_active",
+        "retrieval_limit",
+    ]
+    assert result["output"]["environment_variables_read"] is False
+    assert result["output"]["configuration_applied"] is False
+    assert result["output"]["effect_proposal"]["status"] == "proposed"
 
 
 def test_ka104_load_balancing():
@@ -1134,19 +1168,40 @@ def test_ka104_load_balancing():
 
     ka = KA104LoadBalancing({})
     nodes = [
-        {"id": "node_a", "weight": 5, "active_connections": 10},
-        {"id": "node_b", "weight": 10, "active_connections": 2},
+        {
+            "node_id": "node_a",
+            "active_connections": 10,
+            "capacity": 100,
+            "healthy": True,
+        },
+        {
+            "node_id": "node_b",
+            "active_connections": 2,
+            "capacity": 10,
+            "healthy": True,
+        },
     ]
-    # Under least_connections, it must choose node_b (2 connections < 10)
-    result_lc = ka.run(KA104LBInput(batch_size=10, active_nodes=nodes))
+    result_lc = ka.run(
+        KA104LBInput(
+            batch_size=10,
+            algorithm="least_connections",
+            active_nodes=nodes,
+        )
+    )
     assert result_lc["success"] is True
-    assert result_lc["output"]["target_node"] == "node_b"
+    assert result_lc["output"]["target_node_id"] == "node_b"
+    assert result_lc["output"]["routing_applied"] is False
 
-    # Under weighted_round_robin, it must choose node_a (weight 5 with active node override config if mocked)
-    ka.config["algorithm"] = "weighted_round_robin"
-    result_wrr = ka.run(KA104LBInput(batch_size=10, active_nodes=nodes))
-    assert result_wrr["success"] is True
-    assert result_wrr["output"]["target_node"] == "node_b"  # node_b has max weight 10
+    result_ratio = ka.run(
+        KA104LBInput(
+            batch_size=10,
+            algorithm="capacity_ratio",
+            active_nodes=nodes,
+        )
+    )
+    assert result_ratio["success"] is True
+    assert result_ratio["output"]["target_node_id"] == "node_a"
+    assert result_ratio["output"]["routing_applied"] is False
 
 
 def test_ka110_integration_bus():
@@ -1285,3 +1340,74 @@ def test_ka069_cultural_context_adapter():
         result_asia["output"]["numeric_format_specifications"]["rate"]["decimal_places"]
         == 0
     )
+
+
+def test_ka107_requires_explicit_recovery_approval_without_claiming_failover():
+    from backend.knowledge_algorithms.ka_107_disaster_recovery import (
+        KA107DisasterRecovery,
+        KA107RecoveryInput,
+    )
+
+    result = KA107DisasterRecovery({}).run(
+        KA107RecoveryInput(
+            failure_id="failure-1",
+            failure_confirmed=True,
+            recovery_plan_ref="recovery-plan-1",
+            target_environment="local_recovery",
+            latest_backup_verified=True,
+            owner_approved=False,
+        )
+    )
+    assert result["success"] is True
+    assert result["output"]["decision"] == "block"
+    assert result["output"]["effect_proposal"] is None
+    assert result["output"]["recovery_started"] is False
+    assert result["output"]["failover_applied"] is False
+    assert result["output"]["rpo_attained"] is None
+    assert result["output"]["rto_attained"] is None
+
+
+def test_ka101_never_reads_or_returns_process_environment_values():
+    from backend.knowledge_algorithms.ka_101_environment_management import (
+        KA101EnvironmentManagement,
+        KA101EnvInput,
+    )
+
+    secret_value = "must-not-appear-in-output"
+    result = KA101EnvironmentManagement({}).run(
+        KA101EnvInput(
+            target_environment="staging",
+            configuration_ref="configuration-1",
+            configuration_sha256="a" * 64,
+            setting_names=["PROVIDER_API_KEY"],
+            rollback_plan_ref="rollback-1",
+            owner_approved=True,
+        )
+    )
+    assert result["success"] is True
+    assert result["output"]["environment_variables_read"] is False
+    assert result["output"]["configuration_values_returned"] is False
+    assert secret_value not in str(result["output"])
+
+
+def test_ka103_does_not_claim_live_mesh_or_mtls_state():
+    from backend.knowledge_algorithms.ka_103_service_mesh import (
+        KA103MeshInput,
+        KA103ServiceMesh,
+    )
+
+    result = KA103ServiceMesh({}).run(
+        KA103MeshInput(
+            target_service="retrieval-service",
+            policy_ref="policy-1",
+            policy_sha256="b" * 64,
+            maximum_retry_attempts=2,
+            policy_approved=True,
+            rollback_plan_ref="rollback-policy-1",
+        )
+    )
+    assert result["success"] is True
+    assert result["output"]["mesh_active"] is False
+    assert result["output"]["mtls_verified"] is False
+    assert result["output"]["policy_applied"] is False
+    assert result["output"]["effect_proposal"]["status"] == "proposed"

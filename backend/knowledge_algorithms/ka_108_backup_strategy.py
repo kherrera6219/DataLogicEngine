@@ -58,7 +58,7 @@ class KA108BackupStrategy(KnowledgeAlgorithm):
             "effect_id": proposal_id,
             "kind": "coordinated_backup",
             "status": "proposed",
-            "service": "managed_backup_service",
+            "service": "operations_control_service",
             "payload": {
                 "target": input_data.target,
                 "components": selected,
@@ -76,6 +76,12 @@ class KA108BackupStrategy(KnowledgeAlgorithm):
             "storage_tier": "app_owned_object_store",
             "effect_proposal": proposal,
             "authoritative_receipt": None,
+            "deterministic": True,
+            "limitations": (
+                "This produces a coordinated backup proposal only. The owning "
+                "operations service must create, encrypt, verify, retain, and receipt "
+                "the backup."
+            ),
         }
 
 

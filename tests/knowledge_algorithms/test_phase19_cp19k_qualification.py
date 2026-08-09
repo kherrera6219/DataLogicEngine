@@ -195,6 +195,24 @@ QUALIFIED_BATCHES = {
     "KA-168",
     "KA-178",
     "KA-1114",
+    "KA-101",
+    "KA-102",
+    "KA-103",
+    "KA-104",
+    "KA-105",
+    "KA-107",
+    "KA-108",
+    "KA-109",
+    "KA-138",
+    "KA-139",
+    "KA-180",
+    "KA-181",
+    "KA-183",
+    "KA-1097",
+    "KA-1098",
+    "KA-1100",
+    "KA-1101",
+    "KA-1103",
     *(f"L9-KA-{number:03d}" for number in range(1, 8)),
     *(f"L10-KA-{number:03d}" for number in range(1, 8)),
 }
@@ -203,12 +221,12 @@ QUALIFIED_BATCHES = {
 def test_cp19k_generated_matrix_is_current_complete_and_truthful():
     matrix = build_matrix()
 
-    assert matrix["status"] == "cp19_k_in_progress"
+    assert matrix["status"] == "cp19_k_complete"
     assert matrix["invariants"] == {
         "canonical_capabilities": 213,
-        "qualified_capabilities": 195,
-        "incomplete_capabilities": 18,
-        "reviewed_capabilities": 195,
+        "qualified_capabilities": 213,
+        "incomplete_capabilities": 0,
+        "reviewed_capabilities": 213,
         "runtime_registries_added": 0,
         "findings_waived": False,
         "rebuild_authorized": False,
@@ -248,32 +266,20 @@ def test_cp19k_completed_batches_have_every_required_evidence_class():
         assert row["performance_budget_ms"] > 0
 
 
-def test_cp19k_does_not_overstate_next_unreviewed_ka_107():
-    row = next(
-        row
-        for row in build_matrix()["canonical_capabilities"]
-        if row["canonical_id"] == "KA-107"
-    )
+def test_cp19k_closes_every_canonical_row_without_authorizing_rebuild():
+    rows = build_matrix()["canonical_capabilities"]
 
-    assert row["production_enabled"] is True
-    assert row["qualification_status"] == "incomplete"
-    assert {
-        "semantic_test",
-        "owning_path_test",
-        "limitation_review",
-        "trace_proof",
-        "security_review",
-        "effect_review",
-        "performance_evidence",
-    }.issubset(row["missing_evidence"])
+    assert len(rows) == 213
+    assert all(row["qualification_status"] == "qualified" for row in rows)
+    assert all(row["missing_evidence"] == [] for row in rows)
 
 
-def test_cp19k_integrity_verifier_passes_without_closing_checkpoint():
-    evidence = verify()
+def test_cp19k_integrity_verifier_closes_checkpoint_without_authorizing_rebuild():
+    evidence = verify(require_complete=True)
 
     assert evidence["integrity_status"] == "pass"
-    assert evidence["checkpoint_status"] == "in_progress"
-    assert evidence["qualified_capabilities"] == 195
-    assert evidence["incomplete_capabilities"] == 18
+    assert evidence["checkpoint_status"] == "complete"
+    assert evidence["qualified_capabilities"] == 213
+    assert evidence["incomplete_capabilities"] == 0
     assert evidence["rebuild_authorized"] is False
     assert evidence["errors"] == []
