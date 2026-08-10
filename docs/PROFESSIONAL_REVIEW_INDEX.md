@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Canonical documentation BOM, requirements/V&V/release records, immutable evidence, and reviewer dispositions |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Canonical document/evidence, reviewer scope/assignment, finding/disposition, candidate artifact, or release decision change |
 | Requirements and evidence | Canonical 30-document set, generated BOM/crosswalk, phase evidence, independent review record, and final artifact bundle |
 
@@ -25,6 +25,10 @@ Microsoft, auditor, regulator, certification body, or standards organization has
 reviewed, endorsed, certified, or approved DataLogicEngine. Named independent
 reviewers, accepted findings, and final signed-artifact review are pending.
 Production/public release is **NO-GO**.
+
+The review subject may now use the 2026-08-10 installed engineering checkpoint,
+but final dispositions must bind the later exact signed artifact and cannot be
+inferred from the local install smoke.
 
 ## Exact review subject
 

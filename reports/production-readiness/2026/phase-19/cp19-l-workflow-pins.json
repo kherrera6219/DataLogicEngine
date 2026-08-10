@@ -1,0 +1,437 @@
+{
+  "schema_version": "dle.workflow-pins.v1",
+  "generated_at": "2026-08-09T05:39:52.345796+00:00",
+  "status": "pass",
+  "summary": {
+    "references": 71,
+    "errors": 0
+  },
+  "findings": [
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/ci.yml",
+      "reference": "docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/code-signing-governance.yml",
+      "reference": "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/code-signing-governance.yml",
+      "reference": "actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/deploy.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-checklist.yml",
+      "reference": "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-checklist.yml",
+      "reference": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-checklist.yml",
+      "reference": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-checklist.yml",
+      "reference": "actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/attest@f6bf1532d7d6793fce74eac584813a8eee607999",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/attest@f6bf1532d7d6793fce74eac584813a8eee607999",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/release-installer-signing.yml",
+      "reference": "actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "trufflesecurity/trufflehog@7635b24fd512a2e817dd3e9dd661caaf035a079d",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "trufflesecurity/trufflehog@7635b24fd512a2e817dd3e9dd661caaf035a079d",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "github/codeql-action/init@99df26d4f13ea111d4ec1a7dddef6063f76b97e9",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "github/codeql-action/autobuild@99df26d4f13ea111d4ec1a7dddef6063f76b97e9",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "github/codeql-action/analyze@99df26d4f13ea111d4ec1a7dddef6063f76b97e9",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    },
+    {
+      "level": "OK",
+      "workflow": ".github/workflows/security.yml",
+      "reference": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+      "detail": "External action is pinned to a 40-character commit SHA."
+    }
+  ]
+}

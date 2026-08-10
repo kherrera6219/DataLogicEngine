@@ -71,6 +71,30 @@ def test_backend_spec_does_not_force_unused_local_ml_stack_into_payload():
     assert "'tokenizers'," in spec
 
 
+def test_backend_spec_includes_dynamic_alembic_runtime_imports():
+    spec = (Path(__file__).resolve().parents[2] / "backend.spec").read_text(encoding="utf-8")
+
+    assert "'logging.config'," in spec
+
+
+def test_backend_spec_and_payload_include_generated_ka_manifest():
+    spec = (Path(__file__).resolve().parents[2] / "backend.spec").read_text(encoding="utf-8")
+
+    assert "('backend/knowledge_algorithms/ka_manifest.v1.generated.json', 'backend/knowledge_algorithms')" in spec
+    assert "_internal/backend/knowledge_algorithms/ka_manifest.v1.generated.json" in REQUIRED_BACKEND_FILES
+    assert "collect_submodules('backend.knowledge_algorithms', filter=runtime_submodule)" in spec
+
+
+def test_electron_main_ignores_closed_parent_console_pipes():
+    source = (Path(__file__).resolve().parents[2] / "frontend" / "electron" / "main.ts").read_text(
+        encoding="utf-8"
+    )
+
+    assert "error.code !== 'EPIPE'" in source
+    assert "console.log(`[Backend] ${log}`)" not in source
+    assert "console.error(`[Backend Error] ${log}`)" not in source
+
+
 def test_packaged_candidate_uses_only_the_qualification_data_plane_profile():
     root = Path(__file__).resolve().parents[2]
     policy = json.loads((root / "config" / "release-channel.json").read_text(encoding="utf-8"))

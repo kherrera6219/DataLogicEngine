@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented trust boundaries, threat controls, security tests, release policy, and evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Trust boundary, identity, network, provider, connector, data protection, dependency, incident, or release-policy change |
 | Requirements and evidence | Product requirements, source controls, threat tests, security workflows, SBOMs, and Phase 1/3/7/8/11/13/14 evidence |
 
@@ -25,6 +25,12 @@ causal traces, app-owned data, release identity, and recovery paths while failin
 closed when a required trust or readiness fact cannot be proved. The product is
 single-owner and local-first, not trustless, air-gapped, multi-tenant, or
 certified by default.
+
+The 2026-08-10 installed engineering candidate reached readiness with
+installation-bound loopback services and the retained encryption-key authority.
+Release trust correctly remains fail-closed because the candidate is unsigned;
+this checkpoint does not waive publisher, protected-volume, independent review,
+provider/no-egress, update, or signed-artifact acceptance.
 
 ## Trust boundaries
 

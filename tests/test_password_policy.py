@@ -74,3 +74,17 @@ def test_database_health_failure_path(monkeypatch, app_module):
     status = app_module._database_health()
     assert status["status"] == "error"
     assert status["detail"] == "unavailable"
+
+
+def test_managed_data_plane_ignores_retired_rate_limit_endpoint(monkeypatch, app_module):
+    from flask import Flask
+
+    monkeypatch.setenv("RATELIMIT_STORAGE_URI", "redis://legacy-host:6379/0")
+    application = Flask(__name__)
+    application.config["DLE_MANAGED_DATA_SERVICES"] = ("redis",)
+
+    assert app_module._rate_limit_storage_uri(
+        application,
+        "redis://dle_app:managed@127.0.0.1:23633/0",
+        use_redis=True,
+    ) == "redis://dle_app:managed@127.0.0.1:23633/0"

@@ -39,36 +39,53 @@ class InstallationIdentity:
     platform: str
 
     @classmethod
-    def load_or_create(cls, path: Path, *, version: str) -> "InstallationIdentity":
-        if path.exists():
-            try:
-                payload = json.loads(path.read_text(encoding="utf-8"))
-                identity = cls(**payload)
-            except Exception as exc:
-                raise RuntimeOwnershipError("installation_identity_invalid") from exc
-            if identity.product != "DataLogicEngine":
-                raise RuntimeOwnershipError("installation_identity_product_mismatch")
-            if identity.owner != getpass.getuser():
-                raise RuntimeOwnershipError("installation_identity_owner_mismatch")
-            return identity
+    def load(cls, path: Path) -> "InstallationIdentity":
+        """Load and validate an existing installation identity without writing."""
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            identity = cls(**payload)
+        except Exception as exc:
+            raise RuntimeOwnershipError("installation_identity_invalid") from exc
+        if identity.product != "DataLogicEngine":
+            raise RuntimeOwnershipError("installation_identity_product_mismatch")
+        if identity.owner != getpass.getuser():
+            raise RuntimeOwnershipError("installation_identity_owner_mismatch")
+        return identity
 
-        identity = cls(
+    @classmethod
+    def new(cls, *, version: str) -> "InstallationIdentity":
+        """Prepare a new identity in memory so startup can lock before persisting it."""
+        return cls(
             installation_id=uuid.uuid4().hex,
             product="DataLogicEngine",
             version=version,
             owner=getpass.getuser(),
             platform=platform.platform(),
         )
+
+    def persist(self, path: Path) -> None:
+        """Persist this identity atomically after runtime ownership is acquired."""
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary = path.with_suffix(".tmp")
-        temporary.write_text(json.dumps(asdict(identity), sort_keys=True), encoding="utf-8")
-        os.replace(temporary, path)
-        if os.name != "nt":
-            path.chmod(0o600)
-        else:
-            from backend.security.windows_acl import ensure_restricted_user_acl
+        try:
+            temporary.write_text(json.dumps(asdict(self), sort_keys=True), encoding="utf-8")
+            os.replace(temporary, path)
+            if os.name != "nt":
+                path.chmod(0o600)
+            else:
+                from backend.security.windows_acl import ensure_restricted_user_acl
 
-            ensure_restricted_user_acl(path, required=True)
+                ensure_restricted_user_acl(path, required=True)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    @classmethod
+    def load_or_create(cls, path: Path, *, version: str) -> "InstallationIdentity":
+        if path.exists():
+            return cls.load(path)
+
+        identity = cls.new(version=version)
+        identity.persist(path)
         return identity
 
 
@@ -177,13 +194,33 @@ class RuntimeOwnership:
         self.identity: InstallationIdentity | None = None
         self.lock: RuntimeLock | None = None
 
+    def prepare(self, *, initial_version: str | None = None) -> InstallationIdentity:
+        """Resolve identity without mutating disk; persistence occurs under the lock."""
+        if self.identity is not None:
+            return self.identity
+        if self.identity_path.exists():
+            self.identity = InstallationIdentity.load(self.identity_path)
+        else:
+            self.identity = InstallationIdentity.new(
+                version=str(initial_version or self.version),
+            )
+        return self.identity
+
     def acquire(self) -> None:
-        self.identity = InstallationIdentity.load_or_create(
-            self.identity_path,
-            version=self.version,
-        )
+        identity_existed = self.identity_path.exists()
+        self.identity = self.prepare()
         self.lock = RuntimeLock(self.lock_path, self.identity)
         self.lock.acquire()
+        try:
+            if identity_existed:
+                persisted = InstallationIdentity.load(self.identity_path)
+                if persisted != self.identity:
+                    raise RuntimeOwnershipError("installation_identity_changed_before_lock")
+            else:
+                self.identity.persist(self.identity_path)
+        except Exception:
+            self.lock.release()
+            raise
 
     def release(self) -> None:
         if self.lock is not None:

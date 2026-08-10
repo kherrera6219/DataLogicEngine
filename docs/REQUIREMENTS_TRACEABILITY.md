@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Product requirements, implemented architecture/contracts, tests, phase evidence, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Requirement, implementation, test, evidence, finding, risk acceptance, or release-decision change |
 | Requirements and evidence | `docs/PRODUCT_REQUIREMENTS.md`, source/tests, canonical documents, and `reports/production-readiness/2026/` |
 
@@ -26,6 +26,11 @@ test or engineering checkpoint is not a signed-installed pass. `Partial` means
 implemented/verified evidence exists but one or more named acceptance gates are
 retained. `Open` means required evidence or authority is absent. Only the release
 record can promote the exact artifact to `Pass` for production.
+
+The current evidence baseline includes CP19-K at 213/213, CP19-L passed, and an
+unsigned installed engineering smoke with retained data. Requirements that name
+the exact signed artifact, manual/external review, providers, lifecycle, pilot,
+or soak remain `Partial` or `Open`.
 
 ## Functional requirements
 

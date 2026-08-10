@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Reviewer scope/independence records, exact artifact/evidence, findings, retests, and signed dispositions |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Reviewer assignment/conflict, scope, artifact/evidence, finding/remediation, retest, disposition, or release decision change |
 | Requirements and evidence | Professional review index, canonical documents, immutable evidence bundle, reviewer workpapers, and final release record |
 
@@ -25,6 +25,10 @@ privacy, API, accessibility, usability, operations/recovery, AI assurance,
 licensing/supply-chain, or documentation review has been completed for the exact
 signed DataLogicEngine 4.3.0 release candidate. This record is `not_evaluated`.
 It does not claim endorsement, certification, audit opinion, or approval.
+
+The unsigned 2026-08-10 installed engineering candidate is available as
+pre-review evidence. No independent gate is closed until a reviewer binds work,
+findings, retests, and disposition to the exact signed candidate.
 
 ## Review subject
 

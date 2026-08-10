@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,11 +14,19 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
 ## Purpose
+
+CP19-K is complete at 213/213 individually qualified KAs and CP19-L passed. The
+full gate records 3,098 backend tests with 19 skipped, 430 frontend tests, 36
+Python SDK tests, seven TypeScript SDK tests, and clean dependency/security/
+release verification. The rebuilt unsigned candidate installed, reached
+readiness, preserved retained data across the five managed services, and passed
+installed authentication, Diagnostics, and representative KA smoke. CP19-M
+remains partial and release-blocking.
 
 Define how DataLogicEngine 4.3.0 is verified against specifications and validated
 for intended Windows use, summarize current evidence, and keep engineering/source
@@ -70,19 +78,16 @@ acceptance. This report is not a production approval.
 
 ## Current candidate evidence
 
-Commit `f2e4174f` froze the current candidate inputs. The canonical local
-qualification installer is 299,129,416 bytes with SHA-256
-`5a76e0004e17ccee3e0721ec3f9fe0ee109ccc03d74c5ceb19273e99b3ae4620`.
-Its backend payload has 6,151 files and no forbidden source/test/cache or stale
-Electron-test findings. Installer integrity, exact lock, version, workflow-pin,
-and payload gates passed.
+The 2026-08-10 local qualification installer is 283,888,871 bytes with SHA-256
+`9125fa6b0bfaa48ac6f68dc31c4bc44c3764eb0a871b7895d659e3e0c6b41081`.
+Payload, installer integrity, exact lock, version, workflow-pin, and governance
+gates pass. It installed per-machine, launched from Program Files, reached
+`/ready`, and used the retained app-owned data across five managed services.
 
-The packaged backend reached production startup and correctly stopped at
-`at_rest_protection_not_ready` because the workstation could not prove the
-required Windows protection boundary. The candidate is unsigned. Two isolated
-GitHub candidate builds have matching file counts but different backend,
-portable, and installer hashes. Those are retained negative/open results, not
-passes.
+The candidate is unsigned. Prior frozen candidate hashes and the earlier
+`at_rest_protection_not_ready` result remain historical negative evidence, not
+the current installed result. Reproducibility, signing, exact-artifact binding,
+and the retained CP19-M/system/manual/external acceptance rows remain open.
 
 ## Phase evidence disposition
 
@@ -98,7 +103,7 @@ passes.
 | 16 | CP16-A complete; product/user and engineering/assurance content checkpoints active with signed walkthrough/review gates retained |
 | 17 | CP17-A through CP17-D documentation authority/lock complete; CP17-E retained |
 | 18 | Closed incomplete 2026-07-25: CP18-A/CP18-B and CP18-C source batches are retained at 213 unique implementation owners, zero source gaps, and 721 KA tests; CP18-D failed and CP18-C effect/pre-existing qualification plus CP18-E-H transferred without waiver |
-| 19 | Active: CP19-A through CP19-J passed by 2026-08-01, including owner/contract/selector, ten-layer/L9-L10/persona/refinement, Truth/data/knowledge, extended simulation/MCP/provider/security/operations/effect integration, and the principal-owned durable API/SDK/desktop product workflow; CP19-K is active and CP19-K-M retain per-KA, clean-source, and rebuilt-installed qualification |
+| 19 | Active: CP19-A through CP19-L passed; all 213 KAs are individually qualified and the clean candidate rebuilt/installed engineering subset passed; CP19-M exact signed installed acceptance remains open |
 | 20 | Production launch and maintenance remain blocked by every prior release gate |
 
 ## Phase 19 KA verification method

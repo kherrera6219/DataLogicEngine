@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-004 |
 | Title | Troubleshooting and support guide |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | qualification_only |
 | Audience | Users, evaluators, operators, support engineers, and security reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented error taxonomy, diagnostics/support controls, lifecycle runbooks, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | User-visible error, diagnostics, support-bundle, recovery, reporting-channel, or release-status change |
 | Requirements and evidence | Product requirements, runtime/error contracts, support tests, operational procedures, and Phase 13/15 evidence |
 
@@ -26,8 +26,15 @@ migration, readiness, provider, scope, or required-service checks. Record the
 safe error code and fix the underlying condition.
 
 The current 4.3.0 candidate is qualification-only, unsigned, and not approved
-for public installation. A production-installation question cannot be resolved
-by using the stale `Latest` artifact or a developer build.
+for public installation. The 2026-08-10 installed candidate reaches readiness
+with its managed five-service data plane. Do not resolve a startup problem by
+creating another database, switching to SQLite/memory/filesystem fallbacks, or
+restarting superseded legacy service containers.
+
+On Windows, the backend may log that signal-based request timeout is unavailable
+and that the packaged server timeout should be used. This is a non-blocking
+platform warning when `/ready` and Diagnostics are healthy; it is not the prior
+core-services startup failure.
 
 ## Before requesting help
 

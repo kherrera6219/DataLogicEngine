@@ -207,6 +207,8 @@ class DataPlaneCredentialVault:
     def __init__(self, path: str | Path, *, require_dpapi: bool = True) -> None:
         self.path = Path(path).resolve()
         self.require_dpapi = require_dpapi
+        self._prepared_installation_id: str | None = None
+        self._prepared_credentials: dict[str, ServiceCredential] | None = None
 
     def load_or_create(self, installation_id: str) -> dict[str, ServiceCredential]:
         normalized_id = _validate_installation_id(installation_id)
@@ -215,6 +217,31 @@ class DataPlaneCredentialVault:
         credentials = generate_service_credentials()
         self._store(normalized_id, credentials)
         return credentials
+
+    def load_or_prepare(self, installation_id: str) -> dict[str, ServiceCredential]:
+        """Load credentials or prepare them in memory for post-lock persistence."""
+        normalized_id = _validate_installation_id(installation_id)
+        if self.path.exists():
+            return self._load(normalized_id)
+        if self._prepared_credentials is None:
+            self._prepared_installation_id = normalized_id
+            self._prepared_credentials = generate_service_credentials()
+        elif self._prepared_installation_id != normalized_id:
+            raise DataPlaneDeliveryError("credential_vault_prepared_installation_mismatch")
+        return dict(self._prepared_credentials)
+
+    def persist_prepared(self, installation_id: str) -> dict[str, ServiceCredential]:
+        """Persist prepared credentials after the caller owns the runtime lock."""
+        normalized_id = _validate_installation_id(installation_id)
+        if self.path.exists():
+            return self._load(normalized_id)
+        if (
+            self._prepared_credentials is None
+            or self._prepared_installation_id != normalized_id
+        ):
+            raise DataPlaneDeliveryError("credential_vault_not_prepared")
+        self._store(normalized_id, self._prepared_credentials)
+        return dict(self._prepared_credentials)
 
     def _protect(self, value: str) -> str:
         encrypted = encrypt_data(value)

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.63.0 |
+| Document version | v1.64.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -17,6 +17,24 @@
 | Release authority | `docs/RELEASE_READINESS_RECORD.md` and `docs/VERIFICATION_VALIDATION_REPORT.md` |
 
 ### Current execution checkpoint
+
+Phase 19 CP19-K closed all 213/213 individual KA qualification rows. CP19-L
+passed on 2026-08-10 after the full source, dependency, security, frontend, SDK,
+documentation, packaging, and capability-retention gates completed. A clean
+unsigned 4.3.0 candidate was then rebuilt, installed per-machine, and launched
+from Program Files. The installed backend reached `/ready` with the real
+app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and SeaweedFS data plane.
+
+The installed candidate adopted the retained 0.1.1 data once rather than
+creating or falling back to a new database. Its verified recovery/adoption
+receipt contains 22,068 listed relational rows, 20 graph nodes, 18 graph
+relationships, and eight objects. Representative installed authentication,
+diagnostics, and governed KA runs passed. This completes CP19-L and an installed
+engineering subset of CP19-M; it does not complete CP19-M because the candidate
+is unsigned and the retained provider, accessibility, lifecycle, independent,
+pilot, and 24/72-hour gates remain open. Production/public release remains
+**NO-GO**. See
+`reports/production-readiness/2026/phase-19/cp19-l-clean-rebuild-and-installed-candidate.md`.
 
 Phase 13 reached its engineering checkpoint on 2026-07-14. Phase 11 selected MCP
 `2025-11-25` over local stdio as the only external connector transport candidate.
@@ -6235,15 +6253,16 @@ artifact/effect review. The reviewed completion roadmap contains 36 cohesive
 batches (08-43), all complete with individual semantic, owner-path, trace,
 security, effect, and performance proof.
 
-Proceed with CP19-L in the mandatory order defined above. Preserve
-all 213 capabilities and the one-controller boundary while integrating the ten
-layers, L9/L10, Quad Persona/DSQP, the canonical 12-step workflow, Truth
-modules, data/knowledge lifecycle, simulation, MCP, providers, gateway,
-security, operations, effects, API, SDK, desktop, and individual per-KA proof.
+CP19-L passed on 2026-08-10 and the clean unsigned candidate rebuild and
+per-machine installed engineering smoke completed. Proceed with the remaining
+CP19-M rows against an exact signed/timestamped artifact. Preserve all 213
+capabilities and the one-controller boundary while exercising the ten layers,
+L9/L10, Quad Persona/DSQP, canonical 12-step workflow, Truth modules,
+data/knowledge lifecycle, simulation, MCP, providers, gateway, security,
+operations, effects, API, SDK, and desktop from the installed package.
 
-The signed release-candidate rebuild is explicitly paused until CP19-L passes.
-After CP19-L, rebuild the exact candidate with SeaweedFS 4.40-dle.1, execute
-CP19-M, bind CP16-G/CP17-E, and run all retained installed/manual/external gates.
+Bind CP16-G/CP17-E only after the exact signed artifact completes the retained
+installed/manual/external acceptance gates.
 
 Keep the Phase 15 candidate hash and all CP15-A through CP15-H installed,
 signed, provider, five-service, failure, Windows, accessibility, gateway,

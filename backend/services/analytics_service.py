@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, time, timedelta
 from extensions import db
 from models import Node, Edge, KAExecution, UkgSession, MCPServer, MCPTool, TraceRun
 from backend.mcp_server.connector_metrics import connector_metrics_snapshot, infer_connector_id
@@ -14,7 +14,7 @@ class AnalyticsService:
             # 1. API Requests (Last 24 hours)
             yesterday = datetime.now(UTC) - timedelta(days=1)
             request_count = db.session.query(KAExecution).filter(
-                KAExecution.created_at >= yesterday
+                KAExecution.started_at >= yesterday
             )
             if tenant_id:
                 request_count = request_count.filter(KAExecution.tenant_id == tenant_id)
@@ -85,18 +85,23 @@ class AnalyticsService:
     def get_trends(metric="sessions", days=7, tenant_id=None):
         """Return real daily activity counts for the requested metric."""
         days = min(max(int(days or 7), 1), 90)
-        start = datetime.now(UTC) - timedelta(days=days - 1)
+        today = datetime.now(UTC).date()
+        start = datetime.combine(
+            today - timedelta(days=days - 1),
+            time.min,
+            tzinfo=UTC,
+        )
         metric_key = str(metric or "sessions").lower()
         model = KAExecution if metric_key in {"ka", "kas", "algorithms", "executions"} else UkgSession
-        query = db.session.query(model).filter(model.created_at >= start)
+        query = db.session.query(model).filter(model.started_at >= start)
         if tenant_id and hasattr(model, "tenant_id"):
             query = query.filter(model.tenant_id == tenant_id)
 
         counts = {}
         for row in query.all():
-            created_at = row.created_at
-            if created_at is not None:
-                counts[created_at.date().isoformat()] = counts.get(created_at.date().isoformat(), 0) + 1
+            started_at = row.started_at
+            if started_at is not None:
+                counts[started_at.date().isoformat()] = counts.get(started_at.date().isoformat(), 0) + 1
 
         return {
             "metric": metric_key,
@@ -120,7 +125,7 @@ class AnalyticsService:
             activities = []
             
             # Recent Sessions (Chat)
-            sessions = db.session.query(UkgSession).order_by(UkgSession.created_at.desc())
+            sessions = db.session.query(UkgSession).order_by(UkgSession.started_at.desc())
             if tenant_id:
                 sessions = sessions.filter(UkgSession.tenant_id == tenant_id)
             
@@ -128,7 +133,7 @@ class AnalyticsService:
                 activities.append({
                     "type": "chat",
                     "title": s.user_query or "New Session",
-                    "time": s.created_at.isoformat(),
+                    "time": s.started_at.isoformat(),
                     "id": s.session_id
                 })
 

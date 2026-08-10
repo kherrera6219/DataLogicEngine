@@ -94,6 +94,14 @@ def test_metrics_endpoint_exposes_route_status_and_latency_labels(client):
     assert 'datalogicengine_http_request_latency_ms_max{method="GET",route="/health"}' in body
 
 
+def test_desktop_health_polling_routes_are_exempt_from_default_rate_limit():
+    from extensions import limiter
+
+    exemptions = set(limiter.limit_manager._route_exemptions)
+    for endpoint in ("live", "ready", "health", "health_diagnostics", "metrics"):
+        assert any(name.endswith(f".{endpoint}") for name in exemptions)
+
+
 def test_metrics_endpoint_tracks_unmatched_routes(client):
     client.get("/does-not-exist")
 

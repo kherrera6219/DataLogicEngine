@@ -58,7 +58,7 @@ EXTERNAL_TYPED_SURFACES = {
     ),
 }
 LEGACY_METHODS = {"execute_algorithm", "execute_legacy", "execute_ka"}
-TYPED_METHODS = {"execute_typed"}
+TYPED_METHODS = {"execute_typed", "execute_algorithm_plan"}
 TYPED_HELPERS = {"execute_required_ka"}
 
 
@@ -105,7 +105,7 @@ def verify() -> dict[str, Any]:
         )
 
     caller_status: dict[str, dict[str, Any]] = {}
-    typed_markers = ("execute_typed", "execute_required_ka")
+    typed_markers = tuple(sorted(TYPED_METHODS | TYPED_HELPERS))
     for subsystem, relative in MIGRATED_CALLERS.items():
         path = ROOT / relative
         if not path.is_file():

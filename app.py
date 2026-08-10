@@ -45,7 +45,6 @@ from backend.product_version import PRODUCT_VERSION
 from backend.runtime import (
     APP_SERVICE_KEYS,
     ApplicationRuntime,
-    InstallationIdentity,
     LifecycleResult,
     PodmanDataPlaneManager,
     RuntimePhase,
@@ -53,6 +52,7 @@ from backend.runtime import (
     get_application_runtime,
 )
 from backend.runtime.application import default_runtime_root
+from backend.storage.retained_data import discover_retained_data
 from backend.security.secret_resolver import (
     is_secure_secret_source,
     resolve_runtime_secret,
@@ -605,16 +605,18 @@ def _register_application_routes(app: Flask) -> None:
     app.register_blueprint(ukg_api, name='ukg_legacy', url_prefix='/api/ukg')
     app.register_blueprint(ukg_api, name='ukg_v1_legacy', url_prefix='/api/v1/ukg')
 
-    try:
-        from replit_auth import make_replit_blueprint
-        replit_bp = make_replit_blueprint()
-        if replit_bp:
-            app.register_blueprint(replit_bp, url_prefix="/auth")
-            logger.info("Replit Auth blueprint registered")
-        else:
-            logger.info("Replit Auth disabled (REPL_ID not set)")
-    except ImportError as e:
-        logger.warning(f"Could not register Replit Auth blueprint: {e}")
+    if os.environ.get("REPLIT_AUTH_ENABLED", "false").lower() == "true":
+        try:
+            from replit_auth import make_replit_blueprint
+
+            replit_bp = make_replit_blueprint()
+            if replit_bp:
+                app.register_blueprint(replit_bp, url_prefix="/auth")
+                logger.info("Replit Auth blueprint registered")
+            else:
+                logger.info("Replit Auth disabled (REPL_ID not set)")
+        except ImportError as e:
+            logger.warning(f"Could not register Replit Auth blueprint: {e}")
 
     from flask_swagger_ui import get_swaggerui_blueprint
 
@@ -817,7 +819,7 @@ def _run_db_c_indexing_background(app: Flask) -> None:
         from scripts.index_knowledge_nodes import index_from_database
 
         with app.app_context():
-            result = index_from_database()
+            result = index_from_database(flask_app=app)
         logger.info("DB-C knowledge_nodes background index complete: %s", result.to_dict())
     except Exception as exc:  # pylint: disable=broad-except
         logger.warning("DB-C knowledge_nodes background index failed: %s", exc)
@@ -1023,6 +1025,7 @@ def _prometheus_metrics_payload() -> str:
 
 
 @core_bp.route("/live", methods=["GET"])
+@limiter.exempt
 def live() -> tuple:
     """Liveness endpoint: process is running."""
     return jsonify(
@@ -1036,6 +1039,7 @@ def live() -> tuple:
 
 
 @core_bp.route("/ready", methods=["GET"])
+@limiter.exempt
 def ready() -> tuple:
     """Readiness endpoint: app dependencies are operational."""
     payload, status_code = _readiness_payload()
@@ -1043,6 +1047,7 @@ def ready() -> tuple:
 
 
 @core_bp.route("/health", methods=["GET"])
+@limiter.exempt
 def health() -> tuple:
     """Public-safe health endpoint without configuration or data-store details."""
 
@@ -1069,6 +1074,7 @@ def health() -> tuple:
 
 
 @core_bp.route("/api/v1/system/diagnostics/health", methods=["GET"])
+@limiter.exempt
 @api_session_login_required
 def health_diagnostics() -> tuple:
     """Authenticated desktop diagnostics separated from public health."""
@@ -1325,6 +1331,7 @@ def health_cache() -> tuple:
 
 
 @core_bp.route("/metrics", methods=["GET"])
+@limiter.exempt
 @api_session_login_required
 def metrics() -> Response:
     """Canonical metrics endpoint for infrastructure scraping."""
@@ -1592,6 +1599,14 @@ def _configure_application(
         app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 
+def _rate_limit_storage_uri(app: Flask, redis_url: str, *, use_redis: bool) -> str:
+    """Resolve rate-limit storage without escaping an app-owned data plane."""
+    explicit = os.environ.get("RATELIMIT_STORAGE_URI")
+    if explicit and not app.config.get("DLE_MANAGED_DATA_SERVICES"):
+        return explicit
+    return redis_url if use_redis else "memory://"
+
+
 def _configure_caching_and_extensions(app: Flask) -> None:
     """Initialize Flask extensions with per-application state."""
     redis_url = app.config.get("DLE_REDIS_URL") or os.environ.get(
@@ -1616,13 +1631,14 @@ def _configure_caching_and_extensions(app: Flask) -> None:
             CELERY_TASK_ALWAYS_EAGER=True,
         )
 
-    explicit_rate_storage = os.environ.get("RATELIMIT_STORAGE_URI")
-    if explicit_rate_storage:
-        app.config["RATELIMIT_STORAGE_URI"] = explicit_rate_storage
-    elif use_redis:
-        app.config["RATELIMIT_STORAGE_URI"] = redis_url
-    else:
-        app.config["RATELIMIT_STORAGE_URI"] = "memory://"
+    # A retained 0.1.1 .env may still name the retired Redis endpoint.
+    # Packaged builds must route every Redis consumer, including the rate
+    # limiter, through the supervisor-owned endpoint and scoped ACL user.
+    app.config["RATELIMIT_STORAGE_URI"] = _rate_limit_storage_uri(
+        app,
+        redis_url,
+        use_redis=use_redis,
+    )
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -1677,7 +1693,7 @@ def _configure_owned_security_services(app: Flask, runtime: ApplicationRuntime) 
 
     audit_root = runtime.runtime_root / "logs" / "audit"
     immutable_root = runtime.runtime_root / "logs" / "audit_immutable"
-    key_root = runtime.runtime_root / "security" / "keys"
+    key_root = _runtime_encryption_key_root(runtime.runtime_root)
     audit_logger = AuditLogger(
         {
             "log_dir": str(audit_root),
@@ -1691,6 +1707,15 @@ def _configure_owned_security_services(app: Flask, runtime: ApplicationRuntime) 
     )
     app.extensions["dle_audit_logger"] = audit_logger
     app.extensions["dle_encryption_manager"] = encryption_manager
+    app.config["DLE_ENCRYPTION_KEY_ROOT"] = str(key_root)
+
+
+def _runtime_encryption_key_root(runtime_root: Path) -> Path:
+    """Prefer the retained app-owned key ring when legacy fields still use it."""
+    retained = runtime_root / "data" / "security" / "keys"
+    if (retained / "kek.salt").is_file() and (retained / "dek_registry.json").is_file():
+        return retained
+    return runtime_root / "security" / "keys"
 
 
 def _configure_runtime_services(app: Flask, runtime: ApplicationRuntime) -> None:
@@ -1699,9 +1724,8 @@ def _configure_runtime_services(app: Flask, runtime: ApplicationRuntime) -> None
     if driver == "podman":
         from backend.storage.connection_manager import ConnectionManager
 
-        identity = InstallationIdentity.load_or_create(
-            runtime.ownership.identity_path,
-            version=str(app.config.get("APP_VERSION", PRODUCT_VERSION)),
+        identity = runtime.ownership.prepare(
+            initial_version=str(app.config.get("DLE_RETAINED_SOURCE_VERSION") or PRODUCT_VERSION),
         )
         manager = PodmanDataPlaneManager(
             runtime_root=runtime.runtime_root,
@@ -1709,6 +1733,7 @@ def _configure_runtime_services(app: Flask, runtime: ApplicationRuntime) -> None
             profile=str(app.config.get("DLE_DATA_PLANE_PROFILE", "production")),
             lock_path=str(app.config["DLE_DATA_PLANE_LOCK_PATH"]),
             require_dpapi=not bool(app.config.get("TESTING")),
+            defer_credential_write=True,
             command_timeout_seconds=float(
                 app.config.get("DLE_SERVICE_START_TIMEOUT_SECONDS", 30.0)
             ),
@@ -1732,6 +1757,13 @@ def _configure_runtime_services(app: Flask, runtime: ApplicationRuntime) -> None
         app.config["DLE_NEO4J_USER"] = settings["neo4j_user"]
         app.config["DLE_NEO4J_PASSWORD"] = settings["neo4j_password"]
         app.config["DLE_MANAGED_DATA_SERVICES"] = APP_SERVICE_KEYS
+        # This retained compatibility task app is configured only after the
+        # supervisor-owned credential and port contract exists.  It must never
+        # inherit the legacy runtime .env Redis endpoint.
+        from backend.knowledge_algorithms.ka_master_controller import celery_app as ka_celery_app
+
+        ka_celery_app.conf.broker_url = settings["redis_url"]
+        ka_celery_app.conf.result_backend = settings["redis_url"]
 
         required_services = set(_service_names(app.config.get("DLE_REQUIRED_SERVICES")))
         start_timeout = float(app.config.get("DLE_SERVICE_START_TIMEOUT_SECONDS", 30.0))
@@ -1877,7 +1909,11 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
                 acl_probe=verify_restricted_user_acl,
             )
             app.extensions["dle_at_rest_report"] = report
-            if app.config.get("DLE_PRODUCTION_MODE") and not report["production_ready"]:
+            if (
+                app.config.get("DLE_PRODUCTION_MODE")
+                and app.config.get("DLE_DATA_PLANE_PROFILE") == "production"
+                and not report["production_ready"]
+            ):
                 raise RuntimeError("at_rest_protection_not_ready")
 
     def migration_phase(active_runtime: ApplicationRuntime) -> None:
@@ -1901,6 +1937,9 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
 
     def runtime_lock_phase(active_runtime: ApplicationRuntime) -> None:
         active_runtime.ownership.acquire()
+        data_plane_manager = app.extensions.get("dle_data_plane_manager")
+        if data_plane_manager is not None:
+            data_plane_manager.persist_prepared_credentials()
         if (
             active_runtime.ownership.identity is not None
             and active_runtime.ownership.identity.version
@@ -1934,13 +1973,29 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
                 logger.info("Managed service auto-start is disabled by desktop settings")
                 return
         for service in app.config.get("DLE_MANAGED_DATA_SERVICES", APP_SERVICE_KEYS):
-            active_runtime.supervisor.start(service)
+            result = active_runtime.supervisor.start(service)
+            if not result.success and service in active_runtime.supervisor.required_blockers():
+                raise RuntimeError(
+                    f"required_service_start_failed:{service}:{result.safe_reason or 'start_failed'}"
+                )
 
     def verification_phase(active_runtime: ApplicationRuntime) -> None:
+        data_plane_manager = app.extensions.get("dle_data_plane_manager")
         for service in app.config.get("DLE_MANAGED_DATA_SERVICES", APP_SERVICE_KEYS):
             state = active_runtime.supervisor.snapshot().get(service, {}).get("state")
             if state not in {"not_installed", "blocked"}:
-                active_runtime.supervisor.probe(service)
+                status = active_runtime.supervisor.probe(service)
+                if (
+                    status.state == ServiceState.FAILED
+                    and data_plane_manager is not None
+                ):
+                    reason = data_plane_manager.last_failure_reasons.get(service)
+                    if reason:
+                        active_runtime.supervisor.update_status(
+                            service,
+                            ServiceState.FAILED,
+                            safe_reason=reason,
+                        )
 
     def stores_phase(_runtime: ApplicationRuntime) -> None:
         if app.config.get("DLE_INITIALIZE_STORES"):
@@ -2080,6 +2135,12 @@ def create_app(
         required_services=_service_names(application.config.get("DLE_REQUIRED_SERVICES")),
     )
     application.extensions["dle_runtime"] = runtime
+    retained_data = discover_retained_data(runtime.runtime_root)
+    application.extensions["dle_retained_data_discovery"] = retained_data
+    application.config["DLE_RETAINED_DATA_REQUIRES_ADOPTION"] = bool(
+        retained_data["requires_adoption"]
+    )
+    application.config["DLE_RETAINED_SOURCE_VERSION"] = retained_data.get("source_version")
     _configure_runtime_services(application, runtime)
     _configure_caching_and_extensions(application)
     application.register_blueprint(core_bp)

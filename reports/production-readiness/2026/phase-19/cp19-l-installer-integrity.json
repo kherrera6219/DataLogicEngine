@@ -1,0 +1,21 @@
+{
+  "status": "pass",
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "total_issues": 0
+  },
+  "results": {
+    "expected_installer": "DataLogicEngine Setup 4.3.0.exe",
+    "installers": [
+      {
+        "artifact": "DataLogicEngine Setup 4.3.0.exe",
+        "sha256": "9125fa6b0bfaa48ac6f68dc31c4bc44c3764eb0a871b7895d659e3e0c6b41081",
+        "checksum_file": "DataLogicEngine Setup 4.3.0.exe.sha256",
+        "blockmap_present": true,
+        "valid": true
+      }
+    ]
+  },
+  "issues": []
+}

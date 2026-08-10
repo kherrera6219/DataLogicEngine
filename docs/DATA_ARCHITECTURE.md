@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-002 |
 | Title | Data architecture and schema specification |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Data, platform, security, privacy, quality, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented store adapters/schemas, migration and lifecycle contracts, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Store, schema, migration, classification, retention, encryption, backup/restore, or object-store decision change |
 | Requirements and evidence | Product requirements, schema/migration tests, lifecycle reports, ADR-0006/0010, and Phase 3/4/9/11 evidence |
 
@@ -115,8 +115,12 @@ transitions.
 6. Cross-store changes do not report success until required references, hashes,
    and revisions reconcile.
 
-The retained 0.1.1 data upgrade and signed clean-machine migration remain open
-release gates.
+The 2026-08-10 installed engineering candidate adopted the populated 0.1.1
+SQLite authority once into PostgreSQL with an immutable recovery copy, verified
+receipt, and synchronized sequences. It preserved 22,068 listed relational rows,
+20 graph nodes/18 relationships, and eight objects. Exact signed clean-machine
+migration, broader upgrade/rollback, recovery, remnant, and independent review
+remain release gates.
 
 ## Backup, restore, and deletion
 
@@ -175,9 +179,10 @@ drift.
 Schema parity, migration coordination, populated engineering backup/restore,
 seven-surface deletion, five-service operations, knowledge reconciliation,
 memory integrity, gateway, simulation, and MCP data contracts have engineering
-evidence. Exact installed Podman delivery, protected-volume/ACL Windows matrix,
-retained-data upgrade, signed clean-machine restore/deletion-remnant scan,
-object-store final selection, and independent durability/security/license review
-remain release blockers. Phase 19 KA ownership, selector, effect-port, and
-causal trace integration remain release blockers through CP19-L; the exact
-rebuilt-installed data/effect path remains blocked through CP19-M.
+evidence. The app-owned Podman delivery and populated retained-data adoption
+passed on the 2026-08-10 engineering candidate. Protected-volume/ACL Windows
+matrix, signed clean-machine restore/deletion-remnant scan, broader lifecycle
+qualification, and independent durability/security/license review remain
+release blockers. KA ownership, selector, effect-port, and causal trace source
+integration passed through CP19-L; the exact signed rebuilt-installed data/effect
+matrix remains blocked through CP19-M.

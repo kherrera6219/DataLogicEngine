@@ -1,0 +1,8 @@
+{
+  "windows": 2,
+  "main_channels": 19,
+  "preload_channels": 19,
+  "packaged_renderer_required": true,
+  "findings": [],
+  "passed": true
+}

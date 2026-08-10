@@ -39,12 +39,12 @@ SDKs.
 |---|---|
 | Canonical Knowledge Algorithms | 213 retained; 211 production-enabled |
 | Runtime authority | One generated manifest/controller; 112-edge acyclic dependency graph |
-| Current checkpoint | CP19-K complete; CP19-L clean-source qualification next |
+| Current checkpoint | CP19-L complete; clean candidate rebuilt/installed; CP19-M active |
 | Individually qualified KAs | 213/213; zero open rows |
 | Grouped qualification roadmap | 36 batches (08-43); all complete |
-| Latest source validation | 3,070 passed, 18 skipped, 32 known warnings |
+| Latest source validation | 3,098 passed, 19 skipped, 33 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
-| Release decision | **NO-GO** until CP19-L, CP19-M, and retained installed gates pass |
+| Release decision | **NO-GO** until CP19-M and retained signed/installed/manual gates pass |
 
 The latest completed qualification batches make governed L1 routing, DMRF
 classification, simulation planning/resource/counterfactual effects, and MCP
@@ -303,6 +303,13 @@ Completed source and engineering checkpoints:
 
 Open engineering and release acceptance:
 
+- CP19-L passed on 2026-08-10. The clean unsigned 4.3.0 candidate was rebuilt,
+  installed per-machine, launched from Program Files, and reached `/ready`
+  against the real app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and SeaweedFS
+  services. The app preserved the existing data through a verified one-time
+  adoption: 22,068 listed relational rows, 20 graph nodes/18 relationships,
+  and eight objects. It did not substitute a new or fallback database
+
 - Completed Phase 19 CP19-K: batches 01-43 qualify all 213/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging
   with durable audit/receipt records, fail-closed MCP recovery planning,
@@ -327,8 +334,6 @@ Open engineering and release acceptance:
   the real provider owner; caller credentials are never parsed by a KA, and
   the approved connector result requires citation validation plus an
   authoritative effect receipt and durable ledger record
-- CP19-L clean-source qualification must pass before any release-candidate
-  rebuild is authorized
 - CP19-M must bind the exact signed rebuilt artifact to representative
   all-subsystem, five-service, effect, failure/recovery, performance, trace,
   replay, UI, accessibility, provider, gateway, object-store, pilot, and soak

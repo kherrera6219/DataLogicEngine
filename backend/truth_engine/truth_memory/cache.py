@@ -6,10 +6,10 @@ High-performance caching for personas, sessions, and citations.
 
 import logging
 import time
-import os
 import json
 from typing import Dict, Any, Optional
 from collections import OrderedDict
+from backend.storage.runtime_endpoints import runtime_redis_url
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class TruthCache:
         try:
             import redis
 
-            redis_url = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0")
+            redis_url = runtime_redis_url()
             client = redis.Redis.from_url(redis_url, decode_responses=True)
             client.ping()
             return client

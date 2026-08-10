@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data paths, provider/connector controls, retention/deletion contracts, and AI evaluation records |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Data category, storage, provider, connector, gateway, telemetry, retention, deletion, AI limitation, or legal change |
 | Requirements and evidence | Product requirements, architecture, privacy/security tests, AI system card, and Phase 7/9/11/13 evidence |
 
@@ -25,6 +25,11 @@ This notice describes the implemented and approved local-first contract while
 clearly retaining installed, independent, legal, security, provider, deletion,
 backup/restore, and release evidence that remains open. It is not a claim of
 certification, regulatory approval, or legal suitability for a particular use.
+
+The 2026-08-10 engineering installation preserved existing local data in the
+app-owned services and did not create a fallback user database. Installed
+all-output redaction/no-egress, provider, deletion/recovery, independent privacy,
+and exact signed-artifact acceptance remain open.
 
 ## Local-first does not mean air-gapped
 

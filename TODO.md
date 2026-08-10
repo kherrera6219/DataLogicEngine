@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.0.2 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-08 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.63.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.64.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K complete, CP19-L next |
+| Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -330,15 +330,19 @@ Phase 18 source baseline while completing the whole-application wiring.
         live GitHub query reports zero open Dependabot alerts.
       - Next: execute CP19-L clean-source qualification. Only a passing CP19-L
         checkpoint may authorize the release-candidate rebuild.
-- [ ] **CP19-L — clean source qualification:** pass focused/full backend, SDK,
+- [x] **CP19-L — clean source qualification:** passed 2026-08-10 across focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.
-      Only CP19-L may authorize rebuilding.
+      The clean candidate rebuild was authorized and completed.
 - [ ] **CP19-M — rebuilt-installed acceptance:** bind the exact signed rebuilt
       artifact and pass representative ten-layer, persona, refinement,
       subsystem, effect, failure/recovery, performance, UI/accessibility,
       trace/replay, provider, five-service, gateway, object-store, pilot, and
-      soak acceptance.
+      soak acceptance. The 2026-08-10 unsigned installed engineering subset
+      passed per-machine installation, Program Files launch, `/ready`, retained
+      data adoption, five managed services, authentication, diagnostics, and
+      representative governed KA execution. Signing and the retained installed,
+      manual, external, provider, pilot, and soak rows remain open.
 
 Phase 18 audit and transfer evidence:
 `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`
@@ -1057,7 +1061,7 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 | 16 | Production documentation replacement and professional review dossier | **CP16-F replacement closure complete 2026-07-15; CP16-G exact-artifact binding and signed/manual/external exits retained** |
 | 17 | Documentation consolidation and release lock | **CP17-A through CP17-D complete 2026-07-15; CP17-E retained for clean signed installed walkthrough** |
 | 18 | Knowledge Algorithm identity, contract, and source completion | **Closed incomplete 2026-07-25; CP18-A/CP18-B retained, CP18-C source batches produced 213 owners/zero source gaps, CP18-D failed, CP18-E-H transferred without waiver** |
-| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-K passed with 213/213 individually qualified and rebuild remains blocked through CP19-L** |
+| 19 | Canonical KA system-of-systems integration and qualification | **Active; CP19-A through CP19-L passed, 213/213 KAs qualified, clean candidate rebuilt/installed, CP19-M retained acceptance open** |
 | 20 | Production launch and maintenance | Blocked by prior phases |
 
 ## Release blockers retained across phases
@@ -1075,14 +1079,11 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 
 ## Exact next action
 
-Execute CP19-L clean-source qualification across focused/full backend, SDK,
-frontend, Electron/browser, security, docs/governance, environment,
-packaging-smoke, source-cleanliness, and no-capability-reduction gates. Do not
-treat CP19-K source qualification as installed acceptance.
-
-Do not rebuild the signed RC until CP19-L passes. Afterward, rebuild with the
-locked SeaweedFS 4.40-dle.1 image, execute CP19-M, bind CP16-G/CP17-E, and run
-all retained installed gates against the exact artifact.
+Continue CP19-M against an exact signed/timestamped candidate. Run the retained
+installed Phase 9-13 matrices, OpenAI/Google corpus and blinded-human acceptance,
+packaged visual/scaling/high-contrast and NVDA acceptance, protected-volume
+lifecycle/backup/recovery, independent reviews, pilot, and 24/72-hour soaks.
+Bind CP16-G/CP17-E only to that exact artifact.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
 legal/distribution NO-GO, automatic-update disablement, and object-store

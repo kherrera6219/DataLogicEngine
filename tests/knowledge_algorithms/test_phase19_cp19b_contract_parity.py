@@ -34,6 +34,7 @@ from core.engine.ka_engine import KAEngine
 from core.knowledge_algorithm.ka_loader import KALoader
 from core.simulation.pov_engine import POVEngine
 from core.simulation.simulation_engine import SimulationEngine
+from scripts.verify_ka_contract_parity import verify as verify_contract_parity
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -218,3 +219,10 @@ def test_production_callers_do_not_invoke_legacy_result_methods():
                     )
 
     assert findings == []
+
+
+def test_contract_parity_verifier_accepts_governed_plan_execution_boundary():
+    evidence = verify_contract_parity()
+
+    assert evidence["status"] == "pass", evidence["errors"]
+    assert evidence["caller_status"]["api"]["typed_boundary_present"] is True

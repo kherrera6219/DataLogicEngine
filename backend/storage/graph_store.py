@@ -6,7 +6,7 @@ import json
 import time
 from typing import List, Dict, Any, Optional
 from neo4j import GraphDatabase, Driver
-from backend.config_manager import get_config
+from backend.storage.runtime_endpoints import runtime_neo4j_settings, runtime_redis_url
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +20,7 @@ class GraphStore:
     """
     
     def __init__(self):
-        config = get_config()
-        self.uri = os.getenv("NEO4J_URI") or getattr(config, 'NEO4J_URI', 'bolt://localhost:7687')
-        self.user = os.getenv("NEO4J_USER") or getattr(config, 'NEO4J_USER', 'neo4j')
-        self.password = os.getenv("NEO4J_PASSWORD") or getattr(config, 'NEO4J_PASSWORD', 'password')
+        self.uri, self.user, self.password = runtime_neo4j_settings()
         self.driver: Optional[Driver] = None
         self.allowed_labels = self._parse_allowlist(os.getenv("NEO4J_ALLOWED_LABELS"))
         self.allowed_relationship_types = self._parse_allowlist(os.getenv("NEO4J_ALLOWED_REL_TYPES"))
@@ -167,7 +164,7 @@ class GraphStore:
         try:
             import redis
 
-            client = redis.Redis.from_url(os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0"), decode_responses=True)
+            client = redis.Redis.from_url(runtime_redis_url(), decode_responses=True)
             client.ping()
             return client
         except Exception as exc:

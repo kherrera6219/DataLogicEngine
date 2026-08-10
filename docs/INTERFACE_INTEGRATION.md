@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Registered routes, OpenAPI/schema contracts, gateway/MCP implementation, ADRs, and contract tests |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Route, schema, auth, version, streaming, SDK, gateway profile, MCP, or compatibility change |
 | Requirements and evidence | Product requirements, generated contracts, route inventory, SDK tests, and Phase 5/8/11 evidence |
 
@@ -29,6 +29,11 @@ The default listener is loopback-only. Same-host clients are supported at the
 engineering checkpoint. `private_windows_gateway` remains disabled until the
 signed two-machine TLS/firewall qualification passes. Browser/CORS and public-
 internet exposure are outside the 4.3.0 contract.
+
+The 2026-08-10 installed engineering candidate verified loopback readiness,
+desktop authentication, Diagnostics, and representative governed KA API use.
+Signed same-host/private gateway, live-provider, load, and two-machine acceptance
+remain open.
 
 ## Version and route policy
 

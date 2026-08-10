@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | UI implementation, automated accessibility/keyboard evidence, manual checklist, and retained packaged validation plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | UI route/control/content/theme, framework, accessibility test, assistive technology, finding, or release change |
 | Requirements and evidence | Product requirement DLE-QR-001, app-readiness reports, Phase 12/13 evidence, manual NVDA record, and independent review |
 
@@ -25,6 +25,9 @@ attestation. Product 4.3.0 remains `not_evaluated` for final accessibility
 conformance because the exact signed installed candidate has not completed
 packaged visual/scaling/high-contrast checks, manual keyboard and NVDA testing,
 unfamiliar-user documentation walkthrough, or independent accessibility review.
+The rebuilt Electron application launches and the automated source/browser
+accessibility baseline remains green; this does not replace packaged scaling,
+high-contrast, manual keyboard/NVDA, or independent acceptance.
 
 ## Product and evaluation scope
 

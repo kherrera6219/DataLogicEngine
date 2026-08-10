@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data flows, privacy/provider/connector controls, retention/deletion contracts, and current evidence gaps |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Purpose, data category, subject group, store, provider/connector, retention, deletion, telemetry, region, or legal basis change |
 | Requirements and evidence | Product requirements, privacy notice, data/security architecture, tests, provider/connector records, and independent review |
 
@@ -25,6 +25,11 @@ Windows product. It is `not_evaluated` for production because deployment-specifi
 legal basis, jurisdiction, provider/connector contracts, retention periods,
 children/high-risk-use restrictions, installed no-egress/deletion/remnant proof,
 and independent privacy/legal review are not complete.
+
+The 2026-08-10 installed engineering candidate preserved existing app-owned data
+through verified one-time adoption. Installed redaction/no-egress, provider,
+deletion/remnant, retention/legal-basis, and independent privacy review remain
+open; the `not_evaluated` production status is unchanged.
 
 The default product owner/vendor does not operate customer data or provider
 accounts as a multi-tenant SaaS. The customer/owner controls the Windows system

@@ -23,6 +23,7 @@ from backend.knowledge_algorithms.product_workflow import (
 )
 from extensions import db
 from tests.conftest import create_test_user
+from scripts.verify_phase19_cp19j_product_workflow import verify as verify_cp19j
 
 
 def _install_product_key(
@@ -350,6 +351,12 @@ def test_durable_runner_executes_canonical_plan_and_exposes_evidence(app):
         assert str(replacement.id) != run_id
 
     runner.stop()
+
+
+def test_cp19j_source_verifier_accepts_the_current_cp19k_manifest_lineage():
+    evidence = verify_cp19j()
+
+    assert evidence["status"] == "pass", evidence["errors"]
 
 
 def test_durable_runner_fails_interrupted_work_without_replay(app):

@@ -1,0 +1,148 @@
+{
+  "schema_version": "dle.engineering-assurance-document-verification.v1",
+  "generated_at": "2026-08-10T22:59:22.430894+00:00",
+  "authority_version": "2026.08.02-phase19-cp19k-batch08",
+  "status": "pass",
+  "target_count": 12,
+  "verified_count": 12,
+  "archive_delete_authorized": true,
+  "errors": [],
+  "documents": [
+    {
+      "path": "docs/DATA_ARCHITECTURE.md",
+      "status": "active",
+      "sources": [
+        "docs/DATABASE_SCHEMA.md",
+        "docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
+        "docs/DATA_CLASSIFICATION_REGISTER.md",
+        "docs/LOCAL_USAGE_LEDGER_CONTRACT.md",
+        "docs/MIGRATION_SUPPORT_MATRIX.md",
+        "docs/adr/ADR-0004-seaweedfs-replacement-qualification.md",
+        "docs/adr/ADR-0006-memory-authority-and-trust-boundary.md",
+        "docs/diagrams/07_data_storage_and_memory_architecture.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/INTERFACE_INTEGRATION.md",
+      "status": "active",
+      "sources": [
+        "docs/API.md",
+        "docs/API_VERSIONING.md",
+        "docs/AUTH_DECORATORS.md",
+        "docs/GATEWAY_COMPATIBILITY.md",
+        "docs/MCP_INTEGRATION.md",
+        "docs/adr/ADR-0002-pq-grpc-transport.md",
+        "docs/adr/ADR-0005-external-gateway-boundary.md",
+        "docs/adr/ADR-0008-governed-mcp-connector-boundary.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/SECURITY_ARCHITECTURE.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/CIS_BENCHMARKS.md",
+        "docs/SECURITY.md",
+        "docs/SSL_CONFIGURATION.md",
+        "docs/THREAT_MODEL.md",
+        "docs/diagrams/06_local_first_security_model.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "status": "active",
+      "sources": [
+        "DEVELOPMENT.md",
+        "docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+        "docs/BRANCH_PROTECTION_POLICY.md",
+        "docs/DOCUMENTATION_STANDARDS.md",
+        "docs/DOCUMENTATION_VERSIONING.md",
+        "docs/SDLC_SSDF_MAPPING.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/MAINTENANCE_DISASTER_RECOVERY.md",
+      "status": "qualification_only",
+      "sources": [],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/DOCUMENTATION_COVERAGE_MATRIX.md",
+        "docs/diagrams/02_research_to_code_traceability.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "status": "release_blocked",
+      "sources": [
+        "TESTING.md",
+        "docs/PRODUCTION_READINESS.md",
+        "docs/TESTING.md",
+        "docs/diagrams/08_testing_validation_and_release_governance.md",
+        "docs/evaluation/HUMAN_REVIEW_RUBRIC.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/KNOWLEDGE_ALGORITHM_CATALOG.md",
+        "docs/adr/ADR-0007-authoritative-simulation-engine.md",
+        "docs/diagrams/03_ai_reasoning_sequence.md",
+        "docs/diagrams/04_17_axis_coordinate_model.md",
+        "docs/diagrams/05_truth_engine_architecture.md",
+        "docs/diagrams/10_dsqp_persona_construction_architecture.md",
+        "docs/ip/dsqp_technical_disclosure.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/PRIVACY_IMPACT_ASSESSMENT.md",
+      "status": "not_evaluated",
+      "sources": [],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md",
+      "status": "not_evaluated",
+      "sources": [],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/SLSA_LEVEL_3_ATTESTATION.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/RELEASE_READINESS_RECORD.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/RELEASE_CHECKLIST.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    }
+  ]
+}

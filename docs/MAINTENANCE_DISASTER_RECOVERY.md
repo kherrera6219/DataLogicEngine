@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented coordinated backup/restore, migration, service lifecycle, support, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Store, backup, restore, retention, migration, recovery, update, service, or support-policy change |
 | Requirements and evidence | Product/data requirements, recovery implementation/tests, runbooks, and Phase 3/4/13/15 evidence |
 
@@ -24,7 +24,10 @@ Define preventive maintenance, backup, recovery, rollback, and evidence needed
 to restore the supported local-first Windows application without bypassing data
 authority or security controls. Populated engineering drills passed, but signed
 clean-machine restore, retained-data upgrade, supported-Windows protection/ACL,
-object-store final selection, and independent recovery review remain open.
+object-store final selection, and independent recovery review remain open. The
+2026-08-10 engineering install did verify one-time populated 0.1.1 adoption with
+an immutable recovery copy and retained relational/graph/object counts; that is
+not a clean-machine restore or full rollback qualification.
 
 ## Recovery objectives
 

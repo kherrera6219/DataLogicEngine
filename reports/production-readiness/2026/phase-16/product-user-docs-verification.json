@@ -1,0 +1,62 @@
+{
+  "schema_version": "dle.product-user-document-verification.v1",
+  "generated_at": "2026-08-10T22:59:22.335956+00:00",
+  "authority_version": "2026.08.02-phase19-cp19k-batch08",
+  "status": "pass",
+  "target_count": 5,
+  "verified_count": 5,
+  "archive_delete_authorized": true,
+  "errors": [],
+  "documents": [
+    {
+      "path": "docs/PRODUCT_REQUIREMENTS.md",
+      "status": "active",
+      "sources": [
+        "docs/COMPONENT_MAP.md",
+        "docs/PRODUCT_DESIGN.md",
+        "docs/PRODUCT_OVERVIEW.md",
+        "docs/diagrams/11_frontend_product_surface_and_trace_review_map.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/INSTALLATION_GUIDE.md",
+      "status": "qualification_only",
+      "sources": [
+        "docs/WINDOWS_11_LOCAL_RUNBOOK.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "status": "qualification_only",
+      "sources": [
+        "docs/DEPLOYMENT.md",
+        "docs/OPERATIONAL_RUNBOOKS.md",
+        "docs/PRIVATE_GATEWAY_RUNBOOK.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
+      "status": "qualification_only",
+      "sources": [
+        "SUPPORT.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    },
+    {
+      "path": "docs/PRIVACY_AI_NOTICE.md",
+      "status": "release_blocked",
+      "sources": [
+        "docs/PRIVACY_POLICY.md"
+      ],
+      "missing_markers": [],
+      "errors": []
+    }
+  ]
+}

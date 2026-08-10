@@ -94,6 +94,7 @@ class PodmanDataPlaneManager:
         lock_path: str | Path,
         runtime: str = "podman",
         require_dpapi: bool | None = None,
+        defer_credential_write: bool = False,
         command_timeout_seconds: float = 180.0,
     ) -> None:
         self.runtime_root = Path(runtime_root).resolve()
@@ -113,10 +114,20 @@ class PodmanDataPlaneManager:
             self.runtime_root / "security" / "data-plane-credentials.json",
             require_dpapi=dpapi_required,
         )
-        self.credentials = self.vault.load_or_create(self.installation_id)
+        self.credentials = (
+            self.vault.load_or_prepare(self.installation_id)
+            if defer_credential_write
+            else self.vault.load_or_create(self.installation_id)
+        )
         self.prefix = f"dle-{self.installation_id[:12]}"
         self.network_name = self.plan.network_name
         self._last_failure: dict[str, str] = {}
+        self._preflight_complete = False
+        self._specs = self._build_specs()
+
+    def persist_prepared_credentials(self) -> None:
+        """Persist any new credential set after runtime ownership is acquired."""
+        self.credentials = self.vault.persist_prepared(self.installation_id)
         self._specs = self._build_specs()
 
     @property
@@ -334,9 +345,16 @@ class PodmanDataPlaneManager:
             }
         return evidence
 
-    def start_all(self) -> dict[str, bool]:
+    def ensure_preflight(self) -> None:
+        """Verify runtime and every locked image before mutating service state."""
+        if self._preflight_complete:
+            return
         self.verify_runtime()
         self.verify_artifacts()
+        self._preflight_complete = True
+
+    def start_all(self) -> dict[str, bool]:
+        self.ensure_preflight()
         self._ensure_network()
         return {service: self.start_service(service) for service in APP_SERVICE_KEYS}
 
@@ -350,6 +368,7 @@ class PodmanDataPlaneManager:
         spec = self._require_spec(service)
         self._last_failure.pop(service, None)
         try:
+            self.ensure_preflight()
             self._ensure_network()
             for volume_name, _target in spec.volumes:
                 self._ensure_volume(volume_name, spec)

@@ -32,3 +32,8 @@ def test_production_ui_has_no_enabled_control_without_an_obvious_action(tmp_path
     assert summary["controls"] >= 180
     assert summary["enabled_without_obvious_action"] == 0
     assert summary["controls_with_disabled_state"] >= summary["disabled_controls"]
+    identities = {
+        json.dumps(control, sort_keys=True)
+        for control in payload["controls"]
+    }
+    assert len(identities) == summary["controls"]

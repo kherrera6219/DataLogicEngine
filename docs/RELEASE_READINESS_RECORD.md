@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -37,6 +37,13 @@ backend tests plus lint, type, Bandit, lock, and workflow governance gates pass.
 These maintenance results do not substitute for the signed installed release
 evidence. GitHub reports alert 389 fixed as of 2026-07-15.
 
+CP19-K and CP19-L are now complete. The clean unsigned 4.3.0 candidate installed
+per-machine, launched from Program Files, reached readiness with five real
+app-owned services, and preserved retained relational/graph/object data. This is
+an installed engineering checkpoint only. The unsigned trust result, open
+CP19-M rows, and retained manual/external/provider/lifecycle/pilot/soak gates
+keep the decision **NO-GO**.
+
 ## Candidate identity
 
 | Item | Current engineering record |
@@ -45,12 +52,17 @@ evidence. GitHub reports alert 389 fixed as of 2026-07-15.
 | Frozen source input | Commit `f2e4174f` for the current Phase 15 candidate |
 | Release channel | Candidate/qualification; `production_authorized=false` |
 | Local candidate installer | `DataLogicEngine Setup 4.3.0.exe` |
-| Size | 299,129,416 bytes |
-| SHA-256 | `5a76e0004e17ccee3e0721ec3f9fe0ee109ccc03d74c5ceb19273e99b3ae4620` |
-| Backend payload | 6,151 files; zero forbidden source/test/cache/stale Electron-test findings |
+| Size | 283,888,871 bytes |
+| SHA-256 | `9125fa6b0bfaa48ac6f68dc31c4bc44c3764eb0a871b7895d659e3e0c6b41081` |
+| Backend payload | Clean payload verification passed with zero forbidden source/test/cache/stale Electron-test findings |
 | Signature | Unsigned; not production evidence |
-| Packaged runtime | Reached backend and failed closed at `at_rest_protection_not_ready` |
+| Packaged runtime | Installed per-machine; Program Files launch and `/ready` passed |
 | Independent build comparison | Equal file counts but differing backend, portable, and installer hashes |
+
+The superseded qualification candidate SHA-256
+`5a76e0004e17ccee3e0721ec3f9fe0ee109ccc03d74c5ceb19273e99b3ae4620`
+remains retained as historical negative/reproducibility evidence; it is not the
+current installed candidate identity.
 
 The final release record must replace candidate data with the exact clean signed
 artifact, source/tag, publisher, timestamp, manifests/SBOMs/attestations, and
@@ -128,11 +140,10 @@ SHA-256/idempotency receipts. The current manifest production-enables 149
 capabilities with 136 zero-cycle edges. CP19-J subsequently passed the
 principal-owned encrypted/idempotent durable API/SDK/desktop plan, exact
 confirmation, execution, cancellation/recovery, and evidence workflow. CP19-K
-is active. Rebuilding, installed acceptance, and release remain unauthorized.
-
-The signed rebuild remains blocked through CP19-L. CP19-M and CP17-E then
-require the exact signed installed artifact. Phase 20 launch remains blocked by
-every prior gate.
+then qualified 213/213 KAs and CP19-L passed the clean source boundary. The
+unsigned candidate rebuild and installed engineering smoke passed. CP19-M,
+CP17-E, signing, and every retained installed/manual/external gate still require
+the exact signed artifact. Phase 20 launch remains blocked by every prior gate.
 
 ## Finding policy
 

@@ -19,7 +19,7 @@ from backend.services.video_service import VideoService
 def test_analytics_service_dashboard(mock_edge, mock_node, mock_ka, mock_db, caplog):
     # Setup mocks
     # Handle SQLAlchemy operator overloading for mocks
-    mock_ka.created_at.__ge__.return_value = MagicMock()
+    mock_ka.started_at.__ge__.return_value = MagicMock()
     
     # Configure query chain to support multiple .filter() calls
     mock_query = mock_db.session.query.return_value

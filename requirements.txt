@@ -62,7 +62,7 @@ requests==2.34.2
 onnxruntime==1.26.0
 tokenizers==0.22.2
 starlette==1.3.1  # direct patched ASGI utility pin; Python FastAPI server is not shipped
-llama-index==0.14.22
+llama-index-core==0.14.23
 sentence-transformers==5.5.1
 transformers==5.13.0
 langchain==1.3.9
@@ -89,7 +89,7 @@ reportlab==4.4.9
 # Multimodal/document processing used by backend services
 opencv-python-headless==4.13.0.92
 Pillow==12.3.0
-pypdf==6.14.2
+pypdf==6.15.0
 pytesseract==0.3.13
 python-docx==1.2.0
 

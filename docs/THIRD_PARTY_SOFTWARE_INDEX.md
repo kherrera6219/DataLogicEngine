@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Exact dependency locks, service candidate lock, SBOMs, release manifest, ownership/legal registers, and review evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-24 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Dependency/service/artifact, license, notice, vulnerability, provider/model, asset, redistribution, region, or release change |
 | Requirements and evidence | Product requirement DLE-QR-002/004/006, exact locks, SBOMs, manifests, scans, legal actions, and approved notice bundle |
 
@@ -26,6 +26,10 @@ remains release-blocked: ten legal/distribution actions, final exact-artifact
 SBOM/notices reconciliation, publisher/signing, vulnerability/malware scans,
 service redistribution, installed object-store acceptance, export/region review,
 and owner/independent approvals remain open.
+
+The CP19-L governed Python and Node locks pass local vulnerability audits and the
+rebuilt candidate passes payload/integrity checks. Exact signed-artifact SBOM,
+malware scan, redistribution/notices, publisher, and legal approval remain open.
 
 ## Dependency authorities
 

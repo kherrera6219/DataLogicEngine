@@ -15,6 +15,7 @@ from datetime import datetime, timedelta, UTC
 from typing import Optional, List, Dict
 from flask import session
 from flask_session import Session
+from backend.storage.runtime_endpoints import runtime_redis_url
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,10 @@ class SessionManager:
         """
         # Configure Redis connection
         if not self.redis_client:
-            redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+            # init_app runs before a Flask application context exists. Resolve
+            # the supervisor-owned endpoint from the supplied app first so a
+            # retained legacy REDIS_URL can never capture desktop sessions.
+            redis_url = app.config.get("DLE_REDIS_URL") or runtime_redis_url()
             self.redis_client = redis.from_url(
                 redis_url,
                 # Flask-Session stores binary payloads; UTF-8 decoding causes crashes.

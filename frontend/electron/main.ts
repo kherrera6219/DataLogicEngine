@@ -14,6 +14,16 @@ import {
   type DesktopLogLevel,
 } from './desktop-log';
 
+// GUI launches do not guarantee that inherited stdout/stderr handles remain
+// writable. A closed parent pipe must never crash the Electron main process.
+for (const stream of [process.stdout, process.stderr]) {
+  stream?.on('error', (error: NodeJS.ErrnoException) => {
+    if (error.code !== 'EPIPE') {
+      // Desktop file logging remains authoritative; console streams are best effort.
+    }
+  });
+}
+
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
@@ -72,10 +82,11 @@ const DESKTOP_SECRET_PREFIX = 'enc:v1:';
 const MAX_DESKTOP_LOG_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_DESKTOP_LOG_BACKUPS = 4;
 const AUTO_UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
-const BACKEND_HEALTH_TIMEOUT_MS = 60 * 1000;
+const BACKEND_HEALTH_TIMEOUT_MS = 180 * 1000;
 const MAX_BACKEND_RESTART_ATTEMPTS = 3;
 const DESKTOP_SECRET_ROTATION_DAYS = 180;
 const PATH_CAPABILITY_TTL_MS = 5 * 60 * 1000;
+const MANAGED_PODMAN_MACHINE = 'datalogicengine';
 const pathCapabilities = new Map<string, PathCapability>();
 const activeDesktopOperations = new Map<string, AbortController>();
 
@@ -510,6 +521,42 @@ function secureWindowsAclBestEffort(targetPath: string): void {
   }
 }
 
+function ensureManagedPodmanMachineAvailable(): void {
+  if (!app.isPackaged || os.platform() !== 'win32') {
+    return;
+  }
+
+  const inspect = spawnSync(
+    'podman',
+    ['machine', 'inspect', MANAGED_PODMAN_MACHINE],
+    { encoding: 'utf8', windowsHide: true, timeout: 30_000 },
+  );
+  if (inspect.status !== 0) {
+    throw new Error('The app-owned local data runtime is not installed.');
+  }
+
+  let state = '';
+  try {
+    const payload = JSON.parse(inspect.stdout || '[]') as Array<{ State?: string }>;
+    state = String(payload[0]?.State || '').toLowerCase();
+  } catch {
+    throw new Error('The app-owned local data runtime returned invalid status.');
+  }
+  if (state === 'running') {
+    return;
+  }
+
+  appendDesktopLog('INFO', 'Starting the app-owned local data runtime.');
+  const started = spawnSync(
+    'podman',
+    ['machine', 'start', MANAGED_PODMAN_MACHINE],
+    { encoding: 'utf8', windowsHide: true, timeout: 120_000 },
+  );
+  if (started.status !== 0) {
+    throw new Error('The app-owned local data runtime could not be started.');
+  }
+}
+
 function issuePathCapability(selectedPath: string, purpose: PathCapability['purpose']) {
   const canonicalPath = fs.realpathSync(selectedPath);
   const token = crypto.randomBytes(32).toString('base64url');
@@ -857,7 +904,12 @@ async function waitForBackendReady(timeoutMs = BACKEND_HEALTH_TIMEOUT_MS): Promi
       return false;
     }
     try {
-      const response = await fetch('http://127.0.0.1:5000/ready');
+      const response = await fetch('http://127.0.0.1:5000/ready', {
+        // A half-open loopback connection must not freeze the entire startup
+        // deadline. Each probe gets a short bound and the outer loop retries.
+        signal: AbortSignal.timeout(2_000),
+        cache: 'no-store',
+      });
       if (response.ok) {
         backendRestartAttempts = 0;
         appendDesktopLog('INFO', 'Backend core readiness check passed.');
@@ -868,7 +920,10 @@ async function waitForBackendReady(timeoutMs = BACKEND_HEALTH_TIMEOUT_MS): Promi
     }
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  appendDesktopLog('WARN', 'Backend core readiness check timed out after 60 seconds.');
+  appendDesktopLog(
+    'WARN',
+    `Backend core readiness check timed out after ${Math.ceil(timeoutMs / 1000)} seconds.`,
+  );
   return false;
 }
 
@@ -1020,6 +1075,17 @@ app.on('ready', async () => {
     });
   });
 
+  try {
+    ensureManagedPodmanMachineAvailable();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'The local data runtime is unavailable.';
+    appendDesktopLog('ERROR', message);
+    splashWindow?.close();
+    dialog.showErrorBox('DataLogicEngine could not start', message);
+    app.quit();
+    return;
+  }
+
   startBackend();
   const backendReady = await waitForBackendReady();
   if (!backendReady) {
@@ -1143,20 +1209,17 @@ function startBackend() {
 
   backendProcess.stdout?.on('data', (data) => {
     const log = redactDesktopLogText(data.toString(), os.homedir());
-    console.log(`[Backend] ${log}`);
     mainWindow?.webContents.send('backend-log', log);
     appendDesktopLog('INFO', `[Backend] ${log}`);
   });
 
   backendProcess.stderr?.on('data', (data) => {
     const log = redactDesktopLogText(data.toString(), os.homedir());
-    console.error(`[Backend Error] ${log}`);
     mainWindow?.webContents.send('backend-error', log);
     appendDesktopLog('ERROR', `[Backend Error] ${log}`);
   });
 
   backendProcess.on('close', (code) => {
-    console.log(`Backend process exited with code ${code}`);
     appendDesktopLog('WARN', `Backend process exited with code ${String(code)}`);
     if (!intentionalBackendShutdown && backendRestartAttempts < MAX_BACKEND_RESTART_ATTEMPTS) {
       backendRestartAttempts += 1;

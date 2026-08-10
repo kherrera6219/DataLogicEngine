@@ -137,7 +137,9 @@ class RAGService:
         try:
             import redis
 
-            client = redis.Redis.from_url(os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0"), decode_responses=True)
+            from backend.storage.runtime_endpoints import runtime_redis_url
+
+            client = redis.Redis.from_url(runtime_redis_url(), decode_responses=True)
             client.ping()
             return client
         except Exception as exc:

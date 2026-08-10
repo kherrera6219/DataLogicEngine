@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.0.4 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-08 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.63.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.64.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 canonical KA system-of-systems integration; CP19-K complete, CP19-L next |
+| Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -39,11 +39,13 @@ Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
 execution plan; archived plans and testing queues are historical evidence only.
 
-## Phase 19 supersedes the immediate rebuild
+## Phase 19 execution authority
 
-Do not rebuild or sign the next release candidate. Phase 18 closed incomplete
-after its whole-application audit proved that source-complete KAs are not yet
-the documented dynamic product system.
+Phase 18 closed incomplete after its whole-application audit proved that
+source-complete KAs were not yet the documented dynamic product system. Phase 19
+corrected that integration, qualified 213/213 KAs, passed CP19-L, and authorized
+the completed clean candidate rebuild. Do not sign or distribute it as a
+production release until CP19-M and every retained release gate pass.
 
 Retain these Phase 18 achievements:
 
@@ -84,9 +86,11 @@ Phase 19 is now the sole KA integration authority. Its mandatory order is:
 9. CP19-I simulation/MCP/provider/security/operations/effect integration -
    passed 2026-07-25;
 10. CP19-J API/SDK/desktop workflow - passed 2026-08-01;
-11. CP19-K complete 213-row semantic/selector/call-path/effect/trace proof;
-12. CP19-L clean source qualification; and
-13. CP19-M exact rebuilt-installed acceptance.
+11. CP19-K complete 213-row semantic/selector/call-path/effect/trace proof -
+    passed 2026-08-08;
+12. CP19-L clean source qualification - passed 2026-08-10; and
+13. CP19-M exact rebuilt-installed acceptance - active; unsigned installed
+    engineering subset passed, retained rows remain open.
 
 The canonical architecture is one lifecycle: admission; L1 normalization/
 routing; L2 retrieval/memory; L3 evidence/research planning; L4 DSQP/persona
@@ -674,6 +678,26 @@ release approval are pending. The provider rows remain quarantined and
 
 ## Current checkpoint
 
+CP19-L passed on 2026-08-10. The full source and release qualification authorized
+a clean rebuild. The resulting unsigned 4.3.0 installer (283,888,871 bytes,
+SHA-256 `9125fa6b0bfaa48ac6f68dc31c4bc44c3764eb0a871b7895d659e3e0c6b41081`)
+installed per-machine with exit code 0 and launched from Program Files. The
+installed Electron application reached `/ready`, authentication and Diagnostics
+worked, and representative governed KAs executed from the frozen payload.
+
+The application uses the retained data, not a newly created database. The
+verified one-time adoption receipt records 22,068 listed relational rows, 20
+graph nodes/18 relationships, and eight objects in the app-owned PostgreSQL,
+Neo4j, and SeaweedFS services. Redis and ChromaDB are also supervised by the
+app-owned `datalogicengine` Podman machine. The superseded legacy Neo4j container
+was stopped after verification; its volumes were preserved.
+
+CP19-M remains open. The candidate is unsigned, so exact signed-artifact trust,
+installed Phase 9-13 matrices, providers/corpus/blinded-human review, packaged
+visual/scaling/high-contrast/NVDA, protected-volume lifecycle/recovery,
+independent review, pilot, and 24/72-hour soak evidence remain release-blocking.
+Production/public release remains **NO-GO**.
+
 Phase 9 reached its engineering checkpoint on 2026-07-14. Electron picker
 authority is consumed by the main process and selected files/folders are copied
 to bounded app-owned staging before parsing. Local/UNC/device/reparse/special
@@ -1050,15 +1074,12 @@ replacement. See
 
 ## Exact next action
 
-1. Execute CP19-L clean-source qualification across focused/full backend, SDK,
-   frontend, Electron/browser, security, documentation/governance,
-   environment, packaging-smoke, source-cleanliness, and
-   no-capability-reduction gates.
-2. Preserve all 213 canonical IDs, every distinct capability, one
-   implementation owner, one primary subsystem owner, and one governed answer
-   path. Keep rebuild authorization false unless every CP19-L gate passes.
-3. Only after CP19-L, rebuild the exact signed RC with SeaweedFS 4.40-dle.1 and
-   execute CP19-M plus the retained clean-machine object-store,
+1. Execute the remaining CP19-M rows against an exact signed/timestamped
+   candidate. Preserve all 213 canonical IDs, one implementation and subsystem
+   owner per KA, and the one governed answer/effect path.
+2. Complete installed Phase 9-13, provider/corpus/blinded-human,
+   visual/scaling/high-contrast/NVDA, and 24/72-hour soak acceptance.
+3. Complete the retained clean-machine object-store,
    protected-volume, backup/restore, security/license, accessibility, provider,
    gateway, pilot, and soak acceptance.
 4. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-004 |
 | Title | KA and TruthCore validation dossier |
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | AI assurance, quality, product owner, architecture, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Live KA registry/classification, governed orchestration, evidence contracts, evaluation corpus, tests, and Phase 6 evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | KA registry/implementation/classification, TruthCore, evidence/confidence, evaluation, provider/model, or risk change |
 | Requirements and evidence | Product requirements, production catalog, semantic fixtures, golden corpus, Phase 6 reports, and AI system card |
 
@@ -25,6 +25,11 @@ TruthCore are controlled reasoning components. Their deterministic or validated
 contract does not prove that an answer is factually correct. Production approval
 requires traceable evidence, measured quality inputs, provider/model evaluation,
 human review, and release authority for the exact installed artifact.
+
+CP19-K now qualifies 213/213 KAs through named semantic, selector, owner-path,
+trace, limitation, and applicable effect/security/performance evidence. CP19-L
+passed and representative KAs executed from the installed frozen backend. Live
+provider corpus and blinded-human acceptance remain open and release-blocking.
 
 ## Registry and classification
 

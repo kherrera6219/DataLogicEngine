@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented governed request path, evaluation protocol, model records, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Model/provider, evaluation method, risk, limitation, metric, or release-status change |
 | Requirements and evidence | Evaluation suite, golden corpus, model manifest, risk records, and Phase 12 evidence |
 
@@ -26,6 +26,10 @@ workflows. It helps a human examine supplied information and the system's
 recorded reasoning controls. It is not an autonomous authority and is not
 approved to replace qualified medical, legal, financial, safety, or regulatory
 judgment.
+
+All 213 KAs and the clean source boundary now pass CP19-K/L verification, and
+representative governed KAs execute from the installed frozen backend. Installed
+OpenAI/Google corpus rows, blinded-human review, and owner approval remain open.
 
 The supported product is the local Windows desktop application and its approved
 private client-gateway profile. Public multi-user web/cloud hosting, implicit

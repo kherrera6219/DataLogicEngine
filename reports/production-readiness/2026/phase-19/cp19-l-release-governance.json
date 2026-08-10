@@ -1,0 +1,139 @@
+{
+  "generated_at": "2026-08-10T22:51:28.152045+00:00",
+  "findings": [
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Found .github\\workflows\\ci.yml"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: lint:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: backend-test:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: frontend-build:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: windows-packaging-smoke:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: governance:"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: Run deterministic startup precheck gate"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: Validate docs references"
+    },
+    {
+      "level": "OK",
+      "scope": "ci",
+      "message": "Contains required token: Validate SQLite/Postgres schema parity"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Found .github\\workflows\\deploy.yml"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Run deterministic startup precheck gate"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Validate docs references"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Validate SQLite/Postgres schema parity"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Verify installer artifact integrity"
+    },
+    {
+      "level": "OK",
+      "scope": "deploy",
+      "message": "Contains required token: Production health check"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Found docs\\RELEASE_READINESS_RECORD.md"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Current decision"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: **Production/public release: NO-GO.**"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Candidate identity"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Gate summary"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Finding policy"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: Release requires zero open P0/P1 findings"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: ## Required final evidence bundle"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: ## GO authorization template"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: `production_authorized=false`"
+    },
+    {
+      "level": "OK",
+      "scope": "release-readiness",
+      "message": "Contains required token: installed and independent acceptance of the ADR-0010 object-store selection"
+    }
+  ],
+  "summary": {
+    "ok": 26,
+    "error": 0
+  }
+}

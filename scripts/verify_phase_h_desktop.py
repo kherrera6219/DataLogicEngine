@@ -52,7 +52,7 @@ def main() -> int:
                     "collect_submodules('backend.dsqp')",
                     "collect_submodules('backend.dmrf')",
                     "collect_submodules('backend.desktop')",
-                    "collect_submodules('backend.knowledge_algorithms.l10')",
+                    "collect_submodules('backend.knowledge_algorithms')",
                     "backend/dsqp/templates",
                 ],
             ),

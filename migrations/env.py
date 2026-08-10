@@ -12,7 +12,11 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
+# Keep application loggers alive when migrations run inside the packaged
+# desktop process.  Alembic's default disables every pre-existing logger,
+# which previously removed the request/crash diagnostics immediately after
+# startup migrations completed.
+fileConfig(config.config_file_name, disable_existing_loggers=False)
 logger = logging.getLogger('alembic.env')
 _migration_engine = None
 

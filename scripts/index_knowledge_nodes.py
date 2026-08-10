@@ -71,12 +71,16 @@ def index_nodes(nodes: Iterable, rag_service=None) -> IndexResult:
     return result
 
 
-def index_from_database(limit: int | None = None) -> IndexResult:
+def index_from_database(limit: int | None = None, *, flask_app=None) -> IndexResult:
     """Load KnowledgeGraphNode rows through Flask SQLAlchemy and index them."""
-    import app as app_module
     from models import KnowledgeGraphNode
 
-    with app_module.app.app_context():
+    if flask_app is None:
+        import app as app_module
+
+        flask_app = app_module.app
+
+    with flask_app.app_context():
         query = KnowledgeGraphNode.query.order_by(KnowledgeGraphNode.id.asc())
         if limit:
             query = query.limit(limit)

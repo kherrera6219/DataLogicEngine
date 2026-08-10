@@ -19,6 +19,7 @@ from backend.llm_gateway.model_lifecycle import (
     ProviderModelLifecycleService,
 )
 from backend.runtime.application import get_application_runtime
+from backend.utils.error_normalization import normalize_public_error_message
 from extensions import db
 
 logger = logging.getLogger(__name__)
@@ -164,7 +165,10 @@ def create_training_admission_endpoint():
             {
                 "status": "error",
                 "error": "training_admission_rejected",
-                "message": str(exc),
+                "message": normalize_public_error_message(
+                    str(exc),
+                    "Training admission request was rejected.",
+                ),
             }
         ), 400
     except (TypeError, ValueError):
@@ -214,7 +218,10 @@ def evaluate_model_endpoint():
             {
                 "status": "error",
                 "error": "evaluation_rejected",
-                "message": str(exc),
+                "message": normalize_public_error_message(
+                    str(exc),
+                    "Model evaluation request was rejected.",
+                ),
             }
         ), 400
     except (TypeError, ValueError):
@@ -292,7 +299,10 @@ def create_release_preparation_endpoint():
             {
                 "status": "error",
                 "error": "release_preparation_rejected",
-                "message": str(exc),
+                "message": normalize_public_error_message(
+                    str(exc),
+                    "Release preparation request was rejected.",
+                ),
             }
         ), 400
     except (TypeError, ValueError):

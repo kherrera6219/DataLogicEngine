@@ -75,6 +75,18 @@ def main(argv: list[str] | None = None) -> int:
                     "classification": classification,
                     "classification_basis": "static JSX heuristic; installed workflow verification required",
                 })
+    identity_groups: dict[tuple[object, ...], list[dict[str, object]]] = {}
+    for control in controls:
+        identity = (
+            control["file"],
+            control["line"],
+            control["element"],
+        )
+        identity_groups.setdefault(identity, []).append(control)
+    for group in identity_groups.values():
+        if len(group) > 1:
+            for ordinal, control in enumerate(group, start=1):
+                control["ordinal_on_line"] = ordinal
     payload = {
         "schema_version": "1.0.0",
         "generated_at": datetime.now(UTC).isoformat(),

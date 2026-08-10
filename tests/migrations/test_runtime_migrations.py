@@ -46,6 +46,11 @@ def test_managed_migration_wrapper_removes_dedicated_credential(monkeypatch, tmp
         "build_managed_migration_coordinator",
         lambda *_args: Coordinator(),
     )
+    monkeypatch.setattr(
+        runtime_migrations,
+        "synchronize_postgresql_sequences",
+        lambda _engine: {},
+    )
 
     result = runtime_migrations.run_managed_data_plane_migrations(app, runtime)
 

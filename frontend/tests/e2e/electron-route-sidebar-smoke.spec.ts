@@ -1,5 +1,6 @@
 import { _electron as electron, expect, test, ElectronApplication, Page } from '@playwright/test';
 import * as path from 'path';
+import { installSourceApiMocks } from './support/mock-source-api';
 
 const BASE_URL = 'http://localhost:3000';
 
@@ -31,15 +32,21 @@ async function launchDesktopApp(): Promise<{ app: ElectronApplication; page: Pag
   }
 
   await page.waitForLoadState('domcontentloaded');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  page.setDefaultNavigationTimeout(10_000);
+  page.setDefaultTimeout(10_000);
+  await installSourceApiMocks(page);
   return { app, page };
 }
 
 async function assertNoNotFound(page: Page) {
   await expect(page.getByRole('heading', { name: 'Page Not Found' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Module Error' })).toHaveCount(0);
 }
 
 test.describe('Electron Route And Sidebar Smoke', () => {
-  test('critical routes work in order', async () => {
+  test('critical routes, sidebars, and quick upload work in one desktop lifecycle', async () => {
+    test.setTimeout(120_000);
     const { app, page } = await launchDesktopApp();
     try {
       for (const route of CRITICAL_ROUTE_ORDER) {
@@ -47,20 +54,11 @@ test.describe('Electron Route And Sidebar Smoke', () => {
           const response = await page.goto(`${BASE_URL}${route}`, { waitUntil: 'domcontentloaded' });
           expect(response).not.toBeNull();
           expect(response!.status()).toBeLessThan(400);
-          await page.waitForLoadState('networkidle');
           await assertNoNotFound(page);
         });
       }
-    } finally {
-      await app.close();
-    }
-  });
 
-  test('sidebar toggles collapse and expand', async () => {
-    const { app, page } = await launchDesktopApp();
-    try {
       await page.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle');
 
       const appSidebarToggle = page.getByTestId('app-sidebar-toggle');
       await expect(appSidebarToggle).toBeVisible();
@@ -73,7 +71,6 @@ test.describe('Electron Route And Sidebar Smoke', () => {
       await expect(page.getByRole('button', { name: /collapse sidebar/i })).toBeVisible();
 
       await page.goto(`${BASE_URL}/settings`, { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle');
 
       const settingsSidebarToggle = page.getByTestId('settings-sidebar-toggle');
       await expect(settingsSidebarToggle).toBeVisible();
@@ -84,16 +81,8 @@ test.describe('Electron Route And Sidebar Smoke', () => {
 
       await settingsSidebarToggle.click();
       await expect(settingsSidebarToggle).toHaveAttribute('aria-label', /collapse settings sidebar/i);
-    } finally {
-      await app.close();
-    }
-  });
 
-  test('dashboard quick upload navigates to chat upload intent', async () => {
-    const { app, page } = await launchDesktopApp();
-    try {
       await page.goto(`${BASE_URL}/dashboard`, { waitUntil: 'domcontentloaded' });
-      await page.waitForLoadState('networkidle');
       await page.getByRole('button', { name: /quick upload/i }).click();
       await expect(page).toHaveURL(/\/chat\?intent=upload/);
       await assertNoNotFound(page);

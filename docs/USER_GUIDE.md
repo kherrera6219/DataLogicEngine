@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -23,6 +23,11 @@
 Provide task-focused instructions for day-to-day use of DataLogicEngine by analysts, operators, admins, pilot users, and technical evaluators.
 
 This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, Diagnostics, and admin workflows.
+
+The 2026-08-10 unsigned installed candidate is suitable only for controlled
+qualification. It reaches readiness with retained local data, but production
+release remains blocked by the signed installed, provider, accessibility,
+independent, pilot, and soak gates.
 
 ## Audience
 

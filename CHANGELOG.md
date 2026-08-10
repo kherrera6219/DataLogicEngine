@@ -1,5 +1,24 @@
 # Changelog
 
+## 4.3.0 candidate qualification - 2026-08-10
+
+- Completed all 213 Knowledge Algorithm qualification rows, including Quad
+  Persona, training-dataset preparation controls, subsystem effects, and
+  owner-receipted operations paths.
+- Passed CP19-L source, dependency, security, SDK, frontend, documentation, and
+  packaging qualification; rebuilt and installed the unsigned Windows candidate.
+- Corrected frozen-backend KA discovery, desktop readiness/EPIPE handling,
+  retained encryption-key selection, Redis session/rate-limit routing, Alembic
+  logging, and PostgreSQL sequence synchronization.
+- Exempted liveness/readiness/health/metrics polling from the general API rate
+  budget and aligned dashboard analytics with the canonical `started_at` model
+  fields and calendar-day trend window.
+- Added verified one-time adoption of the existing 0.1.1 SQLite/Neo4j/object data
+  into the five app-owned managed services without a new/fallback user database.
+- Confirmed the installed Program Files application reaches readiness and uses
+  the retained data plane. Production release remains NO-GO pending CP19-M and
+  signed, installed, manual, external, provider, pilot, and soak acceptance.
+
 ## Document control
 
 | Field | Value |

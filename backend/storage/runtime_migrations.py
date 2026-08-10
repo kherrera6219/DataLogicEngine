@@ -20,6 +20,18 @@ from backend.storage.store_migration_adapters import (
     RedisMigrationAdapter,
     RetainedConfigurationMigrationAdapter,
 )
+from backend.storage.legacy_sqlite_adoption import (
+    LegacyAdoptionError,
+    build_sqlite_adoption_plan,
+    create_verified_sqlite_recovery_copy,
+    import_legacy_objects,
+    import_sqlite_rows,
+    synchronize_postgresql_sequences,
+    write_adoption_receipt,
+)
+from backend.storage.legacy_neo4j_adoption import import_legacy_neo4j_snapshot
+from backend.storage.retained_data import ADOPTION_RECEIPT_RELATIVE_PATH
+from extensions import db
 
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRESQL_TARGET_REVISION = CONTRACT_VERSIONS["data_plane_schema"]
@@ -162,7 +174,85 @@ def run_managed_data_plane_migrations(app, runtime) -> dict[str, object]:
     try:
         with app.app_context():
             coordinator = build_managed_migration_coordinator(app, runtime, resources)
-            return coordinator.run()
+            ledger = coordinator.run()
+            sequence_engine = resources.own(
+                create_engine(
+                    str(app.config["DLE_MIGRATION_DATABASE_URL"]),
+                    pool_pre_ping=True,
+                )
+            )
+            synchronized_sequences = synchronize_postgresql_sequences(sequence_engine)
+            if synchronized_sequences:
+                ledger["postgresql_sequences"] = {
+                    "status": "verified",
+                    "count": len(synchronized_sequences),
+                }
+            discovery = app.extensions.get("dle_retained_data_discovery") or {}
+            if not discovery.get("requires_adoption"):
+                return ledger
+
+            source = runtime.runtime_root / "ukg_database.db"
+            plan = build_sqlite_adoption_plan(source, db.engine)
+            if not plan["ready"]:
+                raise LegacyAdoptionError("retained_sqlite_adoption_plan_blocked")
+            recovery_path = (
+                runtime.runtime_root
+                / "recovery"
+                / "retained-data"
+                / f"ukg-database-{plan['source_sha256'][:16]}.sqlite3"
+            )
+            backup = create_verified_sqlite_recovery_copy(source, recovery_path)
+            with app.app_context():
+                from backend.storage.object_store import get_object_store
+
+                objects = import_legacy_objects(
+                    runtime.runtime_root / "databases" / "objects",
+                    get_object_store(),
+                )
+            from neo4j import GraphDatabase
+
+            settings = app.extensions["dle_data_plane_manager"].connection_settings()
+            legacy_graph_driver = GraphDatabase.driver(
+                str(settings["neo4j_uri"]),
+                auth=(str(settings["neo4j_user"]), str(settings["neo4j_password"])),
+                connection_timeout=3,
+            )
+            try:
+                graph = import_legacy_neo4j_snapshot(
+                    runtime.runtime_root
+                    / "recovery"
+                    / "retained-data"
+                    / "legacy-neo4j.snapshot.json",
+                    legacy_graph_driver,
+                )
+            finally:
+                legacy_graph_driver.close()
+            imported_tables = import_sqlite_rows(
+                source,
+                db.engine,
+                plan=plan,
+            )
+            write_adoption_receipt(
+                runtime.runtime_root / ADOPTION_RECEIPT_RELATIVE_PATH,
+                {
+                    "target_version": str(app.config.get("APP_VERSION", PRODUCT_VERSION)),
+                    "source_sha256": plan["source_sha256"],
+                    "backup_sha256": backup["sha256"],
+                    "tables": imported_tables,
+                    "objects": objects,
+                    "graph": graph,
+                },
+            )
+            ledger["retained_data_adoption"] = {
+                "status": "verified",
+                "source_version": plan["source_version"],
+                "tables": imported_tables,
+                "object_count": objects["object_count"],
+                "graph_node_count": graph["node_count"],
+                "graph_relationship_count": graph["relationship_count"],
+                "backup_sha256": backup["sha256"],
+            }
+            return ledger
     finally:
         resources.close()
         if previous_url is None:

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_at": "2026-07-25T06:44:20.851827+00:00",
+  "generated_at": "2026-08-09T02:32:18.845591+00:00",
   "status": "all inventoried items assigned; behavior verification pending",
   "allowed_dispositions": [
     "ship",
@@ -975,7 +975,7 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-cd4e8ce5e41a",
+      "id": "UI-CONTROL-9ed4f6aca537",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/admin/mcp/servers/page.tsx",
@@ -985,7 +985,8 @@
         "has_disabled_state": false,
         "disabled_literal": false,
         "classification": "partial",
-        "classification_basis": "static JSX heuristic; installed workflow verification required"
+        "classification_basis": "static JSX heuristic; installed workflow verification required",
+        "ordinal_on_line": 1
       },
       "disposition": "finish",
       "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
@@ -994,7 +995,7 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-cd4e8ce5e41a",
+      "id": "UI-CONTROL-54da7afaa9e8",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/admin/mcp/servers/page.tsx",
@@ -1004,7 +1005,8 @@
         "has_disabled_state": false,
         "disabled_literal": false,
         "classification": "partial",
-        "classification_basis": "static JSX heuristic; installed workflow verification required"
+        "classification_basis": "static JSX heuristic; installed workflow verification required",
+        "ordinal_on_line": 2
       },
       "disposition": "finish",
       "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
@@ -1032,11 +1034,51 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-13e34d2fbfbf",
+      "id": "UI-CONTROL-de6dc47b040b",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/admin/mcp/servers/page.tsx",
         "line": 254,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required",
+        "ordinal_on_line": 1
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-4d269c46ca38",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/admin/mcp/servers/page.tsx",
+        "line": 254,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required",
+        "ordinal_on_line": 2
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-245cd3bd56fe",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 349,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -1051,14 +1093,147 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-13e34d2fbfbf",
+      "id": "UI-CONTROL-e258855403cd",
       "kind": "ui_control",
       "source": {
-        "file": "frontend/app/admin/mcp/servers/page.tsx",
-        "line": 254,
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 357,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-fa1c413919c1",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 422,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-4759c0cc34cd",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 461,
+        "element": "textarea",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-96d41d6f777d",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 562,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-1f6c61825348",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 568,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-707b81f3da06",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 583,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-6dacdd534f0f",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 593,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-f03710cff8d5",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/app/algorithms/page.tsx",
+        "line": 599,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": true,
         "disabled_literal": false,
         "classification": "partial",
         "classification_basis": "static JSX heuristic; installed workflow verification required"
@@ -1716,11 +1891,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-d76241fb4efd",
+      "id": "UI-CONTROL-f27bc638e062",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/settings/page.tsx",
-        "line": 175,
+        "line": 179,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -1735,11 +1910,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-2bba3e3e509e",
+      "id": "UI-CONTROL-c269674c7eb3",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/settings/page.tsx",
-        "line": 244,
+        "line": 249,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -1754,11 +1929,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-a1712fc06402",
+      "id": "UI-CONTROL-74fffe67c46c",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/settings/page.tsx",
-        "line": 252,
+        "line": 257,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -1773,11 +1948,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-b9a552371fe2",
+      "id": "UI-CONTROL-e1d0c8b6eb4b",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/settings/page.tsx",
-        "line": 277,
+        "line": 282,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -1792,11 +1967,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-922d5c01cfb2",
+      "id": "UI-CONTROL-8afce887ed71",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/settings/page.tsx",
-        "line": 305,
+        "line": 310,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": true,
@@ -1811,11 +1986,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-f12bffed836b",
+      "id": "UI-CONTROL-dc3b20e18914",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/settings/page.tsx",
-        "line": 428,
+        "line": 433,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -1830,11 +2005,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-c7d83a9dbb4a",
+      "id": "UI-CONTROL-1e936ad9402a",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/settings/page.tsx",
-        "line": 429,
+        "line": 434,
         "element": "Link",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -2115,11 +2290,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-c76396113c5c",
+      "id": "UI-CONTROL-bf001721dd5a",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/tools/history/page.tsx",
-        "line": 75,
+        "line": 90,
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -2134,11 +2309,11 @@
       "verification_status": "pending"
     },
     {
-      "id": "UI-CONTROL-6fe7647e03df",
+      "id": "UI-CONTROL-d4dcbc918d0a",
       "kind": "ui_control",
       "source": {
         "file": "frontend/app/tools/history/page.tsx",
-        "line": 147,
+        "line": 150,
         "element": "Link",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
@@ -3681,6 +3856,44 @@
         "element": "Button",
         "has_obvious_handler_or_target": true,
         "has_disabled_state": false,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-24a1c4735a7a",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/components/settings/DatasetExporterSettings.tsx",
+        "line": 169,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": true,
+        "disabled_literal": false,
+        "classification": "partial",
+        "classification_basis": "static JSX heuristic; installed workflow verification required"
+      },
+      "disposition": "finish",
+      "rationale": "Verify behavior; disable or remove if the promised action is not completed.",
+      "target_phase": 12,
+      "owner": "Kevin - DataLogicEngine owner",
+      "verification_status": "pending"
+    },
+    {
+      "id": "UI-CONTROL-473f84e3a437",
+      "kind": "ui_control",
+      "source": {
+        "file": "frontend/components/settings/DatasetExporterSettings.tsx",
+        "line": 207,
+        "element": "Button",
+        "has_obvious_handler_or_target": true,
+        "has_disabled_state": true,
         "disabled_literal": false,
         "classification": "partial",
         "classification_basis": "static JSX heuristic; installed workflow verification required"
@@ -19609,7 +19822,7 @@
     }
   ],
   "summary": {
-    "total": 859,
-    "finish": 859
+    "total": 870,
+    "finish": 870
   }
 }

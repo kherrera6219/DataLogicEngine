@@ -3,10 +3,10 @@
   "checkpoint": "CP19-J",
   "date": "2026-08-01",
   "status": "pass",
-  "manifest_version": "2026.08.02-cp19k.4",
+  "manifest_version": "2026.08.08-cp19k.24",
   "manifest_status": "cp19_j_product_workflow_authority",
   "canonical_capabilities": 213,
-  "production_enabled_capabilities": 149,
+  "production_enabled_capabilities": 211,
   "product_workflow": {
     "schema_version": "dle.ka-product-workflow.v1",
     "checkpoint": "CP19-J",

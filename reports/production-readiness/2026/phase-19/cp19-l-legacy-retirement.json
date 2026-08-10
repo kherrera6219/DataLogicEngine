@@ -1,0 +1,32 @@
+{
+  "schema_version": "dle.legacy-retirement-evidence.v1",
+  "generated_at": "2026-08-09T05:39:52.381774+00:00",
+  "status": "pass",
+  "findings": [
+    {
+      "level": "OK",
+      "check": "policy",
+      "detail": "Retirement policy schema is valid."
+    },
+    {
+      "level": "OK",
+      "check": "scripts/windows bundle",
+      "detail": "Release surfaces exclude from: ../scripts/windows."
+    },
+    {
+      "level": "OK",
+      "check": "legacy WiX setup",
+      "detail": "Release surfaces exclude UKG_Setup.wxs."
+    },
+    {
+      "level": "OK",
+      "check": "latest installer alias",
+      "detail": "Release surfaces exclude DataLogicEngine Setup Latest.exe."
+    },
+    {
+      "level": "OK",
+      "check": "artifact authority",
+      "detail": "Only the versioned NSIS artifact is configured."
+    }
+  ]
+}

@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, production plan, CI/release workflows, locks, documentation authority, and evidence policy |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-25 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Lifecycle, branch, review, toolchain, dependency, build, test, documentation, release, or maintenance-policy change |
 | Requirements and evidence | Product requirements, active plan/TODO, CI workflows, exact locks, manifests, tests, and release records |
 
@@ -24,6 +24,10 @@ Deliver and maintain one truthful, secure, reproducible, supportable Windows
 product from approved requirements through design, implementation, verification,
 signed release, operation, incident response, update, and retirement. Schedule or
 demonstration pressure does not waive an exit gate.
+
+CP19-L and the clean unsigned rebuild/install checkpoint passed on 2026-08-10.
+The lifecycle now advances through CP19-M; signing, exact-artifact acceptance,
+installed lifecycle/recovery, external review, pilot, and soak remain mandatory.
 
 ## Authoritative configuration
 

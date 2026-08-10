@@ -1,76 +1,5 @@
 import { test, expect } from '@playwright/test';
-
-async function mockApi(page: import('@playwright/test').Page) {
-  await page.route('**/api/v1/**', async (route) => {
-    const url = new URL(route.request().url());
-    const path = url.pathname.replace('/api/v1', '');
-    let payload: unknown = {};
-
-    if (path === '/auth/check' || path === '/auth/desktop/auto-login') {
-      payload = {
-        authenticated: true,
-        user: { id: 1, username: 'local-user', email: 'local@example.test', role: 'admin', is_admin: true },
-      };
-    } else if (path === '/auth/desktop/challenge') {
-      payload = { nonce: 'visual-smoke-nonce' };
-    } else if (path === '/gateway/sessions') {
-      payload = { sessions: [] };
-    } else if (path === '/pillars') {
-      payload = [];
-    } else if (path === '/nodes') {
-      payload = [];
-    } else if (path === '/edges') {
-      payload = [];
-    } else if (path === '/simulations') {
-      payload = [];
-    } else if (path.startsWith('/trace/runs')) {
-      payload = { runs: [] };
-    } else if (path === '/analytics/activity') {
-      payload = [];
-    } else if (path === '/analytics/summary' || path === '/analytics/overview') {
-      payload = {};
-    } else if (path === '/analytics/mcp') {
-      payload = { servers: 0, tools: 0, resources: 0 };
-    } else if (path === '/system/diagnostics/summary') {
-      payload = {
-        schema_version: 'dle.diagnostics.v1',
-        status: 'ok',
-        runtime: { phase: 'ready', ready: true, services: {} },
-        requests: { total: 12, inflight: 1, uptime_seconds: 60 },
-        logging: { schema_version: 'dle.log.v1', format: 'json', redaction: 'best_effort_redacted' },
-        external_telemetry: { opted_in: false, enabled: false, provider: 'none', state_code: null },
-        support_bundle: {
-          schema_version: 'dle.support-bundle.v1',
-          content_policy: 'redacted_diagnostics_only',
-          user_content_included: false,
-          generic_reports_included: false,
-          preview_required: true,
-          encryption_available_via_cli: true,
-        },
-        correlation_id: 'route-smoke-diagnostics',
-        timestamp: new Date().toISOString(),
-      };
-    } else if (path === '/mcp/servers') {
-      payload = { servers: [], runtime_servers: [] };
-    } else if (path === '/mcp/stats') {
-      payload = {
-        stats: {
-          total_servers: 0,
-          active_servers: 0,
-          total_resources: 0,
-          total_tools: 0,
-          active_connections: 0,
-        },
-      };
-    }
-
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(payload),
-    });
-  });
-}
+import { installSourceApiMocks } from './support/mock-source-api';
 
 const CRITICAL_ROUTE_ORDER = [
   '/dashboard',
@@ -113,11 +42,12 @@ const STATIC_ROUTES = [
 
 test.describe('Route And Sidebar Smoke', () => {
   test.beforeEach(async ({ page }) => {
-    await mockApi(page);
+    await installSourceApiMocks(page);
   });
 
   async function assertNoNotFound(page: import('@playwright/test').Page) {
     await expect(page.getByRole('heading', { name: 'Page Not Found' })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Module Error' })).toHaveCount(0);
   }
 
   test('critical route flow works in order', async ({ page }) => {

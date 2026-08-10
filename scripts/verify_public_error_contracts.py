@@ -16,6 +16,7 @@ SAFE_NORMALIZERS = {
     "normalize_public_error_message",
     "_public_error",
     "_policy_error",  # Typed MCPPolicyError exposes code-owned public_message only.
+    "_workflow_error_response",  # Typed KA workflow errors expose public_message.
     "errors",
 }
 

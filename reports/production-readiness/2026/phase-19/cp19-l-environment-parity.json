@@ -1,0 +1,55 @@
+{
+  "generated_at": "2026-08-09T05:39:45.050573+00:00",
+  "strict": false,
+  "findings": [
+    {
+      "level": "OK",
+      "message": "Python compatibility satisfied: 3.11"
+    },
+    {
+      "level": "OK",
+      "message": "Node.js version accepted: 24.14.0"
+    },
+    {
+      "level": "OK",
+      "message": "npm detected: 11.9.0"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: requirements.txt"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: requirements.lock"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: config\\dependency-authority.json"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: frontend\\package-lock.json"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: .github\\workflows\\ci.yml"
+    },
+    {
+      "level": "OK",
+      "message": "Found required parity file: .env.template"
+    },
+    {
+      "level": "OK",
+      "message": "CI workflow pins Python 3.11"
+    },
+    {
+      "level": "OK",
+      "message": "CI workflow pins Node 24"
+    }
+  ],
+  "summary": {
+    "ok": 11,
+    "error": 0,
+    "warn": 0
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-08-09T05:40:16.601701+00:00",
+  "strict": true,
+  "fail_on_warn": false,
+  "results": [
+    {
+      "level": "OK",
+      "message": "Python version meets minimum requirement (3.11+)."
+    },
+    {
+      "level": "WARN",
+      "message": "Not running inside a virtual environment; recreate per README to avoid dependency conflicts."
+    },
+    {
+      "level": "OK",
+      "message": "node found at C:\\nvm4w\\nodejs\\node.EXE"
+    },
+    {
+      "level": "OK",
+      "message": "npm found at C:\\nvm4w\\nodejs\\npm.CMD"
+    },
+    {
+      "level": "OK",
+      "message": "Frontend dependencies directory detected."
+    },
+    {
+      "level": "OK",
+      "message": "requirements.txt found at C:\\software\\DataLogicEngine\\requirements.txt"
+    },
+    {
+      "level": "OK",
+      "message": "Hash-locked release dependencies found at C:\\software\\DataLogicEngine\\requirements.lock."
+    },
+    {
+      "level": "INFO",
+      "message": "Install release dependencies with `pip install --require-hashes -r requirements.lock`."
+    },
+    {
+      "level": "OK",
+      "message": "Python workspace metadata present (project.name=datalogicengine)."
+    },
+    {
+      "level": "OK",
+      "message": "Virtual environment directory detected at .venv."
+    },
+    {
+      "level": "WARN",
+      "message": "templates/ directory missing; legacy server-rendered pages may be unavailable."
+    },
+    {
+      "level": "WARN",
+      "message": "static/ directory missing; some assets may not load."
+    },
+    {
+      "level": "OK",
+      "message": "Found .env at C:\\software\\DataLogicEngine\\.env"
+    },
+    {
+      "level": "OK",
+      "message": "SQLite in-memory database configured for disposable CI/test runtime."
+    },
+    {
+      "level": "INFO",
+      "message": "Port checks skipped"
+    }
+  ],
+  "summary": {
+    "checks_run": 15,
+    "blockers": 0,
+    "actions": 0,
+    "warnings": 3
+  }
+}

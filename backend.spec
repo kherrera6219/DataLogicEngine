@@ -53,12 +53,16 @@ a = Analysis(
         ('backend/dsqp/templates', 'backend/dsqp/templates'),
         ('backend/knowledge_algorithms/config', 'backend/knowledge_algorithms/config'),
         ('backend/knowledge_algorithms/ka_registry.yaml', 'backend/knowledge_algorithms'),
+        ('backend/knowledge_algorithms/ka_manifest.v1.generated.json', 'backend/knowledge_algorithms'),
         ('backend/security/prompts', 'backend/security/prompts'),
         ('backend/api/specs', 'backend/api/specs'),
         ('core/persona/quad/config', 'core/persona/quad/config'),
         ('docs/evaluation', 'docs/evaluation'),
     ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('chromadb', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']) + collect_data_files('llama_index', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']) + copy_metadata('tiktoken'),
     hiddenimports=[
+        # Alembic loads migrations/env.py dynamically after freeze analysis;
+        # keep its standard-library configuration module in the executable.
+        'logging.config',
         'flask',
         'flask_sqlalchemy',
         'flask_migrate',
@@ -101,7 +105,7 @@ a = Analysis(
         'langchain_openai',
         'langchain_community',
         'dotenv',
-    ] + collect_submodules('chromadb', filter=chroma_runtime_submodule) + collect_submodules('ukg_sdk', filter=runtime_submodule) + collect_submodules('backend.desktop', filter=runtime_submodule) + collect_submodules('backend.ingestion', filter=runtime_submodule) + collect_submodules('backend.dsqp', filter=runtime_submodule) + collect_submodules('backend.dmrf', filter=runtime_submodule) + collect_submodules('backend.knowledge_algorithms.l10', filter=runtime_submodule) + collect_submodules('backend.local_model_acceleration', filter=runtime_submodule) + collect_submodules('core.self_evolving', filter=runtime_submodule),
+    ] + collect_submodules('chromadb', filter=chroma_runtime_submodule) + collect_submodules('ukg_sdk', filter=runtime_submodule) + collect_submodules('backend.desktop', filter=runtime_submodule) + collect_submodules('backend.ingestion', filter=runtime_submodule) + collect_submodules('backend.dsqp', filter=runtime_submodule) + collect_submodules('backend.dmrf', filter=runtime_submodule) + collect_submodules('backend.knowledge_algorithms', filter=runtime_submodule) + collect_submodules('backend.local_model_acceleration', filter=runtime_submodule) + collect_submodules('core.self_evolving', filter=runtime_submodule),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

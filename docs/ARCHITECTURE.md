@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
-| Document version | v4.8.0 |
+| Document version | v4.9.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
@@ -14,11 +14,18 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, implemented runtime, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Runtime boundary, service, interface, data-flow, or deployment-architecture change |
 | Requirements and evidence | Root plan, source tree, ADRs, diagrams, and production-readiness reports |
 
 ## Purpose
+
+The 2026-08-10 clean unsigned candidate installed and reached readiness with
+the real app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and SeaweedFS services.
+The frozen backend retained dynamic access to all generated KA modules. Existing
+local data was adopted once with a verified recovery receipt; no new or fallback
+user database became authoritative. This is installed engineering evidence, not
+production release authorization.
 
 Define the current logical and runtime architecture of DataLogicEngine for engineering, security, operations, and technical-review stakeholders.
 
@@ -92,7 +99,8 @@ statically detected call site, 41 lacked a detected individually named test,
 only 11 were production enabled, and the public preflight ran one KA in standard
 mode or two in enhanced mode. The ten-layer, L9/L10, refinement, persona, and
 simulation paths were disconnected or contract-incompatible. Phase 19 owns the
-integration and the signed rebuild remains blocked through CP19-L.
+integration. Phase 19 has since completed CP19-K/L and rebuilt the unsigned
+candidate; exact signed installed acceptance remains blocked through CP19-M.
 
 CP19-A passed on 2026-07-25. Integration authority
 `2026.07.25-cp19a.1` assigns each of the 213 KAs exactly one primary subsystem

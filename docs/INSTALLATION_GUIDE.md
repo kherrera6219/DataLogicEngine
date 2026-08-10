@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
@@ -14,18 +14,23 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | NSIS packaging controls, Windows runtime implementation, release trust policy, and installed qualification plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Installer, signing, prerequisite, lifecycle, data-location, update, or supported-Windows change |
 | Requirements and evidence | Product requirements, release manifest, installer verification, Phase 15 evidence, and lifecycle acceptance |
 
 ## Current distribution status
 
 DataLogicEngine 4.3.0 is not approved for production or public installation.
-The current engineering candidate is unsigned and is for controlled qualification
-only. It passed payload and integrity checks, but its packaged backend correctly
-stopped at `at_rest_protection_not_ready` on the development workstation. Two
-clean candidate builds also produced different hashes. Do not treat an unsigned,
-stale, `Latest`, or locally rebuilt artifact as the production installer.
+The 2026-08-10 engineering candidate is unsigned and is for controlled
+qualification only. It passed payload/integrity checks, installed per-machine,
+launched from Program Files, reached readiness, and supervised all five local
+services. It preserved the existing 0.1.1 data through verified one-time
+adoption rather than creating a replacement database. Do not treat an unsigned,
+stale `Latest`, or locally rebuilt artifact as the production installer.
+
+The earlier frozen candidate stopped safely at
+`at_rest_protection_not_ready`; that result remains historical negative evidence
+and is not the outcome of the current installed candidate.
 
 The production procedure below becomes authoritative only when the release
 record names the exact signed installer, SHA-256, publisher, timestamp, source
@@ -121,7 +126,9 @@ Repair behavior remains an open installed qualification gate for 4.3.0.
    object consistency, client keys/jobs, connector consent, backup, and deletion.
 7. Retain the pre-upgrade backup until the acceptance window closes.
 
-The 0.1.1 retained-data-to-4.3.0 path and clean signed upgrade remain open gates.
+The populated 0.1.1-to-4.3.0 adoption passed on this engineering workstation.
+Clean signed upgrade, interruption, rollback, wider populated-store, and
+supported-Windows acceptance remain open gates.
 
 ## Rollback
 

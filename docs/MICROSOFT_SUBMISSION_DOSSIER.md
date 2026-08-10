@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Current official Microsoft Store/Partner Center guidance, exact signed artifact, canonical product records, and submission results |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-24 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Microsoft policy/guidance, route/package, Partner Center field, artifact/signature, privacy/legal, certification, or submission-result change |
 | Requirements and evidence | Official Microsoft policy snapshot, Partner Center submission, signed installer, WACK/applicable tests, metadata/assets, and certification correspondence |
 
@@ -25,6 +25,10 @@ by Microsoft. No Partner Center product, Store listing, certification result,
 Windows App Certification Kit (WACK) result, or Microsoft correspondence is
 recorded. This dossier is `not_evaluated` and production/public distribution is
 **NO-GO**.
+
+An unsigned per-machine NSIS candidate now installs and launches successfully,
+but it is engineering evidence only. Microsoft submission, publisher signing,
+WACK/applicable tests, legal metadata, and certification remain `not_evaluated`.
 
 ## Selected qualification route
 

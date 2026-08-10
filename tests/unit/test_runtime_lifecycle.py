@@ -166,7 +166,7 @@ def test_low_or_read_only_runtime_path_fails_before_readiness(tmp_path, monkeypa
     def fail_identity(*_args, **_kwargs):
         raise OSError("simulated disk full")
 
-    monkeypatch.setattr(InstallationIdentity, "load_or_create", fail_identity)
+    monkeypatch.setattr(InstallationIdentity, "persist", fail_identity)
     with pytest.raises(RuntimeError, match="startup_failed:runtime_lock"):
         runtime.start()
     assert runtime.phase == RuntimePhase.FAILED
@@ -227,3 +227,60 @@ def test_runtime_rejects_installation_version_mismatch(tmp_path):
         app.extensions["dle_runtime"].start()
     assert app.extensions["dle_runtime"].failure_reason == "startup_failed:runtime_lock"
     assert app.extensions["dle_runtime"].failure_detail == "installation_version_mismatch"
+
+
+def test_required_service_failure_stops_before_verification_and_migrations(tmp_path):
+    app = _runtime_app(
+        tmp_path / "required-service",
+        DLE_REQUIRED_SERVICES="postgresql",
+        DLE_START_MANAGED_SERVICES=True,
+    )
+    runtime = app.extensions["dle_runtime"]
+
+    with pytest.raises(RuntimeError, match="startup_failed:service_supervisor"):
+        runtime.start()
+
+    assert runtime.phase == RuntimePhase.FAILED
+    assert runtime.failure_detail == (
+        "required_service_start_failed:postgresql:service_not_installed"
+    )
+
+
+@pytest.mark.parametrize(
+    ("profile", "should_block"),
+    [("qualification", False), ("production", True)],
+)
+def test_at_rest_gate_blocks_only_production_authorized_profile(
+    tmp_path,
+    monkeypatch,
+    profile,
+    should_block,
+):
+    app = _runtime_app(tmp_path / profile)
+    app.config.update(
+        TESTING=False,
+        DLE_PRODUCTION_MODE=True,
+        DLE_DATA_PLANE_PROFILE=profile,
+    )
+    runtime = app.extensions["dle_runtime"]
+
+    monkeypatch.setattr(
+        "backend.security.windows_acl.ensure_restricted_user_acl",
+        lambda *_args, **_kwargs: True,
+    )
+    monkeypatch.setattr(
+        "backend.security.windows_acl.verify_restricted_user_acl",
+        lambda *_args, **_kwargs: True,
+    )
+    monkeypatch.setattr(
+        "backend.storage.data_at_rest.build_at_rest_report",
+        lambda *_args, **_kwargs: {"production_ready": False},
+    )
+
+    callback = runtime._callbacks[RuntimePhase.PATHS_AND_ACL][0]
+    if should_block:
+        with pytest.raises(RuntimeError, match="at_rest_protection_not_ready"):
+            callback(runtime)
+    else:
+        callback(runtime)
+        assert app.extensions["dle_at_rest_report"] == {"production_ready": False}

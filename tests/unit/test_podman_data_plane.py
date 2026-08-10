@@ -129,3 +129,36 @@ def test_production_profile_remains_fail_closed(tmp_path):
             lock_path=LOCK_PATH,
             require_dpapi=False,
         )
+
+
+def test_service_start_runs_full_preflight_before_any_mutation(manager, monkeypatch):
+    calls = []
+    monkeypatch.setattr(manager, "verify_runtime", lambda: calls.append("runtime"))
+    monkeypatch.setattr(manager, "verify_artifacts", lambda: calls.append("artifacts"))
+    monkeypatch.setattr(manager, "_ensure_network", lambda: calls.append("network"))
+    monkeypatch.setattr(manager, "_ensure_volume", lambda *_args: None)
+    monkeypatch.setattr(manager, "_ensure_secret", lambda *_args: None)
+    monkeypatch.setattr(
+        manager,
+        "_inspect_container",
+        lambda *_args: {"State": {"Running": True}},
+    )
+    monkeypatch.setattr(manager, "_assert_owned_container", lambda *_args: None)
+    monkeypatch.setattr(manager, "_wait_until_ready", lambda *_args: True)
+
+    assert manager.start_service("redis") is True
+    assert calls[:3] == ["runtime", "artifacts", "network"]
+
+
+def test_failed_preflight_does_not_mutate_service_state(manager, monkeypatch):
+    mutations = []
+
+    def fail_runtime():
+        raise PodmanDataPlaneError("container_runtime_unavailable")
+
+    monkeypatch.setattr(manager, "verify_runtime", fail_runtime)
+    monkeypatch.setattr(manager, "_ensure_network", lambda: mutations.append("network"))
+
+    assert manager.start_service("postgresql") is False
+    assert mutations == []
+    assert manager.last_failure_reasons["postgresql"] == "container_runtime_unavailable"

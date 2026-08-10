@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.0.0 |
+| Document version | v3.1.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,13 +14,19 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-01 |
+| Last reviewed | 2026-08-10 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
 ## Purpose
 
 Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
+
+The CP19-L clean-build baseline passed on 2026-08-10: 3,098 backend tests with
+19 skipped, 430 frontend tests, 36 Python SDK tests, seven TypeScript SDK tests,
+clean dependency/security gates, and the release payload/integrity checks. The
+rebuilt unsigned candidate installed and reached readiness; CP19-M remains the
+exact signed installed acceptance boundary.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
 

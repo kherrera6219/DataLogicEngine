@@ -166,8 +166,10 @@ class TruthLinkBus:
         try:
             import redis
 
+            from backend.storage.runtime_endpoints import runtime_redis_url
+
             client = redis.Redis.from_url(
-                os.environ.get("REDIS_URL", "redis://127.0.0.1:6379/0"),
+                runtime_redis_url(),
                 socket_connect_timeout=0.5,
                 socket_timeout=0.5,
             )

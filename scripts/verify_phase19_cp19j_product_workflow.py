@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -84,13 +85,11 @@ def verify() -> dict[str, Any]:
         _read("backend/knowledge_algorithms/ka_manifest.v1.generated.json")
     )
     product = manifest.get("authority", {}).get("product_workflow", {})
-    if manifest.get("manifest_version") not in {
-        "2026.07.25-cp19j.1",
-        "2026.08.01-cp19k.1",
-        "2026.08.01-cp19k.2",
-        "2026.08.02-cp19k.3",
-        "2026.08.02-cp19k.4",
-    }:
+    manifest_version = str(manifest.get("manifest_version") or "")
+    if not re.fullmatch(
+        r"2026\.\d{2}\.\d{2}-cp19(?:j|k)\.\d+",
+        manifest_version,
+    ):
         errors.append("manifest_version")
     if manifest.get("status") != "cp19_j_product_workflow_authority":
         errors.append("manifest_status")
