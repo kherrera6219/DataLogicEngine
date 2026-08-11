@@ -1,14 +1,14 @@
 ﻿{
-    "generated_at":  "2026-08-09T03:59:12.5503006Z",
+    "generated_at":  "2026-08-11T07:45:28.6343606Z",
     "repo_root":  "C:\\software\\DataLogicEngine",
     "mode":  "portable",
     "installer":  "C:\\software\\DataLogicEngine\\DataLogicEngine Setup 4.3.0.exe",
-    "installer_sha256":  "5c196e1ac99ef870f98db8fcf8b5b84fa45da0a047f6a857d591ca666e765817",
+    "installer_sha256":  "30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d",
     "installer_signature_status":  "NotSigned",
     "portable_executable":  "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\DataLogicEngine Desktop.exe",
     "portable_launch_started":  true,
-    "portable_launch_exit_code":  0,
-    "portable_launch_timed_out":  false,
+    "portable_launch_exit_code":  null,
+    "portable_launch_timed_out":  true,
     "installer_mode":  {
                            "install_path":  "",
                            "install_exit_code":  null,
