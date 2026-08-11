@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Schema | `dle.ka-capability-inventory.v1` |
-| Source-input SHA-256 | `71d170e05a827a47b9554143ee631c0ed3eafb547e4db5f01a56ba9cf22b394a` |
+| Source-input SHA-256 | `628d4bd136bdf2b63969c237f46be9b97786dc7bcf42056a667b8c1da56c428e` |
 | Status | `cp18_a_inventory_verified` |
 
 ## Counts

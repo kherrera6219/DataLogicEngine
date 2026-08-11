@@ -8,8 +8,10 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 
 | Existing path | Class | Disposition | Target | Basis |
 |---|---|---|---|---|
+| `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `CHANGELOG.md` | `product_public` | authoritative input | `CHANGELOG.md` | selected canonical document |
 | `CODE_OF_CONDUCT.md` | `product_public` | authoritative input | `CODE_OF_CONDUCT.md` | normative legal or temporary program authority outside the final canonical cap |
+| `CODEX_WORK_QUEUE_2026-08-10.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `COMMERCIAL_LICENSE.md` | `product_public` | authoritative input | `COMMERCIAL_LICENSE.md` | normative legal or temporary program authority outside the final canonical cap |
 | `CONTRIBUTING.md` | `engineering_maintenance` | authoritative input | `CONTRIBUTING.md` | selected canonical document |
 | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | `assurance_release_external` | authoritative input | `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md` | selected canonical document |
@@ -131,6 +133,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/archive/wireframes/README.md` | `historical_research` | historical archive | `docs/archive/wireframes/README.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/archive/wireframes/README__active-through-2026-07-15.md` | `historical_research` | historical archive | `docs/archive/wireframes/README__active-through-2026-07-15.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md` | `engineering_maintenance` | authoritative input | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md` | normative legal or temporary program authority outside the final canonical cap |
+| `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/DATA_ARCHITECTURE.md` | `engineering_maintenance` | authoritative input | `docs/DATA_ARCHITECTURE.md` | selected canonical document |
 | `docs/DEVELOPER_GUIDE.md` | `engineering_maintenance` | authoritative input | `docs/DEVELOPER_GUIDE.md` | selected canonical document |
 | `docs/DOCUMENTATION_BOM.md` | `engineering_maintenance` | generated replacement | `docs/DOCUMENTATION_BOM.md` | generated companion artifact |

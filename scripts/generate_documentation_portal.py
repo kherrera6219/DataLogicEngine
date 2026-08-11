@@ -67,32 +67,24 @@ def render(
 ) -> str:
     summary = closure.get("summary", {})
     canonical = authority["canonical_documents"]
+    supporting = authority.get("supporting_review_inputs", [])
     ka_evidence = (
-        "- Current KA evidence: Phase 19 CP19-A through CP19-J passed with "
-        "213 canonical capabilities, one implementation and primary subsystem "
-        "owner per KA, 211 production-enabled capabilities, one runtime "
-        "manifest, 213 positive and 213 negative selector fixtures, and a "
-        "current 112-edge zero-cycle dependency graph. CP19-K batches 01-43 "
-        "qualify all 213 rows. Batches 35-39 complete bounded inference mapping, "
-        "signal analysis, language/identity/explanation, owner-controlled "
-        "external research, and owner-receipted delivery through their real "
-        "production boundaries. Batches 40-43 close health/recovery, crypto/key "
-        "lifecycle, chaos/rollback, and topology/evolution through receipted owners. "
-        "The 186-row Batch 07 baseline is grouped into 36 dependency-safe batches, "
-        "all complete. The generated matrix reports 213/213 qualified and zero "
-        "open. The 991-test KA suite, 458 governed/TruthCore/Phase-19/simulation "
-        "integration tests, seven TypeScript SDK tests, and the 3,070-test full "
-        "source suite pass with 18 skipped and 32 known warnings. "
-        "The reviewed owner-operated dataset exporter remains supporting "
-        "tooling, enforces release evidence, redaction, and app-owned output, "
-        "and does not satisfy installed training/provider acceptance. The "
-        "earlier 31 dependency alerts remain remediated. Ten newly published "
-        "GitHub alerts plus four additional local audit advisories are fixed "
-        "in the governed Python and Node locks; local audits are clean and "
-        "the 2026-08-04 live GitHub query reports zero open Dependabot alerts. "
-        "CP19-K is complete and "
-        "the rebuild remains "
-        "blocked through CP19-L."
+        "- Current evidence: all 213/213 KAs are individually qualified and the "
+        "186-row baseline backlog is closed through 36 dependency-safe groups. "
+        "The current source gate passes 3,101 backend tests with 19 skipped, "
+        "435 frontend tests, 36 Python SDK tests, and "
+        "seven TypeScript SDK tests pass with the source/security/release gates. "
+        "The unsigned 4.3.0 candidate installed per-machine, launched from "
+        "Program Files, reached `/ready`, and used five real app-owned services. "
+        "One-time retained-data adoption preserved 22,068 listed relational "
+        "rows, 20 graph nodes/18 relationships, and eight objects. Later "
+        "source-only CI portability, packaging retry, Algorithms registry, and "
+        "documentation-authority fixes are not in that installed payload; a new "
+        "rebuild is intentionally pending. The reviewed "
+        "dataset exporter remains supporting owner tooling and does not satisfy "
+        "installed training/provider acceptance. CP19-M remains open for the "
+        "signed exact artifact and every retained installed/manual/external/"
+        "provider/pilot/soak gate."
     )
     lines = [
         "# DataLogicEngine documentation portal",
@@ -144,6 +136,18 @@ def render(
             if item["class"] != document_class:
                 continue
             lines.append(f"| `{item['id']}` | `{item['path']}` | {item['title']} |")
+        lines.append("")
+    if supporting:
+        lines.extend(
+            [
+                "## Supporting review inputs",
+                "",
+                "These current findings and work queues inform remediation but do not",
+                "supersede the root production plan, TODO, or handoff:",
+                "",
+            ]
+        )
+        lines.extend(f"- `{path}`" for path in supporting)
         lines.append("")
     lines.extend(
         [

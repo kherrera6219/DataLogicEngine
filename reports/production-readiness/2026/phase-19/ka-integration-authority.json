@@ -7,7 +7,7 @@
   "runtime_registry": false,
   "runtime_authority": "backend/knowledge_algorithms/ka_manifest.v1.generated.json",
   "identity_source": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
-  "identity_source_sha256": "8b5bc07ae8aeae08d30c3c88867f5e7bc3ceb82f711a6a0ff1770b1ca9d92487",
+  "identity_source_sha256": "ef145853bc1089208952e0926fc240a5e5549ac146745d3328dc58ec029daa8b",
   "invariants": {
     "canonical_capabilities": 213,
     "unique_implementation_owners": 213,
@@ -473,6 +473,7 @@
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1111_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_117_owning_path",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_algorithm_list_accepts_external_api_key",
+          "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_algorithm_list_filters_by_classification",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_algorithm_list_uses_id_as_name_fallback",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_batch_accepts_documented_payload_with_context",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_batch_hides_per_item_exception_details",
@@ -484,6 +485,14 @@
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_history_normalizes_case_and_extracts_trace_run_id",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_history_serializes_persisted_execution_for_frontend",
           "tests/integration_routes/test_ka_route_auth_boundaries.py::test_ka_layers_accepts_non_numeric_layer_names",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1102_global_entropy_quantifies_even_distribution",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
           "tests/knowledge_algorithms/test_ka_master_controller.py::test_controller_registry_merges_catalog_metadata_for_ui_cards",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka032_orchestrates_dependencies_and_checkpoints",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka101_environment_management",
@@ -572,14 +581,6 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_182_threat_detection_alerts_on_trusted_threshold_signal",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_183_vulnerability_scanning_blocks_open_high_finding_without_scanning",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_184_incident_response_builds_ordered_unapplied_plan",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
           "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
           "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_001_semantic_contract",
@@ -1014,7 +1015,7 @@
           "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_006_owning_path",
           "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_006_owning_path",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka006_dynamic_intent_compliance",
-          "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka006_dynamic_intent_security_depth",
+          "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka006_dynamic_intent_depth",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_006_semantic_contract",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_006_semantic_contract",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l9_ka_006_semantic_contract"
@@ -1278,6 +1279,9 @@
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1094_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1095_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1096_owning_path",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka101_environment_management",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka101_never_reads_or_returns_process_environment_values",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka103_does_not_claim_live_mesh_or_mtls_state",
@@ -1326,9 +1330,6 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1045_bias_pattern_analyzer_reports_observational_disparity",
           "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1047_meta_algorithm_selection_uses_only_approved_candidates",
           "tests/knowledge_algorithms/test_phase18_cp18c_restored_analysis_batch.py::test_ka_1049_redundancy_detector_finds_exact_normalized_duplicate",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_010_semantic_contract",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_100_semantic_contract",
@@ -1459,6 +1460,11 @@
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1109_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1111_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_117_owning_path",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1102_global_entropy_quantifies_even_distribution",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka011_supports_structural_and_bayesian_models",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka111_consumes_authoritative_gateway_controls_without_credentials",
@@ -1473,11 +1479,6 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
           "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_112_message_broker_returns_durable_job_proposal_only",
           "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_1114_deep_research_builds_bounded_request_without_network_or_memory",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
           "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
           "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_011_semantic_contract",
@@ -8189,6 +8190,9 @@
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1094_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1095_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1096_owning_path",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka109_aggregates_supplied_health_without_local_probes",
           "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1090_compliance_regression_detects_pass_to_fail",
           "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1091_scenario_archivist_builds_stable_unapplied_object_plan",
@@ -8197,9 +8201,6 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1094_quarantine_engine_requires_review_for_disputed_knowledge",
           "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1095_human_escalation_requires_owner_for_policy_exception",
           "tests/knowledge_algorithms/test_phase18_cp18c_policy_release_batch.py::test_ka_1096_release_manager_stages_only_complete_candidate",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer10_uses_corrected_canonical_identities",
           "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_retained_controllers_have_no_identity_drift_or_manual_trace",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1090_semantic_contract",
@@ -8614,7 +8615,7 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/integration/phase19/test_batches_40_43.py::test_ka_1097_owning_path",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1097_performance_optimizer_proposes_bounded_unapplied_adjustment",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1097_semantic_contract"
         ],
         "production_enabled": false
@@ -8664,7 +8665,7 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/integration/phase19/test_batches_40_43.py::test_ka_1098_owning_path",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1098_self_evaluation_aggregates_supplied_benchmark_results",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1098_semantic_contract"
         ],
         "production_enabled": false
@@ -8713,7 +8714,7 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/integration/phase19/test_truthgate.py::test_ka_1099_owning_path",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1099_system_integrity_flags_hash_and_dependency_failures",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1099_semantic_contract"
         ],
         "production_enabled": false
@@ -8773,6 +8774,11 @@
           "tests/integration/phase19/test_truthgate.py::test_ka_1108_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1105_owning_path",
           "tests/integration/phase19/test_truthmemory_truthlink_frost.py::test_ka_1109_owning_path",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1102_global_entropy_quantifies_even_distribution",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
           "tests/knowledge_algorithms/test_ka_stub_replacements.py::test_ka110_integration_bus",
           "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1105_conceptual_obsolescence_requires_paradigm_level_evidence",
           "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1106_human_override_capture_builds_stable_unapplied_signal",
@@ -8780,11 +8786,6 @@
           "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1108_capability_escalation_flags_privilege_boundary_crossing",
           "tests/knowledge_algorithms/test_phase18_cp18c_containment_oversight_batch.py::test_ka_1109_containment_classifier_denies_unconsented_personal_data",
           "tests/knowledge_algorithms/test_phase18_cp18c_existing_honesty.py::test_ka_110_integration_bus_returns_durable_outbox_proposal_only",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1100_semantic_contract",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1101_semantic_contract",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1102_semantic_contract",
@@ -8845,7 +8846,7 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/integration/phase19/test_batches_40_43.py::test_ka_1100_owning_path",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1100_system_evolution_requires_human_approval_for_algorithm_change",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1100_semantic_contract"
         ],
         "production_enabled": false
@@ -8898,8 +8899,8 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/integration/phase19/test_batches_40_43.py::test_ka_1101_owning_path",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
           "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_collapses_true_duplicates_and_reviews_similar_kas",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1101_chaos_governor_approves_safe_plan_without_injecting_fault",
           "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_runtime_manifest_is_current_and_deduplicated",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1101_semantic_contract"
         ],
@@ -8950,7 +8951,7 @@
           "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_058_owning_path",
           "tests/integration/phase19/test_truthcore_l10.py::test_ka_020_owning_path",
           "tests/integration/phase19/test_truthcore_l6_l8.py::test_ka_1102_owning_path",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1102_global_entropy_quantifies_even_distribution",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1102_global_entropy_quantifies_even_distribution",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_014_semantic_contract",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_020_semantic_contract",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_058_semantic_contract",
@@ -9002,7 +9003,7 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/integration/phase19/test_batches_40_43.py::test_ka_1103_owning_path",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1103_simulation_rollback_approves_verified_ancestor_without_applying",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1103_semantic_contract"
         ],
         "production_enabled": false
@@ -9051,7 +9052,7 @@
         "detected_execution_call_sites": [],
         "detected_named_test_functions": [
           "tests/integration/phase19/test_truthgate.py::test_ka_1104_owning_path",
-          "tests/knowledge_algorithms/test_phase18_cp18c_system_controls_batch.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
+          "tests/knowledge_algorithms/test_cp18c_system_controls.py::test_ka_1104_truth_utility_arbiter_never_relaxes_truth_floor",
           "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1104_semantic_contract"
         ],
         "production_enabled": false

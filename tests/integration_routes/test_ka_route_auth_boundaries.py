@@ -31,6 +31,8 @@ class _FakeKAController:
                     "Purpose": "Decompose query into ordered tasks and dependencies",
                     "Status": "Active",
                     "Risk_Class": "Low",
+                    "classification": "deterministic_heuristic",
+                    "manifest_version": "1.0.0",
                 }
             }
         }
@@ -50,6 +52,7 @@ class _FakeKAController:
                 manifest_version="test",
             )
         )
+        self.manifest = self._canonical_controller.manifest
 
     def get_available_algorithms(self):
         return self.algorithms
@@ -255,6 +258,30 @@ def test_ka_algorithm_list_accepts_external_api_key(app, client, monkeypatch):
     assert body["algorithms"][0]["id"] == "KA-001"
     assert body["algorithms"][0]["purpose"] == "Decompose query into ordered tasks and dependencies"
     assert body["algorithms"][0]["description"] == "Decompose query into ordered tasks and dependencies"
+    assert body["algorithms"][0]["catalog_version"] == "1.0.0"
+    assert body["manifest_version"] == "test"
+
+
+def test_ka_algorithm_list_filters_by_classification(app, client, monkeypatch):
+    monkeypatch.setattr(ka_routes, "_controller", _FakeKAController())
+    _install_api_key_user(app, monkeypatch, username="ka_classification_user")
+
+    response = client.get(
+        "/api/v1/ka/algorithms?classification=deterministic_heuristic",
+        headers={"X-API-Key": "ukg_valid_ka_key"},
+    )
+
+    assert response.status_code == 200
+    body = response.get_json()
+    assert body["pagination"]["total"] == 1
+    assert body["algorithms"][0]["id"] == "KA-001"
+
+    empty_response = client.get(
+        "/api/v1/ka/algorithms?classification=experimental_method",
+        headers={"X-API-Key": "ukg_valid_ka_key"},
+    )
+    assert empty_response.status_code == 200
+    assert empty_response.get_json()["algorithms"] == []
 
 
 def test_ka_algorithm_list_clamps_invalid_pagination(app, client, monkeypatch):

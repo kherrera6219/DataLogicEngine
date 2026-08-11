@@ -108,4 +108,45 @@ if (cacheRe.test(text)) {
   log('WARNING: PM.NPM cache line not found in packageManager.js; format may have changed.');
 }
 
+// 4. Tolerate the short-lived Windows file-scanner handle that can remain on
+// Electron's freshly extracted staging directory. The upstream implementation
+// performs a single rename, which intermittently fails with EPERM/EBUSY even
+// though the same rename succeeds a fraction of a second later.
+const electronGetFile = path.join(
+  __dirname, '..', 'node_modules', 'app-builder-lib',
+  'out', 'util', 'electronGet.js'
+);
+
+if (!existsSync(electronGetFile)) {
+  log('WARNING: app-builder-lib electronGet.js not found; skipping rename retry patch.');
+} else {
+  let electronGetText = readFileSync(electronGetFile, 'utf8');
+  const renameLine = '        await fs.rename(tmpDir, dir);';
+  const retryMarker = '// patched by patch-electron-builder.mjs: retry transient Windows rename failures';
+  const retryBlock = `        ${retryMarker}\n` +
+    '        for (let attempt = 1; ; attempt += 1) {\n' +
+    '            try {\n' +
+    '                await fs.rename(tmpDir, dir);\n' +
+    '                break;\n' +
+    '            }\n' +
+    '            catch (error) {\n' +
+    '                const transient = error?.code === "EPERM" || error?.code === "EBUSY";\n' +
+    '                if (!transient || attempt >= 12) {\n' +
+    '                    throw error;\n' +
+    '                }\n' +
+    '                await new Promise(resolve => setTimeout(resolve, attempt * 250));\n' +
+    '            }\n' +
+    '        }';
+
+  if (electronGetText.includes(retryMarker)) {
+    log('electronGet.js rename retry already patched.');
+  } else if (electronGetText.includes(renameLine)) {
+    electronGetText = electronGetText.replace(renameLine, retryBlock);
+    writeFileSync(electronGetFile, electronGetText, 'utf8');
+    log('patched electronGet.js with transient Windows rename retry.');
+  } else {
+    log('WARNING: Electron extraction rename line not found; format may have changed.');
+  }
+}
+
 log('done.');

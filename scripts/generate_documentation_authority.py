@@ -92,6 +92,8 @@ def build_inventory(authority: dict[str, Any], root: Path = ROOT) -> dict[str, A
     canonical = {item["path"]: item for item in authority["canonical_documents"]}
     generated = set(authority.get("generated_companions", [])) | GENERATED_OUTPUTS
     exempt = set(authority.get("cap_exempt_authoritative_inputs", []))
+    supporting = set(authority.get("supporting_review_inputs", []))
+    supporting_prefixes = tuple(authority.get("supporting_review_prefixes", []))
     historical = set(authority.get("historical_documents", []))
     historical_prefixes = tuple(authority.get("historical_prefixes", []))
     routes, duplicate_routes = _route_lookup(authority)
@@ -134,6 +136,19 @@ def build_inventory(authority: dict[str, Any], root: Path = ROOT) -> dict[str, A
                     "target": path,
                     "cap_counted": False,
                     "basis": "normative legal or temporary program authority outside the final canonical cap",
+                }
+            )
+        elif path in supporting or (
+            path.startswith(supporting_prefixes) and path not in historical
+        ):
+            rows.append(
+                {
+                    "path": path,
+                    "document_class": "supporting_review",
+                    "disposition": "supporting review input",
+                    "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+                    "cap_counted": False,
+                    "basis": "current findings or work queue; does not supersede canonical phase authority",
                 }
             )
         elif path in historical or path.startswith(historical_prefixes):

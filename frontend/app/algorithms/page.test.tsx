@@ -54,7 +54,6 @@ describe('AlgorithmsPage', () => {
           production_enabled: true,
           guarantee: 'Repeatable for identical versioned inputs.',
           limitations: 'This is a heuristic, not factual proof.',
-          catalog_version: 'ka-catalog.v1',
         },
         {
           id: 'KA-018',
@@ -76,6 +75,10 @@ describe('AlgorithmsPage', () => {
     expect(screen.getByText(/Repeatable for identical versioned inputs/)).toBeInTheDocument();
     expect(screen.getByText(/This is a heuristic, not factual proof/)).toBeInTheDocument();
     expect(screen.queryByText('No algorithm description is available.')).not.toBeInTheDocument();
+    // AL-2: risk is labelled as risk, never substituted by the derived status.
+    expect(screen.getAllByText('Risk: Low')).toHaveLength(2);
+    expect(screen.queryByText('Active')).not.toBeInTheDocument();
+    expect(screen.queryByText('Unknown')).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText('Search algorithms'), {
       target: { value: 'source origin' },
@@ -83,6 +86,79 @@ describe('AlgorithmsPage', () => {
 
     expect(screen.getByText('Source Provenance')).toBeInTheDocument();
     expect(screen.queryByText('Algorithm of Thought')).not.toBeInTheDocument();
+  });
+
+  it('states undeclared manifest metadata instead of substituting a status', async () => {
+    // 99 of 213 live entries declare no risk class and 75 declare no category.
+    // The old fallback chain rendered the derived constant "Active" in the risk
+    // slot, which reads as a risk tier. Absence must be stated, not disguised.
+    mockedRequest.mockResolvedValue({
+      manifest_version: '2026.08.08-cp19k.24',
+      algorithms: [
+        {
+          id: 'KA-036',
+          name: 'Complexity Estimator',
+          status: 'Active',
+          classification: 'deterministic_heuristic',
+          production_enabled: true,
+        },
+      ],
+    });
+
+    render(<AlgorithmsPage />);
+
+    expect(await screen.findByText('Complexity Estimator')).toBeInTheDocument();
+    expect(screen.getByText('Risk not declared in manifest')).toBeInTheDocument();
+    expect(screen.getByText('Category not declared in manifest')).toBeInTheDocument();
+    expect(screen.getByText('No algorithm description is available.')).toBeInTheDocument();
+    expect(screen.queryByText('Uncategorized')).not.toBeInTheDocument();
+    expect(screen.queryByText('Active')).not.toBeInTheDocument();
+    expect(screen.getByText(/2026\.08\.08-cp19k\.24/)).toBeInTheDocument();
+  });
+
+  it('disables planning for capabilities the manifest does not admit', async () => {
+    // KA-033 is a reserved slot and KA-Master is controller authority with
+    // self-selection disabled; both previously rendered an enabled button that
+    // always failed server-side.
+    mockedRequest.mockResolvedValue({
+      algorithms: [
+        {
+          id: 'KA-033',
+          name: 'Reserved (Expansion Slot)',
+          classification: 'placeholder_not_production_enabled',
+          production_enabled: false,
+        },
+        {
+          id: 'KA-Master',
+          name: 'KA Master Controller',
+          classification: 'experimental_method',
+          production_enabled: false,
+        },
+      ],
+    });
+
+    render(<AlgorithmsPage />);
+
+    expect(await screen.findByText('Reserved (Expansion Slot)')).toBeInTheDocument();
+    const buttons = screen.getAllByRole('button', { name: /Not executable/ });
+    expect(buttons).toHaveLength(2);
+    buttons.forEach((button) => expect(button).toBeDisabled());
+    expect(screen.queryByRole('button', { name: 'Plan and run' })).not.toBeInTheDocument();
+    expect(screen.getByText(/Reserved slot/)).toBeInTheDocument();
+    expect(screen.getByText(/self-selection is disabled/)).toBeInTheDocument();
+  });
+
+  it('surfaces a run-ledger load failure instead of silently showing none', async () => {
+    mockedRequest.mockResolvedValue({
+      algorithms: [{ id: 'KA-001', name: 'Algorithm of Thought', production_enabled: true }],
+    });
+    mockedAlgorithms.runs.mockRejectedValue(new Error('ledger unavailable'));
+
+    render(<AlgorithmsPage />);
+
+    expect(await screen.findByText(/Recent governed runs could not be loaded/))
+      .toBeInTheDocument();
+    expect(screen.getByText(/ledger unavailable/)).toBeInTheDocument();
   });
 
   it('reviews an exact server plan before queueing a high-risk KA run', async () => {

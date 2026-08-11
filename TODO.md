@@ -342,7 +342,11 @@ Phase 18 source baseline while completing the whole-application wiring.
       passed per-machine installation, Program Files launch, `/ready`, retained
       data adoption, five managed services, authentication, diagnostics, and
       representative governed KA execution. Signing and the retained installed,
-      manual, external, provider, pilot, and soak rows remain open.
+      manual, external, provider, pilot, and soak rows remain open. Subsequent
+      source-only CI portability, packaging retry, Algorithms-page, and
+      documentation-authority fixes are committed after that payload; a new
+      exact-source rebuild/install is intentionally pending before any further
+      installed-artifact acceptance.
 
 Phase 18 audit and transfer evidence:
 `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`
@@ -1076,6 +1080,70 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 - [ ] Installed-system accessibility, security, failure, recovery, performance, soak, and human-acceptance evidence.
 - [x] GitHub closed alert 389 after the vulnerable SDK disappeared from `main`;
       retain the adversarial replacement evidence with the release record.
+
+## Algorithms page and specification-drift remediation (Codex handoff)
+
+Supporting review inputs added 2026-08-10. These are **not** phase authority and
+change no release gate; `PRODUCTION_COMPLETION_PLAN_2026.md` remains the sole
+active execution plan and production/public release remains **NO-GO**.
+
+**Codex: read these at the start of the next session before touching the
+Algorithms page, the KA manifest, or the axis system.**
+
+| Document | Location | Purpose |
+|---|---|---|
+| Codex work queue | `CODEX_WORK_QUEUE_2026-08-10.md` | Full remediation queue: Groups V (verify), D (owner decisions), C (code), S (spec exports), H (hygiene), AL (Algorithms page) |
+| Algorithms page plan | `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` | AL-1 to AL-10 plan, measured baseline, completion record |
+| Spec vs app findings | `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` | Evidence: canonical UKG specification compared against live code |
+| AL-10 backfill proposal | `reports/production-readiness/2026/phase-19/al10-metadata-backfill-proposal.md` (+ `.csv`, 99 rows) | Owner-approval proposal for missing KA contract metadata |
+
+### State on handoff
+
+- **AL-1 through AL-9 are complete and validated.** Verify, do not redo. Six
+  files changed: `backend/routes/ka_routes.py`,
+  `frontend/app/algorithms/page.tsx` and `page.test.tsx`,
+  `frontend/components/layout/AppSidebar.tsx` and `AppSidebar.test.tsx`, plus
+  `tests/integration_routes/test_ka_route_auth_boundaries.py`. Gates at
+  completion: 11/11 focused frontend tests, 24/24 focused route tests, 3,101
+  backend tests with 19 skipped, 435 frontend tests, and clean lint/typecheck.
+- **AL-10 is open and blocked on owner approval.** It proposes derivation rules,
+  not invented values. No manifest, catalog, or SDK artifact was modified.
+- **Groups V, D, C, S, H in the work queue are open.** Group D items require a
+  product-owner decision and must not be implemented by Codex unilaterally.
+
+### Open items with the widest blast radius
+
+- [ ] **Regenerate the spec-facing KA registry** from
+      `backend/knowledge_algorithms/ka_manifest.v1.generated.json`. The registry
+      held in project knowledge lists 114 capabilities; the live manifest holds
+      213 with 211 production-enabled.
+- [ ] **Correct axes 14-17 in `17_axis_coordinate_schema.yaml`** (project
+      knowledge). Live code and `UKG_Canonical_Architecture_v1_0.docx` agree on
+      Acquisition Lifecycle / Risk & Threat / Ethics-Trust / FROST-Mode; that one
+      schema file still carries a fourth, superseded naming set.
+- [ ] **Resolve `backend/security/defense_supervisor.py`.** 224 lines, a passing
+      unit test, and zero production importers. Confirm whether TruthGate KAs are
+      the authoritative injection screen before wiring a second control surface.
+- [ ] **Decide the DSQP profile contract.** `backend/dsqp/dsqp_chain.py` declares
+      five components; the canonical 7-Part Profile requires Traits and Related
+      Roles. Code and patent technical disclosure currently disagree.
+- [ ] **Backfill KA contract metadata (AL-10).** 99 capabilities lack a risk
+      class, 75 a category, 67 a purpose; all 99 also lack a declared subsystem
+      and 84 lack a layer. 98 of the 99 are production-enabled.
+
+### Notes for the next session
+
+- `config/documentation-authority.json` registers the two root plans as
+  `supporting_review_inputs`. Keep those entries pointing at the root paths, or
+  `tests/unit/test_documentation_authority.py` will fail on `unclassified`.
+- `docs/DOCUMENTATION_BOM.md`, `docs/DOCUMENTATION_CROSSWALK.md`, and
+  `docs/README.md` were regenerated from that authority and pass the 157-file
+  classification plus 72-route replacement-closure gates.
+- The Phase 18 capability inventory, runtime manifest, SDK catalogs, and
+  integration authority were regenerated in dependency order. Both prior
+  catalog-staleness failures are resolved.
+- The normal frontend test command passes 435 tests. Keep tests in their normal
+  test environment; `NODE_ENV=production` is not the supported Vitest mode.
 
 ## Exact next action
 

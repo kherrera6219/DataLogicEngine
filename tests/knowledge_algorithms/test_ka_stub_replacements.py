@@ -1110,7 +1110,7 @@ def test_ka006_dynamic_intent_compliance():
     assert result["output"]["complexity_estimate"] > 0.4
 
 
-def test_ka006_dynamic_intent_security_depth():
+def test_ka006_dynamic_intent_depth():
     from backend.knowledge_algorithms.ka_06_deep_planning import (
         KA006DeepPlanning,
         KA006Input,

@@ -18,6 +18,16 @@
 - Confirmed the installed Program Files application reaches readiness and uses
   the retained data plane. Production release remains NO-GO pending CP19-M and
   signed, installed, manual, external, provider, pilot, and soak acceptance.
+- Added Linux-safe documentation-closure hashing, bounded packaging rename
+  retries, secret-scan false-positive identifier cleanup, and Algorithms
+  registry/API/navigation remediation with focused regression coverage.
+- Classified new audit findings, the remediation queue, and the owner-gated
+  99-row metadata-backfill proposal as supporting review inputs. These changes
+  were made after the installed payload; a new full rebuild is intentionally
+  pending before installed acceptance continues.
+- Current non-build qualification passes 3,101 backend tests with 19 skipped,
+  435 frontend tests, 36 Python SDK tests, seven TypeScript SDK tests, lint,
+  type checking, and zero-vulnerability Python/Node dependency audits.
 
 ## Document control
 

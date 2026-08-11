@@ -5,7 +5,7 @@
 
 ## Control status
 
-- Authority version: `2026.08.02-phase19-cp19k-batch08`
+- Authority version: `2026.08.10-cp19l-installed-evidence`
 - Status: `approved_phase16_replacement_closed`
 - Canonical limit: `30`
 - Selected canonical documents: `30`

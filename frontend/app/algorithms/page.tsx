@@ -55,6 +55,7 @@ interface AlgorithmRecord {
 interface AlgorithmListResponse {
   algorithms?: AlgorithmRecord[];
   total_count?: number;
+  manifest_version?: string;
 }
 
 interface RunEvidence {
@@ -71,6 +72,27 @@ function algorithmDescription(entry: AlgorithmRecord): string {
     || entry.notes?.trim()
     || 'No algorithm description is available.'
   );
+}
+
+const UNDECLARED = 'Not declared in manifest';
+
+/**
+ * A capability is executable only when the manifest admits it. KA-033 is a
+ * reserved expansion slot and KA-Master is the controller authority with
+ * self-selection disabled; planning either always fails server-side.
+ */
+function isExecutable(entry: AlgorithmRecord): boolean {
+  return entry.production_enabled === true;
+}
+
+function notExecutableReason(entry: AlgorithmRecord): string {
+  if (entry.classification === 'placeholder_not_production_enabled') {
+    return 'Reserved slot - not admitted to production by the manifest.';
+  }
+  if (entry.id === 'KA-Master') {
+    return 'Controller authority - self-selection is disabled by design.';
+  }
+  return 'Not production-enabled in the current manifest.';
 }
 
 function newIdempotencyKey(): string {
@@ -97,6 +119,10 @@ export default function AlgorithmsPage() {
   const [workflowError, setWorkflowError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [manifestVersion, setManifestVersion] = useState<string | null>(null);
+  const [runsWarning, setRunsWarning] = useState<string | null>(null);
+  const [pollExhausted, setPollExhausted] = useState(false);
+  const pollCount = useRef(0);
   const initialRunHandled = useRef(false);
   const idempotencyKey = useRef(newIdempotencyKey());
 
@@ -109,6 +135,7 @@ export default function AlgorithmsPage() {
     ]);
     if (catalogResult.status === 'fulfilled') {
       setCatalog(catalogResult.value.algorithms || []);
+      setManifestVersion(catalogResult.value.manifest_version ?? null);
     } else {
       setCatalog([]);
       setError(
@@ -119,6 +146,14 @@ export default function AlgorithmsPage() {
     }
     if (runResult.status === 'fulfilled') {
       setRecentRuns(runResult.value.runs || []);
+      setRunsWarning(null);
+    } else {
+      setRecentRuns([]);
+      setRunsWarning(
+        runResult.reason instanceof Error
+          ? `Recent governed runs could not be loaded: ${runResult.reason.message}`
+          : 'Recent governed runs could not be loaded.',
+      );
     }
     setLoading(false);
   }, []);
@@ -164,13 +199,25 @@ export default function AlgorithmsPage() {
     });
   }, []);
 
+  const MAX_POLLS = 60;
+
   useEffect(() => {
     if (!currentRun || !['queued', 'running'].includes(currentRun.status)) {
       return;
     }
+    if (pollCount.current >= MAX_POLLS) {
+      setPollExhausted(true);
+      return;
+    }
+    // Linear backoff caps automatic polling at roughly five minutes so a run
+    // stuck in `running` cannot poll the backend indefinitely. Manual Refresh
+    // stays available after the cap.
+    const attempt = pollCount.current;
+    const delay = Math.min(1000 + attempt * 250, 5000);
     const timer = globalThis.setTimeout(() => {
+      pollCount.current += 1;
       void refreshRun(currentRun.run_id).catch(() => undefined);
-    }, 1000);
+    }, delay);
     return () => globalThis.clearTimeout(timer);
   }, [currentRun, refreshRun]);
 
@@ -182,6 +229,8 @@ export default function AlgorithmsPage() {
     setCurrentRun(null);
     setEvidence({});
     setWorkflowError(null);
+    pollCount.current = 0;
+    setPollExhausted(false);
     idempotencyKey.current = newIdempotencyKey();
   }
 
@@ -190,6 +239,8 @@ export default function AlgorithmsPage() {
     setCurrentRun(null);
     setEvidence({});
     setWorkflowError(null);
+    pollCount.current = 0;
+    setPollExhausted(false);
     idempotencyKey.current = newIdempotencyKey();
   }
 
@@ -270,6 +321,8 @@ export default function AlgorithmsPage() {
     setCurrentRun(run);
     setEvidence({});
     setWorkflowError(null);
+    pollCount.current = 0;
+    setPollExhausted(false);
     setBusy(true);
     await refreshRun(run.run_id)
       .catch((caught) => {
@@ -313,6 +366,7 @@ export default function AlgorithmsPage() {
               <h1 className="text-title font-bold text-slate-900 dark:text-gray-100">Algorithm Registry</h1>
               <div className="text-[10px] text-slate-500 dark:text-gray-500 font-mono uppercase tracking-widest">
                 Plan, confirm, execute, cancel, and inspect canonical KA runs
+                {manifestVersion && <span> · manifest {manifestVersion}</span>}
               </div>
             </div>
           </div>
@@ -335,6 +389,14 @@ export default function AlgorithmsPage() {
           {error && (
             <Card className="border-red-500/30 bg-red-500/10">
               <CardContent className="p-4 text-sm text-red-600 dark:text-red-300">{error}</CardContent>
+            </Card>
+          )}
+
+          {runsWarning && (
+            <Card className="border-amber-500/30 bg-amber-500/10">
+              <CardContent className="p-4 text-sm text-amber-700 dark:text-amber-300" role="status">
+                {runsWarning}
+              </CardContent>
             </Card>
           )}
 
@@ -385,15 +447,28 @@ export default function AlgorithmsPage() {
                       <Badge variant="outline" className="font-mono text-xs bg-white/70 dark:bg-white/5 border-slate-200 dark:border-white/10">
                         {entry.id}
                       </Badge>
-                      <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border-amber-500/20 text-[10px] font-bold uppercase">
-                        {entry.risk_class || entry.status || 'Unknown'}
-                      </Badge>
+                      {entry.risk_class ? (
+                        <Badge
+                          variant="secondary"
+                          className="bg-amber-500/10 text-amber-400 border-amber-500/20 text-[10px] font-bold uppercase"
+                        >
+                          Risk: {entry.risk_class}
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] font-medium text-slate-500 dark:text-gray-500 border-dashed"
+                          title="The manifest contract declares no risk class for this capability."
+                        >
+                          Risk {UNDECLARED.toLowerCase()}
+                        </Badge>
+                      )}
                     </div>
                     <CardTitle className="text-lg text-slate-900 dark:text-gray-100 group-hover:text-blue-400 transition-colors">
                       {entry.name}
                     </CardTitle>
                     <CardDescription className="text-slate-500 dark:text-gray-500">
-                      {entry.category || 'Uncategorized'}
+                      {entry.category || <span className="italic">Category {UNDECLARED.toLowerCase()}</span>}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
@@ -404,7 +479,6 @@ export default function AlgorithmsPage() {
                       {entry.classification && (
                         <Badge variant="outline">{entry.classification.replaceAll('_', ' ')}</Badge>
                       )}
-                      {entry.catalog_version && <Badge variant="outline">{entry.catalog_version}</Badge>}
                     </div>
                     <p className="text-sm text-slate-600 dark:text-gray-400">
                       {algorithmDescription(entry)}
@@ -419,10 +493,26 @@ export default function AlgorithmsPage() {
                         <span className="font-semibold">Limit:</span> {entry.limitations}
                       </p>
                     )}
-                    <Button className="w-full" onClick={() => openWorkflow(entry)}>
-                      <Play className="h-4 w-4 mr-2" />
-                      Plan and run
-                    </Button>
+                    {isExecutable(entry) ? (
+                      <Button className="w-full" onClick={() => openWorkflow(entry)}>
+                        <Play className="h-4 w-4 mr-2" />
+                        Plan and run
+                      </Button>
+                    ) : (
+                      <div className="space-y-1">
+                        <Button
+                          className="w-full"
+                          disabled
+                          title={notExecutableReason(entry)}
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Not executable
+                        </Button>
+                        <p className="text-xs text-slate-500 dark:text-gray-500">
+                          {notExecutableReason(entry)}
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -506,6 +596,11 @@ export default function AlgorithmsPage() {
                   </div>
                   {currentRun.error_message && (
                     <p className="text-red-500">{currentRun.error_message}</p>
+                  )}
+                  {pollExhausted && (
+                    <p className="text-amber-600 dark:text-amber-400" role="status">
+                      Automatic status polling stopped after the retry limit. Use Refresh to check again.
+                    </p>
                   )}
                 </CardContent>
               </Card>

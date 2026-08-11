@@ -42,7 +42,7 @@ SDKs.
 | Current checkpoint | CP19-L complete; clean candidate rebuilt/installed; CP19-M active |
 | Individually qualified KAs | 213/213; zero open rows |
 | Grouped qualification roadmap | 36 batches (08-43); all complete |
-| Latest source validation | 3,098 passed, 19 skipped, 33 known warnings |
+| Latest source validation | 3,101 passed, 19 skipped, 35 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
 | Release decision | **NO-GO** until CP19-M and retained signed/installed/manual gates pass |
 
@@ -308,7 +308,13 @@ Open engineering and release acceptance:
   against the real app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and SeaweedFS
   services. The app preserved the existing data through a verified one-time
   adoption: 22,068 listed relational rows, 20 graph nodes/18 relationships,
-  and eight objects. It did not substitute a new or fallback database
+  and eight objects. It did not substitute a new or fallback database. The
+  current engineering installer is 283,890,413 bytes with SHA-256
+  `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`;
+  it remains unsigned and is not authorized for public release. Later
+  source-only CI portability, packaging retry, Algorithms registry, and
+  documentation-authority fixes are not part of that installer; a new rebuild
+  is intentionally pending before further installed-artifact acceptance
 
 - Completed Phase 19 CP19-K: batches 01-43 qualify all 213/213 rows, including causal
   simulation, MCP admission/result governance, content-free structured logging

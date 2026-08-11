@@ -89,10 +89,14 @@ def test_cp16f_document_replacement_sources_links_and_retained_evidence_close():
 
     from scripts.verify_document_replacement_closure import (
         DEFAULT_BASELINE,
+        _git_worktree_blob,
         verify as verify_replacement,
     )
 
     baseline = json.loads(DEFAULT_BASELINE.read_text(encoding="utf-8"))
+    first_record = baseline["records"][0]
+    retained_path = ROOT / first_record["archive_path"]
+    assert _git_worktree_blob(retained_path, ROOT) == first_record["git_blob"]
     result = verify_replacement(load_authority(), baseline)
     assert result["status"] == "pass"
     assert result["summary"]["source_count"] == 72

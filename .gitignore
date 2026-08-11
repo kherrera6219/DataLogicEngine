@@ -29,6 +29,7 @@ databases/
 # Build outputs
 frontend/build/
 frontend/dist/
+frontend/dist-*/
 frontend/dist-smoke/
 frontend/dist-electron/
 frontend/storybook-static/
@@ -45,6 +46,7 @@ docs/archive/legacy_assets/
 /DataLogicEngine Setup *.exe.blockmap
 /DataLogicEngine Setup *.exe.sha256
 /archive/
+/.codex_tmp/
 
 # Environment
 .env

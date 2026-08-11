@@ -1,5 +1,5 @@
 canonical_id,name,identity_class,implementation,implementation_status,effect_class,runtime_call_sites,test_references,named_test_functions,scoped_aliases
-KA-001,Algorithm of Thought,current_executable,backend/knowledge_algorithms/ka_01_algorithm_of_thought.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,20,334,
+KA-001,Algorithm of Thought,current_executable,backend/knowledge_algorithms/ka_01_algorithm_of_thought.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,20,335,
 KA-002,Tree of Thought,current_executable,backend/knowledge_algorithms/ka_02_tree_of_thought.py,existing_requires_phase18_qualification,effect_oriented_review_required,1,7,11,
 KA-003,Gap Analysis,current_executable,backend/knowledge_algorithms/ka_03_gap_analysis.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,1,5,10,
 KA-004,Input Validation & Normalization,current_executable,backend/knowledge_algorithms/ka_04_input_validation__normalization.py,existing_requires_phase18_qualification,pure_or_advisory_review_required,3,17,32,generated-v1:KA-115;generated-v1:KA-278

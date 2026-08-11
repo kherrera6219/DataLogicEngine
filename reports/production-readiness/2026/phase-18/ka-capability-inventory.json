@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "71d170e05a827a47b9554143ee631c0ed3eafb547e4db5f01a56ba9cf22b394a",
+  "source_input_sha256": "628d4bd136bdf2b63969c237f46be9b97786dc7bcf42056a667b8c1da56c428e",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 132,
@@ -11066,41 +11066,6 @@
       "target_checkpoint": "CP18-E"
     },
     {
-      "path": "frontend/.next/standalone/.next/app-path-routes-manifest.json",
-      "exists": true,
-      "kind": "frontend_reference_surface",
-      "disposition": "align_to_canonical_manifest_and_trace_contract",
-      "target_checkpoint": "CP18-E"
-    },
-    {
-      "path": "frontend/.next/standalone/.next/prerender-manifest.json",
-      "exists": true,
-      "kind": "frontend_reference_surface",
-      "disposition": "align_to_canonical_manifest_and_trace_contract",
-      "target_checkpoint": "CP18-E"
-    },
-    {
-      "path": "frontend/.next/standalone/.next/routes-manifest.json",
-      "exists": true,
-      "kind": "frontend_reference_surface",
-      "disposition": "align_to_canonical_manifest_and_trace_contract",
-      "target_checkpoint": "CP18-E"
-    },
-    {
-      "path": "frontend/.next/standalone/.next/server/app/algorithms/page/app-paths-manifest.json",
-      "exists": true,
-      "kind": "frontend_reference_surface",
-      "disposition": "align_to_canonical_manifest_and_trace_contract",
-      "target_checkpoint": "CP18-E"
-    },
-    {
-      "path": "frontend/.next/standalone/.next/server/app-paths-manifest.json",
-      "exists": true,
-      "kind": "frontend_reference_surface",
-      "disposition": "align_to_canonical_manifest_and_trace_contract",
-      "target_checkpoint": "CP18-E"
-    },
-    {
       "path": "frontend/.next/types/routes.d.ts",
       "exists": true,
       "kind": "frontend_reference_surface",
@@ -11221,6 +11186,41 @@
     },
     {
       "path": "frontend/dist/win-unpacked/resources/backend/_internal/ukg_sdk/data/workflow.json",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/dist-final/win-unpacked/resources/backend/_internal/backend/api/specs/ukg_api_v3_2.yaml",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/dist-final/win-unpacked/resources/backend/_internal/backend/knowledge_algorithms/ka_registry.yaml",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/dist-final/win-unpacked/resources/backend/_internal/ukg_sdk/data/openapi.json",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/dist-final/win-unpacked/resources/backend/_internal/ukg_sdk/data/openapi.yaml",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/dist-final/win-unpacked/resources/backend/_internal/ukg_sdk/data/workflow.json",
       "exists": true,
       "kind": "frontend_reference_surface",
       "disposition": "align_to_canonical_manifest_and_trace_contract",

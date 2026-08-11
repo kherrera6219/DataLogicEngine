@@ -65,13 +65,42 @@ def _sha256(path: Path, expected_hash: str | None = None) -> str:
 
 
 def _git_blob(path: str, root: Path) -> str | None:
-    result = subprocess.run(
-        ["git", "rev-parse", f"HEAD:{path}"],
-        cwd=root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", f"HEAD:{path}"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def _git_worktree_blob(path: Path, root: Path) -> str | None:
+    """Hash a working-tree file through Git's canonical clean filters.
+
+    The Phase 16 baseline was frozen from a Windows checkout that contained
+    mixed line endings. Comparing only raw SHA-256 bytes makes the same tracked
+    evidence fail on Linux even though Git records identical content. The Git
+    blob identity is already retained in the baseline, so use the same clean
+    filter Git applies before committing while still detecting real edits.
+    """
+    try:
+        relative = path.relative_to(root).as_posix()
+    except ValueError:
+        return None
+    try:
+        result = subprocess.run(
+            ["git", "hash-object", f"--path={relative}", str(path)],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
     return result.stdout.strip() if result.returncode == 0 else None
 
 
@@ -296,16 +325,22 @@ def verify(
         if len(locations) != 1:
             errors.append(f"source_location_count:{source}:{len(locations)}")
             actual_hash = None
+            actual_git_blob = None
             location = None
         else:
             location = locations[0]
             actual_hash = _sha256(location, expected.get("sha256"))
+            actual_git_blob = _git_worktree_blob(location, root)
 
             if location == active:
                 active_count += 1
             else:
                 archived_count += 1
-        if actual_hash != expected.get("sha256"):
+        hash_verified = actual_hash == expected.get("sha256") or (
+            bool(expected.get("git_blob"))
+            and actual_git_blob == expected.get("git_blob")
+        )
+        if not hash_verified:
             errors.append(f"retained_evidence_hash_mismatch:{source}")
         if expected.get("target") != target or expected.get("archive_path") != archive_path:
             errors.append(f"baseline_route_mismatch:{source}")
@@ -317,7 +352,9 @@ def verify(
                 "location": location.relative_to(root).as_posix() if location else None,
                 "sha256": actual_hash,
                 "expected_sha256": expected.get("sha256"),
-                "retained_evidence": "verified" if actual_hash == expected.get("sha256") else "fail",
+                "git_blob": actual_git_blob,
+                "expected_git_blob": expected.get("git_blob"),
+                "retained_evidence": "verified" if hash_verified else "fail",
             }
         )
 

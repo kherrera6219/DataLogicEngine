@@ -34,6 +34,8 @@ Read these documents in order before changing code or making a readiness claim:
 5. `TODO.md`
 6. `docs/SECURITY_ARCHITECTURE.md`
 7. `docs/README.md`
+8. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority)
+9. `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (supporting review input)
 
 Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
@@ -679,11 +681,24 @@ release approval are pending. The provider rows remain quarantined and
 ## Current checkpoint
 
 CP19-L passed on 2026-08-10. The full source and release qualification authorized
-a clean rebuild. The resulting unsigned 4.3.0 installer (283,888,871 bytes,
-SHA-256 `9125fa6b0bfaa48ac6f68dc31c4bc44c3764eb0a871b7895d659e3e0c6b41081`)
+a clean rebuild. The resulting unsigned 4.3.0 installer (283,890,413 bytes,
+SHA-256 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`)
 installed per-machine with exit code 0 and launched from Program Files. The
-installed Electron application reached `/ready`, authentication and Diagnostics
-worked, and representative governed KAs executed from the frozen payload.
+installed Electron application reached `/ready` with database `ok`, runtime
+`ready`, and no blockers. Its post-launch log window contained no actual 429,
+analytics error, traceback, or fatal event. Authentication, Diagnostics, and
+representative governed KAs executed from the frozen payload.
+
+After that installed checkpoint, the source gained Linux-safe document-closure
+hashing, bounded Electron-builder rename retries, false-positive secret-scan
+identifier cleanup, Algorithms registry/API/navigation remediation, focused
+route/UI coverage, and supporting review/audit routing. These changes are
+source-only at this handoff. Per owner direction, no second full rebuild was
+performed; the next installed candidate must be rebuilt from the new commit
+before its behavior can be attributed to that artifact. The final non-build
+qualification passed 3,101 backend tests with 19 skipped, 435 frontend tests,
+36 Python SDK tests, seven TypeScript SDK tests, lint, type checking, and both
+governed dependency audits.
 
 The application uses the retained data, not a newly created database. The
 verified one-time adoption receipt records 22,068 listed relational rows, 20
@@ -1072,6 +1087,28 @@ findings; Dependabot alert 389 was subsequently fixed by the restricted client
 replacement. See
 `reports/code_scanning_alerts_2026-07-15.md`.
 
+## Supporting review inputs - Algorithms page and specification drift
+
+Added 2026-08-10. Supporting review inputs only. They do not supersede phase
+authority, do not close any gate, and do not change the production/public
+release **NO-GO**. Open work is tracked in `TODO.md` under
+"Algorithms page and specification-drift remediation (Codex handoff)".
+
+| Document | Location |
+|---|---|
+| Codex work queue | `CODEX_WORK_QUEUE_2026-08-10.md` |
+| Algorithms page plan | `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` |
+| Spec vs app findings | `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` |
+| AL-10 backfill proposal | `reports/production-readiness/2026/phase-19/al10-metadata-backfill-proposal.md` |
+
+AL-1 through AL-9 are complete and validated; verify rather than redo. AL-10 and
+work-queue Groups V, D, C, S, and H remain open. Group D requires a
+product-owner decision and must not be implemented unilaterally.
+
+The concurrent Phase 18 catalog drift was resolved by regenerating the
+capability inventory, runtime manifest/SDK catalogs, and integration authority
+in dependency order. The runtime authority checks and full backend suite pass.
+
 ## Exact next action
 
 1. Execute the remaining CP19-M rows against an exact signed/timestamped
@@ -1085,6 +1122,10 @@ replacement. See
 4. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution
    NO-GO, automatic-update disablement, and object-store production-approval
    false until their exact installed and independent evidence exists.
+5. Read `CODEX_WORK_QUEUE_2026-08-10.md` and
+   `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` before further Algorithms
+   page, KA manifest, or axis-system work. Treat them as supporting review
+   inputs subordinate to `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
 ## Phase rules
 

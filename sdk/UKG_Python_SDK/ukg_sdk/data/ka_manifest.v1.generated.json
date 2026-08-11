@@ -5,7 +5,7 @@
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "71d170e05a827a47b9554143ee631c0ed3eafb547e4db5f01a56ba9cf22b394a",
+    "crosswalk_source_input_sha256": "628d4bd136bdf2b63969c237f46be9b97786dc7bcf42056a667b8c1da56c428e",
     "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
     "integration_authority_version": "2026.07.25-cp19a.1",
     "duplicate_policy": "one_semantic_capability_one_canonical_id",

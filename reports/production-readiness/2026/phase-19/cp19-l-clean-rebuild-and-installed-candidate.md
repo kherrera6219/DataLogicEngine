@@ -17,11 +17,11 @@ pilot, and soak gate pass.
 | Item | Result |
 |---|---|
 | Installer | `DataLogicEngine Setup 4.3.0.exe` |
-| Size | 283,888,871 bytes |
-| SHA-256 | `9125fa6b0bfaa48ac6f68dc31c4bc44c3764eb0a871b7895d659e3e0c6b41081` |
+| Size | 283,890,413 bytes |
+| SHA-256 | `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e` |
 | Installation | Per-machine install completed with exit code 0 |
 | Installed executable | `C:\Program Files\DataLogicEngine Desktop\DataLogicEngine Desktop.exe` |
-| Runtime result | `/ready` returned HTTP 200 and the Electron window opened |
+| Runtime result | `/ready` returned HTTP 200 with database `ok`, runtime `ready`, and no blockers; the Electron window opened |
 | Trust result | Unsigned candidate; signing/update/distribution policy remains fail-closed |
 
 ## Retained app-owned data plane
@@ -68,6 +68,20 @@ changes the source-file digest.
 - installed follow-up: health polling no longer exhausts the general API rate
   budget, and dashboard overview/activity/trends use the canonical `started_at`
   model fields; 30 focused regressions pass.
+- final rebuilt-install follow-up: the post-launch log window contained no
+  actual 429, analytics error, traceback, or fatal event; all five retained
+  app-owned services were running and the verified adoption receipt remained
+  unchanged.
+
+## Post-candidate source boundary
+
+Linux-safe document-closure hashing, bounded Electron-builder rename retries,
+secret-scan false-positive identifier cleanup, Algorithms registry/API/sidebar
+remediation, focused regressions, and controlled review-document routing were
+completed after the payload above was frozen. Per owner direction, no second
+full rebuild was performed at this checkpoint. These source changes are not
+claims about the installed hash above and require a new exact-source rebuild
+before installed acceptance continues.
 
 ## Retained CP19-M and release gates
 

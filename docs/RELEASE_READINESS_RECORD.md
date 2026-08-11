@@ -49,14 +49,14 @@ keep the decision **NO-GO**.
 | Item | Current engineering record |
 |---|---|
 | Product / Windows file version | 4.3.0 / 4.3.0.0 |
-| Frozen source input | Commit `f2e4174f` for the current Phase 15 candidate |
+| Frozen source input | Commit `40e2592f` for the current CP19-L application payload |
 | Release channel | Candidate/qualification; `production_authorized=false` |
 | Local candidate installer | `DataLogicEngine Setup 4.3.0.exe` |
-| Size | 283,888,871 bytes |
-| SHA-256 | `9125fa6b0bfaa48ac6f68dc31c4bc44c3764eb0a871b7895d659e3e0c6b41081` |
+| Size | 283,890,413 bytes |
+| SHA-256 | `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e` |
 | Backend payload | Clean payload verification passed with zero forbidden source/test/cache/stale Electron-test findings |
 | Signature | Unsigned; not production evidence |
-| Packaged runtime | Installed per-machine; Program Files launch and `/ready` passed |
+| Packaged runtime | Installed per-machine; Program Files launch and `/ready` passed with database `ok`, runtime `ready`, and no blockers |
 | Independent build comparison | Equal file counts but differing backend, portable, and installer hashes |
 
 The superseded qualification candidate SHA-256
@@ -67,6 +67,13 @@ current installed candidate identity.
 The final release record must replace candidate data with the exact clean signed
 artifact, source/tag, publisher, timestamp, manifests/SBOMs/attestations, and
 accepted installed evidence. Different-hash artifacts are separate candidates.
+
+The repository now also contains source-only CI portability, packaging retry,
+Algorithms registry/API/navigation, focused regression, and documentation
+authority/audit-routing fixes created after commit `40e2592f`. Per owner
+direction, these changes were not rebuilt for this checkpoint. They must not be
+attributed to the installer above; the next installed acceptance run requires a
+new exact-source artifact.
 
 ## Gate summary
 

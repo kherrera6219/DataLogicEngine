@@ -35,9 +35,12 @@ IGNORE_DIRS = {
     "logs",
     "tmp",
     ".gemini",
+    ".codex_tmp",
     ".mypy_cache",
     ".ruff_cache",
     ".tox",
+    "dist-final",
+    "dist-rebuild",
 }
 
 IGNORE_FILES = {

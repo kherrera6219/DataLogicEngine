@@ -62,6 +62,25 @@ describe('AppSidebar', () => {
     expect(screen.getByText('Diagnostics')).toBeInTheDocument();
   });
 
+  it('shows Algorithms in the System group for an admin', () => {
+    render(<AppSidebar />);
+    expect(screen.getByText('Algorithms')).toBeInTheDocument();
+  });
+
+  it('hides Algorithms from a non-admin', () => {
+    // The page can create, confirm, and execute durable plans that produce
+    // effect proposals, so it is gated with the other operator surfaces
+    // rather than sitting beside read-only Knowledge pages.
+    (useAuth as any).mockReturnValue({
+      user: { username: 'Standard User', role: 'user', is_admin: false },
+      logout: mockLogout,
+    });
+    render(<AppSidebar />);
+    expect(screen.queryByText('Algorithms')).not.toBeInTheDocument();
+    expect(screen.queryByText('Diagnostics')).not.toBeInTheDocument();
+    expect(screen.getByText('Knowledge Base')).toBeInTheDocument();
+  });
+
   it('should highlight active route', () => {
     render(<AppSidebar />);
     // "Dashboard" should be active based on mock pathname

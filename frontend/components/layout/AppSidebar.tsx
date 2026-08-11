@@ -163,7 +163,6 @@ export function AppSidebar() {
          <SectionLabel label="Knowledge" isCollapsed={isCollapsed} />
          <SidebarItem icon={BookOpen} label="Knowledge Base" href="/knowledge" isActive={isActive('/knowledge')} isCollapsed={isCollapsed} />
          <SidebarItem icon={Share2} label="Knowledge Graph" href="/graph" isActive={isActive('/graph')} isCollapsed={isCollapsed} />
-         <SidebarItem icon={Binary} label="Algorithms" href="/algorithms" isActive={isActive('/algorithms')} isCollapsed={isCollapsed} />
 
          <div className="my-4 border-t border-white/5 mx-2" role="separator" aria-hidden="true"></div>
          <SectionLabel label="Trace & Review" isCollapsed={isCollapsed} />
@@ -175,6 +174,7 @@ export function AppSidebar() {
          <SectionLabel label="System" isCollapsed={isCollapsed} />
          {isAdmin && (
            <>
+             <SidebarItem icon={Binary} label="Algorithms" href="/algorithms" isActive={isActive('/algorithms')} isCollapsed={isCollapsed} />
              <SidebarItem icon={Activity} label="Diagnostics" href="/admin/diagnostics" isActive={isActive('/admin/diagnostics')} isCollapsed={isCollapsed} />
              <SidebarItem icon={ClipboardCheck} label="Compliance" href="/admin/compliance" isActive={isActive('/admin/compliance')} isCollapsed={isCollapsed} />
            </>

@@ -279,6 +279,16 @@ def _first_text_value(*values):
             return value.strip()
     return None
 
+def _manifest_version():
+    """Return the runtime manifest version, or None when unavailable.
+
+    The catalog version is display-only, so a controller without a
+    manifest (for example a test double) must not fail the list route.
+    """
+    manifest = getattr(_get_controller(), 'manifest', None)
+    return getattr(manifest, 'manifest_version', None)
+
+
 def format_algorithm(ka):
     """Format algorithm data for API response"""
     ka_id = ka.get('KA_ID') or ka.get('id')
@@ -323,7 +333,7 @@ def format_algorithm(ka):
         'deterministic': bool(ka.get('deterministic')),
         'guarantee': ka.get('guarantee'),
         'limitations': ka.get('limitations'),
-        'catalog_version': ka.get('version'),
+        'catalog_version': ka.get('manifest_version'),
         'notes': ka.get('Notes'),
         'implementation': {
             'mode': ka.get('Implementation_Mode'),
@@ -708,7 +718,7 @@ def list_algorithms():
         return scope_error
     try:
         category = request.args.get('category')
-        status = request.args.get('status')
+        classification = request.args.get('classification')
         risk_class = request.args.get('risk_class')
         layer = request.args.get('layer')
         page = _bounded_int_query('page', 1, minimum=1, maximum=100000)
@@ -728,8 +738,12 @@ def list_algorithms():
 
         if category:
             algorithms = [a for a in algorithms if a['category'] and a['category'].lower() == category.lower()]
-        if status:
-            algorithms = [a for a in algorithms if a['status'] and a['status'].lower() == status.lower()]
+        if classification:
+            algorithms = [
+                a for a in algorithms
+                if a['classification']
+                and a['classification'].lower() == classification.lower()
+            ]
         if risk_class:
             algorithms = [a for a in algorithms if a['risk_class'] and a['risk_class'].lower() == risk_class.lower()]
         if layer:
@@ -758,7 +772,8 @@ def list_algorithms():
                 'pages': (total + per_page - 1) // per_page
             },
             'categories': categories,
-            'total_count': len(live_registry)
+            'total_count': len(live_registry),
+            'manifest_version': _manifest_version(),
         }), 200
     except Exception:
         logger.exception("Error listing algorithms")

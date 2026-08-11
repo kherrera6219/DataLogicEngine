@@ -6,13 +6,13 @@
 
 ## Authority and release status
 
-- Generated: `2026-08-09`
-- Documentation authority: `2026.08.02-phase19-cp19k-batch08` (`approved_phase16_replacement_closed`)
+- Generated: `2026-08-11`
+- Documentation authority: `2026.08.10-cp19l-installed-evidence` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19 CP19-L complete; clean 4.3.0 candidate rebuilt and installed; CP19-M installed acceptance active.
-- Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The full backend gate passes 3,098 tests with 19 skipped; 430 frontend, 36 Python SDK, and seven TypeScript SDK tests pass with the source/security/release gates. The unsigned candidate installed per-machine, launched from Program Files, reached `/ready`, and used the five real app-owned services. One-time retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
+- Current program checkpoint: Phase 19; CP19-L complete, CP19-M installed acceptance active
+- Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The current source gate passes 3,101 backend tests with 19 skipped, 435 frontend tests, 36 Python SDK tests, and seven TypeScript SDK tests pass with the source/security/release gates. The unsigned 4.3.0 candidate installed per-machine, launched from Program Files, reached `/ready`, and used five real app-owned services. One-time retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. Later source-only CI portability, packaging retry, Algorithms registry, and documentation-authority fixes are not in that installed payload; a new rebuild is intentionally pending. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root
@@ -82,6 +82,15 @@ not current product or operating authority.
 | `DLE-EXT-001` | `docs/PROFESSIONAL_REVIEW_INDEX.md` | Professional review index |
 | `DLE-EXT-002` | `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | Microsoft distribution and submission dossier |
 | `DLE-EXT-003` | `docs/INDEPENDENT_REVIEW_RECORD.md` | Independent review record |
+
+## Supporting review inputs
+
+These current findings and work queues inform remediation but do not
+supersede the root production plan, TODO, or handoff:
+
+- `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md`
+- `CODEX_WORK_QUEUE_2026-08-10.md`
+- `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md`
 
 ## Generated companions and machine-readable contracts
 

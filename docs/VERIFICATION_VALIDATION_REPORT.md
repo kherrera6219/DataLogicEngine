@@ -21,9 +21,10 @@
 ## Purpose
 
 CP19-K is complete at 213/213 individually qualified KAs and CP19-L passed. The
-full gate records 3,098 backend tests with 19 skipped, 430 frontend tests, 36
+current source gate records 3,101 backend tests with 19 skipped, 435 frontend tests, 36
 Python SDK tests, seven TypeScript SDK tests, and clean dependency/security/
-release verification. The rebuilt unsigned candidate installed, reached
+release verification. The earlier frozen-payload baseline recorded 3,098
+backend and 430 frontend tests. That rebuilt unsigned candidate installed, reached
 readiness, preserved retained data across the five managed services, and passed
 installed authentication, Diagnostics, and representative KA smoke. CP19-M
 remains partial and release-blocking.
@@ -78,16 +79,25 @@ acceptance. This report is not a production approval.
 
 ## Current candidate evidence
 
-The 2026-08-10 local qualification installer is 283,888,871 bytes with SHA-256
-`9125fa6b0bfaa48ac6f68dc31c4bc44c3764eb0a871b7895d659e3e0c6b41081`.
+The 2026-08-10 local qualification installer is 283,890,413 bytes with SHA-256
+`1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
 Payload, installer integrity, exact lock, version, workflow-pin, and governance
 gates pass. It installed per-machine, launched from Program Files, reached
-`/ready`, and used the retained app-owned data across five managed services.
+`/ready` with database `ok`, runtime `ready`, and no blockers, and used the
+retained app-owned data across five managed services. The post-launch log window
+contained no actual 429, analytics error, traceback, or fatal event.
 
 The candidate is unsigned. Prior frozen candidate hashes and the earlier
 `at_rest_protection_not_ready` result remain historical negative evidence, not
 the current installed result. Reproducibility, signing, exact-artifact binding,
 and the retained CP19-M/system/manual/external acceptance rows remain open.
+
+Source-only work completed after this artifact adds Linux-safe documentation
+closure hashing, bounded packaging rename retries, secret-scan false-positive
+identifier cleanup, Algorithms registry/API/navigation remediation and focused
+coverage, plus controlled supporting-review routing. A second full rebuild was
+held by owner direction, so these changes require a new exact-source artifact
+before installed validation can claim them.
 
 ## Phase evidence disposition
 

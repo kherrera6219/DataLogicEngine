@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-authority.v1",
-  "program_version": "2026.08.02-phase19-cp19k-batch08",
+  "program_version": "2026.08.10-cp19l-installed-evidence",
   "status": "approved_phase16_replacement_closed",
   "approval": {
     "status": "approved",
@@ -18,39 +18,220 @@
     "user_admin_support": "User, administrator, and support documentation",
     "engineering_maintenance": "Engineering and maintenance documentation",
     "assurance_release_external": "Assurance, release, and external-submission documentation",
-    "historical_research": "Historical and research archive material"
+    "historical_research": "Historical and research archive material",
+    "supporting_review": "Current findings and work queues that inform, but do not replace, canonical program authority"
   },
   "canonical_documents": [
-    {"id": "DLE-ROOT-001", "path": "README.md", "title": "Product entry point", "class": "product_public", "owner": "Product Engineering"},
-    {"id": "DLE-ROOT-002", "path": "CHANGELOG.md", "title": "Product change log", "class": "product_public", "owner": "Release Engineering"},
-    {"id": "DLE-ROOT-003", "path": "SECURITY.md", "title": "Vulnerability reporting and disclosure policy", "class": "product_public", "owner": "Security Engineering"},
-    {"id": "DLE-ROOT-004", "path": "CONTRIBUTING.md", "title": "Contribution controls", "class": "engineering_maintenance", "owner": "Platform Engineering"},
-    {"id": "DLE-ROOT-005", "path": "TODO.md", "title": "Open production work and release blockers", "class": "engineering_maintenance", "owner": "Production Program Owner"},
-    {"id": "DLE-ROOT-006", "path": "HANDOFF.md", "title": "Current checkpoint and next action", "class": "engineering_maintenance", "owner": "Production Program Owner"},
-    {"id": "DLE-PROD-001", "path": "docs/PRODUCT_REQUIREMENTS.md", "title": "Product requirements and acceptance specification", "class": "product_public", "owner": "Product Engineering"},
-    {"id": "DLE-USER-001", "path": "docs/USER_GUIDE.md", "title": "User guide", "class": "user_admin_support", "owner": "Product Engineering"},
-    {"id": "DLE-USER-002", "path": "docs/INSTALLATION_GUIDE.md", "title": "Installation and lifecycle guide", "class": "user_admin_support", "owner": "Platform Operations"},
-    {"id": "DLE-USER-003", "path": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md", "title": "Administrator and operations guide", "class": "user_admin_support", "owner": "Platform Operations"},
-    {"id": "DLE-USER-004", "path": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md", "title": "Troubleshooting and support guide", "class": "user_admin_support", "owner": "Support Engineering"},
-    {"id": "DLE-USER-005", "path": "docs/PRIVACY_AI_NOTICE.md", "title": "Privacy, provider, retention, and AI limitations notice", "class": "product_public", "owner": "Privacy Engineering"},
-    {"id": "DLE-ENG-001", "path": "docs/ARCHITECTURE.md", "title": "System architecture description", "class": "engineering_maintenance", "owner": "Architecture"},
-    {"id": "DLE-ENG-002", "path": "docs/DATA_ARCHITECTURE.md", "title": "Data architecture and schema specification", "class": "engineering_maintenance", "owner": "Data Engineering"},
-    {"id": "DLE-ENG-003", "path": "docs/INTERFACE_INTEGRATION.md", "title": "Interface and client-integration specification", "class": "engineering_maintenance", "owner": "API Engineering"},
-    {"id": "DLE-ENG-004", "path": "docs/SECURITY_ARCHITECTURE.md", "title": "Security architecture and threat model", "class": "engineering_maintenance", "owner": "Security Engineering"},
-    {"id": "DLE-ENG-005", "path": "docs/SOFTWARE_LIFECYCLE_PLAN.md", "title": "Software lifecycle and configuration-management plan", "class": "engineering_maintenance", "owner": "Release Engineering"},
-    {"id": "DLE-ENG-006", "path": "docs/DEVELOPER_GUIDE.md", "title": "Developer build, test, packaging, and reproducibility guide", "class": "engineering_maintenance", "owner": "Platform Engineering"},
-    {"id": "DLE-ENG-007", "path": "docs/MAINTENANCE_DISASTER_RECOVERY.md", "title": "Maintenance and disaster-recovery plan", "class": "engineering_maintenance", "owner": "Platform Operations"},
-    {"id": "DLE-ASR-001", "path": "docs/REQUIREMENTS_TRACEABILITY.md", "title": "Requirements traceability matrix", "class": "assurance_release_external", "owner": "Quality Engineering"},
-    {"id": "DLE-ASR-002", "path": "docs/VERIFICATION_VALIDATION_REPORT.md", "title": "Verification and validation plan and report", "class": "assurance_release_external", "owner": "Quality Engineering"},
-    {"id": "DLE-ASR-003", "path": "docs/evaluation/AI_SYSTEM_CARD.md", "title": "AI system card and evaluation report", "class": "assurance_release_external", "owner": "AI Assurance"},
-    {"id": "DLE-ASR-004", "path": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md", "title": "KA and TruthCore validation dossier", "class": "assurance_release_external", "owner": "AI Assurance"},
-    {"id": "DLE-ASR-005", "path": "docs/PRIVACY_IMPACT_ASSESSMENT.md", "title": "Privacy impact assessment and data inventory", "class": "assurance_release_external", "owner": "Privacy Engineering"},
-    {"id": "DLE-ASR-006", "path": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md", "title": "Accessibility conformance report", "class": "assurance_release_external", "owner": "Accessibility Review"},
-    {"id": "DLE-ASR-007", "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md", "title": "SBOM, licensing, redistribution, and notices index", "class": "assurance_release_external", "owner": "Release Engineering"},
-    {"id": "DLE-ASR-008", "path": "docs/RELEASE_READINESS_RECORD.md", "title": "Release readiness and go-no-go record", "class": "assurance_release_external", "owner": "Release Authority"},
-    {"id": "DLE-EXT-001", "path": "docs/PROFESSIONAL_REVIEW_INDEX.md", "title": "Professional review index", "class": "assurance_release_external", "owner": "External Review Coordinator"},
-    {"id": "DLE-EXT-002", "path": "docs/MICROSOFT_SUBMISSION_DOSSIER.md", "title": "Microsoft distribution and submission dossier", "class": "assurance_release_external", "owner": "Distribution Owner"},
-    {"id": "DLE-EXT-003", "path": "docs/INDEPENDENT_REVIEW_RECORD.md", "title": "Independent review record", "class": "assurance_release_external", "owner": "External Review Coordinator"}
+    {
+      "id": "DLE-ROOT-001",
+      "path": "README.md",
+      "title": "Product entry point",
+      "class": "product_public",
+      "owner": "Product Engineering"
+    },
+    {
+      "id": "DLE-ROOT-002",
+      "path": "CHANGELOG.md",
+      "title": "Product change log",
+      "class": "product_public",
+      "owner": "Release Engineering"
+    },
+    {
+      "id": "DLE-ROOT-003",
+      "path": "SECURITY.md",
+      "title": "Vulnerability reporting and disclosure policy",
+      "class": "product_public",
+      "owner": "Security Engineering"
+    },
+    {
+      "id": "DLE-ROOT-004",
+      "path": "CONTRIBUTING.md",
+      "title": "Contribution controls",
+      "class": "engineering_maintenance",
+      "owner": "Platform Engineering"
+    },
+    {
+      "id": "DLE-ROOT-005",
+      "path": "TODO.md",
+      "title": "Open production work and release blockers",
+      "class": "engineering_maintenance",
+      "owner": "Production Program Owner"
+    },
+    {
+      "id": "DLE-ROOT-006",
+      "path": "HANDOFF.md",
+      "title": "Current checkpoint and next action",
+      "class": "engineering_maintenance",
+      "owner": "Production Program Owner"
+    },
+    {
+      "id": "DLE-PROD-001",
+      "path": "docs/PRODUCT_REQUIREMENTS.md",
+      "title": "Product requirements and acceptance specification",
+      "class": "product_public",
+      "owner": "Product Engineering"
+    },
+    {
+      "id": "DLE-USER-001",
+      "path": "docs/USER_GUIDE.md",
+      "title": "User guide",
+      "class": "user_admin_support",
+      "owner": "Product Engineering"
+    },
+    {
+      "id": "DLE-USER-002",
+      "path": "docs/INSTALLATION_GUIDE.md",
+      "title": "Installation and lifecycle guide",
+      "class": "user_admin_support",
+      "owner": "Platform Operations"
+    },
+    {
+      "id": "DLE-USER-003",
+      "path": "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md",
+      "title": "Administrator and operations guide",
+      "class": "user_admin_support",
+      "owner": "Platform Operations"
+    },
+    {
+      "id": "DLE-USER-004",
+      "path": "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md",
+      "title": "Troubleshooting and support guide",
+      "class": "user_admin_support",
+      "owner": "Support Engineering"
+    },
+    {
+      "id": "DLE-USER-005",
+      "path": "docs/PRIVACY_AI_NOTICE.md",
+      "title": "Privacy, provider, retention, and AI limitations notice",
+      "class": "product_public",
+      "owner": "Privacy Engineering"
+    },
+    {
+      "id": "DLE-ENG-001",
+      "path": "docs/ARCHITECTURE.md",
+      "title": "System architecture description",
+      "class": "engineering_maintenance",
+      "owner": "Architecture"
+    },
+    {
+      "id": "DLE-ENG-002",
+      "path": "docs/DATA_ARCHITECTURE.md",
+      "title": "Data architecture and schema specification",
+      "class": "engineering_maintenance",
+      "owner": "Data Engineering"
+    },
+    {
+      "id": "DLE-ENG-003",
+      "path": "docs/INTERFACE_INTEGRATION.md",
+      "title": "Interface and client-integration specification",
+      "class": "engineering_maintenance",
+      "owner": "API Engineering"
+    },
+    {
+      "id": "DLE-ENG-004",
+      "path": "docs/SECURITY_ARCHITECTURE.md",
+      "title": "Security architecture and threat model",
+      "class": "engineering_maintenance",
+      "owner": "Security Engineering"
+    },
+    {
+      "id": "DLE-ENG-005",
+      "path": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+      "title": "Software lifecycle and configuration-management plan",
+      "class": "engineering_maintenance",
+      "owner": "Release Engineering"
+    },
+    {
+      "id": "DLE-ENG-006",
+      "path": "docs/DEVELOPER_GUIDE.md",
+      "title": "Developer build, test, packaging, and reproducibility guide",
+      "class": "engineering_maintenance",
+      "owner": "Platform Engineering"
+    },
+    {
+      "id": "DLE-ENG-007",
+      "path": "docs/MAINTENANCE_DISASTER_RECOVERY.md",
+      "title": "Maintenance and disaster-recovery plan",
+      "class": "engineering_maintenance",
+      "owner": "Platform Operations"
+    },
+    {
+      "id": "DLE-ASR-001",
+      "path": "docs/REQUIREMENTS_TRACEABILITY.md",
+      "title": "Requirements traceability matrix",
+      "class": "assurance_release_external",
+      "owner": "Quality Engineering"
+    },
+    {
+      "id": "DLE-ASR-002",
+      "path": "docs/VERIFICATION_VALIDATION_REPORT.md",
+      "title": "Verification and validation plan and report",
+      "class": "assurance_release_external",
+      "owner": "Quality Engineering"
+    },
+    {
+      "id": "DLE-ASR-003",
+      "path": "docs/evaluation/AI_SYSTEM_CARD.md",
+      "title": "AI system card and evaluation report",
+      "class": "assurance_release_external",
+      "owner": "AI Assurance"
+    },
+    {
+      "id": "DLE-ASR-004",
+      "path": "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md",
+      "title": "KA and TruthCore validation dossier",
+      "class": "assurance_release_external",
+      "owner": "AI Assurance"
+    },
+    {
+      "id": "DLE-ASR-005",
+      "path": "docs/PRIVACY_IMPACT_ASSESSMENT.md",
+      "title": "Privacy impact assessment and data inventory",
+      "class": "assurance_release_external",
+      "owner": "Privacy Engineering"
+    },
+    {
+      "id": "DLE-ASR-006",
+      "path": "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md",
+      "title": "Accessibility conformance report",
+      "class": "assurance_release_external",
+      "owner": "Accessibility Review"
+    },
+    {
+      "id": "DLE-ASR-007",
+      "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",
+      "title": "SBOM, licensing, redistribution, and notices index",
+      "class": "assurance_release_external",
+      "owner": "Release Engineering"
+    },
+    {
+      "id": "DLE-ASR-008",
+      "path": "docs/RELEASE_READINESS_RECORD.md",
+      "title": "Release readiness and go-no-go record",
+      "class": "assurance_release_external",
+      "owner": "Release Authority"
+    },
+    {
+      "id": "DLE-EXT-001",
+      "path": "docs/PROFESSIONAL_REVIEW_INDEX.md",
+      "title": "Professional review index",
+      "class": "assurance_release_external",
+      "owner": "External Review Coordinator"
+    },
+    {
+      "id": "DLE-EXT-002",
+      "path": "docs/MICROSOFT_SUBMISSION_DOSSIER.md",
+      "title": "Microsoft distribution and submission dossier",
+      "class": "assurance_release_external",
+      "owner": "Distribution Owner"
+    },
+    {
+      "id": "DLE-EXT-003",
+      "path": "docs/INDEPENDENT_REVIEW_RECORD.md",
+      "title": "Independent review record",
+      "class": "assurance_release_external",
+      "owner": "External Review Coordinator"
+    }
   ],
   "generated_companions": [
     "docs/README.md",
@@ -66,6 +247,14 @@
     "PRODUCTION_COMPLETION_PLAN_2026.md",
     "docs/adr/ADR-0010-app-owned-s3-compatible-object-store.md",
     "docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md"
+  ],
+  "supporting_review_inputs": [
+    "ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md",
+    "CODEX_WORK_QUEUE_2026-08-10.md",
+    "docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md"
+  ],
+  "supporting_review_prefixes": [
+    "docs/audits/"
   ],
   "historical_prefixes": [
     "docs/archive/",
@@ -85,27 +274,117 @@
     "docs/audits/DataLogicEngine_Routes_Audit.md"
   ],
   "merge_routes": {
-    "CONTRIBUTING.md": ["docs/CONTRIBUTING.md"],
-    "docs/PRODUCT_REQUIREMENTS.md": ["docs/PRODUCT_DESIGN.md", "docs/PRODUCT_OVERVIEW.md", "docs/COMPONENT_MAP.md", "docs/diagrams/11_frontend_product_surface_and_trace_review_map.md"],
-    "docs/INSTALLATION_GUIDE.md": ["docs/WINDOWS_11_LOCAL_RUNBOOK.md"],
-    "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md": ["docs/DEPLOYMENT.md", "docs/OPERATIONAL_RUNBOOKS.md", "docs/PRIVATE_GATEWAY_RUNBOOK.md"],
-    "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md": ["SUPPORT.md"],
-    "docs/PRIVACY_AI_NOTICE.md": ["docs/PRIVACY_POLICY.md"],
-    "docs/ARCHITECTURE.md": ["docs/ARCHITECTURE_MAP.md", "docs/DATA_FLOW_DIAGRAMS.md", "docs/DECISION_LOGIC.md", "docs/PROCESS_MAP.md", "docs/SEQUENCE_DIAGRAMS.md", "docs/WORKFLOW.md", "docs/diagrams/09_dmrf_control_plane_deep_dive.md", "docs/diagrams/12_end_to_end_request_lifecycle.md", "docs/adr/ADR-0001-engineering-governance-baseline.md", "docs/adr/ADR-0003-internal-service-delivery.md", "docs/adr/ADR-0009-session-library-product-model.md"],
-    "docs/DATA_ARCHITECTURE.md": ["docs/DATABASE_SCHEMA.md", "docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md", "docs/DATA_CLASSIFICATION_REGISTER.md", "docs/LOCAL_USAGE_LEDGER_CONTRACT.md", "docs/MIGRATION_SUPPORT_MATRIX.md", "docs/diagrams/07_data_storage_and_memory_architecture.md", "docs/adr/ADR-0004-seaweedfs-replacement-qualification.md", "docs/adr/ADR-0006-memory-authority-and-trust-boundary.md"],
-    "docs/INTERFACE_INTEGRATION.md": ["docs/API.md", "docs/API_VERSIONING.md", "docs/AUTH_DECORATORS.md", "docs/GATEWAY_COMPATIBILITY.md", "docs/MCP_INTEGRATION.md", "docs/adr/ADR-0002-pq-grpc-transport.md", "docs/adr/ADR-0005-external-gateway-boundary.md", "docs/adr/ADR-0008-governed-mcp-connector-boundary.md"],
-    "docs/SECURITY_ARCHITECTURE.md": ["docs/SECURITY.md", "docs/THREAT_MODEL.md", "docs/CIS_BENCHMARKS.md", "docs/SSL_CONFIGURATION.md", "docs/diagrams/06_local_first_security_model.md"],
-    "docs/SOFTWARE_LIFECYCLE_PLAN.md": ["DEVELOPMENT.md", "docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md", "docs/BRANCH_PROTECTION_POLICY.md", "docs/DOCUMENTATION_STANDARDS.md", "docs/DOCUMENTATION_VERSIONING.md", "docs/SDLC_SSDF_MAPPING.md"],
-    "docs/DEVELOPER_GUIDE.md": ["docs/ENGINEER_ONBOARDING.md", "docs/FILE_STRUCTURE.md", "docs/documents/README.md"],
+    "CONTRIBUTING.md": [
+      "docs/CONTRIBUTING.md"
+    ],
+    "docs/PRODUCT_REQUIREMENTS.md": [
+      "docs/PRODUCT_DESIGN.md",
+      "docs/PRODUCT_OVERVIEW.md",
+      "docs/COMPONENT_MAP.md",
+      "docs/diagrams/11_frontend_product_surface_and_trace_review_map.md"
+    ],
+    "docs/INSTALLATION_GUIDE.md": [
+      "docs/WINDOWS_11_LOCAL_RUNBOOK.md"
+    ],
+    "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md": [
+      "docs/DEPLOYMENT.md",
+      "docs/OPERATIONAL_RUNBOOKS.md",
+      "docs/PRIVATE_GATEWAY_RUNBOOK.md"
+    ],
+    "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md": [
+      "SUPPORT.md"
+    ],
+    "docs/PRIVACY_AI_NOTICE.md": [
+      "docs/PRIVACY_POLICY.md"
+    ],
+    "docs/ARCHITECTURE.md": [
+      "docs/ARCHITECTURE_MAP.md",
+      "docs/DATA_FLOW_DIAGRAMS.md",
+      "docs/DECISION_LOGIC.md",
+      "docs/PROCESS_MAP.md",
+      "docs/SEQUENCE_DIAGRAMS.md",
+      "docs/WORKFLOW.md",
+      "docs/diagrams/09_dmrf_control_plane_deep_dive.md",
+      "docs/diagrams/12_end_to_end_request_lifecycle.md",
+      "docs/adr/ADR-0001-engineering-governance-baseline.md",
+      "docs/adr/ADR-0003-internal-service-delivery.md",
+      "docs/adr/ADR-0009-session-library-product-model.md"
+    ],
+    "docs/DATA_ARCHITECTURE.md": [
+      "docs/DATABASE_SCHEMA.md",
+      "docs/DATA_AT_REST_AND_KEY_MANAGEMENT.md",
+      "docs/DATA_CLASSIFICATION_REGISTER.md",
+      "docs/LOCAL_USAGE_LEDGER_CONTRACT.md",
+      "docs/MIGRATION_SUPPORT_MATRIX.md",
+      "docs/diagrams/07_data_storage_and_memory_architecture.md",
+      "docs/adr/ADR-0004-seaweedfs-replacement-qualification.md",
+      "docs/adr/ADR-0006-memory-authority-and-trust-boundary.md"
+    ],
+    "docs/INTERFACE_INTEGRATION.md": [
+      "docs/API.md",
+      "docs/API_VERSIONING.md",
+      "docs/AUTH_DECORATORS.md",
+      "docs/GATEWAY_COMPATIBILITY.md",
+      "docs/MCP_INTEGRATION.md",
+      "docs/adr/ADR-0002-pq-grpc-transport.md",
+      "docs/adr/ADR-0005-external-gateway-boundary.md",
+      "docs/adr/ADR-0008-governed-mcp-connector-boundary.md"
+    ],
+    "docs/SECURITY_ARCHITECTURE.md": [
+      "docs/SECURITY.md",
+      "docs/THREAT_MODEL.md",
+      "docs/CIS_BENCHMARKS.md",
+      "docs/SSL_CONFIGURATION.md",
+      "docs/diagrams/06_local_first_security_model.md"
+    ],
+    "docs/SOFTWARE_LIFECYCLE_PLAN.md": [
+      "DEVELOPMENT.md",
+      "docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+      "docs/BRANCH_PROTECTION_POLICY.md",
+      "docs/DOCUMENTATION_STANDARDS.md",
+      "docs/DOCUMENTATION_VERSIONING.md",
+      "docs/SDLC_SSDF_MAPPING.md"
+    ],
+    "docs/DEVELOPER_GUIDE.md": [
+      "docs/ENGINEER_ONBOARDING.md",
+      "docs/FILE_STRUCTURE.md",
+      "docs/documents/README.md"
+    ],
     "docs/MAINTENANCE_DISASTER_RECOVERY.md": [],
-    "docs/REQUIREMENTS_TRACEABILITY.md": ["docs/DOCUMENTATION_COVERAGE_MATRIX.md", "docs/diagrams/02_research_to_code_traceability.md"],
-    "docs/VERIFICATION_VALIDATION_REPORT.md": ["TESTING.md", "docs/TESTING.md", "docs/PRODUCTION_READINESS.md", "docs/evaluation/HUMAN_REVIEW_RUBRIC.md", "docs/diagrams/08_testing_validation_and_release_governance.md"],
-    "docs/evaluation/AI_SYSTEM_CARD.md": ["docs/AI_MANAGEMENT_SYSTEM_42001.md", "docs/PROVIDER_COST_QUOTA_POLICY.md", "docs/PROVIDER_MODEL_SUPPORT.md", "docs/evaluation/QUALITY_EVALUATION.md"],
-    "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md": ["docs/KNOWLEDGE_ALGORITHM_CATALOG.md", "docs/ip/dsqp_technical_disclosure.md", "docs/diagrams/03_ai_reasoning_sequence.md", "docs/diagrams/04_17_axis_coordinate_model.md", "docs/diagrams/05_truth_engine_architecture.md", "docs/diagrams/10_dsqp_persona_construction_architecture.md", "docs/adr/ADR-0007-authoritative-simulation-engine.md"],
+    "docs/REQUIREMENTS_TRACEABILITY.md": [
+      "docs/DOCUMENTATION_COVERAGE_MATRIX.md",
+      "docs/diagrams/02_research_to_code_traceability.md"
+    ],
+    "docs/VERIFICATION_VALIDATION_REPORT.md": [
+      "TESTING.md",
+      "docs/TESTING.md",
+      "docs/PRODUCTION_READINESS.md",
+      "docs/evaluation/HUMAN_REVIEW_RUBRIC.md",
+      "docs/diagrams/08_testing_validation_and_release_governance.md"
+    ],
+    "docs/evaluation/AI_SYSTEM_CARD.md": [
+      "docs/AI_MANAGEMENT_SYSTEM_42001.md",
+      "docs/PROVIDER_COST_QUOTA_POLICY.md",
+      "docs/PROVIDER_MODEL_SUPPORT.md",
+      "docs/evaluation/QUALITY_EVALUATION.md"
+    ],
+    "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md": [
+      "docs/KNOWLEDGE_ALGORITHM_CATALOG.md",
+      "docs/ip/dsqp_technical_disclosure.md",
+      "docs/diagrams/03_ai_reasoning_sequence.md",
+      "docs/diagrams/04_17_axis_coordinate_model.md",
+      "docs/diagrams/05_truth_engine_architecture.md",
+      "docs/diagrams/10_dsqp_persona_construction_architecture.md",
+      "docs/adr/ADR-0007-authoritative-simulation-engine.md"
+    ],
     "docs/PRIVACY_IMPACT_ASSESSMENT.md": [],
     "docs/ACCESSIBILITY_CONFORMANCE_REPORT.md": [],
-    "docs/THIRD_PARTY_SOFTWARE_INDEX.md": ["docs/SLSA_LEVEL_3_ATTESTATION.md"],
-    "docs/RELEASE_READINESS_RECORD.md": ["docs/RELEASE_CHECKLIST.md"],
+    "docs/THIRD_PARTY_SOFTWARE_INDEX.md": [
+      "docs/SLSA_LEVEL_3_ATTESTATION.md"
+    ],
+    "docs/RELEASE_READINESS_RECORD.md": [
+      "docs/RELEASE_CHECKLIST.md"
+    ],
     "docs/PROFESSIONAL_REVIEW_INDEX.md": [],
     "docs/MICROSOFT_SUBMISSION_DOSSIER.md": [],
     "docs/INDEPENDENT_REVIEW_RECORD.md": []
@@ -117,24 +396,207 @@
     "review_scope": "Normative requirements, current decisions, operating procedures, retained evidence, technical accuracy, and active inbound links for every Phase 16 merge route",
     "archive_root": "docs/archive/phase-16",
     "target_reviews": {
-      "CONTRIBUTING.md": ["Code of Conduct", "Development Setup", "Contribution Workflow", "Coding Standards", "Security Requirements", "Pull Request Process"],
-      "docs/PRODUCT_REQUIREMENTS.md": ["Supported product boundary", "Explicit exclusions", "Functional requirements", "Data and lifecycle requirements", "Security, privacy, and AI requirements", "User experience acceptance", "Current acceptance status"],
-      "docs/INSTALLATION_GUIDE.md": ["Current distribution status", "Supported target", "Clean installation", "First-use acceptance", "Repair", "Upgrade", "Rollback", "Uninstall and data choice", "Updates", "Installation failures"],
-      "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md": ["Operating boundary", "Startup and readiness", "Required services", "Provider operations", "Backup", "Restore and disaster recovery", "Diagnostics, logs, and support bundles", "Client Gateway", "MCP connector operations", "Incident response"],
-      "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md": ["First rule: preserve the safety gate", "Before requesting help", "Diagnostics and local support bundle", "Common problems", "Reporting channels"],
-      "docs/PRIVACY_AI_NOTICE.md": ["Important current status", "Local-first does not mean air-gapped", "Data the application may process or retain", "OpenAI and Google processing", "MCP connectors and external tools", "Data protection", "Retention", "External telemetry", "AI purpose and limitations"],
-      "docs/ARCHITECTURE.md": ["Architecture overview", "High-level component map", "Core runtime stack", "DMRF control plane", "17-axis knowledge framework", "DSQP persona architecture", "Truth Engine architecture", "LLM Gateway architecture", "Data, storage, and memory architecture", "Frontend product architecture", "Local-first and desktop architecture", "API and route architecture", "Security architecture", "Observability and traceability", "Testing and release governance"],
-      "docs/DATA_ARCHITECTURE.md": ["Store responsibility map", "Required object namespaces", "Core data domains", "Classification and protection", "Migration and schema rules", "Backup, restore, and deletion", "Retention", "Integrity and reconciliation", "Validation status"],
-      "docs/INTERFACE_INTEGRATION.md": ["Interface boundary", "Version and route policy", "Authentication and authorization", "Governed request contract", "Client Gateway profiles", "Native request modes", "Rate, budget, retry, and cancellation", "Knowledge Algorithm interface contract", "MCP integration contract", "Private Windows gateway qualification boundary", "Integration acceptance"],
-      "docs/SECURITY_ARCHITECTURE.md": ["Security objective", "Trust boundaries", "Protected assets", "Identity and least authority", "Network and process controls", "Governed AI and content controls", "Data and secret protection", "Release and update trust", "Principal threats and controls", "Incident response", "Current assurance status"],
-      "docs/SOFTWARE_LIFECYCLE_PLAN.md": ["Lifecycle objective", "Authoritative configuration", "Change lifecycle", "Branch, review, and commit controls", "Verification pipeline", "Defect and vulnerability handling", "Release lifecycle", "Documentation lifecycle", "Maintenance and retirement", "Current status"],
-      "docs/DEVELOPER_GUIDE.md": ["Prerequisites", "Initial setup", "Required environment values", "Architecture orientation for developers", "Local run modes", "Build and packaging", "Daily testing workflow", "Repository structure", "Important backend areas", "Important frontend areas", "API development rules", "Data development rules", "Documentation maintenance"],
-      "docs/REQUIREMENTS_TRACEABILITY.md": ["Traceability rules", "Functional requirements", "Data and lifecycle requirements", "Security, privacy, and AI requirements", "Quality and release requirements", "Architecture and document coverage", "Findings and change control", "Overall status"],
-      "docs/VERIFICATION_VALIDATION_REPORT.md": ["V&V principles", "Verification levels", "Test domains and acceptance", "Current candidate evidence", "Phase evidence disposition", "Phase 19 KA verification method", "Human and independent validation", "Performance and reliability validation", "Finding and retest policy", "Release decision"],
-      "docs/evaluation/AI_SYSTEM_CARD.md": ["Intended purpose and operating boundary", "Governed AI lifecycle", "Providers, models, cost, and quota controls", "Evaluation method", "Risk management and human oversight", "Known limitations and failure modes", "Current assurance disposition"],
-      "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md": ["Assurance boundary", "Registry and classification", "KA validation controls", "Phase 19 system integration contract", "DSQP and 17-axis boundary", "TruthCore and evidence model", "Phase 6 checkpoint evidence", "Evaluation protocol", "Human review", "Current disposition"],
-      "docs/THIRD_PARTY_SOFTWARE_INDEX.md": ["Current disposition", "Dependency authorities", "SBOM and inventory set", "Material runtime components", "Providers, models, connectors, and content", "Vulnerability and maintenance state", "Notice and redistribution approval gate"],
-      "docs/RELEASE_READINESS_RECORD.md": ["Current decision", "Candidate identity", "Gate summary", "Phase status", "Finding policy", "Required final evidence bundle", "GO authorization template"]
+      "CONTRIBUTING.md": [
+        "Code of Conduct",
+        "Development Setup",
+        "Contribution Workflow",
+        "Coding Standards",
+        "Security Requirements",
+        "Pull Request Process"
+      ],
+      "docs/PRODUCT_REQUIREMENTS.md": [
+        "Supported product boundary",
+        "Explicit exclusions",
+        "Functional requirements",
+        "Data and lifecycle requirements",
+        "Security, privacy, and AI requirements",
+        "User experience acceptance",
+        "Current acceptance status"
+      ],
+      "docs/INSTALLATION_GUIDE.md": [
+        "Current distribution status",
+        "Supported target",
+        "Clean installation",
+        "First-use acceptance",
+        "Repair",
+        "Upgrade",
+        "Rollback",
+        "Uninstall and data choice",
+        "Updates",
+        "Installation failures"
+      ],
+      "docs/ADMINISTRATOR_OPERATIONS_GUIDE.md": [
+        "Operating boundary",
+        "Startup and readiness",
+        "Required services",
+        "Provider operations",
+        "Backup",
+        "Restore and disaster recovery",
+        "Diagnostics, logs, and support bundles",
+        "Client Gateway",
+        "MCP connector operations",
+        "Incident response"
+      ],
+      "docs/TROUBLESHOOTING_SUPPORT_GUIDE.md": [
+        "First rule: preserve the safety gate",
+        "Before requesting help",
+        "Diagnostics and local support bundle",
+        "Common problems",
+        "Reporting channels"
+      ],
+      "docs/PRIVACY_AI_NOTICE.md": [
+        "Important current status",
+        "Local-first does not mean air-gapped",
+        "Data the application may process or retain",
+        "OpenAI and Google processing",
+        "MCP connectors and external tools",
+        "Data protection",
+        "Retention",
+        "External telemetry",
+        "AI purpose and limitations"
+      ],
+      "docs/ARCHITECTURE.md": [
+        "Architecture overview",
+        "High-level component map",
+        "Core runtime stack",
+        "DMRF control plane",
+        "17-axis knowledge framework",
+        "DSQP persona architecture",
+        "Truth Engine architecture",
+        "LLM Gateway architecture",
+        "Data, storage, and memory architecture",
+        "Frontend product architecture",
+        "Local-first and desktop architecture",
+        "API and route architecture",
+        "Security architecture",
+        "Observability and traceability",
+        "Testing and release governance"
+      ],
+      "docs/DATA_ARCHITECTURE.md": [
+        "Store responsibility map",
+        "Required object namespaces",
+        "Core data domains",
+        "Classification and protection",
+        "Migration and schema rules",
+        "Backup, restore, and deletion",
+        "Retention",
+        "Integrity and reconciliation",
+        "Validation status"
+      ],
+      "docs/INTERFACE_INTEGRATION.md": [
+        "Interface boundary",
+        "Version and route policy",
+        "Authentication and authorization",
+        "Governed request contract",
+        "Client Gateway profiles",
+        "Native request modes",
+        "Rate, budget, retry, and cancellation",
+        "Knowledge Algorithm interface contract",
+        "MCP integration contract",
+        "Private Windows gateway qualification boundary",
+        "Integration acceptance"
+      ],
+      "docs/SECURITY_ARCHITECTURE.md": [
+        "Security objective",
+        "Trust boundaries",
+        "Protected assets",
+        "Identity and least authority",
+        "Network and process controls",
+        "Governed AI and content controls",
+        "Data and secret protection",
+        "Release and update trust",
+        "Principal threats and controls",
+        "Incident response",
+        "Current assurance status"
+      ],
+      "docs/SOFTWARE_LIFECYCLE_PLAN.md": [
+        "Lifecycle objective",
+        "Authoritative configuration",
+        "Change lifecycle",
+        "Branch, review, and commit controls",
+        "Verification pipeline",
+        "Defect and vulnerability handling",
+        "Release lifecycle",
+        "Documentation lifecycle",
+        "Maintenance and retirement",
+        "Current status"
+      ],
+      "docs/DEVELOPER_GUIDE.md": [
+        "Prerequisites",
+        "Initial setup",
+        "Required environment values",
+        "Architecture orientation for developers",
+        "Local run modes",
+        "Build and packaging",
+        "Daily testing workflow",
+        "Repository structure",
+        "Important backend areas",
+        "Important frontend areas",
+        "API development rules",
+        "Data development rules",
+        "Documentation maintenance"
+      ],
+      "docs/REQUIREMENTS_TRACEABILITY.md": [
+        "Traceability rules",
+        "Functional requirements",
+        "Data and lifecycle requirements",
+        "Security, privacy, and AI requirements",
+        "Quality and release requirements",
+        "Architecture and document coverage",
+        "Findings and change control",
+        "Overall status"
+      ],
+      "docs/VERIFICATION_VALIDATION_REPORT.md": [
+        "V&V principles",
+        "Verification levels",
+        "Test domains and acceptance",
+        "Current candidate evidence",
+        "Phase evidence disposition",
+        "Phase 19 KA verification method",
+        "Human and independent validation",
+        "Performance and reliability validation",
+        "Finding and retest policy",
+        "Release decision"
+      ],
+      "docs/evaluation/AI_SYSTEM_CARD.md": [
+        "Intended purpose and operating boundary",
+        "Governed AI lifecycle",
+        "Providers, models, cost, and quota controls",
+        "Evaluation method",
+        "Risk management and human oversight",
+        "Known limitations and failure modes",
+        "Current assurance disposition"
+      ],
+      "docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md": [
+        "Assurance boundary",
+        "Registry and classification",
+        "KA validation controls",
+        "Phase 19 system integration contract",
+        "DSQP and 17-axis boundary",
+        "TruthCore and evidence model",
+        "Phase 6 checkpoint evidence",
+        "Evaluation protocol",
+        "Human review",
+        "Current disposition"
+      ],
+      "docs/THIRD_PARTY_SOFTWARE_INDEX.md": [
+        "Current disposition",
+        "Dependency authorities",
+        "SBOM and inventory set",
+        "Material runtime components",
+        "Providers, models, connectors, and content",
+        "Vulnerability and maintenance state",
+        "Notice and redistribution approval gate"
+      ],
+      "docs/RELEASE_READINESS_RECORD.md": [
+        "Current decision",
+        "Candidate identity",
+        "Gate summary",
+        "Phase status",
+        "Finding policy",
+        "Required final evidence bundle",
+        "GO authorization template"
+      ]
     }
   }
 }
