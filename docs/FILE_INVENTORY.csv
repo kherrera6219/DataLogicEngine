@@ -17,6 +17,7 @@ Path,Size_Bytes,Extension,Last_Modified
 .github\workflows\release-installer-signing.yml,12774,.yml,2026-07-15 06:08:13 UTC
 .github\workflows\security.yml,12640,.yml,2026-07-15 07:44:08 UTC
 .gitignore,2375,,2026-08-10 23:35:39 UTC
+ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md,9892,.md,2026-08-11 00:27:28 UTC
 app.py,89494,.py,2026-08-10 23:14:01 UTC
 backend.spec,6139,.spec,2026-08-09 06:49:16 UTC
 backend\.dockerignore,97,,2026-01-09 00:01:01 UTC
@@ -683,6 +684,7 @@ backend\utils\validation.py,9669,.py,2026-02-03 19:35:41 UTC
 backend\websocket.py,6501,.py,2026-07-13 18:32:05 UTC
 CHANGELOG.md,120370,.md,2026-08-11 00:27:17 UTC
 CODE_OF_CONDUCT.md,9089,.md,2026-03-11 01:16:01 UTC
+CODEX_WORK_QUEUE_2026-08-10.md,16705,.md,2026-08-11 00:16:40 UTC
 COMMERCIAL_LICENSE.md,1016,.md,2026-07-04 03:16:00 UTC
 config.py,4340,.py,2026-07-15 01:11:17 UTC
 config\axis12_config.yaml,874,.yaml,2026-01-06 01:00:29 UTC
@@ -1029,18 +1031,19 @@ docs\archive\wireframes\README.md,14791,.md,2026-07-06 19:01:42 UTC
 docs\archive\wireframes\README__active-through-2026-07-15.md,852,.md,2026-07-15 09:14:38 UTC
 docs\assets\readme\architecture-overview.svg,4192,.svg,2026-07-04 03:12:47 UTC
 docs\audits\DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md,41545,.md,2026-07-15 10:10:09 UTC
+docs\audits\UKG_Spec_vs_App_Findings_2026-08-10.md,18662,.md,2026-08-10 23:32:01 UTC
 docs\contracts\gateway-v1-compatibility.json,3414,.json,2026-07-14 08:23:08 UTC
 docs\DATA_ARCHITECTURE.md,11329,.md,2026-08-10 22:46:11 UTC
 docs\DEVELOPER_GUIDE.md,23863,.md,2026-08-10 23:06:40 UTC
 docs\DOCS_VERSION.json,334,.json,2026-07-15 03:14:44 UTC
-docs\DOCUMENTATION_BOM.md,4997,.md,2026-08-11 00:28:51 UTC
-docs\DOCUMENTATION_CROSSWALK.md,33855,.md,2026-08-11 00:28:51 UTC
+docs\DOCUMENTATION_BOM.md,4997,.md,2026-08-11 00:44:38 UTC
+docs\DOCUMENTATION_CROSSWALK.md,33855,.md,2026-08-11 00:44:38 UTC
 docs\evaluation\AI_SYSTEM_CARD.md,9613,.md,2026-08-10 22:48:13 UTC
 docs\evaluation\golden_corpus_v1.json,5783,.json,2026-07-26 00:45:54 UTC
 docs\evaluation\provider_model_matrix_v1.json,1464,.json,2026-07-14 05:11:18 UTC
-docs\FILE_INVENTORY.csv,217799,.csv,2026-08-11 00:27:41 UTC
+docs\FILE_INVENTORY.csv,217799,.csv,2026-08-11 00:28:52 UTC
 docs\generated\PRODUCTION_CONTRACT_INDEX.md,4001,.md,2026-08-04 21:42:38 UTC
-docs\GENERATED_STRUCTURE.md,85365,.md,2026-08-11 00:27:41 UTC
+docs\GENERATED_STRUCTURE.md,85365,.md,2026-08-11 00:28:52 UTC
 docs\INDEPENDENT_REVIEW_RECORD.md,7041,.md,2026-08-10 22:48:11 UTC
 docs\INSTALLATION_GUIDE.md,9028,.md,2026-08-10 22:59:11 UTC
 docs\INTERFACE_INTEGRATION.md,13670,.md,2026-08-10 22:48:17 UTC
@@ -1052,7 +1055,7 @@ docs\PRIVACY_AI_NOTICE.md,11383,.md,2026-08-10 22:48:14 UTC
 docs\PRIVACY_IMPACT_ASSESSMENT.md,10104,.md,2026-08-10 22:48:16 UTC
 docs\PRODUCT_REQUIREMENTS.md,14809,.md,2026-08-10 22:47:28 UTC
 docs\PROFESSIONAL_REVIEW_INDEX.md,7751,.md,2026-08-10 22:48:10 UTC
-docs\README.md,7773,.md,2026-08-11 00:28:52 UTC
+docs\README.md,7773,.md,2026-08-11 00:44:38 UTC
 docs\RELEASE_READINESS_RECORD.md,13100,.md,2026-08-11 00:19:13 UTC
 docs\REQUIREMENTS_TRACEABILITY.md,10820,.md,2026-08-10 22:47:34 UTC
 docs\SECURITY_ARCHITECTURE.md,12570,.md,2026-08-10 22:46:10 UTC
@@ -1682,9 +1685,9 @@ reports\production-readiness\2026\phase-15\product-version-parity.json,2703,.jso
 reports\production-readiness\2026\phase-15\summary.md,5223,.md,2026-07-15 06:28:26 UTC
 reports\production-readiness\2026\phase-15\workflow-pin-verification.json,18050,.json,2026-07-15 06:08:50 UTC
 reports\production-readiness\2026\phase-16\document-authority-verification.json,6376,.json,2026-08-09 02:29:16 UTC
-reports\production-readiness\2026\phase-16\document-disposition-inventory.json,55223,.json,2026-08-11 00:28:51 UTC
+reports\production-readiness\2026\phase-16\document-disposition-inventory.json,55223,.json,2026-08-11 00:44:38 UTC
 reports\production-readiness\2026\phase-16\document-replacement-baseline.json,26979,.json,2026-07-15 09:13:58 UTC
-reports\production-readiness\2026\phase-16\document-replacement-closure.json,54953,.json,2026-08-11 00:27:44 UTC
+reports\production-readiness\2026\phase-16\document-replacement-closure.json,54953,.json,2026-08-11 00:28:57 UTC
 reports\production-readiness\2026\phase-16\documentation-bom-verification.json,239,.json,2026-08-09 02:29:16 UTC
 reports\production-readiness\2026\phase-16\engineering-assurance-docs-verification.json,4530,.json,2026-08-10 22:59:22 UTC
 reports\production-readiness\2026\phase-16\engineering-assurance-document-verification.json,4530,.json,2026-08-05 00:52:45 UTC
@@ -1730,6 +1733,8 @@ reports\production-readiness\2026\phase-18\ka-capability-inventory.json,423537,.
 reports\production-readiness\2026\phase-18\ka-runtime-authority-current.json,978,.json,2026-07-25 22:42:41 UTC
 reports\production-readiness\2026\phase-18\phase-18-closeout-and-phase-19-transfer.json,1500,.json,2026-07-25 22:25:31 UTC
 reports\production-readiness\2026\phase-18\phase-18-closeout-and-phase-19-transfer.md,4411,.md,2026-07-25 22:25:31 UTC
+reports\production-readiness\2026\phase-19\al10-metadata-backfill-proposal.csv,33222,.csv,2026-08-11 00:07:14 UTC
+reports\production-readiness\2026\phase-19\al10-metadata-backfill-proposal.md,6446,.md,2026-08-11 00:16:11 UTC
 reports\production-readiness\2026\phase-19\cp19-a-integration-authority-verification.json,823,.json,2026-08-05 22:00:35 UTC
 reports\production-readiness\2026\phase-19\cp19-a-integration-authority.md,4617,.md,2026-07-25 22:56:01 UTC
 reports\production-readiness\2026\phase-19\cp19-a-validation.json,1009,.json,2026-07-25 22:54:32 UTC
@@ -2181,7 +2186,7 @@ tests\integration\test_gateway_trace_access.py,2837,.py,2026-07-14 08:23:32 UTC
 tests\integration\test_graphql_api.py,5540,.py,2026-07-13 23:01:31 UTC
 tests\integration\test_honeycomb_api.py,4935,.py,2026-07-13 23:02:09 UTC
 tests\integration\test_llm_gateway_coverage.py,7675,.py,2026-07-14 08:13:59 UTC
-tests\integration\test_llm_gateway_integration.py,18147,.py,2026-07-26 00:46:29 UTC
+tests\integration\test_llm_gateway_integration.py,17785,.py,2026-08-11 00:43:30 UTC
 tests\integration\test_rag_service_coverage.py,7741,.py,2026-07-14 06:14:26 UTC
 tests\integration\test_service_api_sweep.py,7799,.py,2026-07-13 23:01:31 UTC
 tests\integration\test_truth_engine_api.py,4196,.py,2026-07-14 02:43:24 UTC
@@ -2416,6 +2421,7 @@ tests\knowledge_algorithms\phase19\l9_ka_004.json,1837,.json,2026-07-26 09:10:29
 tests\knowledge_algorithms\phase19\l9_ka_005.json,1837,.json,2026-07-26 09:10:29 UTC
 tests\knowledge_algorithms\phase19\l9_ka_006.json,1837,.json,2026-07-26 09:10:29 UTC
 tests\knowledge_algorithms\phase19\l9_ka_007.json,1837,.json,2026-07-26 09:10:29 UTC
+tests\knowledge_algorithms\test_cp18c_system_controls.py,7231,.py,2026-07-25 20:48:17 UTC
 tests\knowledge_algorithms\test_ka_05_suggested_tier.py,1335,.py,2026-06-12 19:13:02 UTC
 tests\knowledge_algorithms\test_ka_113_complexity_router.py,2319,.py,2026-06-12 03:48:22 UTC
 tests\knowledge_algorithms\test_ka_bulk.py,8315,.py,2026-08-09 02:01:18 UTC
