@@ -71,7 +71,7 @@ def render(
     ka_evidence = (
         "- Current evidence: all 213/213 KAs are individually qualified and the "
         "186-row baseline backlog is closed through 36 dependency-safe groups. "
-        "The current source gate passes 3,101 backend tests with 19 skipped, "
+        "The current source gate passes 3,105 backend tests with 19 skipped, "
         "435 frontend tests, 36 Python SDK tests, and "
         "seven TypeScript SDK tests pass with the source/security/release gates. "
         "The unsigned 4.3.0 candidate installed per-machine, launched from "

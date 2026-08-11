@@ -11,9 +11,7 @@ honeycomb_api = Blueprint('honeycomb_api', __name__)
 def _get_honeycomb():
     """Resolve the Honeycomb manager from app config.
 
-    The Honeycomb System is canonical Axis 3 in the 17-axis layout; the
-    legacy numbering (Axis 5, still reflected in the axis5_honeycomb.py
-    filename) must not be used for manager lookup.
+    The Honeycomb System is canonical Axis 3 in the 17-axis layout.
     """
     axis_system = current_app.config.get('AXIS_SYSTEM')
     if not axis_system:

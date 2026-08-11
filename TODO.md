@@ -1087,8 +1087,8 @@ Supporting review inputs added 2026-08-10. These are **not** phase authority and
 change no release gate; `PRODUCTION_COMPLETION_PLAN_2026.md` remains the sole
 active execution plan and production/public release remains **NO-GO**.
 
-**Codex: read these at the start of the next session before touching the
-Algorithms page, the KA manifest, or the axis system.**
+These inputs were revalidated against the current tree. Continue to read them
+before further Algorithms, manifest, security-wiring, API-contract, or axis work.
 
 | Document | Location | Purpose |
 |---|---|---|
@@ -1108,25 +1108,41 @@ Algorithms page, the KA manifest, or the axis system.**
   backend tests with 19 skipped, 435 frontend tests, and clean lint/typecheck.
 - **AL-10 is open and blocked on owner approval.** It proposes derivation rules,
   not invented values. No manifest, catalog, or SDK artifact was modified.
-- **Groups V, D, C, S, H in the work queue are open.** Group D items require a
-  product-owner decision and must not be implemented by Codex unilaterally.
+- **Group V is complete.** The manifest is 213/211; DSQP already has seven
+  components; 16 axis managers are registered with Axis 5 explicitly unmanaged;
+  the live resolved route count is 507; trace UI coverage is partial for named
+  refinement/debate details; and all three old worktrees are merged but contain
+  uncommitted files, so they were preserved.
+- **C-1/C-2 and H-2 are complete.** Axis 3/4 modules and the Axis 4 manager now
+  use canonical identities, and the standard inventory scan excludes worktrees
+  and generated build/coverage folders. C-5 was already covered by a regression.
+- **S-1/S-2/S-3 are complete as review exports.** See `docs/spec-exports/` and
+  `scripts/generate_spec_exports.py`; freshness tests bind them to the live
+  manifest, coordinate code, canonical v3.2 spec copy, and current OpenAPI file.
+- **D-2/D-3 and AL-10 remain owner-gated.** C-3/C-4 are also held because the
+  cited external Axis 9 schema is absent and the current manager contradicts the
+  proposed label. C-6/C-8 remain behind D-2. C-7 is obsolete because DSQP is
+  already seven-part.
 
 ### Open items with the widest blast radius
 
-- [ ] **Regenerate the spec-facing KA registry** from
-      `backend/knowledge_algorithms/ka_manifest.v1.generated.json`. The registry
-      held in project knowledge lists 114 capabilities; the live manifest holds
-      213 with 211 production-enabled.
-- [ ] **Correct axes 14-17 in `17_axis_coordinate_schema.yaml`** (project
-      knowledge). Live code and `UKG_Canonical_Architecture_v1_0.docx` agree on
-      Acquisition Lifecycle / Risk & Threat / Ethics-Trust / FROST-Mode; that one
-      schema file still carries a fourth, superseded naming set.
+- [x] **Regenerate the spec-facing KA registry** from the 213-row live manifest.
+      Review/upload `docs/spec-exports/ka_registry_213.yaml` to replace the
+      114-row project-knowledge copy.
+- [x] **Generate the corrected axes 14-17 replacement block.** Review/upload
+      `docs/spec-exports/17_axis_coordinate_schema_axes14-17.yaml` to project
+      knowledge; the external source itself is not stored in this repository.
+- [x] **Generate the canonical-vs-live API delta.** The 45 canonical paths are
+      accounted against 67 live documented paths in
+      `docs/spec-exports/api_delta.md`; candidate mappings are not compatibility
+      claims and D-3 remains open.
 - [ ] **Resolve `backend/security/defense_supervisor.py`.** 224 lines, a passing
       unit test, and zero production importers. Confirm whether TruthGate KAs are
       the authoritative injection screen before wiring a second control surface.
-- [ ] **Decide the DSQP profile contract.** `backend/dsqp/dsqp_chain.py` declares
-      five components; the canonical 7-Part Profile requires Traits and Related
-      Roles. Code and patent technical disclosure currently disagree.
+- [x] **Revalidate the DSQP profile contract.** The five-component claim was
+      stale: `backend/dsqp/dsqp_chain.py` has seven components and the validator,
+      templates, answer generator, and Axis 9 manager all enforce the seven-part
+      construction.
 - [ ] **Backfill KA contract metadata (AL-10).** 99 capabilities lack a risk
       class, 75 a category, 67 a purpose; all 99 also lack a declared subsystem
       and 84 lack a layer. 98 of the 99 are production-enabled.
@@ -1134,8 +1150,9 @@ Algorithms page, the KA manifest, or the axis system.**
 ### Notes for the next session
 
 - `config/documentation-authority.json` registers the two root plans as
-  `supporting_review_inputs`. Keep those entries pointing at the root paths, or
-  `tests/unit/test_documentation_authority.py` will fail on `unclassified`.
+  `supporting_review_inputs` and `docs/spec-exports/` as a supporting-review
+  prefix. Keep those routes intact or the authority test will report
+  `unclassified`.
 - `docs/DOCUMENTATION_BOM.md`, `docs/DOCUMENTATION_CROSSWALK.md`, and
   `docs/README.md` were regenerated from that authority and pass the 157-file
   classification plus 72-route replacement-closure gates.

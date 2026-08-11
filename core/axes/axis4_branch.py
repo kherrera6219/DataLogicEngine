@@ -1,8 +1,8 @@
 """
-UKG Axis 3: Knowledge Domain
+UKG Axis 4: Branch System
 
-This module implements the Knowledge Domain axis of the Universal Knowledge Graph (UKG) system.
-The Knowledge Domain axis manages the conceptual domains, knowledge areas, and taxonomic
+This module implements the Branch System axis of the Universal Knowledge Graph (UKG) system.
+The Branch System manages conceptual domains, knowledge areas, and taxonomic
 relationships between concepts within the knowledge graph.
 """
 
@@ -11,11 +11,11 @@ import uuid
 from datetime import datetime
 from typing import Dict, List, Any, Optional, Set
 
-class DomainManager:
+class BranchManager:
     """
-    Domain Manager for the UKG System
+    Branch Manager for the UKG System
     
-    Responsible for managing Axis 3 (Knowledge Domain) functionality, including:
+    Responsible for managing Axis 4 (Branch System) functionality, including:
     - Knowledge domain creation and management
     - Concept definition and relationships
     - Taxonomic structures (broader/narrower terms)
@@ -24,7 +24,7 @@ class DomainManager:
     
     def __init__(self, db_manager=None, graph_manager=None):
         """
-        Initialize the Domain Manager.
+        Initialize the Branch Manager.
         
         Args:
             db_manager: Database Manager instance
@@ -81,8 +81,8 @@ class DomainManager:
             if 'uid' not in domain_data:
                 domain_data['uid'] = f"domain_{uuid.uuid4()}"
             
-            # Set axis number for Knowledge Domain axis
-            domain_data['axis_number'] = 3
+            # Domains and concepts are branch-taxonomy nodes on canonical Axis 4.
+            domain_data['axis_number'] = 4
             domain_data['node_type'] = 'knowledge_domain'
             
             # Check if domain already exists with the same label
@@ -165,8 +165,8 @@ class DomainManager:
                 concept_prefix = concept_data['label'].lower().replace(' ', '_')[:10]
                 concept_data['uid'] = f"concept_{domain_prefix}_{concept_prefix}_{uuid.uuid4().hex[:8]}"
             
-            # Set axis number for Knowledge Domain axis
-            concept_data['axis_number'] = 3
+            # Domains and concepts are branch-taxonomy nodes on canonical Axis 4.
+            concept_data['axis_number'] = 4
             concept_data['node_type'] = 'concept'
             
             # Check if concept already exists in this domain

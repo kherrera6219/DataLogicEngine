@@ -19,7 +19,7 @@
 | Title | Codex verification and remediation queue |
 | Document version | v1.0.0 |
 | Product version | 4.3.0 |
-| Status | active — not a phase authority |
+| Status | validated — confirmed source/spec/hygiene batch implemented; owner decisions retained |
 | Source finding report | `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` |
 | Baseline commit | `40e2592f` |
 | Date | 2026-08-10 |
@@ -41,6 +41,21 @@
    utility scripts will fail the commit.
 6. Use `.venv311` for all script execution. `.venv` (3.13, Windows Store)
    silently no-ops in subprocess contexts.
+
+## Current validation and disposition
+
+Validated against the current tree after the `d5ee1252` checkpoint. The source
+report's `40e2592f` snapshot is useful evidence, but several conclusions were
+already stale. Detailed evidence is in
+`reports/production-readiness/2026/phase-19/supporting-plan-validation-2026-08-10.md`.
+
+| Group | Current disposition |
+|---|---|
+| V | Complete. Manifest 213/211; defense supervisor has zero production importers; DSQP is seven-part, not five-part; 16 axis managers with Axis 5 explicitly unmanaged; 507 resolved Flask rules; trace UI is partial for named refinement/debate detail; three merged worktrees contain uncommitted files and were preserved. |
+| D | Open and owner-gated. D-1 needs no five-vs-seven change because the live DSQP contract already has seven components. D-2 and D-3 still require owner disposition. |
+| C | C-1 and C-2 complete, including canonical Axis 4 writes. C-5 was already complete. C-3/C-4 were not applied because the claimed Axis 9 authority is absent from the repo and the live manager says `Sector Expert Persona`, not `Sector Expert Mapping`. C-6/C-8 remain behind D-2; C-7 is obsolete. |
+| S | S-1, S-2, and S-3 generated under `docs/spec-exports/`, with a deterministic generator and freshness tests. S-3 uses the repository's canonical v3.2 copy and labels semantic matches as review candidates, not compatibility claims. |
+| H | H-2 complete. H-1 is blocked because all three merged worktrees contain uncommitted files. H-3 remains an external project-knowledge action. H-4 passes for attributable repository work; the separately owned untracked whitepaper remains intentionally excluded. |
 
 ---
 
@@ -175,31 +190,22 @@ Data: `al10-metadata-backfill-proposal.csv` (99 rows).
 subsystems exist; assigning it from capability names is inference presented as
 evidence.
 
-### Environment defect found during AL work
+### Prior environment and concurrent-activity notes — resolved
 
-`npm run test` fails wholesale under `NODE_ENV=production` with
-*"act(...) is not supported in production builds of React"* — this affects
-pre-existing tests, not just new ones. Pin `NODE_ENV=test` in the `test` script
-in `frontend/package.json`.
-
-### Concurrent-activity warning
-
-The working tree grew from 19 to 35 modified files during the AL session, in
-files the session never touched (`config/documentation-authority.json`,
-`docs/DOCUMENTATION_BOM.md`, `docs/README.md`,
-`scripts/generate_documentation_*.py`, `tests/unit/test_documentation_authority.py`,
-and the three generated KA catalogs). Another session is working in this repo.
-Confirm it has settled before committing or regenerating anything.
+The normal frontend test command now explicitly supplies the supported test
+environment and passes. The earlier generated-catalog drift was also repaired
+before this validation batch. The main worktree is attributable except for the
+separately owned untracked archive whitepaper, which this batch does not stage.
 
 ## Suggested execution order
 
-1. **H-4**, then **V-1 through V-9** — establish a clean, verified baseline.
-2. **S-1, S-2, S-3** — pure generation, no runtime risk, highest leverage.
-3. **H-1, H-2** — removes the noise source that has caused repeated false readings.
-4. **C-8** — the wiring guard, before any wiring decisions are made.
-5. **C-1 through C-5** — mechanical axis alignment, low risk.
-6. Pause for **D-1, D-2, D-3**.
-7. **C-6, C-7** only after their decisions land.
+1. Review/upload the three generated files under `docs/spec-exports/`.
+2. Decide D-2 (`defense_supervisor`) and D-3 (API contract disposition).
+3. Revisit C-3/C-4 only with the exact canonical 17-axis schema in the repo or
+   an owner-approved naming crosswalk.
+4. Recover or deliberately discard the uncommitted worktree contents before
+   H-1 cleanup; do not force-remove them.
+5. Continue CP19-M under the root production plan.
 
 ## Out of scope for this queue
 

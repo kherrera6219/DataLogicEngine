@@ -125,18 +125,32 @@ def test_legacy_axis_concepts_are_node_metadata_and_trace_has_frost_fields():
 
 
 def test_axis_4_and_5_manager_resolution_decision():
-    """Audit N4 (2026-06-10): Axis 4 is served by DomainManager's hierarchical
+    """Audit N4 (2026-06-10): Axis 4 is served by BranchManager's hierarchical
     taxonomy; Axis 5 (Node System) deliberately has no dedicated manager; the
-    Honeycomb System is registered at canonical Axis 3, not legacy Axis 5."""
-    from core.axes.axis3_domain import DomainManager
-    from core.axes.axis5_honeycomb import HoneycombSystem
+    Honeycomb System is registered at canonical Axis 3."""
+    from core.axes.axis3_honeycomb import HoneycombSystem
+    from core.axes.axis4_branch import BranchManager
 
     axis_system = AxisSystem()
 
-    assert isinstance(axis_system.axis_managers[4], DomainManager)
+    assert isinstance(axis_system.axis_managers[4], BranchManager)
     assert isinstance(axis_system.axis_managers[3], HoneycombSystem)
     assert 5 not in axis_system.axis_managers
     assert set(axis_system.axes.keys()) == set(range(1, 18))
+
+    class RecordingGraph:
+        def get_nodes_by_properties(self, _properties):
+            return []
+
+        def add_node(self, node):
+            return dict(node)
+
+    branch_manager = BranchManager(RecordingGraph())
+    created = branch_manager.create_domain(
+        {"label": "Safety Engineering", "description": "A branch taxonomy"}
+    )
+    assert created["status"] == "success"
+    assert created["domain"]["axis_number"] == 4
 
 
 def test_axis_5_context_resolves_as_unmanaged():

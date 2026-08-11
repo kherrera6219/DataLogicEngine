@@ -251,10 +251,14 @@
   "supporting_review_inputs": [
     "ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md",
     "CODEX_WORK_QUEUE_2026-08-10.md",
-    "docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md"
+    "docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md",
+    "docs/spec-exports/ka_registry_213.yaml",
+    "docs/spec-exports/17_axis_coordinate_schema_axes14-17.yaml",
+    "docs/spec-exports/api_delta.md"
   ],
   "supporting_review_prefixes": [
-    "docs/audits/"
+    "docs/audits/",
+    "docs/spec-exports/"
   ],
   "historical_prefixes": [
     "docs/archive/",

@@ -1,8 +1,8 @@
 
 """
-UKG Axis 5 Honeycomb System
+UKG Axis 3 Honeycomb System
 
-This module implements the Honeycomb System for Axis 5 of the Universal Knowledge Graph (UKG).
+This module implements the Honeycomb System for canonical Axis 3 of the Universal Knowledge Graph (UKG).
 The Honeycomb System enables multi-directional crosswalking between industry sectors,
 pillar levels, and other axes within the knowledge graph.
 """
@@ -19,9 +19,9 @@ class HoneycombSystem:
     Responsible for creating and managing multi-dimensional connections between:
     - Pillar Levels (Axis 1) and their sublevels
     - Industry Sectors (Axis 2)
-    - Branches (Axis 3)
-    - Methods (Axis 4)
-    - Tools (Axis 5)
+    - Honeycomb cross-domain bridges (Axis 3)
+    - Branches (Axis 4)
+    - Nodes (Axis 5)
     
     The Honeycomb metaphor represents how connections extend outward in multiple 
     directions from any node, creating a rich network of interconnected knowledge.

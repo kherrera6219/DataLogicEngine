@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-08-05T00:52:44.796934+00:00",
+  "generated_at": "2026-08-11T01:28:09.988903+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -11,7 +11,7 @@
     {
       "name": "live_route_manifest",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/verify_route_manifest.py",
         "--output",
         "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\route-manifest.json",
@@ -20,12 +20,12 @@
       "passed": true,
       "returncode": 0,
       "stdout": "{\n  \"routes\": 507,\n  \"classifications\": {\n    \"authenticated-mutation\": 121,\n    \"authenticated-read\": 257,\n    \"desktop-only\": 13,\n    \"external-client-governed-execution\": 5,\n    \"external-client-read\": 8,\n    \"internal-only\": 1,\n    \"owner-admin-mutation\": 98,\n    \"public-health\": 4\n  },\n  \"unclassified\": 0,\n  \"mutations_without_auth_evidence\": 0,\n  \"graphql_operations\": 12,\n  \"ipc_channels\": 19,\n  \"mcp_methods\": 3,\n  \"file_capabilities\": 5,\n  \"network_surfaces\": 5,\n  \"unclassified_non_http_surfaces\": 0,\n  \"incomplete_ipc_channels\": 0\n}\nWrote reports\\production-readiness\\2026\\phase-17\\route-manifest.json\n",
-      "stderr": "Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30\nCould not register Replit Auth blueprint: No module named 'replit_auth'\n"
+      "stderr": "Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30\n"
     },
     {
       "name": "product_version_parity",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/verify_product_versions.py",
         "--report",
         "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json"
@@ -38,7 +38,7 @@
     {
       "name": "openapi_compatibility",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/check_gateway_openapi_compatibility.py"
       ],
       "passed": true,
@@ -49,7 +49,7 @@
     {
       "name": "generated_contract_index",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/generate_documentation_contract_index.py",
         "--check"
       ],
@@ -61,7 +61,7 @@
     {
       "name": "documentation_authority",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/verify_doc_authority.py"
       ],
       "passed": true,
@@ -72,18 +72,18 @@
     {
       "name": "documentation_bom",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/verify_documentation_bom.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=154 errors=0\n",
+      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=158 errors=0\n",
       "stderr": ""
     },
     {
       "name": "phase16_replacement",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/verify_document_replacement_closure.py"
       ],
       "passed": true,
@@ -94,7 +94,7 @@
     {
       "name": "phase17_history",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/consolidate_phase17_history.py"
       ],
       "passed": true,
@@ -105,7 +105,7 @@
     {
       "name": "requirements_traceability",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/verify_requirements_traceability.py"
       ],
       "passed": true,
@@ -116,12 +116,12 @@
     {
       "name": "documentation_references",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
         "scripts/verify_docs_references.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Discovered 40 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
+      "stdout": "Discovered 44 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
       "stderr": ""
     }
   ]

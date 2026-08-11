@@ -156,6 +156,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/REQUIREMENTS_TRACEABILITY.md` | `assurance_release_external` | authoritative input | `docs/REQUIREMENTS_TRACEABILITY.md` | selected canonical document |
 | `docs/SECURITY_ARCHITECTURE.md` | `engineering_maintenance` | authoritative input | `docs/SECURITY_ARCHITECTURE.md` | selected canonical document |
 | `docs/SOFTWARE_LIFECYCLE_PLAN.md` | `engineering_maintenance` | authoritative input | `docs/SOFTWARE_LIFECYCLE_PLAN.md` | selected canonical document |
+| `docs/spec-exports/api_delta.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | `assurance_release_external` | authoritative input | `docs/THIRD_PARTY_SOFTWARE_INDEX.md` | selected canonical document |
 | `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | `user_admin_support` | authoritative input | `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md` | selected canonical document |
 | `docs/USER_GUIDE.md` | `user_admin_support` | authoritative input | `docs/USER_GUIDE.md` | selected canonical document |

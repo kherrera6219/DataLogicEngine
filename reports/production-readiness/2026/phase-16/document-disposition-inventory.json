@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-08-11T00:44:38.363734+00:00",
+  "generated_at": "2026-08-11T01:28:02.207685+00:00",
   "authority_version": "2026.08.10-cp19l-installed-evidence",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 157,
+    "markdown_file_count": 158,
     "canonical_document_count": 30,
     "canonical_limit": 30,
     "existing_canonical_count": 30,
@@ -17,7 +17,7 @@
       "authoritative": 35,
       "generated": 6,
       "historical": 113,
-      "supporting": 3
+      "supporting": 4
     }
   },
   "unclassified": [],
@@ -1206,6 +1206,14 @@
       "target": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
       "cap_counted": true,
       "basis": "selected canonical document"
+    },
+    {
+      "path": "docs/spec-exports/api_delta.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
     },
     {
       "path": "docs/THIRD_PARTY_SOFTWARE_INDEX.md",

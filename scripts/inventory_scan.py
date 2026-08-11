@@ -1,13 +1,15 @@
 
-import os
 import hashlib
 import json
+import os
 from collections import defaultdict
+from pathlib import Path
 
-ROOT_DIR = r"c:\software\DataLogicEngine"
+ROOT_DIR = Path(__file__).resolve().parents[1]
 IGNORE_DIRS = {
-    ".git", "node_modules", "__pycache__", ".venv", ".next", "dist", "build", 
-    ".pytest_cache", ".vscode", ".idea", "htmlcov", "coverage"
+    ".git", ".claude", "node_modules", "__pycache__", ".venv", ".venv311",
+    ".venv-release311", ".next", "dist", "build", ".pytest_cache", ".vscode",
+    ".idea", "htmlcov", "coverage",
 }
 IGNORE_EXTS = {".pyc", ".pyd", ".pyo", ".exe", ".dll", ".so", ".dylib", ".bin", ".obj", ".o", ".a", ".lib"}
 
@@ -22,7 +24,12 @@ def calculate_checksum(file_path):
     except Exception:
         return None
 
+def _ignored_directory(name):
+    return name in IGNORE_DIRS or name.startswith("dist-") or name.startswith("htmlcov")
+
+
 def scan_directory(root_path):
+    root_path = os.fspath(root_path)
     inventory = []
     content_map = defaultdict(list)
     name_map = defaultdict(list)
@@ -31,7 +38,7 @@ def scan_directory(root_path):
 
     for root, dirs, files in os.walk(root_path):
         # Modify dirs in-place to skip ignored directories
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        dirs[:] = [d for d in dirs if not _ignored_directory(d)]
         
         for file in files:
             if any(file.endswith(ext) for ext in IGNORE_EXTS):

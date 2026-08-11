@@ -14,6 +14,16 @@
 | Repository state | `40e2592f` (5 uncommitted working-tree entries) |
 | Method | Live code reads only; documentation claims treated as unverified assertions |
 
+> **Current validation notice.** This report is the original `40e2592f`
+> supporting-review snapshot. Validation against the later `d5ee1252` baseline
+> found that F-10 was already false (DSQP has seven components), F-11's naming
+> hazard was real and has now been remediated, F-12 could not be validated
+> because the cited schema is not in the repository and the live Axis 9 manager
+> says `Sector Expert Persona`, and F-13 requires resolved-route/spec mapping
+> rather than decorator counting. See
+> `reports/production-readiness/2026/phase-19/supporting-plan-validation-2026-08-10.md`
+> and `CODEX_WORK_QUEUE_2026-08-10.md` for current dispositions.
+
 ## 1. Scope and method
 
 This report compares two sources:

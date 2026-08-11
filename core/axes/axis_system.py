@@ -29,14 +29,10 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 # Import Axis Managers.
-# Module filenames predate the final 17-axis numbering and are kept for import
-# stability; the aliases map each module to its canonical axis:
-#   axis5_honeycomb.py -> Axis 3 (Honeycomb System)
-#   axis3_domain.py    -> Axis 4 (Branch System)
 from core.axes.axis1_knowledge import KnowledgeAxis as PillarManager
 from core.axes.axis2_sector import SectorManager
-from core.axes.axis5_honeycomb import HoneycombSystem  # Axis 3
-from core.axes.axis3_domain import DomainManager as BranchManager  # Axis 4
+from core.axes.axis3_honeycomb import HoneycombSystem
+from core.axes.axis4_branch import BranchManager
 from core.axes.axis6_regulatory import RegulatoryManager as OctopusManager  # Axis 6
 from core.axes.axis7_compliance import ComplianceManager as SpiderwebManager  # Axis 7
 
@@ -123,7 +119,7 @@ class AxisSystem:
             self.honeycomb_system = HoneycombSystem(self.db_manager, self.graph_manager)
             self.register_axis_manager(3, self.honeycomb_system)
 
-            # Axis 4: Branch System. DomainManager implements the hierarchical
+            # Axis 4: Branch System. BranchManager implements the hierarchical
             # sub-domain taxonomy (broader/narrower, part_of/has_part) that
             # branch semantics require, so it serves as the Axis 4 manager.
             self.branch_manager = BranchManager(self.db_manager, self.graph_manager)

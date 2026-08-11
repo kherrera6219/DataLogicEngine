@@ -1,0 +1,20 @@
+schema_version: ukg.axis-coordinate-spec-export.v1
+status: replacement block for owner review and project-knowledge upload
+generated_from: core/coordinate_system.py:UnifiedCoordinate
+axes:
+  14:
+    name: Acquisition Lifecycle
+    encoding: 14.<LifecycleStage>[.<AcquisitionInstrument>...]
+    manager_module: core.axes.axis14_acquisition_lifecycle
+  15:
+    name: Risk & Threat Context
+    encoding: 15.<CompositeRisk>[.<RiskDimension>...]
+    manager_module: core.axes.axis15_risk_threat
+  16:
+    name: Ethics, Trust & Criticality
+    encoding: 16.<Criticality>[.<EthicsFramework>...]
+    manager_module: core.axes.axis16_ethics_trust
+  17:
+    name: FROST-Mode Selector
+    encoding: 17.<Tier>[.<FROSTDepth>.<TruthEngineMode>]
+    manager_module: core.axes.axis17_frost_mode
