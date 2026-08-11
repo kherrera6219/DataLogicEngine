@@ -114,6 +114,10 @@ class UnifiedCoordinate:
         6: "Octopus Crosswalk",
         7: "Spiderweb Crosswalk",
         8: "Knowledge Role",
+        # Axis 9's coordinate payload encodes the qualifications/skills used to
+        # construct the Sector Expert persona. The AxisSystem and manager use
+        # the persona display names; these labels are related, not competing
+        # schema authorities.
         9: "Qualifications & Skills",
         10: "Octopus Regulatory Expert",
         11: "Spiderweb Compliance Expert",

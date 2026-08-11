@@ -8,7 +8,7 @@ import pytest
 from app import app
 
 ROOT = Path(__file__).resolve().parents[2]
-STATIC_OPENAPI_PATH = ROOT / "backend" / "api" / "specs" / "ukg_api_v3_2.yaml"
+STATIC_OPENAPI_PATH = ROOT / "docs" / "openapi.yaml"
 
 try:
     import schemathesis
@@ -38,20 +38,24 @@ def test_openapi_spec_has_required_core_contracts() -> None:
     assert isinstance(spec.get("paths"), dict), "OpenAPI paths must be present"
 
     paths = spec["paths"]
-    for required_path in ("/enhance", "/health", "/compliance/check"):
+    for required_path in (
+        "/gateway/chat",
+        "/gateway/chat/stream",
+        "/truth/gate/evaluate",
+        "/ka/algorithms",
+    ):
         assert required_path in paths, f"Missing required API path contract: {required_path}"
 
-    # Verify /enhance (the primary query entry point) documents a POST operation
-    enhance_post = paths["/enhance"].get("post") or {}
-    assert enhance_post, "Canonical spec must document POST /enhance"
-    request_body = enhance_post.get("requestBody") or {}
-    assert request_body.get("required") is True, "Enhance request body must be required"
+    gateway_post = paths["/gateway/chat"].get("post") or {}
+    assert gateway_post, "Supported contract must document POST /gateway/chat"
+    request_body = gateway_post.get("requestBody") or {}
+    assert request_body.get("required") is True, "Gateway request body must be required"
 
 
 @pytest.mark.parametrize(
     ("method", "path", "payload", "expected_statuses"),
     [
-        # /static/swagger.json removed � canonical spec is backend/api/specs/ukg_api_v3_2.yaml
+        # The supported static integration contract is docs/openapi.yaml.
         ("GET", "/live", None, {200}),
         ("GET", "/ready", None, {200, 503}),
         ("GET", "/metrics", None, {401}),

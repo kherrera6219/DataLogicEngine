@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Scope | `CODEX_WORK_QUEUE_2026-08-10.md` and `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` |
+| Scope | `CODEX_WORK_QUEUE_2026-08-10.md` and `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` |
 | Baseline reviewed | `d5ee1252` plus this source-only remediation batch |
 | Authority | Supporting review only; subordinate to `PRODUCTION_COMPLETION_PLAN_2026.md` |
 | Release effect | None; CP19-M remains open and production/public release remains **NO-GO** |
@@ -32,8 +32,10 @@
 - C-3/C-4: held. The cited canonical schema is not present in the repository,
   while the live Axis 9 manager says `Sector Expert Persona`. The proposed
   `Sector Expert Mapping` value was not treated as verified authority.
-- C-6/C-8: held behind D-2. A blanket importer test would encode the undecided
-  wire-vs-deprecate outcome and could create a duplicate security authority.
+- C-6/C-8: completed 2026-08-11 after D-2 selected deprecation. The isolated,
+  fail-open supervisor, prompt, dedicated test, stale payload requirement, and
+  gateway wording were removed. A wiring test protects explicit retirement and
+  the two live gateway input-control imports.
 - C-7: closed as obsolete because the live DSQP contract is already seven-part.
 - S-1/S-2/S-3: generated `docs/spec-exports/ka_registry_213.yaml`,
   `17_axis_coordinate_schema_axes14-17.yaml`, and `api_delta.md`. The API table
@@ -44,7 +46,7 @@
 
 ## Final source validation
 
-- Backend: 3,105 passed, 19 skipped, 35 known warnings.
+- Backend: 3,098 passed, 19 skipped, 35 known warnings.
 - Frontend: 435 passed; lint and typecheck passed.
 - SDKs: 36 Python tests and seven TypeScript tests passed.
 - Focused remediation/documentation set: 21 passed; Ruff passed.
@@ -53,3 +55,20 @@
   and documentation truth 10/10.
 - No installed rebuild was performed; the installed payload remains the prior
   candidate and CP19-M remains open.
+
+## 2026-08-11 disposition update
+
+D-2 selected deprecation because the isolated supervisor had zero production
+importers, failed open, and would disclose input to a provider outside the
+canonical provider-governance ledger. Gateway `PromptInjectionShield` plus
+`AIGuardrailService` and canonical TruthGate/KA admission remain the only live
+authorities. Focused wiring, DAN, encoded-payload, DMRF, and TruthGate tests pass.
+D-3 subsequently selected `docs/openapi.yaml` and the live `/api/v1` routes as
+the supported integration authority. The non-callable `/ukg/*` v3.2 document
+moved to `docs/archive/api/ukg_api_v3_2-roadmap-2026-01.yaml`; it is no longer a
+release-payload requirement. Contract and comparison-export tests pass.
+
+C-3/C-4 close through an explicit tested live crosswalk rather than the absent
+external label. Axis 9 coordinate data encodes `Qualifications & Skills`;
+AxisSystem and the manager display `Sector Expert` and `Sector Expert Persona`.
+These are schema payload and persona presentation roles, not competing names.

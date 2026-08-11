@@ -249,7 +249,6 @@
     "docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md"
   ],
   "supporting_review_inputs": [
-    "ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md",
     "CODEX_WORK_QUEUE_2026-08-10.md",
     "docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md",
     "docs/spec-exports/ka_registry_213.yaml",

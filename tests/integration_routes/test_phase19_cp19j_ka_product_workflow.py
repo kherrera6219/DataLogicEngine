@@ -353,7 +353,7 @@ def test_durable_runner_executes_canonical_plan_and_exposes_evidence(app):
     runner.stop()
 
 
-def test_cp19j_source_verifier_accepts_the_current_cp19k_manifest_lineage():
+def test_cp19j_source_verifier_accepts_the_current_manifest_lineage():
     evidence = verify_cp19j()
 
     assert evidence["status"] == "pass", evidence["errors"]

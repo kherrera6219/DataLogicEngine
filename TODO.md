@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.64.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.65.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release decision | Production/public release: **NO-GO** |
@@ -1093,9 +1093,9 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 | Document | Location | Purpose |
 |---|---|---|
 | Codex work queue | `CODEX_WORK_QUEUE_2026-08-10.md` | Full remediation queue: Groups V (verify), D (owner decisions), C (code), S (spec exports), H (hygiene), AL (Algorithms page) |
-| Algorithms page plan | `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` | AL-1 to AL-10 plan, measured baseline, completion record |
+| Algorithms page plan | `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` | Completed AL-1 to AL-10 plan and validation record |
 | Spec vs app findings | `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` | Evidence: canonical UKG specification compared against live code |
-| AL-10 backfill proposal | `reports/production-readiness/2026/phase-19/al10-metadata-backfill-proposal.md` (+ `.csv`, 99 rows) | Owner-approval proposal for missing KA contract metadata |
+| AL-10 backfill record | `reports/production-readiness/2026/phase-19/al10-metadata-backfill-proposal.md` (+ `.csv`, 99 rows) | Approved derivation policy and completion record |
 
 ### State on handoff
 
@@ -1106,8 +1106,10 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
   `tests/integration_routes/test_ka_route_auth_boundaries.py`. Gates at
   completion: 11/11 focused frontend tests, 24/24 focused route tests, 3,101
   backend tests with 19 skipped, 435 frontend tests, and clean lint/typecheck.
-- **AL-10 is open and blocked on owner approval.** It proposes derivation rules,
-  not invented values. No manifest, catalog, or SDK artifact was modified.
+- **AL-10 is complete.** Manifest `2026.08.11-al10.1` fills all purpose,
+  category, risk, subsystem, and layer/stage fields from implementation,
+  CP19-A ownership, effect, and stage authorities. Generated backend/SDK
+  catalogs, spec export, runtime receipt, and CP19-K matrix are synchronized.
 - **Group V is complete.** The manifest is 213/211; DSQP already has seven
   components; 16 axis managers are registered with Axis 5 explicitly unmanaged;
   the live resolved route count is 507; trace UI coverage is partial for named
@@ -1119,10 +1121,12 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 - **S-1/S-2/S-3 are complete as review exports.** See `docs/spec-exports/` and
   `scripts/generate_spec_exports.py`; freshness tests bind them to the live
   manifest, coordinate code, canonical v3.2 spec copy, and current OpenAPI file.
-- **D-2/D-3 and AL-10 remain owner-gated.** C-3/C-4 are also held because the
-  cited external Axis 9 schema is absent and the current manager contradicts the
-  proposed label. C-6/C-8 remain behind D-2. C-7 is obsolete because DSQP is
-  already seven-part.
+- **D-2/D-3 and C-3/C-4 are complete/dispositioned.** The unverified external
+  Axis 9 label was not adopted; a regression now binds the live coordinate
+  `Qualifications & Skills` payload to the `Sector Expert` / `Sector Expert
+  Persona` display roles. C-6/C-8 closed through D-2 retirement. C-7 is obsolete
+  because DSQP is already seven-part. D-3 selects `docs/openapi.yaml`; the old
+  `/ukg/*` roadmap contract is archived and removed from the release payload.
 
 ### Open items with the widest blast radius
 
@@ -1135,24 +1139,28 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 - [x] **Generate the canonical-vs-live API delta.** The 45 canonical paths are
       accounted against 67 live documented paths in
       `docs/spec-exports/api_delta.md`; candidate mappings are not compatibility
-      claims and D-3 remains open.
-- [ ] **Resolve `backend/security/defense_supervisor.py`.** 224 lines, a passing
-      unit test, and zero production importers. Confirm whether TruthGate KAs are
-      the authoritative injection screen before wiring a second control surface.
+      claims. D-3 selects `docs/openapi.yaml` and live `/api/v1` routes; the
+      compared `/ukg/*` document is archived roadmap history.
+- [x] **Resolve `backend/security/defense_supervisor.py`.** The disconnected,
+      fail-open, pre-governance provider screen was retired with its prompt,
+      dedicated test, and payload requirement. Gateway `PromptInjectionShield`
+      plus `AIGuardrailService` and canonical TruthGate/KA admission remain the
+      live authorities; wiring tests and DAN/encoded-payload regressions pass.
 - [x] **Revalidate the DSQP profile contract.** The five-component claim was
       stale: `backend/dsqp/dsqp_chain.py` has seven components and the validator,
       templates, answer generator, and Axis 9 manager all enforce the seven-part
       construction.
-- [ ] **Backfill KA contract metadata (AL-10).** 99 capabilities lack a risk
-      class, 75 a category, 67 a purpose; all 99 also lack a declared subsystem
-      and 84 lack a layer. 98 of the 99 are production-enabled.
+- [x] **Backfill KA contract metadata (AL-10).** All 213 capabilities now carry
+      purpose, category, risk, subsystem, and layer/stage metadata. The 99-row
+      finding and reserved `KA-033` layer gap are closed in
+      `2026.08.11-al10.1`.
 
 ### Notes for the next session
 
-- `config/documentation-authority.json` registers the two root plans as
-  `supporting_review_inputs` and `docs/spec-exports/` as a supporting-review
-  prefix. Keep those routes intact or the authority test will report
-  `unclassified`.
+- `config/documentation-authority.json` registers the remaining root work queue
+  as a supporting review input; the completed Algorithms plan is historical
+  under `docs/archive/session-history/`. `docs/spec-exports/` remains a
+  supporting-review prefix.
 - `docs/DOCUMENTATION_BOM.md`, `docs/DOCUMENTATION_CROSSWALK.md`, and
   `docs/README.md` were regenerated from that authority and pass the 157-file
   classification plus 72-route replacement-closure gates.

@@ -87,7 +87,7 @@ def verify() -> dict[str, Any]:
     product = manifest.get("authority", {}).get("product_workflow", {})
     manifest_version = str(manifest.get("manifest_version") or "")
     if not re.fullmatch(
-        r"2026\.\d{2}\.\d{2}-cp19(?:j|k)\.\d+",
+        r"2026\.\d{2}\.\d{2}-[a-z0-9-]+\.\d+",
         manifest_version,
     ):
         errors.append("manifest_version")

@@ -53,6 +53,57 @@ def test_phase18_runtime_manifest_is_current_and_deduplicated():
     )
 
 
+def test_runtime_manifest_has_complete_production_contract_metadata():
+    manifest = load_manifest()
+    production_entries = [
+        definition
+        for definition in manifest.entries.values()
+        if definition.admission.production_enabled
+    ]
+
+    assert len(production_entries) == 211
+    for definition in production_entries:
+        assert definition.purpose, definition.canonical_id
+        assert definition.contract.categories, definition.canonical_id
+        assert definition.contract.risk_classes, definition.canonical_id
+        assert definition.contract.subsystems, definition.canonical_id
+        assert definition.contract.layers, definition.canonical_id
+
+
+def test_al10_metadata_uses_approved_contract_authorities():
+    manifest = load_manifest()
+
+    complexity = manifest.entries["KA-036"]
+    assert complexity.purpose == (
+        "bounded complexity estimation from supplied request signals."
+    )
+    assert complexity.contract.categories == ["Routing"]
+    assert complexity.contract.risk_classes == ["Low"]
+    assert complexity.contract.subsystems == ["governed_request_dmrf"]
+    assert complexity.contract.layers == ["L1"]
+
+    ingestion = manifest.entries["KA-071"]
+    assert ingestion.contract.categories == ["Lifecycle"]
+    assert ingestion.contract.risk_classes == ["High"]
+    assert ingestion.contract.subsystems == ["ingestion"]
+    assert ingestion.contract.layers == ["ingestion"]
+
+    policy = manifest.entries["KA-177"]
+    assert policy.contract.categories == ["General"]
+    assert policy.contract.risk_classes == ["Critical"]
+    assert policy.contract.subsystems == ["truthgate"]
+    assert policy.contract.layers == ["L8"]
+
+    assert manifest.authority["contract_metadata_policy"] == {
+        "checkpoint": "AL-10",
+        "purpose_source": "implementation_module_docstring",
+        "category_source": "cp19_a_primary_owner",
+        "risk_source": "declared_effect_class_and_cp19_a_primary_owner",
+        "subsystem_source": "cp19_a_primary_owner",
+        "layer_source": "cp19_a_primary_owner_stage_scope",
+    }
+
+
 def test_phase18_manifest_normalizes_all_supported_id_families():
     manifest = load_manifest()
 

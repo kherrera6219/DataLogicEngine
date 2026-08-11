@@ -38,11 +38,11 @@ SDKs.
 | Area | Current state |
 |---|---|
 | Canonical Knowledge Algorithms | 213 retained; 211 production-enabled |
-| Runtime authority | One generated manifest/controller; 112-edge acyclic dependency graph |
+| Runtime authority | Manifest `2026.08.11-al10.1`; one controller; 112-edge acyclic dependency graph; all 213 descriptive contracts complete |
 | Current checkpoint | CP19-L complete; clean candidate rebuilt/installed; CP19-M active |
 | Individually qualified KAs | 213/213; zero open rows |
 | Grouped qualification roadmap | 36 batches (08-43); all complete |
-| Latest source validation | 3,105 passed, 19 skipped, 35 known warnings |
+| Latest source validation | 3,098 passed, 19 skipped, 35 known warnings |
 | Dependency security | Governed locks and local audits clean; live GitHub query reports zero open Dependabot alerts |
 | Release decision | **NO-GO** until CP19-M and retained signed/installed/manual gates pass |
 
@@ -363,9 +363,17 @@ Open engineering and release acceptance:
   code. Misnumbered Axis 3/4 module names are corrected, repo-wide audit scans
   now exclude nested worktrees/build outputs, and reviewable 213-KA, axes 14-17,
   and canonical-vs-live API exports are available under `docs/spec-exports/`.
-  The review also confirmed that DSQP already has seven components. The isolated
-  `defense_supervisor` and the API-contract disposition remain owner decisions;
-  none of this closes CP19-M or changes the release **NO-GO**
+  The review also confirmed that DSQP already has seven components. AL-10 is now
+  complete: all 213 KA rows carry purpose, category, risk, subsystem, and
+  layer/stage metadata derived from implementation and approved ownership/effect
+  authorities. The completed Algorithms plan is archived under
+  `docs/archive/session-history/`. The disconnected fail-open
+  `defense_supervisor` was retired instead of being wired as a duplicate screen;
+  gateway guardrails and canonical TruthGate admission remain authoritative and
+  are regression-tested. `docs/openapi.yaml` and the live `/api/v1` routes are
+  now the explicit integration authority; the former non-callable `/ukg/*`
+  contract is archived roadmap history and no longer ships. None of this closes
+  CP19-M or changes the release **NO-GO**
 
 What Makes DataLogicEngine Different?
 

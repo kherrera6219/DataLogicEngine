@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "628d4bd136bdf2b63969c237f46be9b97786dc7bcf42056a667b8c1da56c428e",
+  "source_input_sha256": "04a8646079f42e824306d7081f7bfe4cf31f141e0548b6953fc7449062c87b33",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 132,
@@ -27,7 +27,7 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 138,
+    "integration_surfaces": 142,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
     "canonical_with_test_reference": 213,
@@ -10737,13 +10737,6 @@
   ],
   "integration_surfaces": [
     {
-      "path": "backend/api/specs/ukg_api_v3_2.yaml",
-      "exists": true,
-      "kind": "backend_api_surface",
-      "disposition": "generate_or_migrate_to_versioned_ka_api",
-      "target_checkpoint": "CP18-E"
-    },
-    {
       "path": "backend/coverage.json",
       "exists": true,
       "kind": "backend_application_caller",
@@ -11060,6 +11053,41 @@
     },
     {
       "path": "frontend/.next/server/app-paths-manifest.json",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/.next/standalone/.next/app-path-routes-manifest.json",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/.next/standalone/.next/prerender-manifest.json",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/.next/standalone/.next/routes-manifest.json",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/.next/standalone/.next/server/app/algorithms/page/app-paths-manifest.json",
+      "exists": true,
+      "kind": "frontend_reference_surface",
+      "disposition": "align_to_canonical_manifest_and_trace_contract",
+      "target_checkpoint": "CP18-E"
+    },
+    {
+      "path": "frontend/.next/standalone/.next/server/app-paths-manifest.json",
       "exists": true,
       "kind": "frontend_reference_surface",
       "disposition": "align_to_canonical_manifest_and_trace_contract",

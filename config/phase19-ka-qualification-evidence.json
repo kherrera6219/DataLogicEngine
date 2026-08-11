@@ -1,8 +1,11 @@
 {
   "schema_version": "dle.cp19-k-qualification-evidence.v1",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.08-cp19k.24",
+  "manifest_version": "2026.08.11-al10.1",
   "status": "cp19_k_complete",
+  "scope_notes": {
+    "descriptive_contract_metadata": "The original CP19-K zero-incomplete result covered semantic, selector, owning-path, trace, security, effect, and performance evidence; it did not require populated purpose, category, risk, subsystem, or layer labels. AL-10 closes that descriptive-metadata scope on the unchanged 213 identities and implementation owners."
+  },
   "batches": [
     {
       "batch_id": "cp19-k-batch-01-governed-l1",

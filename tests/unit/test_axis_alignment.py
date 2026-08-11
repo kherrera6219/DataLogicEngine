@@ -27,6 +27,19 @@ def test_axis_14_to_17_names_are_canonical():
     assert axis_system.axes[17]["name"] == "FROST-Mode Selector"
 
 
+def test_axis_9_coordinate_and_persona_labels_have_an_explicit_crosswalk():
+    axis_system = AxisSystem()
+    manager = axis_system.axis_managers[9]
+
+    assert UnifiedCoordinate.AXIS_NAMES[9] == "Qualifications & Skills"
+    assert axis_system.axes[9]["name"] == "Sector Expert"
+    assert manager.axis_number == 9
+    assert manager.axis_name == "Sector Expert Persona"
+    assert {"education", "certifications", "skills", "training"} <= set(
+        manager.components
+    )
+
+
 def test_axis_managers_resolve_canonical_phase_b_contexts():
     axis_system = AxisSystem()
 

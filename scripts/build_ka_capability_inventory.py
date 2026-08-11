@@ -615,10 +615,7 @@ def classify_integration_surfaces(
             kind = "application_caller"
             disposition = "route_through_canonical_controller"
             checkpoint = "CP18-D"
-        elif relative.startswith("backend/routes/") or relative in {
-            "backend/graphql_schema.py",
-            "backend/api/specs/ukg_api_v3_2.yaml",
-        }:
+        elif relative.startswith("backend/routes/") or relative == "backend/graphql_schema.py":
             kind = "backend_api_surface"
             disposition = "generate_or_migrate_to_versioned_ka_api"
             checkpoint = "CP18-E"

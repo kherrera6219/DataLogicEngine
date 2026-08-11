@@ -6,24 +6,25 @@
 | Title | Contract metadata backfill proposal for 99 KA capabilities |
 | Document version | v1.0.0 |
 | Product version | 4.3.0 |
-| Status | **proposal — requires owner approval; no manifest was modified** |
+| Status | **approved and implemented 2026-08-11** |
 | Date | 2026-08-10 |
 | Manifest reviewed | `2026.08.08-cp19k.24` (213 capabilities) |
 | Data artifact | `al10-metadata-backfill-proposal.csv` (99 rows) |
-| Source plan | `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (AL-10) |
+| Source plan | `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (AL-10) |
 | Owner | Audit session |
 | Approver | Kevin Herrera, Product Owner |
 
-## 1. What this is, and what it is not
+## 1. What this was, and how it closed
 
-This proposal assembles **evidence already present in the repository** for the
+This proposal assembled **evidence already present in the repository** for the
 99 capabilities with incomplete contract metadata. It proposes derivation
 **rules**, not 99 individual invented values, so that approval is a small number
 of policy decisions rather than a line-by-line guessing exercise.
 
-**No purpose, category, or risk class has been invented.** Nothing was written
-to `ka_manifest.v1.generated.json` or any SDK catalog. Every CSV row carries
-`status = PROPOSED_REQUIRES_OWNER_APPROVAL`.
+The product owner subsequently authorized proceeding through the plan. The
+implementation uses these evidence sources directly and records the derivation
+policy in manifest authority; the original CSV remains the pre-approval review
+artifact and still carries `status = PROPOSED_REQUIRES_OWNER_APPROVAL`.
 
 ## 2. The gap, measured
 
@@ -127,20 +128,22 @@ assigned 75 separate times.
 6. Regenerate via `scripts/build_ka_runtime_manifest.py`; confirm
    `test_phase18_runtime_manifest` and `test_phase18_runtime_authority` pass.
 
-## 6. Constraints on execution
+## 6. Completion record
 
-- Regeneration updates three artifacts in lockstep:
-  `backend/knowledge_algorithms/ka_manifest.v1.generated.json`,
-  `sdk/UKG_Python_SDK/ukg_sdk/data/ka_manifest.v1.generated.json`, and
-  `sdk/DataLogicEngine_TypeScript_SDK/src/ka-manifest.generated.ts`.
-- Those three files are **currently modified in the working tree** by concurrent
-  activity, and the two Phase 18 staleness tests are failing independently of
-  this proposal. Resolve that before regenerating, or the diffs become
-  unattributable.
-- The Algorithms page now states missing metadata explicitly rather than
-  substituting a value, so this backfill is a **data-quality improvement, not a
-  correctness fix**. Nothing is user-visibly wrong while it remains open.
+- Manifest `2026.08.11-al10.1` fills 67 purposes, 75 categories, 99 risk
+  classes, 99 subsystem bindings, and 85 layer/stage scopes. The extra layer row
+  is reserved `KA-033`, which was not one of the original 99 risk-gap rows.
+- Risk derivation assigns `Low` to 79 pure/advisory rows, `High` to 19
+  effect-proposal rows, and `Critical` to the one TruthGate effect-proposal row.
+- The backend, Python SDK, TypeScript SDK, spec export, runtime-authority receipt,
+  and CP19-K qualification matrix were regenerated in lockstep.
+- Focused runtime-manifest, integration-authority, CP19-K matrix, and spec-export
+  tests pass. All 213 entries now carry purpose, category, risk, subsystem, and
+  layer/stage metadata.
+- This is a data-quality and governance-completeness change. It does not change
+  identity, execution behavior, selector admission, effect application, or the
+  standing production/public release **NO-GO**.
 
 ---
 
-*End of proposal. No manifest, catalog, or SDK artifact was modified.*
+*End of proposal and completion record.*

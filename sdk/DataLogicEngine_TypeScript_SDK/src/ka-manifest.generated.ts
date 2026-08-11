@@ -3,14 +3,22 @@ import type { KARuntimeManifestCatalog } from "./ka-types.js";
 
 export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.08.08-cp19k.24",
+  "manifest_version": "2026.08.11-al10.1",
   "status": "cp19_j_product_workflow_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "628d4bd136bdf2b63969c237f46be9b97786dc7bcf42056a667b8c1da56c428e",
+    "crosswalk_source_input_sha256": "04a8646079f42e824306d7081f7bfe4cf31f141e0548b6953fc7449062c87b33",
     "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
     "integration_authority_version": "2026.07.25-cp19a.1",
+    "contract_metadata_policy": {
+      "checkpoint": "AL-10",
+      "purpose_source": "implementation_module_docstring",
+      "category_source": "cp19_a_primary_owner",
+      "risk_source": "declared_effect_class_and_cp19_a_primary_owner",
+      "subsystem_source": "cp19_a_primary_owner",
+      "layer_source": "cp19_a_primary_owner_stage_scope"
+    },
     "duplicate_policy": "one_semantic_capability_one_canonical_id",
     "dependency_result_contract": "dle.ka-execution-result.v1#output",
     "dependency_input_field": "dependency_results",
@@ -4262,7 +4270,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "Reserved"
         ],
-        "layers": [],
+        "layers": [
+          "L1"
+        ],
         "personas": [],
         "subsystems": [
           "UKG/USKD Core"
@@ -4509,7 +4519,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-036": {
       "canonical_id": "KA-036",
       "name": "Complexity Estimator",
-      "purpose": null,
+      "purpose": "bounded complexity estimation from supplied request signals.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -4532,15 +4542,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Routing"
+        ],
+        "layers": [
+          "L1"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "governed_request_dmrf"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -4588,7 +4606,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-037": {
       "canonical_id": "KA-037",
       "name": "Resource Allocator",
-      "purpose": null,
+      "purpose": "Allocate compute/token resources.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -4611,15 +4629,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Analysis"
+        ],
+        "layers": [
+          "simulation"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "simulation"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -4667,7 +4693,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-038": {
       "canonical_id": "KA-038",
       "name": "Consensus Engine",
-      "purpose": null,
+      "purpose": "deterministic DSQP consensus-readiness assessment.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -4698,10 +4724,17 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "retained-dissent count",
           "no fabricated confidence"
         ],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Persona"
+        ],
+        "layers": [
+          "L4",
+          "L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "dsqp_quad_persona"
+        ],
         "dependencies": [
           "KA-013",
           "KA-030"
@@ -4709,7 +4742,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -4757,7 +4792,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-039": {
       "canonical_id": "KA-039",
       "name": "Anomaly Detection",
-      "purpose": null,
+      "purpose": "Detect anomalies in data streams or logic.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -4780,15 +4815,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -4836,7 +4879,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-040": {
       "canonical_id": "KA-040",
       "name": "Hypothesis Generation",
-      "purpose": null,
+      "purpose": "Generate testable hypotheses for unknown phenomena.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -4859,15 +4902,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -4915,7 +4966,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-041": {
       "canonical_id": "KA-041",
       "name": "Abductive Reasoning",
-      "purpose": null,
+      "purpose": "Infer the most likely explanation for an observation.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -4938,15 +4989,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -4994,7 +5053,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-042": {
       "canonical_id": "KA-042",
       "name": "Counterfactual Simulator",
-      "purpose": null,
+      "purpose": "Simulate \"what if\" scenarios.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5017,15 +5076,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Analysis"
+        ],
+        "layers": [
+          "simulation"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "simulation"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -5073,7 +5140,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-043": {
       "canonical_id": "KA-043",
       "name": "Causal Inference",
-      "purpose": null,
+      "purpose": "Infer cause-effect relationships.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5096,15 +5163,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -5152,7 +5227,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-044": {
       "canonical_id": "KA-044",
       "name": "Analogical Mapping",
-      "purpose": null,
+      "purpose": "Map concepts between domains via analogy.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5175,15 +5250,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -5231,7 +5314,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-045": {
       "canonical_id": "KA-045",
       "name": "Pattern Recognition",
-      "purpose": null,
+      "purpose": "Identify recurring patterns in data.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5254,15 +5337,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -5310,7 +5401,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-046": {
       "canonical_id": "KA-046",
       "name": "Trend Analysis",
-      "purpose": null,
+      "purpose": "Analyze data trends over time.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5333,15 +5424,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -5389,7 +5488,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-047": {
       "canonical_id": "KA-047",
       "name": "Sentiment Analysis",
-      "purpose": null,
+      "purpose": "Analyze emotional tone and sentiment.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5412,15 +5511,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -5468,7 +5575,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-048": {
       "canonical_id": "KA-048",
       "name": "Entity Extraction",
-      "purpose": null,
+      "purpose": "Extract named entities from text.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5491,15 +5598,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -5547,7 +5662,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-049": {
       "canonical_id": "KA-049",
       "name": "Relation Extraction",
-      "purpose": null,
+      "purpose": "Extract relationships between entities.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5570,15 +5685,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -5626,7 +5749,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-050": {
       "canonical_id": "KA-050",
       "name": "Summarization",
-      "purpose": null,
+      "purpose": "Summarize text or data.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -5649,15 +5772,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Reasoning"
+        ],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -7137,7 +7268,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-066": {
       "canonical_id": "KA-066",
       "name": "Causal Inference Engine",
-      "purpose": "Infer cause-effect relationships",
+      "purpose": "Infer cause-effect relationships for Causal Inference Engine.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -7601,7 +7732,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-071": {
       "canonical_id": "KA-071",
       "name": "Data Ingestion",
-      "purpose": null,
+      "purpose": "validate a bounded local-file ingestion proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -7630,15 +7761,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "record count",
           "no direct materialization"
         ],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Lifecycle"
+        ],
+        "layers": [
+          "ingestion"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "ingestion"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -7686,7 +7825,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-072": {
       "canonical_id": "KA-072",
       "name": "Data Cleaning",
-      "purpose": null,
+      "purpose": "deterministic, local ingestion-metadata cleaning.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -7709,17 +7848,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Lifecycle"
+        ],
+        "layers": [
+          "ingestion"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "ingestion"
+        ],
         "dependencies": [
           "KA-071"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -7766,7 +7913,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-073": {
       "canonical_id": "KA-073",
       "name": "Data Transformation",
-      "purpose": null,
+      "purpose": "normalize secure-ingestion metadata types.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -7789,17 +7936,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Lifecycle"
+        ],
+        "layers": [
+          "ingestion"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "ingestion"
+        ],
         "dependencies": [
           "KA-072"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -7846,7 +8001,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-074": {
       "canonical_id": "KA-074",
       "name": "Data Validation",
-      "purpose": null,
+      "purpose": "fail-closed validation for secure-ingestion metadata.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -7869,17 +8024,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Lifecycle"
+        ],
+        "layers": [
+          "ingestion"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "ingestion"
+        ],
         "dependencies": [
           "KA-073"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -7926,7 +8089,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-075": {
       "canonical_id": "KA-075",
       "name": "Schema Mapping",
-      "purpose": null,
+      "purpose": "explicit local schema mapping for admitted records.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -7949,17 +8112,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Lifecycle"
+        ],
+        "layers": [
+          "ingestion"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "ingestion"
+        ],
         "dependencies": [
           "KA-074"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8006,7 +8177,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-076": {
       "canonical_id": "KA-076",
       "name": "Entity Resolution",
-      "purpose": null,
+      "purpose": "deterministic exact-key resolution for ingestion metadata.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8029,17 +8200,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Lifecycle"
+        ],
+        "layers": [
+          "ingestion"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "ingestion"
+        ],
         "dependencies": [
           "KA-075"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8086,7 +8265,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-077": {
       "canonical_id": "KA-077",
       "name": "Data Enrichment",
-      "purpose": null,
+      "purpose": "bounded local-rule enrichment with no provider egress.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8109,17 +8288,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Lifecycle"
+        ],
+        "layers": [
+          "ingestion"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "ingestion"
+        ],
         "dependencies": [
           "KA-076"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8166,7 +8353,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-078": {
       "canonical_id": "KA-078",
       "name": "Data Archival",
-      "purpose": null,
+      "purpose": "produce a bounded archive-eligibility proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8195,17 +8382,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "retention destination and policy",
           "no direct archive effect"
         ],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Lifecycle"
+        ],
+        "layers": [
+          "ingestion"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "ingestion"
+        ],
         "dependencies": [
           "KA-077"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8252,7 +8447,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-079": {
       "canonical_id": "KA-079",
       "name": "Data Retrieval",
-      "purpose": null,
+      "purpose": "Optimize data lookup and search operations using indexed queries and vector search fallbacks.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8275,15 +8470,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Memory"
+        ],
+        "layers": [
+          "L2"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "retrieval_graph_memory"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8331,7 +8534,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-080": {
       "canonical_id": "KA-080",
       "name": "Cache Management",
-      "purpose": null,
+      "purpose": "Manage cache layers, eviction policies, and consistency in transient storage.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8354,15 +8557,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_h_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Memory"
+        ],
+        "layers": [
+          "L2"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "retrieval_graph_memory"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8411,7 +8622,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-081": {
       "canonical_id": "KA-081",
       "name": "Model Training",
-      "purpose": null,
+      "purpose": "bounded model-training admission proposals.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8434,10 +8645,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [
           "KA-085",
           "KA-086"
@@ -8445,7 +8662,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8494,7 +8713,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-082": {
       "canonical_id": "KA-082",
       "name": "Model Evaluation",
-      "purpose": null,
+      "purpose": "measured model evaluation from caller-supplied outcomes.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8517,15 +8736,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8573,7 +8800,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-083": {
       "canonical_id": "KA-083",
       "name": "Model Deployment",
-      "purpose": null,
+      "purpose": "dependency-bound model deployment-admission proposals.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8596,10 +8823,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [
           "KA-087",
           "KA-088",
@@ -8609,7 +8842,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8658,7 +8893,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-084": {
       "canonical_id": "KA-084",
       "name": "Model Monitoring",
-      "purpose": null,
+      "purpose": "Monitor live model performance, detect data drift, and track latency/skew metrics.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8681,15 +8916,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8737,7 +8980,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-085": {
       "canonical_id": "KA-085",
       "name": "Feature Engineering",
-      "purpose": null,
+      "purpose": "deterministic, in-memory tabular feature construction.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8760,15 +9003,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8816,7 +9067,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-086": {
       "canonical_id": "KA-086",
       "name": "Hyperparameter Tuning",
-      "purpose": null,
+      "purpose": "measured hyperparameter candidate ranking and proposal creation.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8839,15 +9090,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8895,7 +9154,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-087": {
       "canonical_id": "KA-087",
       "name": "Model Versioning",
-      "purpose": null,
+      "purpose": "deterministic model-version registration proposals.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8918,15 +9177,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -8974,7 +9241,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-088": {
       "canonical_id": "KA-088",
       "name": "A/B Testing",
-      "purpose": null,
+      "purpose": "deterministic A/B assignment and measured analysis proposals.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -8997,15 +9264,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9053,7 +9328,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-089": {
       "canonical_id": "KA-089",
       "name": "Model Pruning",
-      "purpose": null,
+      "purpose": "bounded model-pruning proposals without artifact mutation.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9076,15 +9351,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9132,7 +9415,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-090": {
       "canonical_id": "KA-090",
       "name": "Model Quantization",
-      "purpose": null,
+      "purpose": "bounded model-quantization proposals without artifact creation.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9155,15 +9438,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9211,7 +9502,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-091": {
       "canonical_id": "KA-091",
       "name": "Visualization",
-      "purpose": null,
+      "purpose": "deterministic visualization specification builder.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9234,15 +9525,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9292,7 +9591,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-092": {
       "canonical_id": "KA-092",
       "name": "Dashboarding",
-      "purpose": null,
+      "purpose": "deterministic dashboard blueprint composition.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9315,15 +9614,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9373,7 +9680,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-093": {
       "canonical_id": "KA-093",
       "name": "Notification",
-      "purpose": null,
+      "purpose": "bounded notification-routing proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9396,15 +9703,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9455,7 +9770,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-094": {
       "canonical_id": "KA-094",
       "name": "Reporting",
-      "purpose": null,
+      "purpose": "deterministic operational report plan.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9478,15 +9793,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9536,7 +9859,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-095": {
       "canonical_id": "KA-095",
       "name": "Alerting",
-      "purpose": null,
+      "purpose": "deterministic alert decision and effect proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9559,15 +9882,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9617,7 +9948,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-096": {
       "canonical_id": "KA-096",
       "name": "Logging",
-      "purpose": null,
+      "purpose": "Manage centralized system logging with support for structured formats, rotation, and sensitive data masking.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9640,15 +9971,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9698,7 +10037,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-097": {
       "canonical_id": "KA-097",
       "name": "Auditing",
-      "purpose": null,
+      "purpose": "canonical audit-record construction and persistence proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9721,15 +10060,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9779,7 +10126,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-098": {
       "canonical_id": "KA-098",
       "name": "Profiling",
-      "purpose": null,
+      "purpose": "aggregate supplied profiler measurements without fabricating data.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9802,15 +10149,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9860,7 +10215,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-099": {
       "canonical_id": "KA-099",
       "name": "Debugging",
-      "purpose": null,
+      "purpose": "bounded redacted diagnostic snapshot normalization.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9883,15 +10238,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -9941,7 +10304,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-100": {
       "canonical_id": "KA-100",
       "name": "Optimization",
-      "purpose": null,
+      "purpose": "deterministic runtime optimization recommendation.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -9964,15 +10327,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -10022,7 +10393,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-101": {
       "canonical_id": "KA-101",
       "name": "Environment Management",
-      "purpose": null,
+      "purpose": "bounded environment-configuration proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -10045,15 +10416,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -10104,7 +10483,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-102": {
       "canonical_id": "KA-102",
       "name": "Dependency Injection",
-      "purpose": null,
+      "purpose": "explicit dependency-binding proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -10127,15 +10506,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -10186,7 +10573,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-103": {
       "canonical_id": "KA-103",
       "name": "Service Mesh",
-      "purpose": null,
+      "purpose": "bounded service-communication policy proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -10209,15 +10596,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -10648,7 +11043,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-104": {
       "canonical_id": "KA-104",
       "name": "Load Balancing",
-      "purpose": null,
+      "purpose": "deterministic load-routing recommendation.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -10671,15 +11066,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -11678,7 +12081,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-105": {
       "canonical_id": "KA-105",
       "name": "Scalability Manager",
-      "purpose": null,
+      "purpose": "bounded scaling recommendation.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -11701,15 +12104,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -11759,7 +12170,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-106": {
       "canonical_id": "KA-106",
       "name": "Fault Tolerance",
-      "purpose": null,
+      "purpose": "Implement circuit breakers, retry strategies, and graceful degradation to ensure system reliability under stress.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -11782,15 +12193,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -11840,7 +12259,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-107": {
       "canonical_id": "KA-107",
       "name": "Disaster Recovery",
-      "purpose": null,
+      "purpose": "bounded disaster-recovery admission proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -11863,15 +12282,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -12790,7 +13217,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-108": {
       "canonical_id": "KA-108",
       "name": "Backup Strategy",
-      "purpose": null,
+      "purpose": "coordinated-backup plan and effect proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -12813,15 +13240,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -13820,7 +14255,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-109": {
       "canonical_id": "KA-109",
       "name": "System Health",
-      "purpose": null,
+      "purpose": "supplied-evidence system-health aggregation.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -13843,15 +14278,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -14862,7 +15305,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-110": {
       "canonical_id": "KA-110",
       "name": "Integration Bus",
-      "purpose": null,
+      "purpose": "governed integration-event routing proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -14885,15 +15328,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -15927,7 +16378,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-111": {
       "canonical_id": "KA-111",
       "name": "API Gateway",
-      "purpose": null,
+      "purpose": "authenticated gateway-routing admission.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -15950,15 +16401,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Capability"
+        ],
+        "layers": [
+          "provider_gateway"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "provider_gateway"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -16398,7 +16857,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-112": {
       "canonical_id": "KA-112",
       "name": "Message Broker",
-      "purpose": null,
+      "purpose": "durable background-job enqueue proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -16421,15 +16880,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -16578,7 +17045,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-114": {
       "canonical_id": "KA-114",
       "name": "Federated Outbox",
-      "purpose": null,
+      "purpose": "validated federated-outbox proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -16601,15 +17068,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -16660,7 +17135,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-115": {
       "canonical_id": "KA-115",
       "name": "Federated Inbox",
-      "purpose": null,
+      "purpose": "bounded federated-inbox admission proposal.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -16683,15 +17158,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_i_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Governance"
+        ],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -16742,7 +17225,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "KA-116": {
       "canonical_id": "KA-116",
       "name": "Entropy Detection",
-      "purpose": null,
+      "purpose": "deterministic token-distribution entropy measurement.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -16765,15 +17248,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_k_production_qualified",
         "inputs": [],
         "outputs": [],
-        "categories": [],
-        "layers": [],
+        "categories": [
+          "Safety"
+        ],
+        "layers": [
+          "L10"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l10"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -16941,14 +17432,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17022,14 +17519,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17103,14 +17606,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17184,14 +17693,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17265,14 +17780,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17344,14 +17865,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17423,14 +17950,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17502,14 +18035,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17581,14 +18120,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17660,14 +18205,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17739,14 +18290,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L8"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthgate"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17819,14 +18376,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L8"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthgate"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17899,14 +18462,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L8"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthgate"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -17979,14 +18548,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L8"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthgate"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18059,14 +18634,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18140,14 +18721,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L8"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthgate"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18220,14 +18807,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L8"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthgate"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Critical"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18301,14 +18894,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "L1-L5"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l1_l5"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18380,14 +18979,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18462,14 +19067,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18544,14 +19155,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18626,14 +19243,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18707,14 +19330,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18788,14 +19417,20 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "categories": [
           "General"
         ],
-        "layers": [],
+        "layers": [
+          "operations"
+        ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "security_operations_lifecycle"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "High"
+        ],
         "effect_class": "effect_oriented_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18869,17 +19504,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "status": "cp19_b_contract_parity",
         "inputs": [],
         "outputs": [],
-        "categories": [],
+        "categories": [
+          "Routing"
+        ],
         "layers": [
           "orchestration"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "governed_request_dmrf"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -18953,17 +19594,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Token entropy heuristic",
           "divergence flag"
         ],
-        "categories": [],
+        "categories": [
+          "Safety"
+        ],
         "layers": [
           "L10"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l10"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19036,17 +19683,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Self-reference indicators",
           "capability indicators"
         ],
-        "categories": [],
+        "categories": [
+          "Safety"
+        ],
         "layers": [
           "L10"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l10"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19119,17 +19772,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Redacted content",
           "PII type counts"
         ],
-        "categories": [],
+        "categories": [
+          "Safety"
+        ],
         "layers": [
           "L10"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l10"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19202,17 +19861,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Ethics rule findings",
           "policy tier"
         ],
-        "categories": [],
+        "categories": [
+          "Safety"
+        ],
         "layers": [
           "L10"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l10"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19286,12 +19951,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Containment/release decision",
           "signoff requirement"
         ],
-        "categories": [],
+        "categories": [
+          "Safety"
+        ],
         "layers": [
           "L10"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l10"
+        ],
         "dependencies": [
           "L10-KA-001",
           "L10-KA-002",
@@ -19303,7 +19972,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19377,17 +20048,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Belief-decay trust result",
           "measurement status"
         ],
-        "categories": [],
+        "categories": [
+          "Safety"
+        ],
         "layers": [
           "L10"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l10"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19461,12 +20138,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Deterministic review proposal",
           "dispatch count"
         ],
-        "categories": [],
+        "categories": [
+          "Safety"
+        ],
         "layers": [
           "L10"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l10"
+        ],
         "dependencies": [
           "L10-KA-004",
           "L10-KA-006"
@@ -19474,7 +20155,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19521,7 +20204,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "L9-KA-001": {
       "canonical_id": "L9-KA-001",
       "name": "Trace Analyzer",
-      "purpose": null,
+      "purpose": "deterministic integrity checks for the committed L1-L8 trace.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -19549,17 +20232,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Trace integrity findings",
           "trace completeness"
         ],
-        "categories": [],
+        "categories": [
+          "Meta"
+        ],
         "layers": [
           "L9"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l9"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19607,7 +20296,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "L9-KA-002": {
       "canonical_id": "L9-KA-002",
       "name": "Belief Drift",
-      "purpose": null,
+      "purpose": "deterministic lexical and numeric belief-drift checks.",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -19635,17 +20324,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Measured lexical/numeric drift",
           "limitations"
         ],
-        "categories": [],
+        "categories": [
+          "Meta"
+        ],
         "layers": [
           "L9"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l9"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19693,7 +20388,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "L9-KA-003": {
       "canonical_id": "L9-KA-003",
       "name": "Persona Auditor",
-      "purpose": null,
+      "purpose": "Persona Agreement Auditor",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -19721,17 +20416,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Agreement findings",
           "measurement status"
         ],
-        "categories": [],
+        "categories": [
+          "Meta"
+        ],
         "layers": [
           "L9"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l9"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19779,7 +20480,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "L9-KA-004": {
       "canonical_id": "L9-KA-004",
       "name": "Meta Evaluator",
-      "purpose": null,
+      "purpose": "Meta-Cognitive Evaluator",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -19807,17 +20508,23 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Weaknesses",
           "observed failure modes"
         ],
-        "categories": [],
+        "categories": [
+          "Meta"
+        ],
         "layers": [
           "L9"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l9"
+        ],
         "dependencies": [],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19865,7 +20572,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "L9-KA-005": {
       "canonical_id": "L9-KA-005",
       "name": "Recursion Trigger",
-      "purpose": null,
+      "purpose": "Determines when and why to trigger recursive refinement:",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -19894,19 +20601,25 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Refinement decision",
           "target layer"
         ],
-        "categories": [],
+        "categories": [
+          "Meta"
+        ],
         "layers": [
           "L9"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l9"
+        ],
         "dependencies": [
           "L9-KA-006"
         ],
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -19954,7 +20667,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "L9-KA-006": {
       "canonical_id": "L9-KA-006",
       "name": "Confidence Calc",
-      "purpose": null,
+      "purpose": "Readiness Scorer",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -19981,12 +20694,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Readiness measurement",
           "measurement coverage"
         ],
-        "categories": [],
+        "categories": [
+          "Meta"
+        ],
         "layers": [
           "L9"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l9"
+        ],
         "dependencies": [
           "L9-KA-001",
           "L9-KA-002",
@@ -19996,7 +20713,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,
@@ -20044,7 +20763,7 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
     "L9-KA-007": {
       "canonical_id": "L9-KA-007",
       "name": "Loop Controller",
-      "purpose": null,
+      "purpose": "Controls recursive iteration:",
       "version": "1.0.0",
       "identity_class": "current_executable",
       "aliases": {
@@ -20073,12 +20792,16 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
           "Loop admission",
           "exhaustion decision"
         ],
-        "categories": [],
+        "categories": [
+          "Meta"
+        ],
         "layers": [
           "L9"
         ],
         "personas": [],
-        "subsystems": [],
+        "subsystems": [
+          "truthcore_l9"
+        ],
         "dependencies": [
           "L9-KA-005",
           "L9-KA-006"
@@ -20086,7 +20809,9 @@ export const KA_RUNTIME_MANIFEST: KARuntimeManifestCatalog = {
         "dependency_result_contract": "dle.ka-execution-result.v1#output",
         "dependency_input_field": "dependency_results",
         "triggers": [],
-        "risk_classes": [],
+        "risk_classes": [
+          "Low"
+        ],
         "effect_class": "pure_or_advisory_review_required",
         "reads_memory": false,
         "writes_memory": false,

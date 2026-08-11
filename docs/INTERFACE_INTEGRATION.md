@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Registered routes, OpenAPI/schema contracts, gateway/MCP implementation, ADRs, and contract tests |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Route, schema, auth, version, streaming, SDK, gateway profile, MCP, or compatibility change |
 | Requirements and evidence | Product requirements, generated contracts, route inventory, SDK tests, and Phase 5/8/11 evidence |
 
@@ -51,6 +51,13 @@ remain open.
 
 Generated OpenAPI and schemas are machine authorities where present; prose
 explains boundaries and acceptance but must not contradict generated contracts.
+
+`docs/openapi.yaml` is the supported product integration contract. The former
+`backend/api/specs/ukg_api_v3_2.yaml` described a nonimplemented `/ukg/*`
+roadmap surface and is archived as
+`docs/archive/api/ukg_api_v3_2-roadmap-2026-01.yaml`. It is not bundled, callable,
+or a compatibility promise. `docs/spec-exports/api_delta.md` is a historical
+comparison only; candidate mappings do not assert request or response parity.
 
 ## Authentication and authorization
 

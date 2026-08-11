@@ -450,7 +450,7 @@ class LLMGateway:
                 "rate_limit",
                 "quota exceeded",
                 "insufficient_quota",
-                # Intentional policy blocks (defense supervisor) — the user
+                # Intentional policy blocks from the governed security path — the user
                 # should see a policy message, not a fake provider failure.
                 "blocked by security policy",
             ),

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import sys
@@ -15,10 +16,10 @@ if str(ROOT) not in sys.path:
 
 from scripts.build_ka_integration_authority import (
     DEFAULT_JSON_PATH as INTEGRATION_AUTHORITY_PATH,
-)
+)  # noqa: E402
 from scripts.build_ka_integration_authority import (
     build_authority as build_integration_authority,
-)
+)  # noqa: E402
 
 CROSSWALK_PATH = (
     ROOT
@@ -42,6 +43,53 @@ SDK_OUTPUT_PATH = (
 TYPESCRIPT_OUTPUT_PATH = (
     ROOT / "sdk" / "DataLogicEngine_TypeScript_SDK" / "src" / "ka-manifest.generated.ts"
 )
+
+OWNER_CATEGORY: dict[str, str] = {
+    "governed_request_dmrf": "Routing",
+    "truthcore_l1_l5": "Reasoning",
+    "truthcore_l6_l8": "Analysis",
+    "truthcore_l9": "Meta",
+    "truthcore_l10": "Safety",
+    "dsqp_quad_persona": "Persona",
+    "truthgate": "Safety",
+    "truthmemory_truthlink_frost": "Memory",
+    "ingestion": "Lifecycle",
+    "retrieval_graph_memory": "Memory",
+    "simulation": "Analysis",
+    "mcp_connectors": "Control",
+    "provider_gateway": "Capability",
+    "security_operations_lifecycle": "Governance",
+    "refinement": "QA",
+    "api_sdk_desktop": "UX",
+}
+
+OWNER_LAYER_SCOPE: dict[str, list[str]] = {
+    "governed_request_dmrf": ["L1"],
+    "truthcore_l1_l5": ["L1-L5"],
+    "truthcore_l6_l8": ["L6-L8"],
+    "truthcore_l9": ["L9"],
+    "truthcore_l10": ["L10"],
+    "dsqp_quad_persona": ["L4", "L5"],
+    "truthgate": ["L8"],
+    "truthmemory_truthlink_frost": ["knowledge_lifecycle"],
+    "ingestion": ["ingestion"],
+    "retrieval_graph_memory": ["L2"],
+    "simulation": ["simulation"],
+    "mcp_connectors": ["mcp"],
+    "provider_gateway": ["provider_gateway"],
+    "security_operations_lifecycle": ["operations"],
+    "refinement": ["refinement"],
+    "api_sdk_desktop": ["product_interaction"],
+}
+
+CONTRACT_METADATA_POLICY = {
+    "checkpoint": "AL-10",
+    "purpose_source": "implementation_module_docstring",
+    "category_source": "cp19_a_primary_owner",
+    "risk_source": "declared_effect_class_and_cp19_a_primary_owner",
+    "subsystem_source": "cp19_a_primary_owner",
+    "layer_source": "cp19_a_primary_owner_stage_scope",
+}
 
 # CP19-C corrects three reciprocal design-reference relationships into
 # prerequisite order. The retained CP18 crosswalk remains the identity/source
@@ -1424,6 +1472,73 @@ def choose_entrypoint(row: dict[str, Any]) -> dict[str, Any] | None:
     }
 
 
+def _implementation_purpose(row: dict[str, Any]) -> str | None:
+    implementation = row.get("implementation")
+    if not implementation:
+        return None
+    source_path = ROOT / implementation
+    module = ast.parse(source_path.read_text(encoding="utf-8"))
+    docstring = ast.get_docstring(module, clean=True) or ""
+    canonical_id = str(row["canonical_id"])
+    name_key = re.sub(r"[^a-z0-9]+", " ", str(row["name"]).lower()).strip()
+
+    for raw_line in docstring.splitlines():
+        line = raw_line.strip().lstrip("-* ").strip()
+        if not line:
+            continue
+        if line.lower().startswith("purpose:"):
+            purpose = line.split(":", 1)[1].strip()
+            if purpose:
+                return purpose
+            continue
+        id_prefix = re.match(
+            rf"^{re.escape(canonical_id)}\s*:\s*(.+)$", line, re.IGNORECASE
+        )
+        if id_prefix:
+            candidate = id_prefix.group(1).strip()
+            candidate_key = re.sub(
+                r"[^a-z0-9]+", " ", candidate.lower()
+            ).strip()
+            if candidate_key != name_key:
+                return candidate
+            continue
+        if line.lower().startswith(("ka for ", "args:", "returns:")):
+            continue
+        return line
+    return None
+
+
+def _contract_metadata(
+    row: dict[str, Any], integration: dict[str, Any], effect_class: str
+) -> dict[str, Any]:
+    owner = integration["primary_owner"]
+    purpose = row.get("purpose") or _implementation_purpose(row)
+    if not purpose:
+        raise ValueError(
+            f"{row['canonical_id']}: production contract purpose is not declared"
+        )
+
+    categories = list(row.get("categories") or [OWNER_CATEGORY[owner]])
+    subsystems = list(row.get("subsystems") or [owner])
+    layers = list(row.get("layer_scope") or OWNER_LAYER_SCOPE[owner])
+    risk_classes = list(row.get("risk_classes") or [])
+    if not risk_classes:
+        risk_classes = (
+            ["Low"]
+            if effect_class == "pure_or_advisory_review_required"
+            else ["Critical"]
+            if owner == "truthgate"
+            else ["High"]
+        )
+    return {
+        "purpose": purpose,
+        "categories": categories,
+        "subsystems": subsystems,
+        "layers": layers,
+        "risk_classes": risk_classes,
+    }
+
+
 def build_manifest() -> dict[str, Any]:
     crosswalk = json.loads(CROSSWALK_PATH.read_text(encoding="utf-8"))
     if crosswalk.get("status") != "approved_cp18_a_authority":
@@ -1451,9 +1566,28 @@ def build_manifest() -> dict[str, Any]:
         )
 
     entries: dict[str, dict[str, Any]] = {}
+    purpose_owners: dict[str, str] = {}
     for row in rows:
         integration = integration_by_id[row["canonical_id"]]
         pure_advisory_override = row["canonical_id"] in CP19_K_PURE_ADVISORY_OVERRIDES
+        effect_class = (
+            "pure_or_advisory_review_required"
+            if pure_advisory_override
+            else row["effect_class"]
+        )
+        metadata = _contract_metadata(row, integration, effect_class)
+        purpose_key = re.sub(
+            r"[^a-z0-9]+", " ", metadata["purpose"].lower()
+        ).strip()
+        prior_purpose_owner = purpose_owners.get(purpose_key)
+        if prior_purpose_owner and prior_purpose_owner != row["canonical_id"]:
+            metadata["purpose"] = (
+                f"{metadata['purpose'].rstrip('.')} for {row['name']}."
+            )
+            purpose_key = re.sub(
+                r"[^a-z0-9]+", " ", metadata["purpose"].lower()
+            ).strip()
+        purpose_owners[purpose_key] = row["canonical_id"]
         design_contracts = row.get("design_contracts", [])
         versions = [
             str(contract["version"])
@@ -1496,7 +1630,7 @@ def build_manifest() -> dict[str, Any]:
         entries[row["canonical_id"]] = {
             "canonical_id": row["canonical_id"],
             "name": row["name"],
-            "purpose": row.get("purpose"),
+            "purpose": metadata["purpose"],
             "version": versions[0] if versions else "1.0.0",
             "identity_class": row["identity_class"],
             "aliases": {
@@ -1523,20 +1657,16 @@ def build_manifest() -> dict[str, Any]:
                 "outputs": io_override.get(
                     "outputs", row.get("output_descriptions", [])
                 ),
-                "categories": row.get("categories", []),
-                "layers": row.get("layer_scope", []),
+                "categories": metadata["categories"],
+                "layers": metadata["layers"],
                 "personas": row.get("persona_scope", []),
-                "subsystems": row.get("subsystems", []),
+                "subsystems": metadata["subsystems"],
                 "dependencies": dependencies,
                 "dependency_result_contract": ("dle.ka-execution-result.v1#output"),
                 "dependency_input_field": "dependency_results",
                 "triggers": row.get("triggers", []),
-                "risk_classes": row.get("risk_classes", []),
-                "effect_class": (
-                    "pure_or_advisory_review_required"
-                    if pure_advisory_override
-                    else row["effect_class"]
-                ),
+                "risk_classes": metadata["risk_classes"],
+                "effect_class": effect_class,
                 "reads_memory": any(
                     contract.get("reads_memory") for contract in design_contracts
                 ),
@@ -1621,7 +1751,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.08-cp19k.24",
+        "manifest_version": "2026.08.11-al10.1",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),
@@ -1631,6 +1761,7 @@ def build_manifest() -> dict[str, Any]:
                 ROOT
             ).as_posix(),
             "integration_authority_version": integration_authority["authority_version"],
+            "contract_metadata_policy": CONTRACT_METADATA_POLICY,
             "duplicate_policy": "one_semantic_capability_one_canonical_id",
             "dependency_result_contract": ("dle.ka-execution-result.v1#output"),
             "dependency_input_field": "dependency_results",

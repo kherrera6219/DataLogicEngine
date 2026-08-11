@@ -111,7 +111,9 @@ def _methods(path_item: Any) -> str:
 
 
 def _api_delta(root: Path) -> str:
-    canonical_path = root / "backend" / "api" / "specs" / "ukg_api_v3_2.yaml"
+    canonical_path = (
+        root / "docs" / "archive" / "api" / "ukg_api_v3_2-roadmap-2026-01.yaml"
+    )
     live_path = root / "docs" / "openapi.yaml"
     canonical = yaml.safe_load(canonical_path.read_text(encoding="utf-8"))
     live = yaml.safe_load(live_path.read_text(encoding="utf-8"))
@@ -147,9 +149,9 @@ def _api_delta(root: Path) -> str:
             "",
             "| Field | Value |",
             "|---|---|",
-            "| Status | Review export; no compatibility or release claim |",
-            "| Canonical source | `backend/api/specs/ukg_api_v3_2.yaml` |",
-            "| Live documented source | `docs/openapi.yaml` |",
+            "| Status | Historical roadmap comparison; no compatibility or release claim |",
+            "| Historical roadmap source | `docs/archive/api/ukg_api_v3_2-roadmap-2026-01.yaml` |",
+            "| Supported integration authority | `docs/openapi.yaml` |",
             f"| Canonical paths | **{len(canonical_paths)}** |",
             f"| Live documented paths | **{len(live_paths)}** |",
             f"| Exact paths | **{counts['exact']}** |",
@@ -157,8 +159,8 @@ def _api_delta(root: Path) -> str:
             f"| Absent from live document | **{counts['absent']}** |",
             "",
             "Candidate mappings are name-level review leads, not assertions of request/response",
-            "compatibility. Product-owner decision D-3 still controls whether the contracts",
-            "converge or are formally documented as different surfaces.",
+            "compatibility. D-3 formally selects docs/openapi.yaml and the live /api/v1",
+            "routes as the supported product contract; the UKG v3.2 source is roadmap history.",
             "",
             "| Canonical path | Methods | Disposition | Live documented path |",
             "|---|---|---|---|",

@@ -2,8 +2,9 @@ openapi: 3.0.3
 info:
   title: DataLogicEngine API
   description: >
-    Current partial REST contract for the local-first DataLogicEngine desktop
-    application. The live app uses single-owner OS-level desktop auth, Flask
+    Supported REST integration contract for the local-first DataLogicEngine
+    desktop application. Internal desktop-only routes may exist outside this
+    external integration surface. The live app uses single-owner OS-level desktop auth, Flask
     sessions, CSRF protection, and copy-once client keys for the explicitly
     versioned gateway surface. Removed web login/register/MFA/SSO routes are intentionally
     not part of this contract.

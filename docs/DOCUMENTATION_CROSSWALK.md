@@ -8,7 +8,6 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 
 | Existing path | Class | Disposition | Target | Basis |
 |---|---|---|---|---|
-| `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `CHANGELOG.md` | `product_public` | authoritative input | `CHANGELOG.md` | selected canonical document |
 | `CODE_OF_CONDUCT.md` | `product_public` | authoritative input | `CODE_OF_CONDUCT.md` | normative legal or temporary program authority outside the final canonical cap |
 | `CODEX_WORK_QUEUE_2026-08-10.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
@@ -116,6 +115,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/archive/research/K8S_OPERATOR_DESIGN.md` | `historical_research` | historical archive | `docs/archive/research/K8S_OPERATOR_DESIGN.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/archive/research/REACT_NATIVE_RESEARCH.md` | `historical_research` | historical archive | `docs/archive/research/REACT_NATIVE_RESEARCH.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/archive/research/RELEASE_NOTES_v2.5.0.md` | `historical_research` | historical archive | `docs/archive/research/RELEASE_NOTES_v2.5.0.md` | historical audit, research, wireframe, whitepaper, or session material |
+| `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` | `historical_research` | historical archive | `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` | `historical_research` | historical archive | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/archive/session-history/README.md` | `historical_research` | historical archive | `docs/archive/session-history/README.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/archive/session-history/TODO_through_2026-07-12.md` | `historical_research` | historical archive | `docs/archive/session-history/TODO_through_2026-07-12.md` | historical audit, research, wireframe, whitepaper, or session material |

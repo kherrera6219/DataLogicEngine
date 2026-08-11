@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.64.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.65.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -35,7 +35,7 @@ Read these documents in order before changing code or making a readiness claim:
 6. `docs/SECURITY_ARCHITECTURE.md`
 7. `docs/README.md`
 8. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority)
-9. `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (supporting review input)
+9. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan)
 
 Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
@@ -696,7 +696,7 @@ route/UI coverage, and supporting review/audit routing. These changes are
 source-only at this handoff. Per owner direction, no second full rebuild was
 performed; the next installed candidate must be rebuilt from the new commit
 before its behavior can be attributed to that artifact. The final non-build
-qualification now passes 3,105 backend tests with 19 skipped, 435 frontend tests,
+qualification now passes 3,098 backend tests with 19 skipped, 435 frontend tests,
 36 Python SDK tests, seven TypeScript SDK tests, lint, type checking, and both
 governed dependency audits.
 
@@ -1097,7 +1097,7 @@ release **NO-GO**. Open work is tracked in `TODO.md` under
 | Document | Location |
 |---|---|
 | Codex work queue | `CODEX_WORK_QUEUE_2026-08-10.md` |
-| Algorithms page plan | `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` |
+| Algorithms page plan | `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` |
 | Spec vs app findings | `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` |
 | AL-10 backfill proposal | `reports/production-readiness/2026/phase-19/al10-metadata-backfill-proposal.md` |
 
@@ -1121,9 +1121,17 @@ queue was revalidated against the later `d5ee1252` baseline:
   from the repository and the live manager says `Sector Expert Persona`, not
   `Sector Expert Mapping`. C-3/C-4 therefore remain held for exact authority or
   an owner-approved crosswalk.
-- AL-10, defense-supervisor disposition (D-2/C-6/C-8), and API-contract
-  disposition (D-3) remain owner-gated. C-7 is obsolete because the seven-part
-  DSQP contract is already implemented.
+- AL-10 is complete in manifest `2026.08.11-al10.1`; every capability now has
+  purpose, category, risk, subsystem, and layer/stage metadata. The defense-
+  supervisor disposition is also complete: the disconnected fail-open module,
+  prompt, test, and payload requirement were removed while gateway and TruthGate
+  controls remain live. API-contract disposition D-3 is complete:
+  `docs/openapi.yaml` and live `/api/v1` routes are authoritative, while the old
+  `/ukg/*` document is archived roadmap history and no longer ships. C-7 is
+  obsolete because the seven-part DSQP contract is already implemented. C-3/C-4
+  close through a tested live Axis 9 crosswalk between the coordinate payload
+  label and the Sector Expert persona display labels; the absent external label
+  was not invented.
 
 Detailed evidence is in
 `reports/production-readiness/2026/phase-19/supporting-plan-validation-2026-08-10.md`.
@@ -1146,10 +1154,10 @@ in dependency order. The runtime authority checks and full backend suite pass.
 4. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution
    NO-GO, automatic-update disablement, and object-store production-approval
    false until their exact installed and independent evidence exists.
-5. Read `CODEX_WORK_QUEUE_2026-08-10.md` and
-   `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` before further Algorithms
-   page, KA manifest, or axis-system work. Treat them as supporting review
-   inputs subordinate to `PRODUCTION_COMPLETION_PLAN_2026.md`.
+5. Read `CODEX_WORK_QUEUE_2026-08-10.md` and the archived completed Algorithms
+   plan before further Algorithms page, KA manifest, or axis-system work. Treat
+   them as supporting review history subordinate to
+   `PRODUCTION_COMPLETION_PLAN_2026.md`.
 
 ## Phase rules
 

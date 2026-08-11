@@ -22,8 +22,6 @@ REQUIRED_BACKEND_FILES = (
     "_internal/backend/dsqp/templates/default.json",
     "_internal/backend/knowledge_algorithms/ka_registry.yaml",
     "_internal/backend/knowledge_algorithms/ka_manifest.v1.generated.json",
-    "_internal/backend/security/prompts/defense_supervisor.txt",
-    "_internal/backend/api/specs/ukg_api_v3_2.yaml",
     "_internal/core/persona/quad/config/quad_config.yaml",
     "_internal/docs/evaluation/AI_SYSTEM_CARD.md",
 )

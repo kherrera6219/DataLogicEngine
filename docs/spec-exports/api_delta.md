@@ -2,9 +2,9 @@
 
 | Field | Value |
 |---|---|
-| Status | Review export; no compatibility or release claim |
-| Canonical source | `backend/api/specs/ukg_api_v3_2.yaml` |
-| Live documented source | `docs/openapi.yaml` |
+| Status | Historical roadmap comparison; no compatibility or release claim |
+| Historical roadmap source | `docs/archive/api/ukg_api_v3_2-roadmap-2026-01.yaml` |
+| Supported integration authority | `docs/openapi.yaml` |
 | Canonical paths | **45** |
 | Live documented paths | **67** |
 | Exact paths | **1** |
@@ -12,8 +12,8 @@
 | Absent from live document | **33** |
 
 Candidate mappings are name-level review leads, not assertions of request/response
-compatibility. Product-owner decision D-3 still controls whether the contracts
-converge or are formally documented as different surfaces.
+compatibility. D-3 formally selects docs/openapi.yaml and the live /api/v1
+routes as the supported product contract; the UKG v3.2 source is roadmap history.
 
 | Canonical path | Methods | Disposition | Live documented path |
 |---|---|---|---|

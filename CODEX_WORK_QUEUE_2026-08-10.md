@@ -7,11 +7,11 @@
 > documentation and presentation drift found outside the CP19-M path.
 >
 > Companion documents:
-> `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (Algorithms page plan),
+> `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed Algorithms page plan),
 > `CODEX_WORK_QUEUE_2026-08-10.md` (full remediation queue),
 > `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` (evidence),
 > `reports/production-readiness/2026/phase-19/al10-metadata-backfill-proposal.md`
-> (AL-10 proposal, owner approval required).
+> (AL-10 proposal and completion record).
 
 | Field | Value |
 |---|---|
@@ -52,8 +52,8 @@ already stale. Detailed evidence is in
 | Group | Current disposition |
 |---|---|
 | V | Complete. Manifest 213/211; defense supervisor has zero production importers; DSQP is seven-part, not five-part; 16 axis managers with Axis 5 explicitly unmanaged; 507 resolved Flask rules; trace UI is partial for named refinement/debate detail; three merged worktrees contain uncommitted files and were preserved. |
-| D | Open and owner-gated. D-1 needs no five-vs-seven change because the live DSQP contract already has seven components. D-2 and D-3 still require owner disposition. |
-| C | C-1 and C-2 complete, including canonical Axis 4 writes. C-5 was already complete. C-3/C-4 were not applied because the claimed Axis 9 authority is absent from the repo and the live manager says `Sector Expert Persona`, not `Sector Expert Mapping`. C-6/C-8 remain behind D-2; C-7 is obsolete. |
+| D | Complete. D-1 needed no change because DSQP is seven-part. D-2 retired the disconnected fail-open supervisor. D-3 selects `docs/openapi.yaml` and live `/api/v1` routes; the old `/ukg/*` contract is archived roadmap history. |
+| C | Complete or dispositioned. C-1, C-2, C-5, C-6, and C-8 are implemented. C-3/C-4 close through an explicit live crosswalk: the coordinate encodes `Qualifications & Skills`, while AxisSystem/manager display `Sector Expert` / `Sector Expert Persona`; the unverified external `Sector Expert Mapping` label was not adopted. C-7 is obsolete. |
 | S | S-1, S-2, and S-3 generated under `docs/spec-exports/`, with a deterministic generator and freshness tests. S-3 uses the repository's canonical v3.2 copy and labels semantic matches as review candidates, not compatibility claims. |
 | H | H-2 complete. H-1 is blocked because all three merged worktrees contain uncommitted files. H-3 remains an external project-knowledge action. H-4 passes for attributable repository work; the separately owned untracked whitepaper remains intentionally excluded. |
 
@@ -82,8 +82,8 @@ Run all of these before any remediation. Record pass/fail per row.
 | ID | Decision | Evidence to assemble | Why Codex must not decide |
 |---|---|---|---|
 | D-1 | **DSQP profile contract: 5-part or 7-part?** Either implement Traits + Related Roles, or amend the patent technical disclosure and `UKG_Canonical_Architecture_v1_0.docx` to the 5-part contract. | Current 5 components; the `overlapping_roles` key at `dsqp_chain.py:336` and whether it satisfies "Related Roles"; blast radius of adding two components across `core/system/persona_construction_service.py`, `ten_layers.py` L4/L5, `KA-012`/`KA-013`/`KA-030` | DSQP is the primary patent claim. Changing either the code or the disclosure has IP consequences. |
-| D-2 | **`defense_supervisor`: wire or deprecate?** | Output of V-3 and V-5 | If TruthGate KAs are already the authoritative screen, wiring a second one creates a duplicate control surface — which CP19-A explicitly forbids. |
-| D-3 | **Canonical API contract: converge or diverge formally?** `docs/openapi.yaml` self-describes as a "current partial REST contract" with 67 paths and no `/ukg/*`. The project-knowledge `ukg_canonical_api_v3_2_enhanced.yaml` describes ~40 `/ukg/*` endpoints that do not exist. | Path-by-path mapping between the two | Determines whether the canonical API is a roadmap or a dead contract. Affects any licensing conversation. |
+| D-2 | **`defense_supervisor`: wire or deprecate?** **DECIDED: deprecate/remove.** | V-3/V-5 proved zero production importers and complete live gateway/TruthGate screening | Wiring it would create a duplicate pre-provider disclosure and fail-open control surface. |
+| D-3 | **Canonical API contract: converge or diverge formally?** **DECIDED:** current `/api/v1` contract is authoritative; `/ukg/*` is archived roadmap history. | Path-by-path mapping plus live route/contract tests | Prevents a non-callable roadmap contract from shipping or being represented as compatibility. |
 
 ---
 
@@ -93,12 +93,12 @@ Run all of these before any remediation. Record pass/fail per row.
 |---|---|---|---|---|
 | C-1 | Rename `axis5_honeycomb.py` → `axis3_honeycomb.py`; update the alias comment block and all importers | `core/axes/axis5_honeycomb.py`, `core/axes/axis_system.py:34-38` | Module filename matches its canonical axis number; `axis_system.py` alias comment removed as no longer needed; full suite green | DESKTOP+VM |
 | C-2 | Rename `axis3_domain.py` → `axis4_branch.py`; rename `DomainManager` → `BranchManager` at source rather than by import alias | `core/axes/axis3_domain.py`, `core/axes/axis_system.py:35,39` | No `as BranchManager` aliasing remains; full suite green | DESKTOP+VM |
-| C-3 | Correct Axis 9 label to canonical "Sector Expert Mapping" | `core/coordinate_system.py` (AXIS_NAMES entry 9) | `coordinate_system.py`, `core/axes/axis9_sector_expert.py`, and `17_axis_coordinate_schema.yaml` all agree on the Axis 9 name; add a unit assertion | DESKTOP+VM |
-| C-4 | Add a regression test asserting axis-name agreement across all three authorities for all 17 axes | `tests/unit/test_axis_alignment.py` | Test fails on any future divergence between `core/coordinate_system.py`, `core/axes/*.py` filenames, and the canonical schema | DESKTOP+VM |
+| C-3 | **DISPOSITIONED.** Do not adopt unverified `Sector Expert Mapping`; document the live coordinate/persona label roles | `core/coordinate_system.py` (AXIS_NAMES entry 9) | Coordinate payload and persona display labels have an explicit, non-conflicting crosswalk | DESKTOP+VM |
+| C-4 | **DONE.** Add a regression for the Axis 9 live crosswalk | `tests/unit/test_axis_alignment.py` | Coordinate `Qualifications & Skills`, AxisSystem `Sector Expert`, and manager `Sector Expert Persona` stay bound to Axis 9 | DESKTOP+VM |
 | C-5 | Decide Axis 5: either build a dedicated Node System manager or add an explicit test asserting the documented "unmanaged" contract | `core/axes/axis_system.py:132-136` | If unmanaged is retained, a test asserts `resolve_multi_axis_context()` returns the documented unmanaged shape for Axis 5 — so it is a contract, not an omission | DESKTOP+VM |
-| C-6 | **After D-2 only.** Wire or remove `defense_supervisor` | `backend/security/defense_supervisor.py`, `backend/llm_gateway/gateway.py` | If wired: a test proves an injection/DAN payload is blocked in the live gateway path. If removed: module and its test deleted, `scripts/verify_release_payload.py` reference cleaned | DESKTOP+VM |
+| C-6 | **DONE.** Remove `defense_supervisor` | retired module/prompt/test; `backend/llm_gateway/gateway.py` | Module, prompt, dedicated test, stale gateway wording, and release-payload requirement removed; live controls remain | DESKTOP+VM |
 | C-7 | **After D-1 only.** Implement Traits + Related Roles, or remove the 7-part claim | `backend/dsqp/dsqp_chain.py`, `core/system/persona_construction_service.py` | Component count in code matches the contract stated in the patent disclosure; test asserts the count | DESKTOP+VM |
-| C-8 | Add a guard test asserting `defense_supervisor` (and any similarly isolated security module) has at least one production importer | `tests/security/test_security_module_wiring.py` | A security module with a passing unit test but zero production call sites fails CI | DESKTOP+VM |
+| C-8 | **DONE.** Add a guard test for live security ownership and explicit retirement | `tests/security/test_security_module_wiring.py` | Retired supervisor/prompt cannot re-enter the payload; gateway governance must import both live input controls | DESKTOP+VM |
 
 **Note on C-8.** This is the highest-value item in Group C. The
 `defense_supervisor` gap survived multiple audit cycles specifically because a
@@ -136,9 +136,9 @@ document, onboarding read, and licensing conversation sourced from it is wrong.
 
 ---
 
-## Group AL — Algorithms page (COMPLETE except AL-10)
+## Group AL — Algorithms page (COMPLETE)
 
-Source plan: `ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md`.
+Source plan: `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md`.
 Implemented and validated in session 2026-08-10 against baseline `40e2592f`.
 Codex should **verify, not redo**, AL-1 through AL-9.
 
@@ -159,7 +159,7 @@ Files changed (5): `backend/routes/ka_routes.py`,
 | AL-7 | Relocate nav: Knowledge (ungated) → System (`isAdmin`) | **DONE** | Both directions tested |
 | AL-8 | Inert `?status=` filter repointed at `classification` | **DONE** | 1 value → 4 values |
 | AL-9 | Test fixtures mirror real formatter output | **DONE** | 11/11 pass |
-| **AL-10** | **Manifest metadata backfill (99 capabilities)** | **OPEN — owner decision** | See proposal below |
+| **AL-10** | **Manifest metadata backfill (99 capabilities)** | **DONE** | Manifest `2026.08.11-al10.1`; all 213 descriptive contracts complete |
 
 Validation at completion: 11/11 frontend tests; 23/23
 `tests/integration_routes/test_ka_route_auth_boundaries.py`; 1,122 passed
@@ -172,23 +172,22 @@ by stashing all five changed files and re-running: identical failures. Root
 cause is a one-line `crosswalk_source_input_sha256` drift from an
 already-modified `ka-capability-crosswalk.json`.
 
-### AL-10 sub-tasks (gated on owner approval)
+### AL-10 completion
 
 Proposal: `reports/production-readiness/2026/phase-19/al10-metadata-backfill-proposal.md`
 Data: `al10-metadata-backfill-proposal.csv` (99 rows).
 
 | ID | Task | Exit gate | Target |
 |---|---|---|---|
-| AL-10a | Record a CP19-K scope statement covering contract descriptive completeness | Checkpoint states whether descriptive completeness was in scope for "zero incomplete" | DESKTOP+VM |
-| AL-10b | Approve/reject **R1** — risk class from `effect_class` | 79 `Low` land mechanically; 20 effect-oriented rows become a bounded review list | DESKTOP+VM |
-| AL-10c | Approve/reject **R2** — purpose from implementation module docstring | 79 usable candidates applied; 20 `name_echo_unusable` docstrings fixed at source, then re-extracted | DESKTOP+VM |
-| AL-10d | Backfill `subsystems` for all 99 | Every capability declares an owning subsystem; restores the CP19-A ownership claim | DESKTOP+VM |
-| AL-10e | Assign categories, derived from subsystem (24-value vocabulary in use) | 75 categories set without name-based inference | DESKTOP+VM |
-| AL-10f | Regenerate all three catalogs and confirm staleness tests pass | `test_phase18_runtime_manifest` + `test_phase18_runtime_authority` green | DESKTOP+VM |
+| AL-10a | Record a CP19-K scope statement covering contract descriptive completeness | **DONE** — source evidence distinguishes CP19-K semantic/execution scope from AL-10 descriptive completeness | DESKTOP+VM |
+| AL-10b | Derive risk class from declared `effect_class` and primary owner | **DONE** — 79 `Low`, 19 `High`, one TruthGate `Critical` | DESKTOP+VM |
+| AL-10c | Derive missing purposes from implementation module docstrings | **DONE** — parser consumes `Purpose:` and substantive module descriptions | DESKTOP+VM |
+| AL-10d | Backfill `subsystems` from CP19-A primary owner | **DONE** — all 213 rows populated | DESKTOP+VM |
+| AL-10e | Assign categories from primary-owner policy | **DONE** — all 213 rows populated without name inference | DESKTOP+VM |
+| AL-10f | Regenerate catalogs, runtime authority, spec export, and qualification matrix | **DONE** — focused authority and staleness tests pass | DESKTOP+VM |
 
-**Do not start AL-10d/e before AL-10b/c.** Category is only derivable once
-subsystems exist; assigning it from capability names is inference presented as
-evidence.
+AL-10 preserved the sequencing rule: subsystem ownership was established before
+category derivation, and capability names were not used as governance evidence.
 
 ### Prior environment and concurrent-activity notes — resolved
 
@@ -200,9 +199,10 @@ separately owned untracked archive whitepaper, which this batch does not stage.
 ## Suggested execution order
 
 1. Review/upload the three generated files under `docs/spec-exports/`.
-2. Decide D-2 (`defense_supervisor`) and D-3 (API contract disposition).
-3. Revisit C-3/C-4 only with the exact canonical 17-axis schema in the repo or
-   an owner-approved naming crosswalk.
+2. Treat D-2/D-3 as complete; use only the live gateway/TruthGate controls and
+   `docs/openapi.yaml` integration authority.
+3. Preserve the tested Axis 9 coordinate/persona crosswalk unless a later ADR
+   deliberately changes both schema roles.
 4. Recover or deliberately discard the uncommitted worktree contents before
    H-1 cleanup; do not force-remove them.
 5. Continue CP19-M under the root production plan.

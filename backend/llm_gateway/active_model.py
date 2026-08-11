@@ -8,8 +8,8 @@ model — OpenAI ``gpt-5.5`` or Google ``gemini-3.1-pro-preview``.
 Design contract
 ---------------
 - **Best-effort, never raises.** Returns ``None`` when no cloud provider/key is
-  configured or the call fails, so callers fall back to their deterministic
-  (DSQP) or fail-open (defense supervisor) behavior.
+  configured or the call fails, so optional DSQP assistance falls back to its
+  deterministic behavior.
 - **Synchronous.** Callers run inside the async gateway pipeline, so the async
   SDK ``complete()`` is bridged to a sync call (using a worker thread when an
   event loop is already running).

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.64.0 |
+| Document version | v1.65.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -35,6 +35,22 @@ is unsigned and the retained provider, accessibility, lifecycle, independent,
 pilot, and 24/72-hour gates remain open. Production/public release remains
 **NO-GO**. See
 `reports/production-readiness/2026/phase-19/cp19-l-clean-rebuild-and-installed-candidate.md`.
+
+The supporting Algorithms remediation track closed on 2026-08-11. Manifest
+`2026.08.11-al10.1` retains the same 213 identities, 211 production-enabled
+capabilities, one-controller boundary, and 112-edge acyclic dependency graph,
+while making purpose, category, risk, subsystem, and layer/stage metadata
+complete for every row. The backend and SDK catalogs, spec-facing registry,
+runtime-authority receipt, and CP19-K matrix are synchronized. This source-only
+governance improvement is not part of the already-installed unsigned candidate
+and does not close CP19-M or change production/public release **NO-GO**.
+The same supporting track retired the zero-importer, fail-open
+`defense_supervisor` instead of adding a duplicate pre-governance provider
+screen; gateway guardrails and canonical TruthGate/KA admission remain the
+tested live security authorities.
+It also selects `docs/openapi.yaml` plus the live `/api/v1` routes as the
+supported integration authority. The unimplemented `/ukg/*` v3.2 contract is
+archived as roadmap history and removed from the release payload.
 
 Phase 13 reached its engineering checkpoint on 2026-07-14. Phase 11 selected MCP
 `2025-11-25` over local stdio as the only external connector transport candidate.
@@ -5718,8 +5734,11 @@ Batches 40-43 close health/recovery, crypto/vulnerability, simulation chaos/
 rollback, and topology/evolution. Seven advisory KAs remain effect-free; every
 effect proposal is applied only by OperationsControlService or
 SimulationJobService with a durable hash-bound receipt and ledger record.
-Runtime manifest `2026.08.08-cp19k.24` retains 213 capabilities, 211
+Runtime manifest `2026.08.11-al10.1` retains 213 capabilities, 211
 production-enabled capabilities, and a 112-edge zero-cycle dependency graph.
+AL-10 subsequently completed descriptive purpose, category, risk, subsystem,
+and layer/stage metadata for all 213 rows without changing their identity,
+implementation, selection, dependency, or effect evidence.
 CP19-K is complete, rebuild authorization remains false, and all rebuilt-
 installed, accessibility, provider, independent-review, pilot, and soak gates
 remain open. The 991-test KA suite, 458 Phase-19/governed/TruthCore/simulation

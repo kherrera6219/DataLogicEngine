@@ -23,6 +23,15 @@
 > rather than decorator counting. See
 > `reports/production-readiness/2026/phase-19/supporting-plan-validation-2026-08-10.md`
 > and `CODEX_WORK_QUEUE_2026-08-10.md` for current dispositions.
+> F-09 was subsequently resolved on 2026-08-11 by retiring the disconnected
+> fail-open supervisor; the existing gateway guardrails and canonical TruthGate
+> admission remain the tested live authorities.
+> F-13 was also resolved by selecting `docs/openapi.yaml` and live `/api/v1`
+> routes as the supported contract and archiving the unimplemented `/ukg/*`
+> document as roadmap history.
+> F-12 closes through an explicit tested live crosswalk: Axis 9 coordinate data
+> encodes `Qualifications & Skills`, while AxisSystem and its manager display the
+> `Sector Expert` persona role. The unverified external label was not adopted.
 
 ## 1. Scope and method
 

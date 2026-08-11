@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "628d4bd136bdf2b63969c237f46be9b97786dc7bcf42056a667b8c1da56c428e",
+  "source_input_sha256": "04a8646079f42e824306d7081f7bfe4cf31f141e0548b6953fc7449062c87b33",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -41,7 +41,7 @@
     "exact_canonical_contract_collisions": 0,
     "implementation_surfaces": 213,
     "unclassified_implementation_surfaces": 0,
-    "integration_surfaces": 138,
+    "integration_surfaces": 142,
     "unclassified_integration_surfaces": 0,
     "canonical_with_runtime_execution_call_site": 11,
     "canonical_with_test_reference": 213,
@@ -7103,6 +7103,7 @@
       "test_references": [
         "tests/integration/phase19/test_governed_request_dmrf.py",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_phase19_cp19k_qualification.py",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py",
         "tests/unit/test_dbp_historical_calibration.py"
@@ -7111,6 +7112,7 @@
         "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_031_owning_path",
         "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_036_owning_path",
         "tests/knowledge_algorithms/test_phase18_capability_inventory.py::test_phase18_crosswalk_preserves_current_and_restored_colliding_semantics",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_al10_metadata_uses_approved_contract_authorities",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_031_semantic_contract",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_036_semantic_contract",
         "tests/unit/test_dbp_historical_calibration.py::test_ka_036_uses_supplied_latency_without_hidden_history_read",
@@ -11989,6 +11991,7 @@
       "execution_call_sites": [],
       "test_references": [
         "tests/integration/phase19/test_ingestion.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_phase19_cp19k_qualification.py",
         "tests/knowledge_algorithms/test_phase19_integration_authority.py",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py"
@@ -11996,6 +11999,7 @@
       "named_test_functions": [
         "tests/integration/phase19/test_ingestion.py::test_cp19h_ingestion_executes_ka071_through_ka078_in_order",
         "tests/integration/phase19/test_ingestion.py::test_ka_071_owning_path",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_al10_metadata_uses_approved_contract_authorities",
         "tests/knowledge_algorithms/test_phase19_integration_authority.py::test_cp19a_catalog_cards_expose_owner_and_selection_authority",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_071_semantic_contract",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_072_semantic_contract"
@@ -24533,12 +24537,14 @@
         "tests/integration/phase19/test_batches_35_39.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py",
         "tests/knowledge_algorithms/test_phase19_cp19k_qualification.py",
-        "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py"
+        "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py",
+        "tests/unit/test_spec_exports.py"
       ],
       "named_test_functions": [
         "tests/integration/phase19/test_batches_35_39.py::test_ka_1114_owning_path",
         "tests/knowledge_algorithms/test_phase18_cp18c_security_operations_research_batch.py::test_ka_1114_deep_research_builds_bounded_request_without_network_or_memory",
-        "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1114_semantic_contract"
+        "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_1114_semantic_contract",
+        "tests/unit/test_spec_exports.py::test_spec_exports_cover_live_ka_and_axis_authorities"
       ],
       "phase6_production_metadata": null,
       "phase18_status": "existing_requires_phase18_qualification"
@@ -26896,6 +26902,7 @@
         "tests/integration/phase19/test_security_operations_lifecycle.py",
         "tests/integration/phase19/test_truthgate.py",
         "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_phase19_cp19k_qualification.py",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py",
         "tests/mcp/test_phase11_mcp_routes.py"
@@ -26906,6 +26913,7 @@
         "tests/integration/phase19/test_truthgate.py::test_cp19h_truthgate_registry_has_one_canonical_owner_per_operation",
         "tests/integration/phase19/test_truthgate.py::test_ka_177_owning_path",
         "tests/knowledge_algorithms/test_phase18_cp18c_language_governance_identity_batch.py::test_ka_177_policy_enforcement_uses_deny_overrides_without_applying_effect",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_al10_metadata_uses_approved_contract_authorities",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_177_semantic_contract",
         "tests/mcp/test_phase11_mcp_routes.py::test_tool_result_is_governed_and_durably_hashed"
       ],
@@ -27689,12 +27697,14 @@
         "tests/truth_engine/test_layer8_trust_gate.py",
         "tests/unit/test_core_integration.py",
         "tests/unit/test_dbp_historical_calibration.py",
+        "tests/unit/test_spec_exports.py",
         "tests/verify_consensus_v2.py"
       ],
       "named_test_functions": [
         "tests/integration/phase19/test_governed_request_dmrf.py::test_ka_master_owning_path",
         "tests/knowledge_algorithms/test_ka_suite.py::test_ka_instantiation_and_run",
-        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families"
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_phase18_manifest_normalizes_all_supported_id_families",
+        "tests/unit/test_spec_exports.py::test_spec_exports_cover_live_ka_and_axis_authorities"
       ],
       "phase6_production_metadata": {
         "ka_id": "KA-Master",
@@ -28303,7 +28313,8 @@
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_layer10_emergence.py",
-        "tests/truth_engine/test_layer10_ka_suite.py"
+        "tests/truth_engine/test_layer10_ka_suite.py",
+        "tests/unit/test_spec_exports.py"
       ],
       "named_test_functions": [
         "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l10_ka_007_owning_path",
@@ -28311,7 +28322,8 @@
         "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_manifest_admits_complete_l9_l10_suites_with_exact_dag",
         "tests/knowledge_algorithms/test_phase19_cp19e_l9_l10_safety.py::test_cp19e_unauthorized_promotion_and_false_receipts_are_impossible",
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_l10_ka_007_semantic_contract",
-        "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules"
+        "tests/truth_engine/test_layer10_ka_suite.py::test_l10_registry_import_shape_executes_all_modules",
+        "tests/unit/test_spec_exports.py::test_spec_exports_cover_live_ka_and_axis_authorities"
       ],
       "phase6_production_metadata": {
         "ka_id": "L10-KA-007",
@@ -28396,7 +28408,8 @@
         "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py",
         "tests/knowledge_algorithms/test_production_invariants.py",
         "tests/truth_engine/test_layer9_meta_reasoning.py",
-        "tests/truth_engine/test_truth_infrastructure.py"
+        "tests/truth_engine/test_truth_infrastructure.py",
+        "tests/unit/test_spec_exports.py"
       ],
       "named_test_functions": [
         "tests/integration/phase19/test_truthcore_batches_30_34.py::test_l9_ka_001_owning_path",
@@ -28407,7 +28420,8 @@
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_l9_kas_defined",
         "tests/truth_engine/test_layer9_meta_reasoning.py::test_trace_analyzer_ka",
         "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_finalize",
-        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine"
+        "tests/truth_engine/test_truth_infrastructure.py::test_meta_evaluate_refine",
+        "tests/unit/test_spec_exports.py::test_spec_exports_cover_live_ka_and_axis_authorities"
       ],
       "phase6_production_metadata": {
         "ka_id": "L9-KA-001",
