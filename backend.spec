@@ -54,8 +54,6 @@ a = Analysis(
         ('backend/knowledge_algorithms/config', 'backend/knowledge_algorithms/config'),
         ('backend/knowledge_algorithms/ka_registry.yaml', 'backend/knowledge_algorithms'),
         ('backend/knowledge_algorithms/ka_manifest.v1.generated.json', 'backend/knowledge_algorithms'),
-        ('backend/security/prompts', 'backend/security/prompts'),
-        ('backend/api/specs', 'backend/api/specs'),
         ('core/persona/quad/config', 'core/persona/quad/config'),
         ('docs/evaluation', 'docs/evaluation'),
     ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('chromadb', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']) + collect_data_files('llama_index', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']) + copy_metadata('tiktoken'),

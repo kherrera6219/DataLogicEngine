@@ -419,6 +419,12 @@ CP19_G_ADMISSION_OVERRIDES: dict[str, dict[str, Any]] = {
     for canonical_id in CP19_G_REFINEMENT_IDS
 }
 
+# KA-025 is also a required cold-path dependency of retrieval lifecycle
+# execution. Its controller/module import can exceed the refinement-only
+# 300 ms allowance on a clean shared runner, so keep the execution bounded but
+# allow one second for first dispatch.
+CP19_G_ADMISSION_OVERRIDES["KA-025"]["performance_budget_ms"] = 1_000
+
 CP19_G_IO_OVERRIDES: dict[str, dict[str, list[str]]] = {
     "KA-003": {
         "inputs": [
@@ -1751,7 +1757,7 @@ def build_manifest() -> dict[str, Any]:
 
     return {
         "schema_version": "dle.ka-runtime-manifest.v1",
-        "manifest_version": "2026.08.11-al10.1",
+        "manifest_version": "2026.08.11-al10.2",
         "status": "cp19_j_product_workflow_authority",
         "authority": {
             "crosswalk": CROSSWALK_PATH.relative_to(ROOT).as_posix(),

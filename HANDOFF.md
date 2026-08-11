@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-11 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.65.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.66.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -1121,7 +1121,7 @@ queue was revalidated against the later `d5ee1252` baseline:
   from the repository and the live manager says `Sector Expert Persona`, not
   `Sector Expert Mapping`. C-3/C-4 therefore remain held for exact authority or
   an owner-approved crosswalk.
-- AL-10 is complete in manifest `2026.08.11-al10.1`; every capability now has
+- AL-10 is complete in manifest `2026.08.11-al10.2`; every capability now has
   purpose, category, risk, subsystem, and layer/stage metadata. The defense-
   supervisor disposition is also complete: the disconnected fail-open module,
   prompt, test, and payload requirement were removed while gateway and TruthGate
@@ -1132,6 +1132,11 @@ queue was revalidated against the later `d5ee1252` baseline:
   close through a tested live Axis 9 crosswalk between the coordinate payload
   label and the Sector Expert persona display labels; the absent external label
   was not invented.
+- The original spec-vs-app audit is now explicitly a historical snapshot with a
+  current F-01 through F-16 disposition table. Two follow-ups remain: publish
+  the generated KA/axis replacements and archive stale gap analyses in the
+  external project-knowledge system, and expose the nested 12-step refinement
+  receipt in the installed trace UI during CP19-M visual/accessibility work.
 
 Detailed evidence is in
 `reports/production-readiness/2026/phase-19/supporting-plan-validation-2026-08-10.md`.

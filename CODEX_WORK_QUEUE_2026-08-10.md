@@ -159,7 +159,7 @@ Files changed (5): `backend/routes/ka_routes.py`,
 | AL-7 | Relocate nav: Knowledge (ungated) → System (`isAdmin`) | **DONE** | Both directions tested |
 | AL-8 | Inert `?status=` filter repointed at `classification` | **DONE** | 1 value → 4 values |
 | AL-9 | Test fixtures mirror real formatter output | **DONE** | 11/11 pass |
-| **AL-10** | **Manifest metadata backfill (99 capabilities)** | **DONE** | Manifest `2026.08.11-al10.1`; all 213 descriptive contracts complete |
+| **AL-10** | **Manifest metadata backfill (99 capabilities)** | **DONE** | Manifest `2026.08.11-al10.2`; all 213 descriptive contracts complete; KA-025 cold-start budget corrected |
 
 Validation at completion: 11/11 frontend tests; 23/23
 `tests/integration_routes/test_ka_route_auth_boundaries.py`; 1,122 passed

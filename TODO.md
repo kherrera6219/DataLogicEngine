@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-11 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.65.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.66.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release decision | Production/public release: **NO-GO** |
@@ -1106,7 +1106,7 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
   `tests/integration_routes/test_ka_route_auth_boundaries.py`. Gates at
   completion: 11/11 focused frontend tests, 24/24 focused route tests, 3,101
   backend tests with 19 skipped, 435 frontend tests, and clean lint/typecheck.
-- **AL-10 is complete.** Manifest `2026.08.11-al10.1` fills all purpose,
+- **AL-10 is complete.** Manifest `2026.08.11-al10.2` fills all purpose,
   category, risk, subsystem, and layer/stage fields from implementation,
   CP19-A ownership, effect, and stage authorities. Generated backend/SDK
   catalogs, spec export, runtime receipt, and CP19-K matrix are synchronized.
@@ -1153,7 +1153,16 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 - [x] **Backfill KA contract metadata (AL-10).** All 213 capabilities now carry
       purpose, category, risk, subsystem, and layer/stage metadata. The 99-row
       finding and reserved `KA-033` layer gap are closed in
-      `2026.08.11-al10.1`.
+      `2026.08.11-al10.2`.
+- [ ] **Publish the reviewed spec exports to external project knowledge.** Use
+      `docs/spec-exports/ka_registry_213.yaml` and
+      `17_axis_coordinate_schema_axes14-17.yaml`, then archive or de-rank the
+      two superseded external gap analyses. These sources are not stored in this
+      repository, so repo generation does not complete the external action.
+- [ ] **Expose nested refinement detail in the installed trace UI.** Persona
+      Analysis and consensus are rendered, but the persisted 12-step refinement
+      receipt is not expanded as named step detail. Complete this with CP19-M
+      packaged visual/accessibility acceptance.
 
 ### Notes for the next session
 

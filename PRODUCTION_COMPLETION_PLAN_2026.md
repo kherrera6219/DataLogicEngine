@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.65.0 |
+| Document version | v1.66.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -37,7 +37,7 @@ pilot, and 24/72-hour gates remain open. Production/public release remains
 `reports/production-readiness/2026/phase-19/cp19-l-clean-rebuild-and-installed-candidate.md`.
 
 The supporting Algorithms remediation track closed on 2026-08-11. Manifest
-`2026.08.11-al10.1` retains the same 213 identities, 211 production-enabled
+`2026.08.11-al10.2` retains the same 213 identities, 211 production-enabled
 capabilities, one-controller boundary, and 112-edge acyclic dependency graph,
 while making purpose, category, risk, subsystem, and layer/stage metadata
 complete for every row. The backend and SDK catalogs, spec-facing registry,
@@ -51,6 +51,10 @@ tested live security authorities.
 It also selects `docs/openapi.yaml` plus the live `/api/v1` routes as the
 supported integration authority. The unimplemented `/ukg/*` v3.2 contract is
 archived as roadmap history and removed from the release payload.
+Post-push clean-runner validation then removed the two now-empty PyInstaller
+data-directory inputs and raised required `KA-025` cold-dispatch allowance from
+300 ms to a still-bounded 1,000 ms. These are source/CI corrections only; the
+installed unsigned candidate is unchanged.
 
 Phase 13 reached its engineering checkpoint on 2026-07-14. Phase 11 selected MCP
 `2025-11-25` over local stdio as the only external connector transport candidate.
@@ -5734,7 +5738,7 @@ Batches 40-43 close health/recovery, crypto/vulnerability, simulation chaos/
 rollback, and topology/evolution. Seven advisory KAs remain effect-free; every
 effect proposal is applied only by OperationsControlService or
 SimulationJobService with a durable hash-bound receipt and ledger record.
-Runtime manifest `2026.08.11-al10.1` retains 213 capabilities, 211
+Runtime manifest `2026.08.11-al10.2` retains 213 capabilities, 211
 production-enabled capabilities, and a 112-edge zero-cycle dependency graph.
 AL-10 subsequently completed descriptive purpose, category, risk, subsystem,
 and layer/stage metadata for all 213 rows without changing their identity,

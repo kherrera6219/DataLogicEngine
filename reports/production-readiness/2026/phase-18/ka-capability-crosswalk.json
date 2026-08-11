@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-crosswalk.v1",
-  "source_input_sha256": "04a8646079f42e824306d7081f7bfe4cf31f141e0548b6953fc7449062c87b33",
+  "source_input_sha256": "c47860f39d3f01cf8a2335953b29b190e874161d2ac57472e6b731166cb2e074",
   "status": "approved_cp18_a_authority",
   "decision": {
     "date": "2026-07-25",
@@ -5260,6 +5260,7 @@
       "test_references": [
         "tests/integration/phase19/test_retrieval_graph_memory.py",
         "tests/integration/phase19/test_truthcore_l1_l5.py",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py",
         "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py",
         "tests/knowledge_algorithms/test_phase19_cp19k_qualification.py",
@@ -5272,6 +5273,7 @@
         "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_079_owning_path",
         "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1092_owning_path",
         "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_025_owning_path",
+        "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_al10_metadata_uses_approved_contract_authorities",
         "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
         "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
         "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",

@@ -38,7 +38,7 @@ SDKs.
 | Area | Current state |
 |---|---|
 | Canonical Knowledge Algorithms | 213 retained; 211 production-enabled |
-| Runtime authority | Manifest `2026.08.11-al10.1`; one controller; 112-edge acyclic dependency graph; all 213 descriptive contracts complete |
+| Runtime authority | Manifest `2026.08.11-al10.2`; one controller; 112-edge acyclic dependency graph; all 213 descriptive contracts complete |
 | Current checkpoint | CP19-L complete; clean candidate rebuilt/installed; CP19-M active |
 | Individually qualified KAs | 213/213; zero open rows |
 | Grouped qualification roadmap | 36 batches (08-43); all complete |
@@ -373,7 +373,9 @@ Open engineering and release acceptance:
   are regression-tested. `docs/openapi.yaml` and the live `/api/v1` routes are
   now the explicit integration authority; the former non-callable `/ukg/*`
   contract is archived roadmap history and no longer ships. None of this closes
-  CP19-M or changes the release **NO-GO**
+  CP19-M or changes the release **NO-GO**. The remaining supporting actions are
+  external publication/archival of the generated specification replacements and
+  packaged visual/accessibility acceptance of nested 12-step trace detail
 
 What Makes DataLogicEngine Different?
 

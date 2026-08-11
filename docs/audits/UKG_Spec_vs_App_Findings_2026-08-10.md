@@ -4,9 +4,9 @@
 |---|---|
 | Document ID | DLE-AUDIT-011 |
 | Title | UKG canonical specification vs. live application findings |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
-| Status | draft — engineering findings, no gate disposition |
+| Status | historical snapshot — live disposition validated 2026-08-11 |
 | Audience | Product owner, maintainers, audit reviewers |
 | Owner | Audit session |
 | Approver | Kevin Herrera, Product Owner |
@@ -33,6 +33,32 @@
 > encodes `Qualifications & Skills`, while AxisSystem and its manager display the
 > `Sector Expert` persona role. The unverified external label was not adopted.
 
+## Current live disposition — 2026-08-11
+
+The original findings below are retained as the `40e2592f` audit record. They
+must not be read as the current backlog. Live-code, generated-authority, focused
+regression, full-suite, packaging, and documentation checks produce this current
+disposition:
+
+| Finding | Current result | Required follow-up |
+|---|---|---|
+| F-01 through F-08 | **Validated closed.** Store retrieval/ingestion, SEKRE, NetworkX, structured memory, compliance checks, websocket trace updates, and axes 14-17 remain implemented and covered. | None in this supporting track; retained installed proof remains under CP19-M. |
+| F-09 | **Resolved.** The disconnected fail-open supervisor was retired. `PromptInjectionShield`, `AIGuardrailService`, and canonical TruthGate/KA admission are the tested live authorities. The obsolete PyInstaller prompt-directory input was also removed after a clean GitHub runner exposed it. | Installed no-egress/failure-injection acceptance remains under CP19-M. |
+| F-10 | **Finding false.** DSQP has seven declared components, and its validator, templates, answer schema, and Axis 9 consumer enforce the same contract. | None. |
+| F-11 | **Resolved/accepted.** Axis 3/4 files and the Branch manager use canonical identities. Axis 5 remains intentionally unmanaged under a tested contract. | None. |
+| F-12 | **Resolved by crosswalk.** `Qualifications & Skills` is the coordinate payload; `Sector Expert` / `Sector Expert Persona` are presentation roles. | Change only through a later ADR that updates both roles together. |
+| F-13 | **Resolved by authority decision.** `docs/openapi.yaml` plus live `/api/v1` routes are supported. The non-callable `/ukg/*` v3.2 file is archived roadmap history and no longer ships. | No `/ukg/*` compatibility promise exists. |
+| F-14 | **Repo-local portion complete.** The runtime and generated SDK manifest contain 213 KAs, and `docs/spec-exports/ka_registry_213.yaml` is ready. The SDK loads that 213-row manifest before its 114-row legacy fallback. | Product owner must publish the generated export to the external project-knowledge corpus. |
+| F-15 | **Repo-local portion complete.** `docs/spec-exports/17_axis_coordinate_schema_axes14-17.yaml` carries the live axes 14-17 contract. | Product owner must replace the external stale schema. |
+| F-16 | **External action remains.** The two superseded gap-analysis documents are not present in this repository. | Archive or de-rank them in the external project-knowledge system. |
+| Frontend caveat | **Partially resolved.** The UI now renders Reasoning Trace, four persona records, Persona Analysis, and a consensus summary. It does not expand the nested 12-step refinement receipt as named step detail. | Complete and visually accept the nested refinement detail with the CP19-M installed UI checks. |
+
+Current source validation is 3,098 backend tests passed with 19 skipped, 435
+frontend tests passed, clean frontend lint/typecheck, 36 Python SDK tests, seven
+TypeScript SDK tests, and all KA/documentation authority gates passed. This
+source evidence does not close CP19-M or change production/public release
+**NO-GO**.
+
 ## 1. Scope and method
 
 This report compares two sources:
@@ -55,7 +81,7 @@ Scan boundary: 866 production Python files across `backend/`, `core/`, `sdk/`,
 `.claude/worktrees/` and the packaged copy under `frontend/dist-smoke/` were
 excluded — they produce duplicate matches and are not production paths.
 
-## 2. Executive summary
+## 2. Original executive summary (historical snapshot)
 
 The relationship between specification and implementation has **inverted** since
 the May 2026 gap analyses. Those reports found the app trailing the spec. It no

@@ -1,11 +1,11 @@
 {
   "schema_version": "dle.ka-runtime-manifest.v1",
-  "manifest_version": "2026.08.11-al10.1",
+  "manifest_version": "2026.08.11-al10.2",
   "status": "cp19_j_product_workflow_authority",
   "authority": {
     "crosswalk": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
     "crosswalk_schema_version": "dle.ka-capability-crosswalk.v1",
-    "crosswalk_source_input_sha256": "04a8646079f42e824306d7081f7bfe4cf31f141e0548b6953fc7449062c87b33",
+    "crosswalk_source_input_sha256": "c47860f39d3f01cf8a2335953b29b190e874161d2ac57472e6b731166cb2e074",
     "integration_authority": "reports/production-readiness/2026/phase-19/ka-integration-authority.json",
     "integration_authority_version": "2026.07.25-cp19a.1",
     "contract_metadata_policy": {
@@ -3533,7 +3533,7 @@
         "audit_events": true,
         "limitations": "Outputs are refinement structure and heuristic observations, not external evidence, calibrated confidence, or release authority.",
         "guarantee": "Produces a bounded deterministic refinement observation from committed request, claim, validator, and trace state without provider calls or direct effects.",
-        "performance_budget_ms": 300
+        "performance_budget_ms": 1000
       },
       "admission": {
         "production_enabled": true,

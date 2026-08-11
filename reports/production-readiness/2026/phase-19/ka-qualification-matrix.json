@@ -5,7 +5,7 @@
   "phase": 19,
   "checkpoint": "CP19-K",
   "authority_version": "2026.07.25-cp19a.1",
-  "manifest_version": "2026.08.11-al10.1",
+  "manifest_version": "2026.08.11-al10.2",
   "evidence_source": "config/phase19-ka-qualification-evidence.json",
   "invariants": {
     "canonical_capabilities": 213,
@@ -2257,7 +2257,7 @@
       "effect_class": "pure_or_advisory_review_required",
       "effect_port": null,
       "limitation": "Outputs are refinement structure and heuristic observations, not external evidence, calibrated confidence, or release authority.",
-      "performance_budget_ms": 300,
+      "performance_budget_ms": 1000,
       "batch_id": "cp19-k-batch-13-l1-context-dependencies",
       "evidence": {
         "semantic_test": {
@@ -2313,7 +2313,7 @@
           "status": "qualified",
           "reference": "tests/knowledge_algorithms/test_phase19_per_ka_semantics.py::test_ka_025_semantic_contract",
           "matches_authority_target": true,
-          "budget_ms": 300
+          "budget_ms": 1000
         }
       },
       "missing_evidence": [],

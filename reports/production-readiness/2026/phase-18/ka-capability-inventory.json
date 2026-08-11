@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.ka-capability-inventory.v1",
-  "source_input_sha256": "04a8646079f42e824306d7081f7bfe4cf31f141e0548b6953fc7449062c87b33",
+  "source_input_sha256": "c47860f39d3f01cf8a2335953b29b190e874161d2ac57472e6b731166cb2e074",
   "status": "cp18_a_inventory_verified",
   "summary": {
     "live_registry_entries": 132,

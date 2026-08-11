@@ -130,7 +130,7 @@ assigned 75 separate times.
 
 ## 6. Completion record
 
-- Manifest `2026.08.11-al10.1` fills 67 purposes, 75 categories, 99 risk
+- Manifest `2026.08.11-al10.2` fills 67 purposes, 75 categories, 99 risk
   classes, 99 subsystem bindings, and 85 layer/stage scopes. The extra layer row
   is reserved `KA-033`, which was not one of the original 99 risk-gap rows.
 - Risk derivation assigns `Low` to 79 pure/advisory rows, `High` to 19

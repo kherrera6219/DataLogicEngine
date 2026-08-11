@@ -19,6 +19,9 @@ def test_retired_fail_open_supervisor_is_not_shipped():
     )
     assert "defense_supervisor" not in payload_verifier
     assert "ukg_api_v3_2" not in payload_verifier
+    backend_spec = (ROOT / "backend.spec").read_text(encoding="utf-8")
+    assert "backend/security/prompts" not in backend_spec
+    assert "backend/api/specs" not in backend_spec
 
 
 def test_gateway_governance_imports_both_live_input_controls():

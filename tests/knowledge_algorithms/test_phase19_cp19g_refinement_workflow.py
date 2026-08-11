@@ -56,6 +56,7 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
         "2026.08.08-cp19k.15",
         "2026.08.08-cp19k.24",
         "2026.08.11-al10.1",
+        "2026.08.11-al10.2",
     }
     assert registry["schema_version"] == "dle.refinement-workflow-registry.v1"
     assert registry["owner"] == "governed_execution_orchestrator"
@@ -78,6 +79,7 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
     if manifest.manifest_version in {
         "2026.08.08-cp19k.24",
         "2026.08.11-al10.1",
+        "2026.08.11-al10.2",
     }:
         assert enabled_count == 211
     elif manifest.manifest_version == "2026.08.08-cp19k.15":
@@ -90,6 +92,7 @@ def test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry():
     if manifest.manifest_version in {
         "2026.08.08-cp19k.24",
         "2026.08.11-al10.1",
+        "2026.08.11-al10.2",
     }:
         assert dependency_edges == 112
     elif manifest.manifest_version == "2026.08.08-cp19k.15":

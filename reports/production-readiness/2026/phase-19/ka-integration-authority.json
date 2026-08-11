@@ -7,7 +7,7 @@
   "runtime_registry": false,
   "runtime_authority": "backend/knowledge_algorithms/ka_manifest.v1.generated.json",
   "identity_source": "reports/production-readiness/2026/phase-18/ka-capability-crosswalk.json",
-  "identity_source_sha256": "1afb30b0fba967a38317024789c7a118e189f8c255c6985611b322313609161b",
+  "identity_source_sha256": "f36c98829e508f72da40cbdd804a1b8860e0f5d76e049b3281c9602639dcc9f1",
   "invariants": {
     "canonical_capabilities": 213,
     "unique_implementation_owners": 213,
@@ -2300,6 +2300,7 @@
           "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_079_owning_path",
           "tests/integration/phase19/test_retrieval_graph_memory.py::test_ka_1092_owning_path",
           "tests/integration/phase19/test_truthcore_l1_l5.py::test_ka_025_owning_path",
+          "tests/knowledge_algorithms/test_phase18_runtime_manifest.py::test_al10_metadata_uses_approved_contract_authorities",
           "tests/knowledge_algorithms/test_phase19_cp19b_contract_parity.py::test_real_controller_layer9_consumes_actual_canonical_outputs",
           "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_manifest_owns_exactly_one_versioned_12_step_registry",
           "tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once",

@@ -12,7 +12,7 @@ def test_spec_exports_cover_live_ka_and_axis_authorities(tmp_path: Path):
     outputs = generate_spec_exports(root=ROOT, output_dir=tmp_path)
 
     registry = yaml.safe_load(outputs["ka_registry"].read_text(encoding="utf-8"))
-    assert registry["manifest_version"] == "2026.08.11-al10.1"
+    assert registry["manifest_version"] == "2026.08.11-al10.2"
     assert registry["capability_count"] == 213
     assert registry["production_enabled_count"] == 211
     assert len(registry["algorithms"]) == 213

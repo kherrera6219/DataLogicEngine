@@ -159,7 +159,7 @@ manifest, catalog, or SDK artifact was modified.
 ## 6b. AL-10 completion record — 2026-08-11
 
 The product owner approved proceeding through the two plans using the strongest
-live authorities. Manifest `2026.08.11-al10.1` now derives missing descriptive
+live authorities. Manifest `2026.08.11-al10.2` now derives missing descriptive
 contract fields without name-based inference:
 
 - 67 purposes come from parsed implementation module docstrings;

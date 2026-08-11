@@ -94,6 +94,8 @@ def test_al10_metadata_uses_approved_contract_authorities():
     assert policy.contract.subsystems == ["truthgate"]
     assert policy.contract.layers == ["L8"]
 
+    assert manifest.entries["KA-025"].contract.performance_budget_ms == 1_000
+
     assert manifest.authority["contract_metadata_policy"] == {
         "checkpoint": "AL-10",
         "purpose_source": "implementation_module_docstring",
