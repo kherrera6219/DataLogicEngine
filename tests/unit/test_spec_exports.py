@@ -41,7 +41,9 @@ def test_api_delta_accounts_for_every_canonical_path(tmp_path: Path):
     assert all(any(status in row for status in ("exact", "candidate mapping", "absent")) for row in rows)
 
 
-def test_checked_in_spec_exports_are_current(tmp_path: Path):
+# Keep this identifier longer than the Lob detector's exact token-shaped length;
+# TruffleHog otherwise treats an ordinary Python test name as a verified key.
+def test_checked_in_spec_exports_match_the_generator_output(tmp_path: Path):
     generated = generate_spec_exports(root=ROOT, output_dir=tmp_path)
     checked_in = ROOT / "docs" / "spec-exports"
 
