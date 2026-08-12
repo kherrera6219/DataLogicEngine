@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -25,11 +25,21 @@
 [![Node](https://img.shields.io/badge/node-24%2B-339933)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
 
-DataLogicEngine is a local-first Windows platform for governed AI requests,
-knowledge retrieval, reasoning, evidence validation, and auditability. It
-combines a desktop control application, an authenticated API gateway, the
-Universal Knowledge Graph (UKG), a governed reasoning pipeline, and
-owner-selected cloud model inference.
+**Governed AI for organizations that need evidence, control, and
+accountability—not just a model response.**
+
+DataLogicEngine is owner-operated, local-first Windows software that sits
+between people or applications and cloud AI models. It provides one governed
+path for AI requests, knowledge retrieval, reasoning, validation, durable
+effects, evidence, and audit. The product combines a desktop control center, an
+authenticated API gateway, the Universal Knowledge Graph (UKG), a governed
+reasoning pipeline, and owner-selected OpenAI or Google inference.
+
+The built-in chat is a reference client for the same gateway that approved
+applications, agents, and chatbots can use. DataLogicEngine is not a model and
+is not a vendor-hosted SaaS: the owner controls the Windows system, provider
+accounts, connector credentials, local data, retention, backups, and operating
+policy.
 
 > [!WARNING]
 > **Engineering evaluation only. DataLogicEngine 4.3.0 is not approved for a
@@ -37,28 +47,120 @@ owner-selected cloud model inference.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-## What it does
+## Who it is for
 
-DataLogicEngine accepts requests from its desktop client or approved API
-clients, applies identity, policy, retrieval, reasoning, validation, and audit
-controls, calls the configured model provider when authorized, and returns a
-governed response.
+DataLogicEngine is designed for owner-operated deployments where AI output must
+be reviewable, attributable, and governed. Its clearest fit is organizations
+that want the capability of cloud models without turning their local knowledge,
+credentials, policy decisions, and operational history over to a hosted AI
+control plane.
+
+| Audience or market | What DataLogicEngine provides |
+|---|---|
+| Enterprise AI and platform teams | A consistent gateway for approved internal applications, assistants, and agents, with centrally applied policy and provider controls |
+| Government and public-sector evaluators | Owner-controlled Windows deployment, local operational data, recorded provenance, and inspectable request evidence |
+| AI governance, risk, privacy, and security teams | Scoped client access, policy enforcement, provider disclosure, causal traces, reviewable effects, and controlled retention |
+| Research, analysis, and knowledge-management teams | Structured knowledge, graph and vector retrieval, source provenance, evidence review, and bounded simulations |
+| Software developers and integrators | A versioned API, generated Python and TypeScript SDKs, asynchronous jobs, streaming responses, and provider-key separation |
+| Operators, reviewers, and pilot users | A desktop experience for configuration, governed chat, monitoring, trace review, privacy, diagnostics, and support |
+
+The current 4.3.0 product boundary is a single owner/operator on Windows 11 or
+an owner-controlled Windows VM. It is not a public web service or a multi-tenant
+identity platform.
+
+## What the application does
+
+DataLogicEngine accepts requests from its desktop client or an approved API
+client and carries them through a backend-owned governed workflow. It
+authenticates the caller, applies scope and policy, retrieves relevant local
+knowledge, coordinates reasoning and specialist capabilities, invokes the
+configured model provider only when authorized, validates the result, and
+records the causal evidence needed to inspect what happened.
 
 Core capabilities include:
 
 - Windows desktop control, configuration, administration, and audit console
-- Authenticated, versioned API gateway for approved applications and agents
+- Authenticated, versioned AI gateway for approved applications and agents
 - Universal Knowledge Graph and 17-axis knowledge framework
 - 10-layer Truth Engine and 12-step refinement workflow
 - 213-capability Knowledge Algorithm framework
 - Governed OpenAI or Google model-provider integration using owner-supplied keys
-- Retrieval, simulation, MCP, trace, support, and observability workflows
+- Provenance-aware knowledge ingestion, graph and vector retrieval, and memory
+- Budgeted simulations with lifecycle, checkpoints, and retained artifacts
+- Owner-approved MCP connectors with explicit scope and consent
+- Correlated traces, evidence review, replay, diagnostics, and support workflows
 - Generated Python and TypeScript client SDKs
 - Local app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible storage
 
-DataLogicEngine does not expose its provider key or raw database credentials to
-API clients. Compliance mappings are evidence-guided design references, not
-formal certifications.
+### A governed request, end to end
+
+1. A user, application, agent, or chatbot submits a request through the desktop
+   client or versioned gateway.
+2. DataLogicEngine authenticates the caller and applies its approved scopes,
+   quotas, policy, and operating limits.
+3. The orchestrator classifies the request and retrieves relevant records,
+   graph context, vector matches, memory, and source provenance.
+4. The governed reasoning path coordinates personas, Knowledge Algorithms,
+   refinement, tools, and simulations that are allowed for the request.
+5. If external inference is needed and permitted, the backend calls the
+   owner-selected OpenAI or Google model without exposing that provider key to
+   the client.
+6. Truth, evidence, and policy checks evaluate the outcome and distinguish
+   completed, blocked, failed, cancelled, unavailable, and unmeasured states.
+7. The application returns the response and preserves a correlated trace of
+   decisions, evidence, provider activity, durable effects, and limitations.
+
+### What owners and operators can do
+
+| Workflow | Purpose |
+|---|---|
+| Dashboard and administration | Review health, service readiness, provider state, usage, policy, and operational signals |
+| Governed chat | Submit prompts and uploads through the same governed path exposed to approved integrations |
+| Sessions and projects | Organize work and review the timeline of requests, responses, evidence, and effects |
+| Traces and evidence | Inspect causal stages, provider activity, retrieved sources, outcomes, limitations, and exportable evidence |
+| Knowledge and graph | Ingest and review knowledge, provenance, relationships, graph context, and retrieval behavior |
+| Knowledge Algorithms | Select and run specialist capabilities through typed, traceable product workflows |
+| Simulations | Run bounded scenarios with budgets, checkpoints, status, artifacts, cancellation, and restart behavior |
+| Truth Engine | Monitor validation, convergence, uncertainty, and refinement behavior |
+| MCP connectors | Register and use explicitly approved local tools within recorded command, scope, and file-root boundaries |
+| Privacy, storage, and lifecycle | Manage export, deletion, retention, backups, recovery, and owner-controlled memory promotion |
+| Diagnostics and support | Review content-restricted diagnostics and preview support bundles before export |
+
+## Why DataLogicEngine is different
+
+- **Local-first ownership.** Application state, knowledge, traces, memory, and
+  artifacts remain in an app-owned data plane under the owner's control.
+- **One governed path.** The built-in chat and approved API clients use the same
+  backend orchestration instead of creating separate, inconsistent AI paths.
+- **Evidence over assertions.** Requests carry a causal identity across policy,
+  retrieval, reasoning, provider activity, validation, effects, and response.
+- **Provider choice without credential sprawl.** Owners configure OpenAI or
+  Google credentials once; approved clients never receive the raw provider key.
+- **Knowledge-aware reasoning.** Graph, vector, relational, object, and memory
+  services work together with recorded source identity and provenance.
+- **Controlled tools and effects.** Connectors, algorithms, simulations,
+  exports, and state changes are scoped, reviewable, and represented truthfully.
+
+DataLogicEngine does not expose raw database credentials to API clients.
+Compliance mappings are evidence-guided design references, not formal
+certifications.
+
+## Product boundary
+
+- Supported target: Windows 11 x64 desktop or an owner-controlled Windows VM
+- Access: Electron desktop shell and a same-host, loopback-bound gateway by
+  default
+- Identity: single owner/operator with installation-bound local controls
+- Providers: owner-configured OpenAI or Google credentials and approved models
+- Connectors: owner-approved local MCP processes with recorded scope and consent
+- Data: app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible storage
+- Excluded from 4.3.0: public-internet exposure, public self-registration,
+  multi-tenancy, vendor-hosted customer data or API spend, Kubernetes, managed
+  cloud databases as production authorities, mobile clients, and macOS/Linux
+  packaging
+
+See the [Product Requirements](docs/PRODUCT_REQUIREMENTS.md) for the complete
+supported contract and exclusions.
 
 ## Release status
 
