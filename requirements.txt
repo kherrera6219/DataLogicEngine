@@ -87,6 +87,8 @@ web3==7.15.0
 reportlab==4.4.9
 
 # Multimodal/document processing used by backend services
+beautifulsoup4==4.14.3
+soupsieve==2.8.4  # patched CSS selector runtime used by Beautiful Soup HTML ingestion
 opencv-python-headless==4.13.0.92
 Pillow==12.3.0
 pypdf==6.15.0

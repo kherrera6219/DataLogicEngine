@@ -9,6 +9,8 @@
 - Preserved public API `v1`, `governed.v1`, `dle-gateway.v1`, provider, virtual
   model, and data-plane contract versions; this is a backward-compatible minor
   product release rather than a breaking contract release.
+- Locked the Beautiful Soup HTML-ingestion runtime and upgraded bundled
+  `soupsieve` to 2.8.4, resolving PYSEC-2026-3071 and PYSEC-2026-3072.
 - Retained the 4.3.0 installed engineering candidate as historical evidence.
   No installed, provider, accessibility, recovery, pilot, or soak result
   transfers to the new 4.4.0 artifact until CP19-M executes against its exact
