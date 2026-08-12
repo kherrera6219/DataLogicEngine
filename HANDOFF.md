@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.2.0 |
+| Document version | v1.2.1 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -695,12 +695,12 @@ hashing, bounded Electron-builder rename retries, false-positive secret-scan
 identifier cleanup, Algorithms registry/API/navigation remediation, focused
 route/UI coverage, and supporting review/audit routing. These changes are
 source-only relative to the installed qualification artifact. A later local
-build exists as `DataLogicEngine Setup 4.3.0.exe` (283,875,377 bytes; SHA-256
-`30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`),
-built from runtime source commit
-`a3879446c5191289cfb528586c07e7f18ea155f5`. Its integrity, checksum, blockmap,
-and portable-launch smoke pass, but it is unsigned and has not completed an
-installed smoke. It therefore does not inherit the August 10 installed
+build exists as `DataLogicEngine Setup 4.3.0.exe` (283,874,927 bytes; SHA-256
+`734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25`),
+built from source commit `e0ebb6e137ff267567b31faf933291b356a275d0`.
+Its integrity, checksum, block map, 6,095-file payload, and version parity pass.
+Per owner direction it was not launched or installed; it is unsigned and has
+no portable or installed smoke. It therefore does not inherit the August 10 installed
 evidence. The latest successful push CI passes 3,091 backend tests with 26
 skipped, 435 frontend tests, 36 Python SDK tests, seven TypeScript SDK tests,
 lint, type checking, packaging/governance, and 51 browser end-to-end tests.

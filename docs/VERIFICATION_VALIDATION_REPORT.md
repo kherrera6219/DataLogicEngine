@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.4.0 |
+| Document version | v1.4.1 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -102,13 +102,13 @@ That installed candidate is unsigned. Prior frozen candidate hashes and the earl
 the current installed result. Reproducibility, signing, exact-artifact binding,
 and the retained CP19-M/system/manual/external acceptance rows remain open.
 
-The current local engineering artifact was built on 2026-08-11 from runtime
-source commit `a3879446c5191289cfb528586c07e7f18ea155f5`. It is 283,875,377
+The current local engineering artifact was built on 2026-08-11 from source
+commit `e0ebb6e137ff267567b31faf933291b356a275d0`. It is 283,874,927
 bytes with SHA-256
-`30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`.
-Its checksum, block map, and installer-integrity report pass, and its portable
-process started, but portable smoke timed out and installed-mode acceptance was
-not run. It is unsigned and is not the installed qualification subject above.
+`734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25`.
+Its checksum, block map, installer-integrity report, 6,095-file payload, and
+version parity pass. Per owner direction neither the application nor installer
+was run. It is unsigned and is not the installed qualification subject above.
 No installed, provider, accessibility, recovery, or soak evidence transfers
 between these artifact hashes.
 

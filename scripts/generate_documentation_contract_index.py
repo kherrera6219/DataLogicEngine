@@ -57,8 +57,9 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
     route_summary = routes["summary"]
     installers = installer_report.get("results", {}).get("installers", [])
     installer = installers[0] if installers else {}
-    installer_path = root / installer.get("artifact", "")
-    installer_size = installer_path.stat().st_size if installer_path.is_file() else "not_evaluated"
+    installer_size = installer.get("size_bytes", "not_evaluated")
+    installer_hash = installer.get("sha256", "not_evaluated")
+    packaging_matches = packaging_report.get("installer_sha256") == installer_hash
     lines = [
         "# Generated production contract index",
         "",
@@ -76,10 +77,10 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
         f"| Installer artifact pattern | `{_artifact_name(root / 'frontend' / 'electron-builder.yml')}` |",
         f"| Current local artifact | `{installer.get('artifact', 'not_evaluated')}` |",
         f"| Current local artifact size | `{installer_size}` bytes |",
-        f"| Current local artifact SHA-256 | `{installer.get('sha256', 'not_evaluated')}` |",
-        f"| Current build source commit | `{packaging_report.get('source_commit', 'not_evaluated')}` |",
-        f"| Current artifact signature | `{packaging_report.get('installer_signature_status', 'not_evaluated')}` |",
-        f"| Installed-mode smoke accepted | `{str(packaging_report.get('installer_mode', {}).get('install_success', False)).lower()}` |",
+        f"| Current local artifact SHA-256 | `{installer_hash}` |",
+        f"| Current build source commit | `{installer_report.get('results', {}).get('source_commit', 'not_evaluated')}` |",
+        f"| Current artifact signature | `{packaging_report.get('installer_signature_status', 'not_evaluated') if packaging_matches else 'not_evaluated'}` |",
+        f"| Installed-mode smoke accepted | `{str(packaging_report.get('installer_mode', {}).get('install_success', False)).lower() if packaging_matches else 'not_evaluated'}` |",
         "",
         "## Provider and model allowlist",
         "",

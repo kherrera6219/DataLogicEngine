@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-AUDIT-012 |
 | Title | Current-build documentation reconciliation |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | active supporting review |
 | Audience | Product owner, engineering, quality, release reviewers, and documentation maintainers |
@@ -36,14 +36,13 @@ product authority.
 | Subject | Current evidence |
 |---|---|
 | Product | DataLogicEngine Desktop 4.3.0; Windows file version 4.3.0.0; pre-production channel |
-| Runtime source used for latest local build | `a3879446c5191289cfb528586c07e7f18ea155f5` |
-| Runtime changes after that commit | None; later commits before this review contain build evidence and public documentation only |
+| Source used for latest local build | `e0ebb6e137ff267567b31faf933291b356a275d0` |
 | Current local installer | `DataLogicEngine Setup 4.3.0.exe` |
-| Size | 283,875,377 bytes |
-| SHA-256 | `30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d` |
+| Size | 283,874,927 bytes |
+| SHA-256 | `734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25` |
 | Integrity | Pass; checksum and block map present |
 | Signature | Not signed |
-| Portable smoke | Process started; timed out without a normal exit |
+| Portable smoke | Not run by owner direction |
 | Installed-mode smoke | Not run; no install/uninstall success evidence |
 | Last installed qualification artifact | Separate August 10 artifact: 283,890,413 bytes; SHA-256 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e` |
 | Installed evidence | Bound only to the August 10 hash: per-machine Program Files launch, `/ready`, five app-owned services, retained-data adoption, authentication, Diagnostics, and representative KA smoke |

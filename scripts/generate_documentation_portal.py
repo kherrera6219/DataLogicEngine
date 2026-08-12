@@ -84,14 +84,15 @@ def render(
     current_installer = installers[0] if installers else {}
     installer_hash = current_installer.get("sha256", "not_evaluated")
     installer_name = current_installer.get("artifact", "not_evaluated")
-    installer_path = ROOT / installer_name
-    installer_size = installer_path.stat().st_size if installer_path.is_file() else "not_evaluated"
-    build_commit = packaging_report.get("source_commit", "not_evaluated")
+    installer_size = current_installer.get("size_bytes", "not_evaluated")
+    build_commit = installer_report.get("results", {}).get("source_commit", "not_evaluated")
+    packaging_matches = packaging_report.get("installer_sha256") == installer_hash
     smoke_state = (
         "started and timed out without installed-mode acceptance"
-        if packaging_report.get("portable_launch_started")
+        if packaging_matches
+        and packaging_report.get("portable_launch_started")
         and packaging_report.get("portable_launch_timed_out")
-        else "not_evaluated"
+        else "was not run for this artifact"
     )
     ka_evidence = (
         "- Current evidence: all 213/213 KAs are individually qualified and the "

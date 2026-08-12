@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
-| Document version | v1.2.0 |
+| Document version | v1.2.1 |
 | Product version | 4.3.0 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
@@ -28,10 +28,10 @@ five local services. It preserved the existing 0.1.1 data through verified
 one-time adoption rather than creating a replacement database.
 
 A separate 2026-08-11 local build exists at `DataLogicEngine Setup 4.3.0.exe`
-(283,875,377 bytes; SHA-256
-`30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`).
-It is unsigned; integrity, checksum, and block-map validation pass, but portable
-smoke timed out after launch and installed-mode acceptance has not run. Do not
+(283,874,927 bytes; SHA-256
+`734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25`).
+It is unsigned; integrity, checksum, block-map, 6,095-file payload, and version
+validation pass. It was intentionally not launched or installed. Do not
 attribute the August 10 installed results to this different-hash artifact or
 treat an unsigned, stale `Latest`, or locally rebuilt artifact as the production
 installer.

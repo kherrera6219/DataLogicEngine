@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.67.0 |
+| Document version | v1.67.1 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -58,11 +58,12 @@ installed unsigned candidate is unchanged.
 
 The active documentation tree was recursively reconciled on 2026-08-11 against
 the current source and build evidence. The current local installer is
-`DataLogicEngine Setup 4.3.0.exe` (283,875,377 bytes; SHA-256
-`30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`),
-built from runtime source commit
-`a3879446c5191289cfb528586c07e7f18ea155f5`. It is unsigned and has not passed
-installed acceptance, so the 2026-08-10 installed engineering evidence remains
+`DataLogicEngine Setup 4.3.0.exe` (283,874,927 bytes; SHA-256
+`734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25`),
+built from source commit `e0ebb6e137ff267567b31faf933291b356a275d0`.
+Static integrity, checksum, block map, 6,095-file payload, and version parity
+pass. It was intentionally not launched or installed, is unsigned, and has not
+passed installed acceptance, so the 2026-08-10 installed engineering evidence remains
 bound only to SHA-256
 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
 The canonical record is

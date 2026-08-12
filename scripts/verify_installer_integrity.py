@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import List
@@ -52,6 +53,20 @@ def _expected_installer_name(repo_root: Path) -> str:
     return f"DataLogicEngine Setup {version}.exe"
 
 
+def _source_commit(repo_root: Path) -> str:
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_root), "rev-parse", "HEAD"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return "unknown"
+    commit = result.stdout.strip()
+    return commit if result.returncode == 0 and commit else "unknown"
+
+
 def verify_installers(repo_root: Path, require_artifacts: bool) -> tuple[List[InstallerIssue], dict]:
     issues: List[InstallerIssue] = []
     try:
@@ -87,6 +102,7 @@ def verify_installers(repo_root: Path, require_artifacts: bool) -> tuple[List[In
     for installer in installers:
         row = {
             "artifact": installer.name,
+            "size_bytes": installer.stat().st_size,
             "sha256": None,
             "checksum_file": f"{installer.name}.sha256",
             "blockmap_present": (repo_root / f"{installer.name}.blockmap").exists(),
@@ -167,6 +183,7 @@ def verify_installers(repo_root: Path, require_artifacts: bool) -> tuple[List[In
 
     return issues, {
         "expected_installer": expected_installer_name,
+        "source_commit": _source_commit(repo_root),
         "installers": report_rows,
     }
 

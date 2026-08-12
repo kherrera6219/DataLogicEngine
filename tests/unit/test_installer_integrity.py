@@ -29,6 +29,7 @@ def test_canonical_versioned_installer_passes_integrity(tmp_path):
 
     assert not any(issue.severity == "error" for issue in issues)
     assert report["expected_installer"] == "DataLogicEngine Setup 1.2.0.exe"
+    assert report["installers"][0]["size_bytes"] == len(b"installer")
 
 
 def test_latest_alias_is_rejected_as_stale_artifact(tmp_path):

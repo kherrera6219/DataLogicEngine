@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.2.0 |
+| Document version | v3.2.1 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -133,10 +133,10 @@ frontend prompt
 
 ### Current build identity
 
-The latest local engineering installer was built from runtime source commit
-`a3879446c5191289cfb528586c07e7f18ea155f5`; subsequent commits through the
-documentation reconciliation change build evidence or documentation, not the
-runtime. The artifact is unsigned and has not passed installed-mode acceptance.
+The latest local engineering installer was built from source commit
+`e0ebb6e137ff267567b31faf933291b356a275d0`. The artifact is unsigned and was
+intentionally not launched or installed; only its static build, payload,
+integrity, checksum, block-map, and version gates have passed.
 Use `docs/RELEASE_READINESS_RECORD.md` for its exact size/hash and the separate
 last-installed qualification identity. Never transfer installed results between
 artifact hashes.
@@ -147,8 +147,8 @@ Retained CP18-B work replaced the conflicting KA registries/engines with one
 generated manifest and canonical controller. Phase 18 subsequently reached 213
 unique implementation owners and zero source gaps, but
 CP18-D failed the whole-application wiring audit. Phase 19 is therefore the
-active integration authority and the signed rebuild remains paused through
-CP19-L. Before changing a KA identity or purpose, update the reviewed CP18-A
+active integration authority; CP19-L passed and CP19-M exact-artifact installed
+acceptance remains open. Before changing a KA identity or purpose, update the reviewed CP18-A
 crosswalk and preserve compatible aliases. Do not join historical metadata to
 an implementation by numeric ID unless the manifest proves semantic identity.
 

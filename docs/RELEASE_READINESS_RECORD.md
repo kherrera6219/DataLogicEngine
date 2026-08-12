@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.4.0 |
+| Document version | v1.4.1 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -85,13 +85,13 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 
 | Item | Current local build record |
 |---|---|
-| Runtime source input | Commit `a3879446c5191289cfb528586c07e7f18ea155f5`; later commits through this documentation reconciliation change build evidence or documentation, not runtime code |
+| Runtime source input | Commit `e0ebb6e137ff267567b31faf933291b356a275d0` |
 | Artifact | `DataLogicEngine Setup 4.3.0.exe` |
-| Size | 283,875,377 bytes |
-| SHA-256 | `30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d` |
-| Integrity | Pass; checksum and block map present |
+| Size | 283,874,927 bytes |
+| SHA-256 | `734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25` |
+| Integrity | Pass; checksum and block map present; 6,095-file release payload has zero issues |
 | Signature | Unsigned |
-| Portable smoke | Process launched; timed out without a normal exit |
+| Portable smoke | Not run by owner direction |
 | Installed-mode smoke | Not run; no install/uninstall success evidence |
 | Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
 
