@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.4.0 |
+| Document version | v1.5.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -46,6 +46,19 @@ policy.
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
+
+## Repository guide
+
+| I want to... | Start here |
+|---|---|
+| Understand the product and its market | [Who it is for](#who-it-is-for) and [What the application does](#what-the-application-does) |
+| Evaluate the current release boundary | [Product boundary](#product-boundary) and [Release status](#release-status) |
+| Understand the system as an engineer | [Engineering guide](#engineering-guide) and the [Developer Guide](docs/DEVELOPER_GUIDE.md) |
+| Set up a development environment | [Developer quickstart](#developer-quickstart) |
+| Integrate an application or agent | [API](#api), [interface contract](docs/INTERFACE_INTEGRATION.md), and [OpenAPI specification](docs/openapi.yaml) |
+| Build or install the Windows application | [Build the Windows installer](#build-the-windows-installer) and the [Installation Guide](docs/INSTALLATION_GUIDE.md) |
+| Contribute or report a problem | [Contributing and support](#contributing-and-support), [CONTRIBUTING.md](CONTRIBUTING.md), and [SECURITY.md](SECURITY.md) |
+| Understand permitted use | [Repository license](#repository-license), [LICENSE](LICENSE), and [commercial licensing](COMMERCIAL_LICENSE.md) |
 
 ## Who it is for
 
@@ -177,7 +190,16 @@ The live engineering status belongs in the
 in the [documentation portal](docs/README.md) and production-readiness reports,
 not in this public overview.
 
-## Architecture
+## Engineering guide
+
+DataLogicEngine is a Windows desktop application with a Python service layer,
+a Next.js/Electron user interface, a versioned integration gateway, and an
+app-owned local data plane. Engineers should read the [Developer
+Guide](docs/DEVELOPER_GUIDE.md), [Architecture](docs/ARCHITECTURE.md),
+[Interface Integration](docs/INTERFACE_INTEGRATION.md), and [Data
+Architecture](docs/DATA_ARCHITECTURE.md) before changing a runtime boundary.
+
+### System topology
 
 ```mermaid
 flowchart LR
@@ -210,7 +232,67 @@ clients use governed application interfaces rather than direct store access.
 See [Data Architecture](docs/DATA_ARCHITECTURE.md) for store responsibilities
 and lifecycle details.
 
-## Quickstart
+### Governed execution workflow
+
+Every desktop and gateway request enters the same backend-owned orchestration
+path. A causal run identity follows the request through admission, routing,
+execution, evidence, persistence, and response.
+
+```mermaid
+flowchart TD
+  Request["Electron, API, SDK, or approved agent"] --> Envelope["Flask API and security envelope"]
+  Envelope --> DMRF["DMRF control plane"]
+  DMRF --> TruthGate["TruthGate and tier classification"]
+  TruthGate --> Axes["17-axis routing"]
+  Axes --> Personas["DSQP persona construction"]
+  Personas --> Plan["TruthCore governed plan"]
+  Plan --> Execution["Knowledge Algorithms, provider, MCP, or simulation execution"]
+  Execution --> Evidence["Evidence and convergence policy"]
+  Evidence --> Persistence["Memory, audit, artifact, and effect persistence"]
+  Persistence --> Result["Governed response and trace review"]
+```
+
+The important rule is that the frontend does not reproduce backend governance.
+Routes normalize input and transport state; the backend owns policy,
+orchestration, provider access, durable effects, evidence, and truthful outcome
+semantics. See the [interface contract](docs/INTERFACE_INTEGRATION.md) for the
+supported client boundary.
+
+### Repository structure
+
+| Area | Primary paths | Engineering responsibility |
+|---|---|---|
+| Application assembly | `app.py`, `main.py`, `wsgi.py` | Flask construction, runtime compatibility, service startup, and route registration |
+| API and security envelope | `backend/api/`, `backend/routes/`, `backend/auth/`, `backend/middleware/` | Versioned transport, authentication, authorization, validation, limits, and response contracts |
+| Governed control plane | `backend/dmrf/`, `backend/governed_execution/`, `backend/truth_engine/` | Request classification, orchestration, refinement, validation, convergence, and outcome semantics |
+| Knowledge and personas | `backend/knowledge_algorithms/`, `backend/quad_persona/`, `core/` | Knowledge Algorithm ownership, persona coordination, axes, graph, and framework primitives |
+| Execution adapters | `backend/llm_gateway/`, `backend/mcp_server/`, `backend/simulation/` | Provider routing, controlled connectors, tools, budgets, checkpoints, and artifacts |
+| Data and lifecycle | `backend/storage/`, `backend/repositories/`, `backend/ingestion/`, `backend/memory/` | Store adapters, provenance, ingestion, retention, deletion, memory, backup, and recovery behavior |
+| Desktop and web UI | `frontend/app/`, `frontend/components/`, `frontend/lib/`, `frontend/electron/` | Next.js routes, shared components, client contracts, and Electron lifecycle/security |
+| Public integration | `sdk/`, `docs/openapi.yaml` | Generated Python and TypeScript clients and the versioned API contract |
+| Engineering automation | `scripts/`, `.githooks/`, `.github/workflows/` | Setup, validation, documentation checks, packaging, security, CI, and signing governance |
+| Verification | `tests/`, `frontend/tests/`, `reports/production-readiness/` | Backend, contract, security, frontend, Electron, installed-system, and release evidence |
+
+### Engineering workflow
+
+1. Read the relevant architecture and interface documents before changing a
+   subsystem boundary.
+2. Create a focused branch, configure a local `.env`, and install locked Python
+   and Node dependencies.
+3. Start the required app-owned data services, apply migrations, then run the
+   backend and frontend through their documented entry points.
+4. Keep contracts synchronized across backend schemas, OpenAPI, generated SDKs,
+   frontend types, tests, and active documentation.
+5. Run focused tests while developing, then lint, type-check, build, security,
+   documentation, and packaging checks appropriate to the change.
+6. Submit a focused pull request that explains the behavior change, validation,
+   security impact, documentation impact, and any remaining limitation.
+
+The full setup, coding rules, test matrix, and packaging commands are maintained
+in the [Developer Guide](docs/DEVELOPER_GUIDE.md) and
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Developer quickstart
 
 ### Requirements
 
@@ -389,10 +471,39 @@ submit a focused pull request.
 - Bugs: open a [GitHub issue](https://github.com/kherrera6219/DataLogicEngine/issues)
 - Security reports: follow [SECURITY.md](SECURITY.md)
 
-## License
+### Repository standards
 
-DataLogicEngine is licensed under the [PolyForm Noncommercial License
-1.0.0](LICENSE). Personal, research, and educational use are permitted under the
-license terms. Commercial use, production deployment in a business environment,
-or integration into a paid product requires a separate commercial license. See
-[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).
+| Repository document | Purpose |
+|---|---|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Development setup, coding standards, testing, commits, and pull requests |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Expected behavior for project participation |
+| [SECURITY.md](SECURITY.md) | Private vulnerability reporting and disclosure policy |
+| [Issue templates](.github/ISSUE_TEMPLATE/) | Structured bug reports and feature requests |
+| [Pull request template](.github/pull_request_template.md) | Required change, testing, security, and documentation summary |
+| [CODEOWNERS](.github/CODEOWNERS) | Review ownership for repository areas |
+
+## Repository license
+
+DataLogicEngine is a **source-available** project licensed under the [PolyForm
+Noncommercial License 1.0.0](LICENSE). It is not distributed under an OSI
+open-source license.
+
+| Use | License position |
+|---|---|
+| Personal study, research, experimentation, and other noncommercial use | Permitted under the PolyForm Noncommercial terms |
+| Educational, charitable, public-research, public-safety, health, environmental, and government-institution use | Permitted for qualifying noncommercial organizations as defined by the license |
+| Internal business use supporting commercial operations | Requires a separate commercial license |
+| Integration into a paid product or service | Requires a separate commercial license |
+| Hosted or managed commercial access | Requires a separate commercial license |
+
+The repository moved from MIT to PolyForm Noncommercial effective
+**January 15, 2026**. The required notice is:
+
+> Copyright (c) 2026 DataLogicEngine Team
+
+Review the complete [LICENSE](LICENSE) before using, modifying, or distributing
+the software. Commercial deployment, internal business use, paid-product
+integration, and enterprise support are available under a separate agreement;
+see [Commercial Licensing](COMMERCIAL_LICENSE.md) for inquiry options. Bundled
+dependencies and generated SDK packages may carry their own license terms in
+their respective files.
