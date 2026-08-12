@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-003 |
 | Title | AI system card and evaluation report |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, AI assurance reviewers, risk reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented governed request path, evaluation protocol, model records, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Model/provider, evaluation method, risk, limitation, metric, or release-status change |
 | Requirements and evidence | Evaluation suite, golden corpus, model manifest, risk records, and Phase 12 evidence |
 
@@ -30,6 +30,8 @@ judgment.
 All 213 KAs and the clean source boundary now pass CP19-K/L verification, and
 representative governed KAs execute from the installed frozen backend. Installed
 OpenAI/Google corpus rows, blinded-human review, and owner approval remain open.
+The newer August 11 local build has not passed installed provider or corpus
+acceptance; evaluation does not transfer from the earlier artifact.
 
 The supported product is the local Windows desktop application and its approved
 private client-gateway profile. Public multi-user web/cloud hosting, implicit
@@ -46,16 +48,16 @@ production-enabled TruthCore KAs, bounded local retrieval, and a configured
 OpenAI or Google model when needed. Output controls, claim/citation validation,
 bounded convergence, and transactional trace persistence follow execution.
 
-The current 29-entry production-enabled KA subset includes the retained Phase 6
-safety boundary, the complete CP19-E L9/L10 safety suites, and the CP19-F
-`KA-012`/`KA-013`/`KA-030` persona chain plus the CP19-G bounded refinement
-observations; it is not final
-owning-subsystem completion. Phase 18 retained a reconciled 213-capability
-authority, one runtime/controller, 213 unique implementation owners, and zero
-source gaps, but its whole-application wiring audit failed. Phase 19 CP19-A now
-adds one primary subsystem owner and governed consumer/evidence destinations
-for every KA, 16 workflow dispositions, and a 726-test baseline. CP19-B passed
-typed caller parity. CP19-C now passes with 213 positive and 213 negative
+The current manifest `2026.08.11-al10.2` contains 213 qualified capabilities,
+211 production-enabled capabilities, and 112 dependency edges with zero cycles.
+The two disabled entries retain explicit reserved/unsupported semantics rather
+than being presented as executable product behavior. Phase 18 retained a
+reconciled 213-capability authority, one runtime/controller, 213 unique
+implementation owners, and zero source gaps, but its whole-application wiring
+audit failed. Phase 19 CP19-A added one primary subsystem owner and governed
+consumer/evidence destinations for every KA, 16 workflow dispositions, and a
+726-test baseline. CP19-B passed typed caller parity. CP19-C passed with 213
+positive and 213 negative
 selector fixtures, a corrected base dependency DAG, bounded
 concurrency/budgets/cancellation, 781 KA/Python-SDK tests, and a
 2,499-passed/18-skipped CP19-C full source suite. CP19-D then established one
@@ -69,11 +71,12 @@ through the canonical selector/DAG, with zero persona-provider subcalls,
 invented confidence, or applied effects and a then-current 132-edge zero-cycle
 graph. CP19-G passed one manifest-owned 12-step workflow, complete step
 accounting, zero step-level provider subcalls, one rewrite ceiling, L6-L10
-revalidation, proposal-only lifecycle output, and a current 131-edge
-zero-cycle graph. Phase 19 continues to own Truth/data/knowledge,
-extended-subsystem, API/SDK/desktop, per-KA, and installed integration proof.
-The signed rebuild is paused through CP19-L. No catalog entry, imported module,
-or nonproduction opt-in alone establishes production capability.
+revalidation, proposal-only lifecycle output, and a then-current 131-edge
+zero-cycle graph. CP19-H through CP19-J connected the owning subsystems and
+product workflow; CP19-K qualified 213/213 and CP19-L passed the clean source
+boundary. CP19-M remains the installed integration authority. No catalog entry,
+imported module, or nonproduction opt-in alone establishes production
+capability.
 
 The trace records request and workflow identity, provider/model selection,
 policy and routing decisions, evidence and claim relationships, convergence,

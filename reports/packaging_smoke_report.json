@@ -1,6 +1,7 @@
 ﻿{
     "generated_at":  "2026-08-11T07:45:28.6343606Z",
     "repo_root":  "C:\\software\\DataLogicEngine",
+    "source_commit":  "a3879446c5191289cfb528586c07e7f18ea155f5",
     "mode":  "portable",
     "installer":  "C:\\software\\DataLogicEngine\\DataLogicEngine Setup 4.3.0.exe",
     "installer_sha256":  "30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d",

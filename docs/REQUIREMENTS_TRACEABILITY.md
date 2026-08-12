@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-001 |
 | Title | Requirements traceability matrix |
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, quality, assurance, release authority, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Product requirements, implemented architecture/contracts, tests, phase evidence, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Requirement, implementation, test, evidence, finding, risk acceptance, or release-decision change |
 | Requirements and evidence | `docs/PRODUCT_REQUIREMENTS.md`, source/tests, canonical documents, and `reports/production-readiness/2026/` |
 
@@ -28,9 +28,11 @@ retained. `Open` means required evidence or authority is absent. Only the releas
 record can promote the exact artifact to `Pass` for production.
 
 The current evidence baseline includes CP19-K at 213/213, CP19-L passed, and an
-unsigned installed engineering smoke with retained data. Requirements that name
-the exact signed artifact, manual/external review, providers, lifecycle, pilot,
-or soak remain `Partial` or `Open`.
+August 10 unsigned installed engineering smoke with retained data. The newer
+August 11 local build has integrity evidence but no installed acceptance. A
+scheduled full-history secret scan is open. Requirements that name the exact
+signed artifact, security closure, manual/external review, providers, lifecycle,
+pilot, or soak remain `Partial` or `Open`.
 
 ## Functional requirements
 
@@ -46,7 +48,7 @@ or soak remain `Partial` or `Open`.
 | DLE-FR-008 | Authoritative simulation lifecycle/budget/checkpoint/artifact/result | Simulation contract/failure tests; Phase 10 evidence | Partial: installed provider/restart/UI/artifact acceptance retained |
 | DLE-FR-009 | MCP registry/fingerprint/scope/consent, process loop, Job Object, result governance | MCP policy/lifecycle/hostile fixture tests; Phase 11 evidence | Partial: installed OS containment/Electron lifecycle retained |
 | DLE-FR-010 | Client-key verifier, scopes/limits/jobs/idempotency/trace ownership/SDKs | Gateway auth/isolation/SDK/compatibility tests; Phase 8 evidence | Partial: signed installed same-host/private acceptance retained |
-| DLE-FR-011 | Retained Phase 18 canonical manifest/crosswalk/controller plus Phase 19 owner matrix, selector/DAG, ten-layer/persona/refinement stages, authoritative service ports, API/SDK/desktop workflow, and causal execution records | One named functional test, positive/negative selector fixture, real owner-path assertion, limitation, trace proof, and applicable effect/security/performance evidence per KA; cross-subsystem and rebuilt-installed acceptance | Partial: CP19-A through CP19-G passed owner authority, typed parity, 213 positive/negative fixtures, bounded acyclic execution, typed L1-L10, fail-closed L9/L10, causal axes 8-11 personas, and one 12-step workflow. CP19-H passed Truth/data/knowledge policy, recall/promotion, publication, ingestion, deletion, and recovery integration. CP19-I passed bounded simulation planning/outcomes, MCP security/operations, provider context/monitoring, durable jobs, effect-proposal budgets, and authoritative SHA-256/idempotency receipts with a current 149-enabled, 136-edge zero-cycle manifest. CP19-J passed the principal-owned encrypted/idempotent durable API/SDK/desktop plan, exact confirmation, execution, cancellation/recovery, and result/trace/artifact/effect workflow. CP19-K-M complete individual proof, clean-source, and rebuilt-installed qualification remain open |
+| DLE-FR-011 | Retained Phase 18 canonical manifest/crosswalk/controller plus Phase 19 owner matrix, selector/DAG, ten-layer/persona/refinement stages, authoritative service ports, API/SDK/desktop workflow, and causal execution records | One named functional test, positive/negative selector fixture, real owner-path assertion, limitation, trace proof, and applicable effect/security/performance evidence per KA; cross-subsystem and rebuilt-installed acceptance | Partial: CP19-A through CP19-J passed owner authority, typed parity, 213 positive/negative fixtures, bounded acyclic execution, typed L1-L10, fail-closed L9/L10, causal axes 8-11 personas, one 12-step workflow, owning-subsystem integration, and the principal-owned product workflow. CP19-K qualified all 213 KAs; the current manifest enables 211 with 112 acyclic edges. CP19-L passed clean-source qualification. CP19-M exact rebuilt-installed qualification remains open |
 
 ## Data and lifecycle requirements
 

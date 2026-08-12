@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v3.8.0 |
+| Document version | v3.9.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -25,7 +25,8 @@ Provide task-focused instructions for day-to-day use of DataLogicEngine by analy
 This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, Diagnostics, and admin workflows.
 
 The 2026-08-10 unsigned installed candidate is suitable only for controlled
-qualification. It reaches readiness with retained local data, but production
+qualification. It reached readiness with retained local data. A newer unsigned
+local build exists but has not passed installed-mode acceptance. Production
 release remains blocked by the signed installed, provider, accessibility,
 independent, pilot, and soak gates.
 

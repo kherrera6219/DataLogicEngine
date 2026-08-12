@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-004 |
 | Title | Troubleshooting and support guide |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | qualification_only |
 | Audience | Users, evaluators, operators, support engineers, and security reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented error taxonomy, diagnostics/support controls, lifecycle runbooks, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | User-visible error, diagnostics, support-bundle, recovery, reporting-channel, or release-status change |
 | Requirements and evidence | Product requirements, runtime/error contracts, support tests, operational procedures, and Phase 13/15 evidence |
 
@@ -25,11 +25,15 @@ around an error by disabling storage protection, ACLs, authentication, signature
 migration, readiness, provider, scope, or required-service checks. Record the
 safe error code and fix the underlying condition.
 
-The current 4.3.0 candidate is qualification-only, unsigned, and not approved
-for public installation. The 2026-08-10 installed candidate reaches readiness
+Every current 4.3.0 artifact is qualification-only, unsigned, and not approved
+for public installation. The 2026-08-10 installed candidate reached readiness
 with its managed five-service data plane. Do not resolve a startup problem by
 creating another database, switching to SQLite/memory/filesystem fallbacks, or
 restarting superseded legacy service containers.
+
+The August 11 local build is a different artifact and has not passed installed
+acceptance. Always record the exact SHA-256 before applying troubleshooting
+evidence from another build.
 
 On Windows, the backend may log that signal-based request timeout is unavailable
 and that the packaged server timeout should be used. This is a non-blocking

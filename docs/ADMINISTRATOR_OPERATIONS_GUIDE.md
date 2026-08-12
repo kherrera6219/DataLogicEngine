@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-003 |
 | Title | Administrator and operations guide |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | qualification_only |
 | Audience | Single owner/operator, Windows administrators, support engineers, and release reviewers |
@@ -14,18 +14,21 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented runtime supervision, data lifecycle, gateway, diagnostics, and operational controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Service, readiness, migration, backup, recovery, gateway, connector, diagnostics, or incident-control change |
 | Requirements and evidence | Product requirements, architecture, runbook sources, tests, and installed qualification evidence |
 
 ## Operating boundary
 
-The 2026-08-10 unsigned candidate installed per-machine, launched from Program
+The 2026-08-10 unsigned qualification candidate installed per-machine, launched from Program
 Files, reached `/ready`, and supervised the five app-owned loopback services in
 the `datalogicengine` Podman machine. Retained relational, graph, and object data
 was adopted and verified; administrators must not initialize a replacement
 database or restart the superseded legacy container. Signed lifecycle, recovery,
 provider, accessibility, independent, pilot, and soak acceptance remains open.
+The newer August 11 local artifact has not completed installed-mode acceptance;
+operators must not transfer the August 10 readiness or retained-data evidence
+to it.
 
 DataLogicEngine 4.3.0 is a single-owner local-first Windows application. The
 normal desktop profile binds the backend and internal services to installation-

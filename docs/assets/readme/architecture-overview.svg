@@ -20,12 +20,12 @@
   </defs>
   <rect class="bg" width="1200" height="620"/>
   <text x="50" y="55" class="label">DataLogicEngine Runtime Architecture</text>
-  <text x="50" y="82" class="small">Local-first desktop/web console with secured API, graph services, provider gateway, and production observability.</text>
+  <text x="50" y="82" class="small">Local-first Windows desktop with a governed API, app-owned data plane, provider gateway, and auditable traces.</text>
 
   <rect x="55" y="145" width="190" height="110" class="panel"/>
   <text x="85" y="188" class="label">Clients</text>
   <text x="85" y="218" class="small">Electron desktop</text>
-  <text x="85" y="241" class="small">Browser / API</text>
+  <text x="85" y="241" class="small">Approved API clients / SDKs</text>
 
   <rect x="325" y="145" width="205" height="110" class="accent"/>
   <text x="355" y="188" class="label">Next.js Frontend</text>
@@ -61,7 +61,7 @@
   <text x="85" y="552" class="small">OpenAI and Google Gemini</text>
 
   <rect x="375" y="510" width="355" height="70" class="data"/>
-  <text x="410" y="552" class="small">PostgreSQL, Neo4j, Redis, S3-compatible storage</text>
+  <text x="410" y="552" class="small">PostgreSQL, Redis, Neo4j, ChromaDB, S3-compatible storage</text>
 
   <rect x="805" y="510" width="315" height="70" class="data"/>
   <text x="835" y="552" class="small">Audit records, traces, exports, readiness evidence</text>

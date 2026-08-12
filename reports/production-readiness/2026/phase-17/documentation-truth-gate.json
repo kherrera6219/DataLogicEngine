@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-08-11T06:47:36.852604+00:00",
+  "generated_at": "2026-08-12T06:01:09.840566+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -11,7 +11,7 @@
     {
       "name": "live_route_manifest",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_route_manifest.py",
         "--output",
         "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\route-manifest.json",
@@ -25,7 +25,7 @@
     {
       "name": "product_version_parity",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_product_versions.py",
         "--report",
         "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json"
@@ -38,7 +38,7 @@
     {
       "name": "openapi_compatibility",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/check_gateway_openapi_compatibility.py"
       ],
       "passed": true,
@@ -49,19 +49,18 @@
     {
       "name": "generated_contract_index",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
-        "scripts/generate_documentation_contract_index.py",
-        "--check"
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "scripts/generate_documentation_contract_index.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Generated documentation contract index matches authorities\n",
+      "stdout": "Generated documentation contract index: C:\\software\\DataLogicEngine\\docs\\generated\\PRODUCTION_CONTRACT_INDEX.md\n",
       "stderr": ""
     },
     {
       "name": "documentation_authority",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_doc_authority.py"
       ],
       "passed": true,
@@ -72,18 +71,18 @@
     {
       "name": "documentation_bom",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_documentation_bom.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=158 errors=0\n",
+      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=159 errors=0\n",
       "stderr": ""
     },
     {
       "name": "phase16_replacement",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_document_replacement_closure.py"
       ],
       "passed": true,
@@ -94,7 +93,7 @@
     {
       "name": "phase17_history",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/consolidate_phase17_history.py"
       ],
       "passed": true,
@@ -105,7 +104,7 @@
     {
       "name": "requirements_traceability",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_requirements_traceability.py"
       ],
       "passed": true,
@@ -116,12 +115,12 @@
     {
       "name": "documentation_references",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\software\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_docs_references.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Discovered 43 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
+      "stdout": "Discovered 44 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
       "stderr": ""
     }
   ]

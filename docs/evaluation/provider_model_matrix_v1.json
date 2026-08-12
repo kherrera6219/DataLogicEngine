@@ -1,6 +1,6 @@
 {
   "schema_version": "dle-provider-quality-matrix.v1",
-  "matrix_version": "2026.07.13.1",
+  "matrix_version": "2026.08.11.1",
   "corpus_version": "2026.07.13.1",
   "combinations": [
     {
@@ -39,8 +39,8 @@
   ],
   "release_ready": false,
   "blockers": [
-    "rebuilt-installed OpenAI corpus evaluation not run",
-    "rebuilt-installed Google corpus evaluation not run",
+    "exact-current-artifact installed OpenAI corpus evaluation not run",
+    "exact-current-artifact installed Google corpus evaluation not run",
     "blinded human acceptance sample not signed",
     "owner approval not recorded"
   ]

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-006 |
 | Title | Accessibility conformance report |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | not_evaluated |
 | Audience | Users, accessibility specialists, product/quality engineering, procurement, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | UI implementation, automated accessibility/keyboard evidence, manual checklist, and retained packaged validation plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | UI route/control/content/theme, framework, accessibility test, assistive technology, finding, or release change |
 | Requirements and evidence | Product requirement DLE-QR-001, app-readiness reports, Phase 12/13 evidence, manual NVDA record, and independent review |
 
@@ -28,6 +28,8 @@ unfamiliar-user documentation walkthrough, or independent accessibility review.
 The rebuilt Electron application launches and the automated source/browser
 accessibility baseline remains green; this does not replace packaged scaling,
 high-contrast, manual keyboard/NVDA, or independent acceptance.
+The August 11 local artifact has not completed installed visual, scaling,
+high-contrast, keyboard, or NVDA acceptance.
 
 ## Product and evaluation scope
 

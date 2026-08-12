@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | DLE-AUDIT-011 |
 | Title | UKG canonical specification vs. live application findings |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | historical snapshot — live disposition validated 2026-08-11 |
 | Audience | Product owner, maintainers, audit reviewers |
@@ -53,7 +53,7 @@ disposition:
 | F-16 | **External action remains.** The two superseded gap-analysis documents are not present in this repository. | Archive or de-rank them in the external project-knowledge system. |
 | Frontend caveat | **Partially resolved.** The UI now renders Reasoning Trace, four persona records, Persona Analysis, and a consensus summary. It does not expand the nested 12-step refinement receipt as named step detail. | Complete and visually accept the nested refinement detail with the CP19-M installed UI checks. |
 
-Current source validation is 3,098 backend tests passed with 19 skipped, 435
+Disposition-time source validation was 3,098 backend tests passed with 19 skipped, 435
 frontend tests passed, clean frontend lint/typecheck, 36 Python SDK tests, seven
 TypeScript SDK tests, and all KA/documentation authority gates passed. This
 source evidence does not close CP19-M or change production/public release

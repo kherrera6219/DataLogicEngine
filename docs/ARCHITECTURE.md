@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
-| Document version | v4.9.0 |
+| Document version | v5.0.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
@@ -14,18 +14,24 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, implemented runtime, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Runtime boundary, service, interface, data-flow, or deployment-architecture change |
 | Requirements and evidence | Root plan, source tree, ADRs, diagrams, and production-readiness reports |
 
 ## Purpose
 
-The 2026-08-10 clean unsigned candidate installed and reached readiness with
+The 2026-08-10 clean unsigned qualification candidate installed and reached readiness with
 the real app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and SeaweedFS services.
 The frozen backend retained dynamic access to all generated KA modules. Existing
 local data was adopted once with a verified recovery receipt; no new or fallback
 user database became authoritative. This is installed engineering evidence, not
 production release authorization.
+
+The current local build was produced from runtime source commit `a3879446`.
+Only build-evidence and public-documentation commits follow it; the runtime
+architecture described here is unchanged. That newer artifact has not passed
+installed-mode acceptance, so the installed evidence above remains bound to the
+separate August 10 candidate.
 
 Define the current logical and runtime architecture of DataLogicEngine for engineering, security, operations, and technical-review stakeholders.
 
@@ -114,7 +120,7 @@ existing production caller to the typed canonical result. CP19-C added one
 typed manifest selector for all 213 KAs, 213 positive and 213 negative fixtures,
 and a corrected base dependency graph. CP19-E registered and
 production-admitted the complete L9/L10 suites. CP19-F corrected the applicable
-persona chain to `KA-012` -> `KA-013` -> `KA-030`, bringing the current graph
+persona chain to `KA-012` -> `KA-013` -> `KA-030`, bringing the CP19-F checkpoint graph
 to 132 edges with zero cycles. Independent pure work
 uses bounded structured concurrency; required failure and parent cancellation
 propagate; effect proposals serialize and cannot claim application. The
@@ -129,12 +135,12 @@ confidence, and makes the measured result causal to the one candidate prompt.
 CP19-G now owns one manifest-defined 12-step workflow entered only from the
 committed L9 refine decision. It accounts for every step, makes zero provider
 subcalls, permits one rewrite, re-enters L6-L10, and emits only an unapplied
-lifecycle proposal. The current graph is 131 edges/zero cycles with 29
+lifecycle proposal. At CP19-G the graph was 131 edges/zero cycles with 29
 production-enabled capabilities. CP19-H then connects the Truth/data/knowledge
 lifecycle. CP19-I connects bounded simulation planning/outcomes, MCP
 security/operations plans, provider context/monitoring, durable jobs, explicit
 effect-proposal budgets, and owning-service SHA-256/idempotency receipts. The
-current manifest production-enables 149 capabilities and has 136 dependency
+CP19-I checkpoint manifest production-enabled 149 capabilities and had 136 dependency
 edges with zero cycles. CP19-J now adds one principal-bound durable product
 workflow on top of the same selector, plan executor, and controller. It stores
 encrypted request/result payloads in `ka_product_runs`, exposes only

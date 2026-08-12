@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-EXT-002 |
 | Title | Microsoft distribution and submission dossier |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | not_evaluated |
 | Audience | Distribution owner, product/release authority, legal/privacy/security, accessibility, operations, and Microsoft submission reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Current official Microsoft Store/Partner Center guidance, exact signed artifact, canonical product records, and submission results |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Microsoft policy/guidance, route/package, Partner Center field, artifact/signature, privacy/legal, certification, or submission-result change |
 | Requirements and evidence | Official Microsoft policy snapshot, Partner Center submission, signed installer, WACK/applicable tests, metadata/assets, and certification correspondence |
 
@@ -29,6 +29,8 @@ recorded. This dossier is `not_evaluated` and production/public distribution is
 An unsigned per-machine NSIS candidate now installs and launches successfully,
 but it is engineering evidence only. Microsoft submission, publisher signing,
 WACK/applicable tests, legal metadata, and certification remain `not_evaluated`.
+The August 11 local build is also unsigned and has not passed installed-mode or
+Microsoft submission acceptance.
 
 ## Selected qualification route
 

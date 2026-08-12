@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,19 +14,26 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
 ## Purpose
 
 CP19-K is complete at 213/213 individually qualified KAs and CP19-L passed. The
-current source gate records 3,101 backend tests with 19 skipped, 435 frontend tests, 36
-Python SDK tests, seven TypeScript SDK tests, and clean dependency/security/
-release verification. The earlier frozen-payload baseline recorded 3,098
-backend and 430 frontend tests. That rebuilt unsigned candidate installed, reached
-readiness, preserved retained data across the five managed services, and passed
-installed authentication, Diagnostics, and representative KA smoke. CP19-M
+latest pushed CI for runtime-equivalent source records 3,091 main-suite backend
+tests passed with 26 skipped, plus 23 contract tests with one skipped, five
+parity tests, six focused security tests, 435 frontend unit tests, and 51
+frontend end-to-end/visual/app-readiness tests. Lint, typecheck, build,
+packaging, governance, deployment, and the push-triggered security workflow
+passed. A later scheduled full-history secret scan failed on Lob-shaped
+historical/generated identifiers and remains open pending disposition and a
+clean rerun.
+
+The August 10 rebuilt unsigned candidate installed, reached readiness,
+preserved retained data across the five managed services, and passed installed
+authentication, Diagnostics, and representative KA smoke. The newer August 11
+build passed integrity but has not passed installed-mode acceptance. CP19-M
 remains partial and release-blocking.
 
 Define how DataLogicEngine 4.3.0 is verified against specifications and validated
@@ -79,7 +86,10 @@ acceptance. This report is not a production approval.
 
 ## Current candidate evidence
 
-The 2026-08-10 local qualification installer is 283,890,413 bytes with SHA-256
+This checkpoint has two separate artifact subjects: the last installed
+qualification artifact and the newer current local engineering build.
+
+The last installed qualification artifact, built on 2026-08-10, is 283,890,413 bytes with SHA-256
 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
 Payload, installer integrity, exact lock, version, workflow-pin, and governance
 gates pass. It installed per-machine, launched from Program Files, reached
@@ -87,17 +97,20 @@ gates pass. It installed per-machine, launched from Program Files, reached
 retained app-owned data across five managed services. The post-launch log window
 contained no actual 429, analytics error, traceback, or fatal event.
 
-The candidate is unsigned. Prior frozen candidate hashes and the earlier
+That installed candidate is unsigned. Prior frozen candidate hashes and the earlier
 `at_rest_protection_not_ready` result remain historical negative evidence, not
 the current installed result. Reproducibility, signing, exact-artifact binding,
 and the retained CP19-M/system/manual/external acceptance rows remain open.
 
-Source-only work completed after this artifact adds Linux-safe documentation
-closure hashing, bounded packaging rename retries, secret-scan false-positive
-identifier cleanup, Algorithms registry/API/navigation remediation and focused
-coverage, plus controlled supporting-review routing. A second full rebuild was
-held by owner direction, so these changes require a new exact-source artifact
-before installed validation can claim them.
+The current local engineering artifact was built on 2026-08-11 from runtime
+source commit `a3879446c5191289cfb528586c07e7f18ea155f5`. It is 283,875,377
+bytes with SHA-256
+`30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`.
+Its checksum, block map, and installer-integrity report pass, and its portable
+process started, but portable smoke timed out and installed-mode acceptance was
+not run. It is unsigned and is not the installed qualification subject above.
+No installed, provider, accessibility, recovery, or soak evidence transfers
+between these artifact hashes.
 
 ## Phase evidence disposition
 

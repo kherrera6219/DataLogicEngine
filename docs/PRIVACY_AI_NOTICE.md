@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-005 |
 | Title | Privacy, provider, retention, and AI limitations notice |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, administrators, privacy/security reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data paths, provider/connector controls, retention/deletion contracts, and AI evaluation records |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Data category, storage, provider, connector, gateway, telemetry, retention, deletion, AI limitation, or legal change |
 | Requirements and evidence | Product requirements, architecture, privacy/security tests, AI system card, and Phase 7/9/11/13 evidence |
 
@@ -30,6 +30,8 @@ The 2026-08-10 engineering installation preserved existing local data in the
 app-owned services and did not create a fallback user database. Installed
 all-output redaction/no-egress, provider, deletion/recovery, independent privacy,
 and exact signed-artifact acceptance remain open.
+The newer August 11 local build has not passed installed-mode validation, so no
+privacy or no-egress result from the earlier artifact is attributed to it.
 
 ## Local-first does not mean air-gapped
 

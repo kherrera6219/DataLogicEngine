@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-11 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.66.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.67.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release decision | Production/public release: **NO-GO** |
@@ -82,7 +82,7 @@ Phase 18 source baseline while completing the whole-application wiring.
       required failure/timeout, trace forgery, low confidence, containment
       bypass, recursion exhaustion, unauthorized promotion, and false receipts
       fail closed. The live registry is 132 with zero unregistered L9 KAs, the
-      current DAG is 134 edges/zero cycles, the focused set is 104 passed, and
+      then-current DAG was 134 edges/zero cycles, the focused set was 104 passed, and
       the full source suite is 2,522 passed with 18 skipped and 21 warnings.
 - [x] **CP19-F — causal Quad Persona/DSQP:** axes 8-11 profiles now drive
       `KA-012` -> `KA-013` -> `KA-030` exactly once through the canonical
@@ -100,7 +100,7 @@ Phase 18 source baseline while completing the whole-application wiring.
       subcalls, collect findings before one authorized rewrite, and re-enter
       L6-L10. Four refinement KAs are newly production-qualified, five retained
       variants are non-production references, and lifecycle output is an
-      unapplied proposal with no receipt. The current manifest is 29
+      unapplied proposal with no receipt. The then-current manifest had 29
       production-enabled capabilities and 131 edges/zero cycles. Eight focused,
       955 broader subsystem, and 2,528 full-source tests pass.
 - [x] **CP19-H — Truth/data/knowledge lifecycle:** manifest
@@ -328,8 +328,8 @@ Phase 18 source baseline while completing the whole-application wiring.
         `cryptography` advisories, are remediated in the governed locks. Local
         `pip-audit` and `npm audit` report zero vulnerabilities; the 2026-08-04
         live GitHub query reports zero open Dependabot alerts.
-      - Next: execute CP19-L clean-source qualification. Only a passing CP19-L
-        checkpoint may authorize the release-candidate rebuild.
+      - At that checkpoint, CP19-L clean-source qualification was next and
+        rebuild authorization remained false. CP19-L subsequently passed.
 - [x] **CP19-L — clean source qualification:** passed 2026-08-10 across focused/full backend, SDK,
       frontend, Electron/browser, security, docs/governance, environment,
       packaging-smoke, source-cleanliness, and no-capability-reduction gates.
@@ -1078,8 +1078,33 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 - [ ] Independent architecture, security, API, usability/accessibility, and operations reviews completed.
 - [ ] Signed, timestamped, reproducible Windows artifacts and verified updates.
 - [ ] Installed-system accessibility, security, failure, recovery, performance, soak, and human-acceptance evidence.
+- [ ] Disposition the verified Lob-detector findings from scheduled Security run
+      31561547302 and obtain a clean full-history secret-scan rerun. The
+      current tree has no Lob integration and the flagged values are generated
+      KA evidence/test identifiers, but release evidence must not call the
+      scheduled full-history scan clean until the finding is formally closed.
 - [x] GitHub closed alert 389 after the vulnerable SDK disappeared from `main`;
       retain the adversarial replacement evidence with the release record.
+
+## Current-build documentation reconciliation
+
+- [x] Reconciled every active document under `docs/` and its active
+      subdirectories against product 4.3.0, manifest `2026.08.11-al10.2`, the
+      live 507-route surface, current source, current CI evidence, and the two
+      distinct installer subjects.
+- [x] Recorded the current local installer as `DataLogicEngine Setup 4.3.0.exe`
+      (283,875,377 bytes; SHA-256
+      `30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`;
+      source commit `a3879446c5191289cfb528586c07e7f18ea155f5`; unsigned; not installed-qualified).
+- [x] Preserved the separate 2026-08-10 installed engineering evidence only for
+      SHA-256 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
+      It must not be attributed to the newer local artifact.
+- [x] Regenerated the documentation portal, authority/crosswalk/inventories,
+      contract index, route manifest, spec exports, and documentation truth
+      reports. Historical material under `docs/archive/` remains frozen and is
+      not rewritten as current product documentation.
+
+Evidence: `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`.
 
 ## Algorithms page and specification-drift remediation (Codex handoff)
 

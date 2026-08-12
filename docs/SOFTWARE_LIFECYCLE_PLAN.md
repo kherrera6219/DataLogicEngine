@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-005 |
 | Title | Software lifecycle and configuration-management plan |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, engineering, quality, security, release, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, production plan, CI/release workflows, locks, documentation authority, and evidence policy |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Lifecycle, branch, review, toolchain, dependency, build, test, documentation, release, or maintenance-policy change |
 | Requirements and evidence | Product requirements, active plan/TODO, CI workflows, exact locks, manifests, tests, and release records |
 
@@ -25,9 +25,12 @@ product from approved requirements through design, implementation, verification,
 signed release, operation, incident response, update, and retirement. Schedule or
 demonstration pressure does not waive an exit gate.
 
-CP19-L and the clean unsigned rebuild/install checkpoint passed on 2026-08-10.
-The lifecycle now advances through CP19-M; signing, exact-artifact acceptance,
-installed lifecycle/recovery, external review, pilot, and soak remain mandatory.
+CP19-L and one clean unsigned rebuild/install checkpoint passed on 2026-08-10.
+A newer August 11 engineering artifact has passed integrity but not installed-
+mode acceptance. The lifecycle remains at CP19-M; signing, exact-artifact
+acceptance, installed lifecycle/recovery, external review, pilot, and soak are
+mandatory. A scheduled full-history secret-scan failure is also open pending
+detector disposition and a clean rerun.
 
 ## Authoritative configuration
 
@@ -52,11 +55,11 @@ Retained Phase 18 work applies a stricter identity-migration rule to Knowledge
 Algorithms.
 Before changing a KA ID, name, purpose, or runtime mapping, CP18-A must classify
 every historical/executable definition and preserve distinct capability through
-an approved canonical ID or compatible alias. The approved KA manifest will
-become configuration authority only after the crosswalk reports zero
-unclassified capability and zero unresolved semantic collision. The signed
-release-candidate rebuild is paused through the Phase 19 CP19-L source and
-integration gate.
+an approved canonical ID or compatible alias. The approved KA manifest is
+configuration authority after the crosswalk reported zero unclassified
+capabilities and zero unresolved semantic collisions. CP19-L is complete;
+signed release-candidate promotion remains paused at CP19-M exact-artifact
+acceptance.
 
 ## Change lifecycle
 

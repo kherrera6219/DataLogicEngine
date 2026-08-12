@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-002 |
 | Title | Data architecture and schema specification |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Data, platform, security, privacy, quality, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented store adapters/schemas, migration and lifecycle contracts, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Store, schema, migration, classification, retention, encryption, backup/restore, or object-store decision change |
 | Requirements and evidence | Product requirements, schema/migration tests, lifecycle reports, ADR-0006/0010, and Phase 3/4/9/11 evidence |
 

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-EXT-003 |
 | Title | Independent review record |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | not_evaluated |
 | Audience | Independent reviewers, product/release authority, engineering, procurement/evaluation teams, and auditors |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Reviewer scope/independence records, exact artifact/evidence, findings, retests, and signed dispositions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Reviewer assignment/conflict, scope, artifact/evidence, finding/remediation, retest, disposition, or release decision change |
 | Requirements and evidence | Professional review index, canonical documents, immutable evidence bundle, reviewer workpapers, and final release record |
 
@@ -29,6 +29,8 @@ It does not claim endorsement, certification, audit opinion, or approval.
 The unsigned 2026-08-10 installed engineering candidate is available as
 pre-review evidence. No independent gate is closed until a reviewer binds work,
 findings, retests, and disposition to the exact signed candidate.
+The separate August 11 local build has not passed installed-mode acceptance and
+is not a final independent-review subject.
 
 ## Review subject
 

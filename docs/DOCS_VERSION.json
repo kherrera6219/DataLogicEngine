@@ -1,10 +1,10 @@
 {
-  "version": "2026.07.14.1",
-  "updated_at": "2026-07-14",
-  "document_version": "v2.15.0",
+  "version": "2026.08.11.1",
+  "updated_at": "2026-08-11",
+  "document_version": "v2.16.0",
   "owner": "Platform Engineering",
-  "policy": "docs/DOCUMENTATION_VERSIONING.md",
-  "coverage_matrix": "docs/DOCUMENTATION_COVERAGE_MATRIX.md",
-  "baseline": "docs/AI_PRODUCTION_DOCUMENTATION_BASELINE.md",
+  "policy": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
+  "coverage_matrix": "docs/REQUIREMENTS_TRACEABILITY.md",
+  "baseline": "docs/PRODUCT_REQUIREMENTS.md",
   "status": "active"
 }

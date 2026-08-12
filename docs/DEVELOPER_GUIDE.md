@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.1.0 |
+| Document version | v3.2.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -108,11 +108,11 @@ Read these first:
 1. `docs/ARCHITECTURE.md`
 2. `docs/INTERFACE_INTEGRATION.md`
 3. `docs/DATA_ARCHITECTURE.md`
-4. `docs/VERIFICATION_VALIDATION_REPORT.md`
-5. `docs/ARCHITECTURE.md`
-6. `docs/ARCHITECTURE.md`
-7. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
-8. `docs/DATA_ARCHITECTURE.md`
+4. `docs/SECURITY_ARCHITECTURE.md`
+5. `docs/PRODUCT_REQUIREMENTS.md`
+6. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+7. `docs/VERIFICATION_VALIDATION_REPORT.md`
+8. `docs/generated/PRODUCTION_CONTRACT_INDEX.md`
 
 The current request lifecycle is:
 
@@ -130,6 +130,16 @@ frontend prompt
   -> memory/audit/artifact persistence
   -> trace review/export
 ```
+
+### Current build identity
+
+The latest local engineering installer was built from runtime source commit
+`a3879446c5191289cfb528586c07e7f18ea155f5`; subsequent commits through the
+documentation reconciliation change build evidence or documentation, not the
+runtime. The artifact is unsigned and has not passed installed-mode acceptance.
+Use `docs/RELEASE_READINESS_RECORD.md` for its exact size/hash and the separate
+last-installed qualification identity. Never transfer installed results between
+artifact hashes.
 
 ### Phase 19 KA integration boundary
 
@@ -168,19 +178,19 @@ redacts PII from release and trace state, and fails closed on required
 failure/timeout, containment, confidence, recursion, promotion, and false
 effect receipts. Its focused set passes 104 and the full source suite passes
 2,522 with 18 skipped. CP19-F then production-admits the deterministic
-`KA-012` -> `KA-013` -> `KA-030` persona chain, corrects the current graph to
+`KA-012` -> `KA-013` -> `KA-030` persona chain, corrected the CP19-F graph to
 132 edges/zero cycles, consumes all four axes 8-11 profiles, preserves dissent
 and measured sufficiency without inventing confidence, and makes the result
 causal to the one provider prompt. CP19-G canonical 12-step refinement is
 also complete: one manifest registry accounts for all 12 steps, executes new
 applicable KAs through the selector/DAG, makes zero provider subcalls, permits
 one rewrite, revalidates L6-L10, and leaves memory/lifecycle work as an
-unapplied proposal. The current manifest has 29 production-enabled
+unapplied proposal. The CP19-G manifest had 29 production-enabled
 capabilities and 131 dependency edges with zero cycles. CP19-H then connects
 the Truth/data/knowledge lifecycle. CP19-I connects bounded simulation,
 MCP/security/operations, provider monitoring, durable jobs, and authoritative
-effect receipts, and enforces `max_effects` before execution. The current
-manifest production-enables 149 capabilities with 136 zero-cycle dependency
+effect receipts, and enforces `max_effects` before execution. The CP19-I
+manifest production-enabled 149 capabilities with 136 zero-cycle dependency
 edges. CP19-J adds the authenticated `/api/v1/ka/runs` plan, status, execute,
 cancel, result, trace, artifact, and effect contract plus matching Python,
 TypeScript, and desktop clients. Requests and results are encrypted at rest;

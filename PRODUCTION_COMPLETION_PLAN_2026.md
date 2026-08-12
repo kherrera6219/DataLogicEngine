@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.66.0 |
+| Document version | v1.67.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -55,6 +55,24 @@ Post-push clean-runner validation then removed the two now-empty PyInstaller
 data-directory inputs and raised required `KA-025` cold-dispatch allowance from
 300 ms to a still-bounded 1,000 ms. These are source/CI corrections only; the
 installed unsigned candidate is unchanged.
+
+The active documentation tree was recursively reconciled on 2026-08-11 against
+the current source and build evidence. The current local installer is
+`DataLogicEngine Setup 4.3.0.exe` (283,875,377 bytes; SHA-256
+`30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`),
+built from runtime source commit
+`a3879446c5191289cfb528586c07e7f18ea155f5`. It is unsigned and has not passed
+installed acceptance, so the 2026-08-10 installed engineering evidence remains
+bound only to SHA-256
+`1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
+The canonical record is
+`docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`.
+
+Scheduled Security run 31561547302 failed its full-history secret scan on
+Lob-detector matches in generated KA evidence/test identifiers. The current
+tree contains no Lob integration and the push-triggered security run passed,
+but formal finding disposition plus a clean full-history rerun is required
+before release evidence may call secret scanning clean.
 
 Phase 13 reached its engineering checkpoint on 2026-07-14. Phase 11 selected MCP
 `2025-11-25` over local stdio as the only external connector transport candidate.
@@ -165,7 +183,7 @@ integration, security architecture, software lifecycle, maintenance/disaster
 recovery, requirements traceability, and V&V documents. Their seven approved
 source maps, controlled headers, required topics, portal links, truthful statuses,
 and prohibited-claim checks pass. The inventory is now 146 Markdown files with
-22 existing and eight planned canonical targets. CP16-C remains active for the
+22 existing and eight planned canonical targets. At that checkpoint CP16-C remained active for the
 KA/TruthCore, privacy impact, accessibility, third-party, and release-readiness
 assurance records.
 
@@ -174,7 +192,7 @@ passes the expanded 12-target engineering/assurance verifier. The inventory is
 now 151 Markdown files with 27 existing and three planned canonical targets.
 CP16-C content construction is complete; exact signed-installed, provider/model,
 manual accessibility, privacy/legal, supply-chain, independent, pilot, and soak
-evidence remains retained. CP16-D/CP16-E external-review content is active.
+evidence remained retained. At that checkpoint CP16-D/CP16-E external-review content was active.
 
 CP16-D/CP16-E content construction is complete. The professional review index,
 Microsoft submission dossier, and independent review record bring the canonical
@@ -4926,7 +4944,7 @@ persona chain is now `KA-012` persona simulation, `KA-013` authority weighting,
 and `KA-030` dissent-preserving conflict resolution. The corrected dependency
 order is `KA-012` -> `KA-013` -> `KA-030`; design-era reciprocal or unrelated
 persona dependencies were removed without deleting any canonical capability.
-The current 213-capability manifest has 132 live registry entries, 25
+The then-current 213-capability manifest had 132 live registry entries, 25
 production-enabled capabilities, and a 132-edge zero-cycle graph.
 
 Layer 4 executes `KA-012` once against the four validated DSQP profiles and
@@ -5147,9 +5165,9 @@ actual per-node trace events rather than returning only a summary.
 The complete KA suite passes 774 tests with three known deprecation warnings;
 the governed execution, TruthCore, and Phase 19 integration suites pass 142.
 The 21-test focused batch and focused Ruff gate pass. The full source suite now
-passes 2,567 tests with 19 skipped and 35 known warnings. CP19-K remains active
-at 3/213; CP19-L, rebuilding, and all installed/release gates remain
-unauthorized.
+passed 2,567 tests with 19 skipped and 35 known warnings. At this batch
+checkpoint CP19-K remained active at 3/213; CP19-L, rebuilding, and all
+installed/release gates remained unauthorized.
 Evidence:
 
 - `reports/production-readiness/2026/phase-19/ka-qualification-matrix.json`;
@@ -5228,8 +5246,8 @@ incomplete. The KA suite passes 783 tests with three known deprecation warnings;
 the governed execution, TruthCore, Phase 19, and simulation integration set
 passes 168. Frontend type checking and all seven TypeScript SDK tests pass. The
 full source suite passes 2,588 tests with 18 skipped and 35 known warnings.
-CP19-K remains active, rebuild authorization remains false, and CP19-L/CP19-M
-remain unauthorized.
+At this batch checkpoint CP19-K remained active, rebuild authorization was
+false, and CP19-L/CP19-M remained unauthorized.
 
 Evidence:
 
@@ -5264,14 +5282,14 @@ causal result-governance action; `KA-024` is not selected by this owner; and
 membership, or execute-only traces do not qualify those rows.
 
 The generated matrix and verifier pass with 15 of 213 rows qualified and 198
-incomplete. Runtime manifest `2026.08.01-cp19k.2` remains current with 213
+incomplete. Runtime manifest `2026.08.01-cp19k.2` was then current with 213
 capabilities, 149 production-enabled capabilities, and 136 acyclic dependency
 edges. The KA suite passes 786 tests with three known deprecation warnings; the
 governed execution, TruthCore, Phase 19, and simulation integration set passes
 171; all 55 focused qualification and MCP route tests pass; and the full source
-suite passes 2,594 tests with 18 skipped and 35 known warnings. CP19-K remains
-active, rebuild authorization remains false, and CP19-L/CP19-M remain
-unauthorized.
+suite passed 2,594 tests with 18 skipped and 35 known warnings. At this batch
+checkpoint CP19-K remained active, rebuild authorization was false, and
+CP19-L/CP19-M remained unauthorized.
 
 Evidence:
 
@@ -5307,13 +5325,13 @@ because the MCP recovery operation still has no production caller. Registry
 membership, an effect proposal, or an execute-only trace does not close a row.
 
 The generated matrix and verifier pass with 21 of 213 rows qualified and 192
-incomplete. Runtime manifest `2026.08.01-cp19k.2` remains current with 213
+incomplete. Runtime manifest `2026.08.01-cp19k.2` was then current with 213
 capabilities, 149 production-enabled capabilities, and 136 acyclic dependency
 edges. The KA suite passes 792 tests with three known deprecation warnings; the
 governed execution, TruthCore, Phase 19, and simulation integration set passes
 177; all 46 MCP route tests pass; and the full source suite passes 2,607 tests
-with 18 skipped and 35 known warnings. CP19-K remains active, rebuild
-authorization remains false, and CP19-L/CP19-M remain unauthorized.
+with 18 skipped and 35 known warnings. At this batch checkpoint CP19-K remained
+active, rebuild authorization was false, and CP19-L/CP19-M remained unauthorized.
 
 Evidence:
 
@@ -5345,13 +5363,14 @@ actions. It does not claim that containment, notification, eradication,
 recovery, or post-incident review occurred.
 
 The generated matrix and verifier pass with 25 of 213 rows qualified and 188
-incomplete. Runtime manifest `2026.08.01-cp19k.2` remains current with 213
+incomplete. Runtime manifest `2026.08.01-cp19k.2` was then current with 213
 capabilities, 149 production-enabled capabilities, and 136 acyclic dependency
 edges. The KA suite passes 796 tests with three known deprecation warnings; the
 governed execution, TruthCore, Phase 19, and simulation integration set passes
 181; all 46 MCP route tests pass; and the isolated full source suite passes
-2,615 tests with 18 skipped and 35 known warnings. CP19-K remains active,
-rebuild authorization remains false, and CP19-L/CP19-M remain unauthorized.
+2,615 tests with 18 skipped and 35 known warnings. At this batch checkpoint
+CP19-K remained active, rebuild authorization was false, and CP19-L/CP19-M
+remained unauthorized.
 
 Evidence:
 
@@ -5388,8 +5407,8 @@ The generated matrix and verifier pass with 27 of 213 rows qualified and 186
 incomplete. The KA suite passes 798 tests with three known deprecation warnings;
 the governed execution, TruthCore, Phase 19, and simulation integration set
 passes 183; and the full source suite passes 2,619 tests with 18 skipped and 35
-known warnings. CP19-K remains active, rebuild authorization remains false, and
-CP19-L/CP19-M remain unauthorized.
+known warnings. At this batch checkpoint CP19-K remained active, rebuild
+authorization was false, and CP19-L/CP19-M remained unauthorized.
 
 Evidence:
 
@@ -5495,7 +5514,8 @@ model preparation (`KA-081`, `KA-082`, `KA-085`, and `KA-086`), is next. The KA
 suite passes 815 tests with three known deprecation warnings; the governed
 execution, TruthCore, Phase 19, and simulation integration set passes 200; and
 the full source suite passes 2,675 tests with 18 skipped and 35 known warnings.
-Rebuild authorization remains false and CP19-L/CP19-M remain unauthorized.
+At this batch checkpoint rebuild authorization was false and CP19-L/CP19-M
+remained unauthorized.
 
 Evidence:
 
@@ -5743,9 +5763,10 @@ production-enabled capabilities, and a 112-edge zero-cycle dependency graph.
 AL-10 subsequently completed descriptive purpose, category, risk, subsystem,
 and layer/stage metadata for all 213 rows without changing their identity,
 implementation, selection, dependency, or effect evidence.
-CP19-K is complete, rebuild authorization remains false, and all rebuilt-
+At the close of CP19-K, rebuild authorization remained false and all rebuilt-
 installed, accessibility, provider, independent-review, pilot, and soak gates
-remain open. The 991-test KA suite, 458 Phase-19/governed/TruthCore/simulation
+remained open. CP19-L subsequently passed and authorized the unsigned
+engineering rebuild described in the current checkpoint above. The 991-test KA suite, 458 Phase-19/governed/TruthCore/simulation
 integration tests, seven TypeScript SDK tests, and the 3,070-test full source
 suite pass with 18 skipped and 32 known warnings.
 
@@ -6292,6 +6313,12 @@ signed, provider, five-service, failure, Windows, accessibility, gateway,
 independent-review, human-pilot, and 24/72-hour evidence as release blockers.
 Phase 19 source evidence cannot convert unsigned qualification into installed
 production acceptance.
+
+The later local August 11 installer is a separate unsigned, not-installed-
+qualified artifact. Do not transfer the August 10 Program Files, retained-data,
+or five-service evidence to it. Close the scheduled full-history secret-scan
+finding and rerun that workflow clean as part of the remaining supply-chain
+evidence.
 
 Preserve automatic-update disablement, production signing/distribution NO-GO,
 all independent-review requirements, and object-store production-approval false

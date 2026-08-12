@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-08-11 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.66.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.67.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -69,10 +69,11 @@ executed `KA-113` and, in enhanced mode, `KA-001`; the ten-layer workflow was
 private/test-only. CP19-D has now replaced that product preflight with a typed,
 selector-backed L1 plan and explicit causal L1-L10 stages in the one governed
 request lifecycle.
-Real callers consume the canonical result incorrectly, L9/L10 contain wrong IDs
-and misleading invocation evidence, no single production 12-step workflow
-exists, DSQP is prompt-causal but not KA-backed persona reasoning, simulation
-dispatch is broken, and owning subsystems do not select the wider catalog.
+Those CP18-D findings are historical inputs, not current defects: CP19-B through
+CP19-I corrected the result boundary, L9/L10 identities and evidence, canonical
+12-step workflow, KA-backed DSQP/persona path, simulation dispatch, and owning-
+subsystem selection. CP19-M must now prove those corrected paths from an exact
+rebuilt installed artifact.
 
 Phase 19 is now the sole KA integration authority. Its mandatory order is:
 
@@ -170,8 +171,8 @@ and the retained controller's direct graph/vector/memory writes are removed.
 PII is redacted from both released content and trace-bearing state; required
 failure/timeouts, trace forgery, containment bypass, low confidence, recursion
 exhaustion, unauthorized promotion, and false effect receipts fail closed. The
-current registry is 132, unregistered L9 count is zero, and the current graph is
-134 edges with zero cycles. The focused set passes 104 tests and the full
+then-current registry was 132, unregistered L9 count was zero, and the graph was
+134 edges with zero cycles. The focused set passed 104 tests and the full
 source suite passes 2,522 with 18 skipped and 21 warnings.
 
 CP19-F is also complete. The canonical L4/L5 path executes `KA-012`,
@@ -191,7 +192,7 @@ canonical selector, explicitly accounts for every skip/failure, collects all
 findings before one rewrite, and revalidates L6-L10 afterward. The steps make
 zero provider subcalls; external validation is not claimed when unauthorized;
 the lifecycle result is an unapplied proposal with no receipt. Five legacy
-variants are explicit non-production references. The current manifest has 29
+variants are explicit non-production references. The then-current manifest had 29
 production-enabled capabilities and 131 edges/zero cycles. Eight focused, 955
 broader subsystem, and 2,528 full-source tests pass.
 
@@ -693,12 +694,16 @@ After that installed checkpoint, the source gained Linux-safe document-closure
 hashing, bounded Electron-builder rename retries, false-positive secret-scan
 identifier cleanup, Algorithms registry/API/navigation remediation, focused
 route/UI coverage, and supporting review/audit routing. These changes are
-source-only at this handoff. Per owner direction, no second full rebuild was
-performed; the next installed candidate must be rebuilt from the new commit
-before its behavior can be attributed to that artifact. The final non-build
-qualification now passes 3,098 backend tests with 19 skipped, 435 frontend tests,
-36 Python SDK tests, seven TypeScript SDK tests, lint, type checking, and both
-governed dependency audits.
+source-only relative to the installed qualification artifact. A later local
+build exists as `DataLogicEngine Setup 4.3.0.exe` (283,875,377 bytes; SHA-256
+`30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`),
+built from runtime source commit
+`a3879446c5191289cfb528586c07e7f18ea155f5`. Its integrity, checksum, blockmap,
+and portable-launch smoke pass, but it is unsigned and has not completed an
+installed smoke. It therefore does not inherit the August 10 installed
+evidence. The latest successful push CI passes 3,091 backend tests with 26
+skipped, 435 frontend tests, 36 Python SDK tests, seven TypeScript SDK tests,
+lint, type checking, packaging/governance, and 51 browser end-to-end tests.
 
 The application uses the retained data, not a newly created database. The
 verified one-time adoption receipt records 22,068 listed relational rows, 20
@@ -712,6 +717,19 @@ installed Phase 9-13 matrices, providers/corpus/blinded-human review, packaged
 visual/scaling/high-contrast/NVDA, protected-volume lifecycle/recovery,
 independent review, pilot, and 24/72-hour soak evidence remain release-blocking.
 Production/public release remains **NO-GO**.
+
+The active documentation set was recursively reconciled on 2026-08-11 against
+the current source, build reports, generated contracts, manifest, route surface,
+and CI results. All active `docs/` content was updated or explicitly retained;
+`docs/archive/` remains frozen historical evidence. See
+`docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`.
+
+Scheduled Security run 31561547302 subsequently failed its full-history secret
+scan on verified Lob-detector matches in generated KA evidence/test identifiers.
+No Lob integration is present in the current tree, and the push-triggered
+security run passed, but this is still an open evidence-disposition item: do not
+claim a clean full-history secret scan until the findings are formally resolved
+and that scheduled workflow reruns clean.
 
 Phase 9 reached its engineering checkpoint on 2026-07-14. Electron picker
 authority is consumed by the main process and selected files/folders are copied
@@ -980,7 +998,7 @@ The authority now reports 22 existing and eight planned canonical targets and
 146 classified Markdown files. The engineering/assurance verifier passes seven
 of seven source maps, required topics, portal links, truthful statuses, and
 prohibited-claim checks. All 22 controlled headers and seven focused tests pass.
-No source was moved, archived, or deleted. CP16-C remains active for the five
+No source was moved, archived, or deleted. At that checkpoint CP16-C remained active for the five
 assurance/release records.
 
 ## Phase 16 second CP16-C assurance/release content batch
@@ -995,7 +1013,7 @@ The authority now reports 27 existing and three planned canonical targets and
 151 classified Markdown files. The expanded engineering/assurance verifier
 passes 12/12 targets and all 27 controlled headers pass. CP16-C content
 construction is complete with its installed/manual/independent exit evidence
-retained. No source was moved, archived, or deleted. CP16-D/CP16-E content is active.
+retained. No source was moved, archived, or deleted. At that checkpoint CP16-D/CP16-E content was active.
 
 ## Phase 16 CP16-D/CP16-E external-review content checkpoint
 

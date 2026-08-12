@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PROD-001 |
 | Title | Product requirements and acceptance specification |
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | Product owner, engineering, quality, assurance, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, production completion plan, implemented runtime, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Product scope, supported workflow, architecture, interface, risk, or release-gate change |
 | Requirements and evidence | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, architecture records, tests, and `reports/production-readiness/2026/` |
 
@@ -24,9 +24,11 @@ Define the approved product contract for DataLogicEngine 4.3.0 and the evidence
 needed to claim that contract is satisfied. This document states requirements;
 it does not convert an engineering checkpoint into production approval.
 
-CP19-L passed on 2026-08-10 and the clean unsigned candidate installed and
-reached readiness with retained app-owned data. CP19-M signed installed and all
-retained acceptance requirements remain binding.
+CP19-L passed on 2026-08-10 and one clean unsigned candidate installed and
+reached readiness with retained app-owned data. The newer 2026-08-11 local
+engineering build is a different, unsigned artifact that has passed integrity
+but not installed-mode acceptance. CP19-M signed installed and all retained
+acceptance requirements remain binding for the exact final artifact.
 
 ## Product definition
 
@@ -152,20 +154,22 @@ failure/timeout, trace forgery, containment, confidence, recursion, promotion,
 and false receipts block. CP19-F causal Quad Persona/DSQP also passed:
 `KA-012` -> `KA-013` -> `KA-030` consumes the four axes 8-11 profiles once,
 preserves dissent and explicit sufficiency without fabricated confidence, and
-causally changes the single provider prompt. The current corrected graph is
+causally changes the single provider prompt. The CP19-F corrected graph was
 132 edges/zero cycles. CP19-G canonical 12-step refinement also passed: all
 steps are trace-accounted, zero step-level provider subcalls occur, at most one
 rewrite is allowed, L6-L10 revalidation is mandatory, and lifecycle output is
-proposal-only. The current graph is 131 edges/zero cycles with 29
+proposal-only. The CP19-G graph was 131 edges/zero cycles with 29
 production-enabled capabilities. CP19-H Truth/data/knowledge integration and
 CP19-I simulation/MCP/provider/security/operations/effect integration now also
-pass. The current manifest production-enables 149 capabilities, keeps 136
+pass. The CP19-I manifest production-enabled 149 capabilities and kept 136
 dependency edges acyclic, enforces bounded effect proposals, and retains
 authoritative owning-service receipts. CP19-J now also passes the
 principal-owned encrypted/idempotent durable API/SDK/desktop plan, exact
 confirmation, execute/cancel/recovery, and result/trace/artifact/effect
-workflow. CP19-K per-KA proof is active. The signed rebuild is paused through
-CP19-L.
+workflow. CP19-K then qualified 213/213 KAs and the current manifest
+`2026.08.11-al10.2` production-enables 211 capabilities with 112 acyclic
+dependency edges. CP19-L passed; CP19-M exact installed acceptance remains
+open.
 Dependabot alert 389 is fixed.
 Production/public release is **NO-GO**.
 

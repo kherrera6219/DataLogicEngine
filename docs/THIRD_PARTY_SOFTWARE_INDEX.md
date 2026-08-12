@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-007 |
 | Title | SBOM, licensing, redistribution, and notices index |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Release/legal/security engineering, procurement, operators, independent reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Exact dependency locks, service candidate lock, SBOMs, release manifest, ownership/legal registers, and review evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Dependency/service/artifact, license, notice, vulnerability, provider/model, asset, redistribution, region, or release change |
 | Requirements and evidence | Product requirement DLE-QR-002/004/006, exact locks, SBOMs, manifests, scans, legal actions, and approved notice bundle |
 
@@ -30,6 +30,10 @@ and owner/independent approvals remain open.
 The CP19-L governed Python and Node locks pass local vulnerability audits and the
 rebuilt candidate passes payload/integrity checks. Exact signed-artifact SBOM,
 malware scan, redistribution/notices, publisher, and legal approval remain open.
+The August 11 local artifact has a different hash from the installed
+qualification artifact and requires its own final SBOM/notices and scan binding.
+A scheduled full-history secret scan is also open pending false-positive or
+credential disposition and a clean rerun.
 
 ## Dependency authorities
 

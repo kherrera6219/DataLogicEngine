@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-004 |
 | Title | KA and TruthCore validation dossier |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | AI assurance, quality, product owner, architecture, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Live KA registry/classification, governed orchestration, evidence contracts, evaluation corpus, tests, and Phase 6 evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | KA registry/implementation/classification, TruthCore, evidence/confidence, evaluation, provider/model, or risk change |
 | Requirements and evidence | Product requirements, production catalog, semantic fixtures, golden corpus, Phase 6 reports, and AI system card |
 
@@ -30,6 +30,8 @@ CP19-K now qualifies 213/213 KAs through named semantic, selector, owner-path,
 trace, limitation, and applicable effect/security/performance evidence. CP19-L
 passed and representative KAs executed from the installed frozen backend. Live
 provider corpus and blinded-human acceptance remain open and release-blocking.
+The newer August 11 local build has not repeated installed per-KA/provider
+acceptance, so its integrity result does not close those rows.
 
 ## Registry and classification
 
@@ -158,12 +160,14 @@ Phase 19 CP19-A through CP19-J now retain the complete 213-capability identity
 authority, typed selector/executor, causal L1-L10/persona/refinement and
 Truth/data/knowledge lifecycles, plus bounded simulation, MCP,
 provider/security/operations, and authoritative effect-receipt integration.
-The current manifest production-enables 149 capabilities with 136 acyclic
-dependency edges. The principal-owned encrypted/idempotent durable API, SDK,
-and desktop product workflow adds exact confirmation, cancellation/recovery,
-and result/trace/artifact/effect review through the same controller. CP19-K
-through CP19-M retain complete individual proof, clean-source rebuild
-authorization, and exact installed acceptance.
+The CP19-I/J checkpoint manifest production-enabled 149 capabilities with 136
+acyclic dependency edges. Its principal-owned encrypted/idempotent durable API,
+SDK, and desktop product workflow adds exact confirmation,
+cancellation/recovery, and result/trace/artifact/effect review through the same
+controller. CP19-K then completed 213/213 individual qualification and CP19-L
+passed clean-source qualification. The current manifest
+`2026.08.11-al10.2` production-enables 211 capabilities with 112 dependency
+edges and zero cycles. CP19-M exact installed acceptance remains open.
 
 The Phase 6 snapshot recorded 1,915 backend passes, 46 focused/cross-system
 passes, 402 frontend passes across 81 files, 25 SDK passes, and passing static,
@@ -219,13 +223,12 @@ fixtures, 119 corrected acyclic dependency edges, bounded execution and
 cancellation, 781 KA/Python-SDK tests, and a 2,499-passed/18-skipped full source
 suite. CP19-D then established the canonical typed causal L1-L10 product path,
 production-mode selector-backed L1 execution, bounded L6-L9 revalidation, and
-L10-gated success persistence. CP19-E-M still must establish full correct-ID
-fail-closed L9/L10, the canonical 12-step path, causal KA-backed Quad
-Persona/DSQP, Truth/data/knowledge and
-extended-subsystem integration, API/SDK/desktop workflows, one semantic
-production test and real call-path/effect/trace proof per KA, clean source
-qualification, and exact rebuilt-installed acceptance. The signed rebuild
-remains paused through CP19-L.
+L10-gated success persistence. CP19-E through CP19-K subsequently established
+full correct-ID fail-closed L9/L10, the canonical 12-step path, causal KA-backed
+Quad Persona/DSQP, Truth/data/knowledge and extended-subsystem integration,
+API/SDK/desktop workflows, one semantic production test and real call-path/
+effect/trace proof per KA. CP19-L passed clean-source qualification. CP19-M
+exact rebuilt-installed acceptance remains open.
 
 Installed OpenAI and Google rows, the blinded-human sample, independent
 reviewer, exact release-registry binding, packaged interpretation, and owner

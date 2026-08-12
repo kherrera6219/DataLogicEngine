@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-EXT-001 |
 | Title | Professional review index |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Independent reviewers, procurement/evaluation teams, product owner, engineering, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Canonical documentation BOM, requirements/V&V/release records, immutable evidence, and reviewer dispositions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Canonical document/evidence, reviewer scope/assignment, finding/disposition, candidate artifact, or release decision change |
 | Requirements and evidence | Canonical 30-document set, generated BOM/crosswalk, phase evidence, independent review record, and final artifact bundle |
 
@@ -29,6 +29,7 @@ Production/public release is **NO-GO**.
 The review subject may now use the 2026-08-10 installed engineering checkpoint,
 but final dispositions must bind the later exact signed artifact and cannot be
 inferred from the local install smoke.
+The separate August 11 local build is not an installed or signed review subject.
 
 ## Exact review subject
 

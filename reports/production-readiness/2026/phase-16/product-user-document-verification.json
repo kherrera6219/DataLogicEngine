@@ -1,7 +1,7 @@
 {
   "schema_version": "dle.product-user-document-verification.v1",
-  "generated_at": "2026-08-05T00:52:44.962243+00:00",
-  "authority_version": "2026.08.02-phase19-cp19k-batch08",
+  "generated_at": "2026-08-12T06:01:09.925624+00:00",
+  "authority_version": "2026.08.10-cp19l-installed-evidence",
   "status": "pass",
   "target_count": 5,
   "verified_count": 5,

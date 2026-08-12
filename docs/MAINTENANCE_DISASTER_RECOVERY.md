@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-007 |
 | Title | Maintenance and disaster-recovery plan |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | qualification_only |
 | Audience | Owner/operator, platform and data engineering, support, security, quality, and recovery reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented coordinated backup/restore, migration, service lifecycle, support, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Store, backup, restore, retention, migration, recovery, update, service, or support-policy change |
 | Requirements and evidence | Product/data requirements, recovery implementation/tests, runbooks, and Phase 3/4/13/15 evidence |
 

@@ -12,6 +12,12 @@
 | Windows file version | `4.3.0.0` |
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
+| Current local artifact | `DataLogicEngine Setup 4.3.0.exe` |
+| Current local artifact size | `283875377` bytes |
+| Current local artifact SHA-256 | `30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d` |
+| Current build source commit | `a3879446c5191289cfb528586c07e7f18ea155f5` |
+| Current artifact signature | `NotSigned` |
+| Installed-mode smoke accepted | `false` |
 
 ## Provider and model allowlist
 
@@ -110,3 +116,5 @@ to use an unsupported deployment or bypass production validation.
 - `docs/openapi.yaml`
 - `.env.template`
 - `frontend/electron-builder.yml`
+- `reports/installer_integrity_report.json`
+- `reports/packaging_smoke_report.json`

@@ -4,8 +4,8 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.13.0 |
-| Last updated | 2026-07-24 |
+| Document version | v2.14.0 |
+| Last updated | 2026-08-11 |
 | Status | Active |
 | Owner | Platform Architecture |
 | Review cadence | Every 60 days |
@@ -15,6 +15,9 @@
 Capture high-impact technical decisions with context, alternatives, consequences, and implementation links.
 
 ADRs are historical decision records. Accepted ADRs should not be rewritten to match later architecture changes; instead, create a superseding ADR when a decision changes.
+
+The current code/build review found no architecture decision that supersedes
+ADR-0010. Its production-approval withholding remains in force.
 
 ---
 

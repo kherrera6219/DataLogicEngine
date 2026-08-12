@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-005 |
 | Title | Privacy impact assessment and data inventory |
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Product version | 4.3.0 |
 | Status | not_evaluated |
 | Audience | Product owner, privacy/security, data engineering, operations, legal reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data flows, privacy/provider/connector controls, retention/deletion contracts, and current evidence gaps |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Purpose, data category, subject group, store, provider/connector, retention, deletion, telemetry, region, or legal basis change |
 | Requirements and evidence | Product requirements, privacy notice, data/security architecture, tests, provider/connector records, and independent review |
 
@@ -30,6 +30,8 @@ The 2026-08-10 installed engineering candidate preserved existing app-owned data
 through verified one-time adoption. Installed redaction/no-egress, provider,
 deletion/remnant, retention/legal-basis, and independent privacy review remain
 open; the `not_evaluated` production status is unchanged.
+The newer August 11 local artifact has not completed installed privacy,
+redaction, deletion, or no-egress validation.
 
 The default product owner/vendor does not operate customer data or provider
 accounts as a multi-tenant SaaS. The customer/owner controls the Windows system

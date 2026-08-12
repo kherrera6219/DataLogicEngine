@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.3.0 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
@@ -34,6 +34,8 @@ The 2026-08-10 installed engineering candidate verified loopback readiness,
 desktop authentication, Diagnostics, and representative governed KA API use.
 Signed same-host/private gateway, live-provider, load, and two-machine acceptance
 remain open.
+The newer August 11 local build has not completed installed-mode gateway
+acceptance; these installed results remain bound to the August 10 artifact.
 
 ## Version and route policy
 
@@ -156,15 +158,20 @@ invocation authority, trace-safe PII redaction,
 and adversarial failure/containment/recursion/promotion/effect proof. CP19-F
 causal Quad Persona/DSQP passed with the manifest-selected
 `KA-012` -> `KA-013` -> `KA-030` chain, one provider candidate, retained
-dissent, truthful sufficiency, zero persona-provider subcalls, and a current
+dissent, truthful sufficiency, zero persona-provider subcalls, and a then-current
 132-edge zero-cycle graph. CP19-G canonical 12-step refinement passed with one
 manifest registry, 12 trace-accounted steps, zero step-level provider
 subcalls, one rewrite ceiling, L6-L10 revalidation, and proposal-only
-lifecycle output. The current graph is 131 edges/zero cycles with 29
+lifecycle output. The CP19-G graph was 131 edges/zero cycles with 29
 production-enabled capabilities. CP19-H Truth/data/knowledge and CP19-I
 simulation/MCP/provider/security/operations/effect integration now pass. The
-current manifest production-enables 149 capabilities with 136 acyclic edges;
+CP19-I manifest production-enabled 149 capabilities with 136 acyclic edges;
 CP19-J now passes its source product-workflow gate.
+
+CP19-K subsequently qualified all 213 capabilities. The current manifest
+version `2026.08.11-al10.2` production-enables 211 capabilities with 112
+dependency edges and zero cycles; CP19-L passed and CP19-M installed acceptance
+remains open.
 
 The versioned interface consumes the canonical KA manifest and provides
 list/search, canonical detail, public runtime contract, dependency/side-effect

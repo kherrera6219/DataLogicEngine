@@ -6,13 +6,13 @@
 
 ## Authority and release status
 
-- Generated: `2026-08-11`
+- Generated: `2026-08-12`
 - Documentation authority: `2026.08.10-cp19l-installed-evidence` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
 - Current program checkpoint: Phase 19; CP19-L complete, CP19-M installed acceptance active
-- Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The current source gate passes 3,098 backend tests with 19 skipped, 435 frontend tests, 36 Python SDK tests, and seven TypeScript SDK tests pass with the source/security/release gates. The unsigned 4.3.0 candidate installed per-machine, launched from Program Files, reached `/ready`, and used five real app-owned services. One-time retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. Later source-only CI portability, packaging retry, Algorithms registry, and documentation-authority fixes are not in that installed payload; a new rebuild is intentionally pending. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
+- Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The current local engineering build from runtime source `a3879446c5191289cfb528586c07e7f18ea155f5` is `DataLogicEngine Setup 4.3.0.exe` (283875377 bytes; SHA-256 `30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`); it is unsigned, its integrity/checksum/block-map gate passes, and portable smoke started and timed out without installed-mode acceptance. It has not passed installed-mode acceptance and does not replace the distinct 2026-08-10 installed qualification artifact recorded in the release and V&V records. One-time installed retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root
@@ -89,6 +89,7 @@ These current findings and work queues inform remediation but do not
 supersede the root production plan, TODO, or handoff:
 
 - `CODEX_WORK_QUEUE_2026-08-10.md`
+- `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`
 - `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md`
 - `docs/spec-exports/ka_registry_213.yaml`
 - `docs/spec-exports/17_axis_coordinate_schema_axes14-17.yaml`

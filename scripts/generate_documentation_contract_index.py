@@ -22,7 +22,7 @@ ENV_KEY = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=")
 
 
 def _json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
 def _environment_keys(path: Path) -> list[str]:
@@ -49,10 +49,16 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
     providers = _json(root / "config" / "provider_manifest.v1.json")
     services = _json(root / "deploy" / "internal-data-plane.candidate-lock.json")
     routes = _json(route_report)
+    installer_report = _json(root / "reports" / "installer_integrity_report.json")
+    packaging_report = _json(root / "reports" / "packaging_smoke_report.json")
     openapi = yaml.safe_load((root / "docs" / "openapi.yaml").read_text(encoding="utf-8"))
     environment = _environment_keys(root / ".env.template")
     product = versions["product"]
     route_summary = routes["summary"]
+    installers = installer_report.get("results", {}).get("installers", [])
+    installer = installers[0] if installers else {}
+    installer_path = root / installer.get("artifact", "")
+    installer_size = installer_path.stat().st_size if installer_path.is_file() else "not_evaluated"
     lines = [
         "# Generated production contract index",
         "",
@@ -68,6 +74,12 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
         f"| Windows file version | `{product['windows_file_version']}` |",
         f"| Release channel | `{product['release_channel']}` |",
         f"| Installer artifact pattern | `{_artifact_name(root / 'frontend' / 'electron-builder.yml')}` |",
+        f"| Current local artifact | `{installer.get('artifact', 'not_evaluated')}` |",
+        f"| Current local artifact size | `{installer_size}` bytes |",
+        f"| Current local artifact SHA-256 | `{installer.get('sha256', 'not_evaluated')}` |",
+        f"| Current build source commit | `{packaging_report.get('source_commit', 'not_evaluated')}` |",
+        f"| Current artifact signature | `{packaging_report.get('installer_signature_status', 'not_evaluated')}` |",
+        f"| Installed-mode smoke accepted | `{str(packaging_report.get('installer_mode', {}).get('install_success', False)).lower()}` |",
         "",
         "## Provider and model allowlist",
         "",
@@ -135,6 +147,8 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
             "- `docs/openapi.yaml`",
             "- `.env.template`",
             "- `frontend/electron-builder.yml`",
+            "- `reports/installer_integrity_report.json`",
+            "- `reports/packaging_smoke_report.json`",
         ]
     )
     return "\n".join(lines).rstrip() + "\n"

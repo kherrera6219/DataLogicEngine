@@ -29,6 +29,8 @@ DEFAULT_CLOSURE = (
     / "phase-16"
     / "document-replacement-closure.json"
 )
+DEFAULT_INSTALLER_REPORT = ROOT / "reports" / "installer_integrity_report.json"
+DEFAULT_PACKAGING_REPORT = ROOT / "reports" / "packaging_smoke_report.json"
 CLASS_ORDER = (
     "product_public",
     "user_admin_support",
@@ -49,6 +51,12 @@ def _load_closure(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _load_json(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8-sig"))
+
+
 def _todo_field(path: Path, field: str) -> str:
     if not path.is_file():
         return "not_evaluated"
@@ -64,23 +72,37 @@ def render(
     closure: dict[str, Any],
     *,
     current_phase: str = "not_evaluated",
+    installer_report: dict[str, Any] | None = None,
+    packaging_report: dict[str, Any] | None = None,
 ) -> str:
     summary = closure.get("summary", {})
     canonical = authority["canonical_documents"]
     supporting = authority.get("supporting_review_inputs", [])
+    installer_report = installer_report or {}
+    packaging_report = packaging_report or {}
+    installers = installer_report.get("results", {}).get("installers", [])
+    current_installer = installers[0] if installers else {}
+    installer_hash = current_installer.get("sha256", "not_evaluated")
+    installer_name = current_installer.get("artifact", "not_evaluated")
+    installer_path = ROOT / installer_name
+    installer_size = installer_path.stat().st_size if installer_path.is_file() else "not_evaluated"
+    build_commit = packaging_report.get("source_commit", "not_evaluated")
+    smoke_state = (
+        "started and timed out without installed-mode acceptance"
+        if packaging_report.get("portable_launch_started")
+        and packaging_report.get("portable_launch_timed_out")
+        else "not_evaluated"
+    )
     ka_evidence = (
         "- Current evidence: all 213/213 KAs are individually qualified and the "
         "186-row baseline backlog is closed through 36 dependency-safe groups. "
-        "The current source gate passes 3,098 backend tests with 19 skipped, "
-        "435 frontend tests, 36 Python SDK tests, and "
-        "seven TypeScript SDK tests pass with the source/security/release gates. "
-        "The unsigned 4.3.0 candidate installed per-machine, launched from "
-        "Program Files, reached `/ready`, and used five real app-owned services. "
-        "One-time retained-data adoption preserved 22,068 listed relational "
-        "rows, 20 graph nodes/18 relationships, and eight objects. Later "
-        "source-only CI portability, packaging retry, Algorithms registry, and "
-        "documentation-authority fixes are not in that installed payload; a new "
-        "rebuild is intentionally pending. The reviewed "
+        f"The current local engineering build from runtime source `{build_commit}` "
+        f"is `{installer_name}` ({installer_size} bytes; SHA-256 `{installer_hash}`); "
+        f"it is unsigned, its integrity/checksum/block-map gate passes, and portable smoke {smoke_state}. "
+        "It has not passed installed-mode acceptance and does not replace the distinct "
+        "2026-08-10 installed qualification artifact recorded in the release and V&V records. "
+        "One-time installed retained-data adoption preserved 22,068 listed relational "
+        "rows, 20 graph nodes/18 relationships, and eight objects. The reviewed "
         "dataset exporter remains supporting owner tooling and does not satisfy "
         "installed training/provider acceptance. CP19-M remains open for the "
         "signed exact artifact and every retained installed/manual/external/"
@@ -189,12 +211,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--closure", type=Path, default=DEFAULT_CLOSURE)
     parser.add_argument("--todo", type=Path, default=DEFAULT_TODO)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--installer-report", type=Path, default=DEFAULT_INSTALLER_REPORT)
+    parser.add_argument("--packaging-report", type=Path, default=DEFAULT_PACKAGING_REPORT)
     args = parser.parse_args(argv)
     args.output.write_text(
         render(
             load_authority(args.config),
             _load_closure(args.closure),
             current_phase=_todo_field(args.todo, "Current phase"),
+            installer_report=_load_json(args.installer_report),
+            packaging_report=_load_json(args.packaging_report),
         ),
         encoding="utf-8",
     )

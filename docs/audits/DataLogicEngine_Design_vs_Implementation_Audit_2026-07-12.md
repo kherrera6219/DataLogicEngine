@@ -4,12 +4,22 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.0.0 |
+| Document version | v1.1.0 |
 | Review date | 2026-07-12 |
-| Status | Active production-readiness audit |
+| Status | Historical baseline; current dispositions moved to Phase 19 evidence and the 2026-08-11 documentation reconciliation |
 | Scope | Repository-wide design, implementation, integration, security-boundary, desktop-runtime, and test review |
 | Source-of-truth baseline | Root active documents, `docs/README.md`, active architecture/product/operations documents, and root `TODO.md` |
 | Historical material | `docs/archive/**` and whitepapers were treated as supporting context, not current implementation authority |
+
+> **Current-use notice (2026-08-11).** The findings and counts below describe
+> commit-era behavior reviewed on 2026-07-12. They are retained as the baseline
+> that drove the production completion program, not as a description of the
+> current application. Phase 19 subsequently established one governed path,
+> 213 individually qualified KAs, the app-owned five-service data plane, and the
+> rebuilt/installed engineering checkpoint. Use `docs/RELEASE_READINESS_RECORD.md`,
+> `docs/VERIFICATION_VALIDATION_REPORT.md`, and
+> `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md` for
+> current disposition. Production/public release remains **NO-GO**.
 
 ## Executive verdict
 

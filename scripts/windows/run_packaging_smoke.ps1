@@ -106,9 +106,20 @@ if (-not (Test-Path -LiteralPath $portableExecutable)) {
     throw "Packaging smoke failed: portable executable not found at $portableExecutable. Build installer first."
 }
 
+$sourceCommit = "unknown"
+try {
+    $resolvedCommit = (& git -C $RepoRoot rev-parse HEAD 2>$null)
+    if ($LASTEXITCODE -eq 0 -and $resolvedCommit) {
+        $sourceCommit = ([string]$resolvedCommit).Trim()
+    }
+} catch {
+    # Preserve smoke execution when Git metadata is unavailable in a release workspace.
+}
+
 $report = [ordered]@{
     generated_at = [DateTime]::UtcNow.ToString("o")
     repo_root = $RepoRoot
+    source_commit = $sourceCommit
     mode = $Mode
     installer = $installer.FullName
     installer_sha256 = (Get-FileHash -LiteralPath $installer.FullName -Algorithm SHA256).Hash.ToLowerInvariant()

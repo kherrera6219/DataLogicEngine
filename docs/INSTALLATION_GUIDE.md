@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.3.0 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
@@ -14,19 +14,27 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | NSIS packaging controls, Windows runtime implementation, release trust policy, and installed qualification plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Installer, signing, prerequisite, lifecycle, data-location, update, or supported-Windows change |
 | Requirements and evidence | Product requirements, release manifest, installer verification, Phase 15 evidence, and lifecycle acceptance |
 
 ## Current distribution status
 
 DataLogicEngine 4.3.0 is not approved for production or public installation.
-The 2026-08-10 engineering candidate is unsigned and is for controlled
-qualification only. It passed payload/integrity checks, installed per-machine,
-launched from Program Files, reached readiness, and supervised all five local
-services. It preserved the existing 0.1.1 data through verified one-time
-adoption rather than creating a replacement database. Do not treat an unsigned,
-stale `Latest`, or locally rebuilt artifact as the production installer.
+The 2026-08-10 installed engineering candidate is unsigned and is for
+controlled qualification only. It passed payload/integrity checks, installed
+per-machine, launched from Program Files, reached readiness, and supervised all
+five local services. It preserved the existing 0.1.1 data through verified
+one-time adoption rather than creating a replacement database.
+
+A separate 2026-08-11 local build exists at `DataLogicEngine Setup 4.3.0.exe`
+(283,875,377 bytes; SHA-256
+`30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d`).
+It is unsigned; integrity, checksum, and block-map validation pass, but portable
+smoke timed out after launch and installed-mode acceptance has not run. Do not
+attribute the August 10 installed results to this different-hash artifact or
+treat an unsigned, stale `Latest`, or locally rebuilt artifact as the production
+installer.
 
 The earlier frozen candidate stopped safely at
 `at_rest_protection_not_ready`; that result remains historical negative evidence

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-10 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -37,6 +37,14 @@ backend tests plus lint, type, Bandit, lock, and workflow governance gates pass.
 These maintenance results do not substitute for the signed installed release
 evidence. GitHub reports alert 389 fixed as of 2026-07-15.
 
+The latest push-triggered CI, deploy, and security workflows pass for runtime-
+equivalent source. The 2026-08-12 scheduled full-history secret scan later
+failed on Lob-shaped identifiers in retained/generated KA evidence and a test
+identifier. No current-tree Lob integration or credential was identified by
+the repository search, but the failed run remains a release blocker until the
+detector findings are formally dispositioned and the scheduled gate reruns
+cleanly.
+
 CP19-K and CP19-L are now complete. The clean unsigned 4.3.0 candidate installed
 per-machine, launched from Program Files, reached readiness with five real
 app-owned services, and preserved retained relational/graph/object data. This is
@@ -46,7 +54,12 @@ keep the decision **NO-GO**.
 
 ## Candidate identity
 
-| Item | Current engineering record |
+Two distinct engineering artifacts are recorded below. Evidence remains bound
+to its exact hash and is never transferred between them.
+
+### Last installed qualification artifact
+
+| Item | Installed engineering record |
 |---|---|
 | Product / Windows file version | 4.3.0 / 4.3.0.0 |
 | Frozen source input | Commit `40e2592f` for the current CP19-L application payload |
@@ -68,12 +81,24 @@ The final release record must replace candidate data with the exact clean signed
 artifact, source/tag, publisher, timestamp, manifests/SBOMs/attestations, and
 accepted installed evidence. Different-hash artifacts are separate candidates.
 
-The repository now also contains source-only CI portability, packaging retry,
-Algorithms registry/API/navigation, focused regression, and documentation
-authority/audit-routing fixes created after commit `40e2592f`. Per owner
-direction, these changes were not rebuilt for this checkpoint. They must not be
-attributed to the installer above; the next installed acceptance run requires a
-new exact-source artifact.
+### Current local engineering build
+
+| Item | Current local build record |
+|---|---|
+| Runtime source input | Commit `a3879446c5191289cfb528586c07e7f18ea155f5`; later commits through this documentation reconciliation change build evidence or documentation, not runtime code |
+| Artifact | `DataLogicEngine Setup 4.3.0.exe` |
+| Size | 283,875,377 bytes |
+| SHA-256 | `30dc4bda02f7a85e05177f6759b2fe87bcee9a692e8f798de32a053470fd8d9d` |
+| Integrity | Pass; checksum and block map present |
+| Signature | Unsigned |
+| Portable smoke | Process launched; timed out without a normal exit |
+| Installed-mode smoke | Not run; no install/uninstall success evidence |
+| Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
+
+The current local build contains the runtime fixes completed after commit
+`40e2592f`, but installed evidence from that earlier artifact cannot be
+attributed to it. The next CP19-M run must bind every result to one exact signed
+artifact.
 
 ## Gate summary
 
@@ -139,15 +164,16 @@ zero persona-provider subcalls, and a corrected 132-edge zero-cycle graph.
 CP19-G subsequently passed one manifest-owned 12-step workflow, complete
 step accounting, zero step-level provider subcalls, one rewrite ceiling,
 L6-L10 revalidation, proposal-only lifecycle output, 29 production-enabled
-capabilities, and a current 131-edge zero-cycle graph. CP19-H subsequently
+capabilities, and a then-current 131-edge zero-cycle graph. CP19-H subsequently
 passed the Truth/data/knowledge lifecycle. CP19-I subsequently passed bounded
 simulation planning/outcomes, MCP security/operations, provider
 context/monitoring, durable jobs, explicit proposal budgets, and authoritative
-SHA-256/idempotency receipts. The current manifest production-enables 149
+SHA-256/idempotency receipts. The CP19-I/J manifest production-enabled 149
 capabilities with 136 zero-cycle edges. CP19-J subsequently passed the
 principal-owned encrypted/idempotent durable API/SDK/desktop plan, exact
 confirmation, execution, cancellation/recovery, and evidence workflow. CP19-K
-then qualified 213/213 KAs and CP19-L passed the clean source boundary. The
+then qualified 213/213 KAs; the current manifest production-enables 211 with
+112 zero-cycle dependency edges, and CP19-L passed the clean source boundary. The
 unsigned candidate rebuild and installed engineering smoke passed. CP19-M,
 CP17-E, signing, and every retained installed/manual/external gate still require
 the exact signed artifact. Phase 20 launch remains blocked by every prior gate.

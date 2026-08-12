@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.5.0 |
+| Document version | v1.5.1 |
 | Product version | 4.3.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -459,6 +459,7 @@ documentation consistency, container builds, SDKs, and Windows packaging.
 - [Developer guide](docs/DEVELOPER_GUIDE.md)
 - [OpenAPI contract](docs/openapi.yaml)
 - [Verification and validation report](docs/VERIFICATION_VALIDATION_REPORT.md)
+- [Current-build documentation reconciliation](docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md)
 - [Troubleshooting and support](docs/TROUBLESHOOTING_SUPPORT_GUIDE.md)
 
 ## Contributing and support
