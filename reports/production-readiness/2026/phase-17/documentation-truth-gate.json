@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-08-12T06:23:05.504196+00:00",
+  "generated_at": "2026-08-12T07:20:51.119221+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -11,7 +11,7 @@
     {
       "name": "live_route_manifest",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_route_manifest.py",
         "--output",
         "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\route-manifest.json",
@@ -25,20 +25,20 @@
     {
       "name": "product_version_parity",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_product_versions.py",
         "--report",
         "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "[PASS] pyproject: 4.3.0\n[PASS] frontend-package: 4.3.0\n[PASS] frontend-lock: 4.3.0\n[PASS] frontend-lock-root: 4.3.0\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: 0a1b2c3d4e5f\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.3.0\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
+      "stdout": "[PASS] pyproject: 4.4.0\n[PASS] frontend-package: 4.4.0\n[PASS] frontend-lock: 4.4.0\n[PASS] frontend-lock-root: 4.4.0\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: 0a1b2c3d4e5f\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.4.0\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
       "stderr": ""
     },
     {
       "name": "openapi_compatibility",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/check_gateway_openapi_compatibility.py"
       ],
       "passed": true,
@@ -49,7 +49,7 @@
     {
       "name": "generated_contract_index",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/generate_documentation_contract_index.py"
       ],
       "passed": true,
@@ -60,7 +60,7 @@
     {
       "name": "documentation_authority",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_doc_authority.py"
       ],
       "passed": true,
@@ -71,7 +71,7 @@
     {
       "name": "documentation_bom",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_documentation_bom.py"
       ],
       "passed": true,
@@ -82,7 +82,7 @@
     {
       "name": "phase16_replacement",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_document_replacement_closure.py"
       ],
       "passed": true,
@@ -93,7 +93,7 @@
     {
       "name": "phase17_history",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/consolidate_phase17_history.py"
       ],
       "passed": true,
@@ -104,7 +104,7 @@
     {
       "name": "requirements_traceability",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_requirements_traceability.py"
       ],
       "passed": true,
@@ -115,7 +115,7 @@
     {
       "name": "documentation_references",
       "command": [
-        "C:\\software\\DataLogicEngine\\.venv311\\Scripts\\python.exe",
+        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
         "scripts/verify_docs_references.py"
       ],
       "passed": true,

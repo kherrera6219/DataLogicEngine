@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-12 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
@@ -32,8 +32,8 @@ clean rerun.
 
 The August 10 rebuilt unsigned candidate installed, reached readiness,
 preserved retained data across the five managed services, and passed installed
-authentication, Diagnostics, and representative KA smoke. The newer August 11
-build passed integrity but has not passed installed-mode acceptance. CP19-M
+authentication, Diagnostics, and representative KA smoke. The newer August 12
+4.4.0 build passed integrity but has not passed installed-mode acceptance. CP19-M
 remains partial and release-blocking.
 
 Define how DataLogicEngine 4.4.0 is verified against specifications and validated
@@ -102,12 +102,12 @@ That installed candidate is unsigned. Prior frozen candidate hashes and the earl
 the current installed result. Reproducibility, signing, exact-artifact binding,
 and the retained CP19-M/system/manual/external acceptance rows remain open.
 
-The current local engineering artifact was built on 2026-08-11 from source
-commit `e0ebb6e137ff267567b31faf933291b356a275d0`. It is 283,874,927
+The current local engineering artifact was built on 2026-08-12 from source
+commit `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c`. It is 283,876,702
 bytes with SHA-256
-`734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25`.
+`b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438`.
 Its checksum, block map, installer-integrity report, 6,095-file payload, and
-version parity pass. Per owner direction neither the application nor installer
+version and dependency audits pass. Per owner direction neither the application nor installer
 was run. It is unsigned and is not the installed qualification subject above.
 No installed, provider, accessibility, recovery, or soak evidence transfers
 between these artifact hashes.

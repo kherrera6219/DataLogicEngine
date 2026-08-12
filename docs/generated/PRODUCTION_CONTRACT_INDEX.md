@@ -8,14 +8,14 @@
 | Field | Authority value |
 |---|---|
 | Product | `DataLogicEngine Desktop` |
-| Product version | `4.3.0` |
-| Windows file version | `4.3.0.0` |
+| Product version | `4.4.0` |
+| Windows file version | `4.4.0.0` |
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
-| Current local artifact | `DataLogicEngine Setup 4.3.0.exe` |
-| Current local artifact size | `283874927` bytes |
-| Current local artifact SHA-256 | `734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25` |
-| Current build source commit | `e0ebb6e137ff267567b31faf933291b356a275d0` |
+| Current local artifact | `DataLogicEngine Setup 4.4.0.exe` |
+| Current local artifact size | `283876702` bytes |
+| Current local artifact SHA-256 | `b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438` |
+| Current build source commit | `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` |
 | Current artifact signature | `not_evaluated` |
 | Installed-mode smoke accepted | `not_evaluated` |
 

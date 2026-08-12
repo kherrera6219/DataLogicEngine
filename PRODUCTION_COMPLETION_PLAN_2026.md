@@ -56,13 +56,14 @@ data-directory inputs and raised required `KA-025` cold-dispatch allowance from
 300 ms to a still-bounded 1,000 ms. These are source/CI corrections only; the
 installed unsigned candidate is unchanged.
 
-The active documentation tree was recursively reconciled on 2026-08-11 against
-the current source and build evidence. The product has now been promoted to
-4.4.0, and a clean `DataLogicEngine Setup 4.4.0.exe` build from the committed
-version checkpoint is pending. The build-only checkpoint must pass static
-integrity, checksum, block-map, payload, and version validation without
-launching or installing the application. The 2026-08-10 installed engineering
-evidence remains bound only to SHA-256
+The active documentation tree was recursively reconciled against the current
+source and build evidence. Product 4.4.0 was built on 2026-08-12 as
+`DataLogicEngine Setup 4.4.0.exe` from source commit
+`55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` (283,876,702 bytes; SHA-256
+`b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438`).
+Static integrity, checksum, block-map, 6,095-file payload, version, and
+dependency audits pass. It was not launched or installed. The 2026-08-10
+installed engineering evidence remains bound only to SHA-256
 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
 The canonical record is
 `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`.

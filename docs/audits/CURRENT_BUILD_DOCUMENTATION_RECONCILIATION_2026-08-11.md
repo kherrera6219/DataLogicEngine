@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Current source, generated contracts, build reports, GitHub workflows, canonical documents, and retained installed evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-12 |
 | Next-review trigger | Runtime code, build artifact, installed result, documentation authority, security result, or release decision change |
 | Requirements and evidence | `config/product-versions.json`, `reports/installer_integrity_report.json`, `reports/packaging_smoke_report.json`, canonical docs, and documentation gates |
 
@@ -36,11 +36,11 @@ product authority.
 | Subject | Current evidence |
 |---|---|
 | Product | DataLogicEngine Desktop 4.4.0; Windows file version 4.4.0.0; pre-production channel |
-| Source used for latest local build | Pending the committed 4.4.0 version-unity checkpoint |
-| Current local installer | `DataLogicEngine Setup 4.4.0.exe` pending rebuild |
-| Size | Pending rebuild |
-| SHA-256 | Pending rebuild |
-| Integrity | Pending rebuild |
+| Source used for latest local build | `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` |
+| Current local installer | `DataLogicEngine Setup 4.4.0.exe` |
+| Size | 283,876,702 bytes |
+| SHA-256 | `b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438` |
+| Integrity | Pass; checksum, block map, 6,095-file payload, version, and dependency audits pass |
 | Signature | Not signed |
 | Portable smoke | Not run by owner direction |
 | Installed-mode smoke | Not run; no install/uninstall success evidence |

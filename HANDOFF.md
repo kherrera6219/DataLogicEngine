@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-12 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.67.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release verdict | Production/public release: **NO-GO** |
@@ -695,10 +695,12 @@ hashing, bounded Electron-builder rename retries, false-positive secret-scan
 identifier cleanup, Algorithms registry/API/navigation remediation, focused
 route/UI coverage, and supporting review/audit routing. These changes are
 source-only relative to the installed qualification artifact. The product has
-now been promoted to 4.4.0 and a clean `DataLogicEngine Setup 4.4.0.exe` rebuild
-from the committed version checkpoint is pending. The build-only checkpoint
-must pass integrity, checksum, block-map, payload, and version validation and
-must not launch or install the application. The future 4.4.0 artifact will not
+now been promoted to 4.4.0 and a clean `DataLogicEngine Setup 4.4.0.exe` build
+was produced from source commit `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c`
+(283,876,702 bytes; SHA-256
+`b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438`).
+Integrity, checksum, block-map, 6,095-file payload, version, and dependency
+audits pass. The unsigned artifact was not launched or installed and does not
 inherit the August 10 installed evidence. The latest successful push CI passes
 3,091 backend tests with 26
 skipped, 435 frontend tests, 36 Python SDK tests, seven TypeScript SDK tests,

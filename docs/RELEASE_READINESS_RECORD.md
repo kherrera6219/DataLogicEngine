@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-12 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -85,18 +85,18 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 
 | Item | Current local build record |
 |---|---|
-| Runtime source input | Commit `e0ebb6e137ff267567b31faf933291b356a275d0` |
-| Artifact | `DataLogicEngine Setup 4.3.0.exe` |
-| Size | 283,874,927 bytes |
-| SHA-256 | `734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25` |
-| Integrity | Pass; checksum and block map present; 6,095-file release payload has zero issues |
+| Runtime source input | Commit `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` |
+| Artifact | `DataLogicEngine Setup 4.4.0.exe` |
+| Size | 283,876,702 bytes |
+| SHA-256 | `b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438` |
+| Integrity | Pass; checksum and block map present; 6,095-file release payload and dependency audits have zero issues |
 | Signature | Unsigned |
 | Portable smoke | Not run by owner direction |
 | Installed-mode smoke | Not run; no install/uninstall success evidence |
 | Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
 
 The current local build contains the runtime fixes completed after commit
-`40e2592f`, but installed evidence from that earlier artifact cannot be
+`40e2592f` and the 4.4.0 version/dependency promotion, but installed evidence from that earlier artifact cannot be
 attributed to it. The next CP19-M run must bind every result to one exact signed
 artifact.
 

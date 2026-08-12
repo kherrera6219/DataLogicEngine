@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | NSIS packaging controls, Windows runtime implementation, release trust policy, and installed qualification plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-12 |
 | Next-review trigger | Installer, signing, prerequisite, lifecycle, data-location, update, or supported-Windows change |
 | Requirements and evidence | Product requirements, release manifest, installer verification, Phase 15 evidence, and lifecycle acceptance |
 
@@ -27,10 +27,11 @@ per-machine, launched from Program Files, reached readiness, and supervised all
 five local services. It preserved the existing 0.1.1 data through verified
 one-time adoption rather than creating a replacement database.
 
-A new 4.4.0 local engineering build is required after this version promotion.
-It remains unsigned and must pass integrity, checksum, block-map, payload, and
-version validation before use. It must not be launched or installed during the
-build-only checkpoint. Do not
+A separate 2026-08-12 local build exists at `DataLogicEngine Setup 4.4.0.exe`
+(283,876,702 bytes; SHA-256
+`b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438`).
+It is unsigned; integrity, checksum, block-map, 6,095-file payload, version,
+and dependency audits pass. It was intentionally not launched or installed. Do not
 attribute the August 10 installed results to this different-hash artifact or
 treat an unsigned, stale `Latest`, or locally rebuilt artifact as the production
 installer.

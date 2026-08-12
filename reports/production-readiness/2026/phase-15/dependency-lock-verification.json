@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.dependency-lock-verification.v1",
-  "generated_at": "2026-07-15T05:52:39.604228+00:00",
+  "generated_at": "2026-08-12T07:19:50.183279+00:00",
   "authority": {
     "schema_version": "dle.dependency-authority.v1",
     "python": {
@@ -35,7 +35,7 @@
     },
     {
       "level": "OK",
-      "message": "requirements.txt contains 81 exact direct pins."
+      "message": "requirements.txt contains 82 exact direct pins."
     },
     {
       "level": "OK",
@@ -51,7 +51,7 @@
     },
     {
       "level": "OK",
-      "message": "All 315 locked Python packages carry SHA-256 hashes."
+      "message": "All 289 locked Python packages carry SHA-256 hashes."
     },
     {
       "level": "OK",

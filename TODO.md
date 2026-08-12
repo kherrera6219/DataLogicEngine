@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-12 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.67.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
 | Release decision | Production/public release: **NO-GO** |
@@ -1092,10 +1092,12 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
       subdirectories against product 4.4.0, manifest `2026.08.11-al10.2`, the
       live 507-route surface, current source, current CI evidence, and the two
       distinct installer subjects.
-- [ ] Rebuild the current local installer from the committed 4.4.0 version
-      checkpoint as `DataLogicEngine Setup 4.4.0.exe` (unsigned; do not launch
-      or install it). Static installer integrity, checksum, block-map, payload,
-      and version parity must pass before this item closes.
+- [x] Rebuilt the current local installer from source commit
+      `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` as
+      `DataLogicEngine Setup 4.4.0.exe` (283,876,702 bytes; SHA-256
+      `b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438`;
+      unsigned; not launched or installed). Static integrity, checksum,
+      block-map, 6,095-file payload, version, and dependency audits pass.
 - [x] Preserved the separate 2026-08-10 installed engineering evidence only for
       SHA-256 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
       It must not be attributed to the newer local artifact.
