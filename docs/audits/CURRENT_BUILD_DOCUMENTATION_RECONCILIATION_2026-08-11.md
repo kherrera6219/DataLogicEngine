@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-AUDIT-012 |
 | Title | Current-build documentation reconciliation |
-| Document version | v1.1.0 |
-| Product version | 4.3.0 |
+| Document version | v1.2.0 |
+| Product version | 4.4.0 |
 | Status | active supporting review |
 | Audience | Product owner, engineering, quality, release reviewers, and documentation maintainers |
 | Owner | Documentation Engineering |
@@ -21,7 +21,7 @@
 ## Purpose and boundary
 
 This review reconciles every tracked current file under `docs/` with the current
-DataLogicEngine 4.3.0 source and build state. It distinguishes current authority,
+DataLogicEngine 4.4.0 source and build state. It distinguishes current authority,
 generated contracts, immutable evaluation inputs, current supporting reviews,
 and historical records.
 
@@ -35,12 +35,12 @@ product authority.
 
 | Subject | Current evidence |
 |---|---|
-| Product | DataLogicEngine Desktop 4.3.0; Windows file version 4.3.0.0; pre-production channel |
-| Source used for latest local build | `e0ebb6e137ff267567b31faf933291b356a275d0` |
-| Current local installer | `DataLogicEngine Setup 4.3.0.exe` |
-| Size | 283,874,927 bytes |
-| SHA-256 | `734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25` |
-| Integrity | Pass; checksum and block map present |
+| Product | DataLogicEngine Desktop 4.4.0; Windows file version 4.4.0.0; pre-production channel |
+| Source used for latest local build | Pending the committed 4.4.0 version-unity checkpoint |
+| Current local installer | `DataLogicEngine Setup 4.4.0.exe` pending rebuild |
+| Size | Pending rebuild |
+| SHA-256 | Pending rebuild |
+| Integrity | Pending rebuild |
 | Signature | Not signed |
 | Portable smoke | Not run by owner direction |
 | Installed-mode smoke | Not run; no install/uninstall success evidence |

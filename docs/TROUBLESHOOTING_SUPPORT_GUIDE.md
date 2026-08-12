@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-USER-004 |
 | Title | Troubleshooting and support guide |
-| Document version | v1.2.0 |
-| Product version | 4.3.0 |
+| Document version | v1.2.1 |
+| Product version | 4.4.0 |
 | Status | qualification_only |
 | Audience | Users, evaluators, operators, support engineers, and security reviewers |
 | Owner | Support Engineering |
@@ -25,7 +25,7 @@ around an error by disabling storage protection, ACLs, authentication, signature
 migration, readiness, provider, scope, or required-service checks. Record the
 safe error code and fix the underlying condition.
 
-Every current 4.3.0 artifact is qualification-only, unsigned, and not approved
+Every current 4.4.0 artifact is qualification-only, unsigned, and not approved
 for public installation. The 2026-08-10 installed candidate reached readiness
 with its managed five-service data plane. Do not resolve a startup problem by
 creating another database, switching to SQLite/memory/filesystem fallbacks, or

@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.2.1 |
-| Product version | 4.3.0 |
+| Document version | v1.3.0 |
+| Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
 | Owner | Production Program Owner |
@@ -1089,15 +1089,13 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 ## Current-build documentation reconciliation
 
 - [x] Reconciled every active document under `docs/` and its active
-      subdirectories against product 4.3.0, manifest `2026.08.11-al10.2`, the
+      subdirectories against product 4.4.0, manifest `2026.08.11-al10.2`, the
       live 507-route surface, current source, current CI evidence, and the two
       distinct installer subjects.
-- [x] Rebuilt the current local installer from committed source
-      `e0ebb6e137ff267567b31faf933291b356a275d0` as
-      `DataLogicEngine Setup 4.3.0.exe` (283,874,927 bytes; SHA-256
-      `734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25`;
-      unsigned; not executed or installed-qualified). Static installer
-      integrity, checksum, block map, 6,095-file payload, and version parity pass.
+- [ ] Rebuild the current local installer from the committed 4.4.0 version
+      checkpoint as `DataLogicEngine Setup 4.4.0.exe` (unsigned; do not launch
+      or install it). Static installer integrity, checksum, block-map, payload,
+      and version parity must pass before this item closes.
 - [x] Preserved the separate 2026-08-10 installed engineering evidence only for
       SHA-256 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
       It must not be attributed to the newer local artifact.

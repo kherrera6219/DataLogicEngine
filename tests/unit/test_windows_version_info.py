@@ -6,12 +6,12 @@ def test_version_info_uses_product_authority():
         {
             "product": {
                 "name": "DataLogicEngine Desktop",
-                "version": "4.3.0",
-                "windows_file_version": "4.3.0.0",
+                "version": "4.4.0",
+                "windows_file_version": "4.4.0.0",
             }
         }
     )
 
-    assert "filevers=(4, 3, 0, 0)" in text
-    assert "StringStruct('ProductVersion', '4.3.0')" in text
+    assert "filevers=(4, 4, 0, 0)" in text
+    assert "StringStruct('ProductVersion', '4.4.0')" in text
     assert "StringStruct('CompanyName', 'Kevin Herrera')" in text

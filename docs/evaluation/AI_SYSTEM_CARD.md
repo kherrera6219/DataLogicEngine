@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ASR-003 |
 | Title | AI system card and evaluation report |
-| Document version | v1.2.0 |
-| Product version | 4.3.0 |
+| Document version | v1.2.1 |
+| Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, AI assurance reviewers, risk reviewers, and release authority |
 | Owner | AI Assurance |

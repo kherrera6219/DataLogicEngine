@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ASR-001 |
 | Title | Requirements traceability matrix |
-| Document version | v1.3.0 |
-| Product version | 4.3.0 |
+| Document version | v1.3.1 |
+| Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, quality, assurance, release authority, and professional reviewers |
 | Owner | Quality Engineering |
@@ -106,5 +106,5 @@ tests, canonical documents, migration/compatibility, and release evidence.
 
 All 29 product requirement IDs have an implementation/control or planned
 Phase 19 control and a named verification path. None may be interpreted as final
-production pass while their retained gates are open. The exact 4.3.0 release
+production pass while their retained gates are open. The exact 4.4.0 release
 remains **NO-GO**.

@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v3.9.0 |
-| Product version | 4.3.0 |
+| Document version | v3.9.1 |
+| Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
 | Owner | Product Engineering |

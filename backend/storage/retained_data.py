@@ -196,7 +196,7 @@ def discover_retained_data(runtime_root: str | Path) -> dict[str, Any]:
     requires_adoption = meaningful and not adoption_receipt_valid
     source_version = (
         LEGACY_DESKTOP_SOURCE_VERSION
-        if requires_adoption and identity_version in {None, "4.3.0"}
+        if requires_adoption and identity_version in {None, "4.3.0", "4.4.0"}
         else identity_version
     )
     return {

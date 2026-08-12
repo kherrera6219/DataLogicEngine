@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-USER-005 |
 | Title | Privacy, provider, retention, and AI limitations notice |
-| Document version | v1.1.0 |
-| Product version | 4.3.0 |
+| Document version | v1.1.1 |
+| Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, administrators, privacy/security reviewers, and release authority |
 | Owner | Privacy Engineering |
@@ -20,7 +20,7 @@
 
 ## Important current status
 
-DataLogicEngine 4.3.0 is not approved for production or public distribution.
+DataLogicEngine 4.4.0 is not approved for production or public distribution.
 This notice describes the implemented and approved local-first contract while
 clearly retaining installed, independent, legal, security, provider, deletion,
 backup/restore, and release evidence that remains open. It is not a claim of

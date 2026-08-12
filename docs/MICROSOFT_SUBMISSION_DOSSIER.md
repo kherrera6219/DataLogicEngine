@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-EXT-002 |
 | Title | Microsoft distribution and submission dossier |
-| Document version | v1.1.0 |
-| Product version | 4.3.0 |
+| Document version | v1.1.1 |
+| Product version | 4.4.0 |
 | Status | not_evaluated |
 | Audience | Distribution owner, product/release authority, legal/privacy/security, accessibility, operations, and Microsoft submission reviewers |
 | Owner | Distribution Owner |
@@ -70,7 +70,7 @@ App Developer Agreement, Partner Center terms, legal advice, or certification.
 | Silent install; UAC prompt allowed | Candidate `/S` syntax documented only | Signed clean install logs/exit code and Store-compatible unattended behavior |
 | Standalone installer, not downloader stub | Current payload is intended standalone | Network capture/offline install and complete component/payload proof |
 | Updated binary uses updated versioned URL | Not established | Release/update publishing procedure and rollback/support record |
-| Version managed by installer for Win32 route | Product authority is 4.3.0/4.3.0.0 | Installer/file/UI/API version parity and upgrade ordering |
+| Version managed by installer for Win32 route | Product authority is 4.4.0/4.4.0.0 | Installer/file/UI/API version parity and upgrade ordering |
 
 The app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and object-store delivery must
 not turn the installer into an undocumented downloader or install prohibited/
@@ -126,7 +126,7 @@ The reviewed WACK guidance notes that an active user session is required and
 that environment/performance can affect results. Applicability and Store-side
 testing can differ by app/package type; do not mark a test `pass` merely because
 it was unavailable or grayed out. Use `not_applicable` only with policy/reviewer
-basis. No WACK run has been performed for the signed 4.3.0 release candidate.
+basis. No WACK run has been performed for the signed 4.4.0 release candidate.
 
 ## Submission blockers
 

@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
-| Document version | v1.2.1 |
-| Product version | 4.3.0 |
+| Document version | v1.3.0 |
+| Product version | 4.4.0 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
 | Owner | Platform Operations |
@@ -20,18 +20,17 @@
 
 ## Current distribution status
 
-DataLogicEngine 4.3.0 is not approved for production or public installation.
+DataLogicEngine 4.4.0 is not approved for production or public installation.
 The 2026-08-10 installed engineering candidate is unsigned and is for
 controlled qualification only. It passed payload/integrity checks, installed
 per-machine, launched from Program Files, reached readiness, and supervised all
 five local services. It preserved the existing 0.1.1 data through verified
 one-time adoption rather than creating a replacement database.
 
-A separate 2026-08-11 local build exists at `DataLogicEngine Setup 4.3.0.exe`
-(283,874,927 bytes; SHA-256
-`734f92ff00e20b1b6c76cea41032264a34b8fa8eaa1a3c804ec185848b219e25`).
-It is unsigned; integrity, checksum, block-map, 6,095-file payload, and version
-validation pass. It was intentionally not launched or installed. Do not
+A new 4.4.0 local engineering build is required after this version promotion.
+It remains unsigned and must pass integrity, checksum, block-map, payload, and
+version validation before use. It must not be launched or installed during the
+build-only checkpoint. Do not
 attribute the August 10 installed results to this different-hash artifact or
 treat an unsigned, stale `Latest`, or locally rebuilt artifact as the production
 installer.
@@ -61,7 +60,7 @@ yet ratified and must not be guessed from development machines.
 
 1. Obtain the installer only from the release location named in the approved
    release-readiness record.
-2. Confirm the filename is `DataLogicEngine Setup 4.3.0.exe`.
+2. Confirm the filename is `DataLogicEngine Setup 4.4.0.exe`.
 3. Confirm the published SHA-256 matches the installer.
 4. Open Windows file properties and verify a valid signature from the approved
    publisher, a trusted chain, a valid timestamp, and no revocation failure.
@@ -77,7 +76,7 @@ follow the troubleshooting guide. Do not bypass readiness or trust controls.
 
 ## Clean installation
 
-1. Run `DataLogicEngine Setup 4.3.0.exe` as the Windows user who will own the
+1. Run `DataLogicEngine Setup 4.4.0.exe` as the Windows user who will own the
    installation.
 2. Review the publisher and version displayed by Windows before continuing.
 3. Select only an approved protected local data location when prompted.
@@ -87,7 +86,7 @@ follow the troubleshooting guide. Do not bypass readiness or trust controls.
 6. Wait for readiness. A live backend is not necessarily ready; the desktop must
    show a safe blocker if required services, identities, migrations, storage
    protection, or policies do not pass.
-7. Open Settings and Diagnostics and confirm product 4.3.0, runtime identity,
+7. Open Settings and Diagnostics and confirm product 4.4.0, runtime identity,
    required service state, external telemetry state, and update state.
 8. Configure one supported provider only after reviewing the privacy/AI notice.
    A stored key is not `available` until its bounded live test passes.
@@ -120,7 +119,7 @@ otherwise, restore only approved binaries/configuration, rerun readiness and
 migrations, and leave unrelated applications and ports untouched. Record the
 repair log and rerun the first-use acceptance steps.
 
-Repair behavior remains an open installed qualification gate for 4.3.0.
+Repair behavior remains an open installed qualification gate for 4.4.0.
 
 ## Upgrade
 

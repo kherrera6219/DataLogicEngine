@@ -53,7 +53,7 @@ def test_discovery_classifies_retained_sqlite_before_identity_mutation(tmp_path)
                 "owner": __import__("getpass").getuser(),
                 "platform": "Windows-test",
                 "product": "DataLogicEngine",
-                "version": "4.3.0",
+                "version": "4.4.0",
             }
         ),
         encoding="utf-8",
@@ -100,7 +100,7 @@ def test_verified_recovery_copy_keeps_adoption_receipt_valid_after_wal_drift(tmp
 
 
 def test_runtime_identity_is_prepared_in_memory_and_persisted_only_after_lock(tmp_path):
-    ownership = RuntimeOwnership(tmp_path, version="4.3.0")
+    ownership = RuntimeOwnership(tmp_path, version="4.4.0")
 
     prepared = ownership.prepare(initial_version="0.1.1")
 

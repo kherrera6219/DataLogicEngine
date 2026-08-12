@@ -18,7 +18,7 @@
 | Document ID | DLE-QUEUE-004 |
 | Title | Codex verification and remediation queue |
 | Document version | v1.0.0 |
-| Product version | 4.3.0 |
+| Product version | 4.4.0 |
 | Status | validated — confirmed source/spec/hygiene batch implemented; owner decisions retained |
 | Source finding report | `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` |
 | Baseline commit | `40e2592f` |

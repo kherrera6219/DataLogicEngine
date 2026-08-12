@@ -1,4 +1,4 @@
-"""Verified adoption of the released desktop SQLite/object data into 4.3.0.
+"""Verified adoption of released desktop SQLite/object data into the current product.
 
 The adopter is intentionally conservative: it never deletes the source, never
 overwrites populated target tables, and writes its receipt only after a verified

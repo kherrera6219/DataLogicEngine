@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.4.1 |
-| Product version | 4.3.0 |
+| Document version | v1.5.0 |
+| Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
 | Owner | Quality Engineering |
@@ -36,7 +36,7 @@ authentication, Diagnostics, and representative KA smoke. The newer August 11
 build passed integrity but has not passed installed-mode acceptance. CP19-M
 remains partial and release-blocking.
 
-Define how DataLogicEngine 4.3.0 is verified against specifications and validated
+Define how DataLogicEngine 4.4.0 is verified against specifications and validated
 for intended Windows use, summarize current evidence, and keep engineering/source
 results distinct from signed installed, human, independent, and long-duration
 acceptance. This report is not a production approval.

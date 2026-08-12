@@ -1,5 +1,19 @@
 # Changelog
 
+## 4.4.0 candidate qualification - 2026-08-11
+
+- Promoted the product and Windows installer identity from 4.3.0/4.3.0.0 to
+  4.4.0/4.4.0.0 after completing the Phase 19 KA system integration, all
+  213 per-capability qualification rows, the Algorithms/specification
+  remediation track, and the current-build documentation reconciliation.
+- Preserved public API `v1`, `governed.v1`, `dle-gateway.v1`, provider, virtual
+  model, and data-plane contract versions; this is a backward-compatible minor
+  product release rather than a breaking contract release.
+- Retained the 4.3.0 installed engineering candidate as historical evidence.
+  No installed, provider, accessibility, recovery, pilot, or soak result
+  transfers to the new 4.4.0 artifact until CP19-M executes against its exact
+  signed hash.
+
 ## 4.3.0 candidate qualification - 2026-08-10
 
 - Completed all 213 Knowledge Algorithm qualification rows, including Quad
@@ -35,15 +49,15 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.0.0 |
-| Product version | 4.3.0 |
+| Document version | v1.1.0 |
+| Product version | 4.4.0 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
 | Owner | Release Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-08 |
+| Last reviewed | 2026-08-11 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
