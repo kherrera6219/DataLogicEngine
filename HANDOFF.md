@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.3.0 |
+| Document version | v1.5.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,12 +14,14 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-12 |
+| Last reviewed | 2026-08-15 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 (release program) |
+| Supporting engineering plan | `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` (Phase 5 partial/deferred; P8 not started) |
+| QC remediation plan | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` (QR-0 through QR-5 complete; QR-6 gated) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
+| Current phase | Phase 19; CP19-M retained acceptance open, post-QC source qualified before rebuild |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -27,19 +29,25 @@
 
 Read these documents in order before changing code or making a readiness claim:
 
-1. `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md`
-2. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`
-3. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`
-4. `PRODUCTION_COMPLETION_PLAN_2026.md`
-5. `TODO.md`
-6. `docs/SECURITY_ARCHITECTURE.md`
-7. `docs/README.md`
-8. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority)
-9. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan)
+1. **This file** — especially **Audit remediation checkpoint**.
+2. `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` — completed source-QC plan and gated QR-6 handoff.
+3. `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` — source audit plan (not at repo root).
+4. `TODO.md` — open production and QC work ledger.
+5. `PRODUCTION_COMPLETION_PLAN_2026.md` — sole **release** execution plan.
+6. `docs/audits/DataLogicEngine_Slow_Section_Audit_Findings_2026-08-11.md`.
+7. `docs/audits/DataLogicEngine_Slow_Audit_Recommendations_10of10_2026-08-12.md`.
+8. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
+9. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
+10. `docs/SECURITY_ARCHITECTURE.md`.
+11. `docs/README.md`.
+12. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
+13. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
 
 Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
-execution plan; archived plans and testing queues are historical evidence only.
+**release** execution plan. The slow-audit plan under `docs/audits/` records
+implemented workshop work, while the 2026-08-15 QC plan controls the current
+source corrections and qualification. Phase 5 remains partial/deferred.
 
 ## Phase 19 execution authority
 
@@ -681,6 +689,11 @@ release approval are pending. The provider rows remain quarantined and
 
 ## Current checkpoint
 
+**Workshop state (2026-08-12):** slow-audit remediation Phases 1–7 are
+implemented and documented (see “Audit remediation checkpoint” below). Focused
+API/route/orphan suites pass; full-suite re-baseline and **desktop rebuild are
+pending owner order**. Production/public release remains **NO-GO**.
+
 CP19-L passed on 2026-08-10. The full source and release qualification authorized
 a clean rebuild. The resulting unsigned 4.3.0 installer (283,890,413 bytes,
 SHA-256 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`)
@@ -1165,23 +1178,167 @@ The concurrent Phase 18 catalog drift was resolved by regenerating the
 capability inventory, runtime manifest/SDK catalogs, and integration authority
 in dependency order. The runtime authority checks and full backend suite pass.
 
+## Audit remediation checkpoint (2026-08-12 → 2026-08-15) — for Codex
+
+> **Codex / next session:** slow-audit engineering work is implemented in this
+> tree, but the local checkpoint remains under the 2026-08-15 QC remediation
+> plan. Continue that plan; do **not** rebuild or resume installed CP19-M from
+> the workshop tree until post-QC source qualification passes.
+> Phase **8** (signing / production GO) is **owner-only** and not started.
+
+### Authority and location
+
+| Role | Path | Notes |
+|---|---|---|
+| **Source audit plan** | `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` | **Not** at repo root. Phase 5 and overall completion were corrected in v1.4. |
+| **Active QC remediation** | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` | Ordered source, docs, qualification, and commit-readiness gates. |
+| Release program plan | `PRODUCTION_COMPLETION_PLAN_2026.md` | Still sole release authority; NO-GO until CP19-M + gates. |
+| Open work ledger | `TODO.md` | Includes audit implementation, partial Phase 5, QC, and rebuild rows. |
+| Product change log | `CHANGELOG.md` → `[Unreleased]` | Contract deltas and remediation notes. |
+
+### Codex briefing — what was done
+
+A code-validated **slow section audit** of DataLogicEngine produced findings,
+recommendations, an orphan worksheet, and a phased plan. Owner locked product
+gates (G-*). Implementers then executed the Phase 1–7 workshop changes,
+updated tests for **legacy-API-off by default**, and left the desktop rebuild
+unstarted. QC subsequently found and corrected source-contract, URL, version,
+frontend-test, KA parity, dependency-lock, and documentation-governance issues.
+QR-0 through QR-5 and full post-QC source qualification now pass; no commit,
+push, or rebuild has been performed.
+
+**Product invariants preserved:** gateway → `GovernedExecutionOrchestrator` →
+trace; thin SDKs; desktop single-owner auth; simulation off the chat path;
+release fail-closed; chat is a probe, not a second product path.
+
+**Do not treat as ship defects:** gitignored local workshop materials
+(`API KEY/`, `certs/`, worktrees).
+
+### Locked product decisions (Phase 0) — do not reverse without owner
+
+| Gate | Decision |
+|---|---|
+| G-GEN | **B0** cloud BYOK only (no local generative / Ollama product path) |
+| G-API | Legacy `/api/*` mirrors **hard-off by default** (`DLE_LEGACY_API_PREFIXES`) |
+| G-GQL | Keep GraphQL + harden (session auth; no GraphiQL in product desktop) |
+| G-DSQP | **7-part** persona contract required (Traits + Related Roles labels) |
+| G-TRAIN | Dataset **export-only** (no in-app trainer) |
+| G-MCP-CONN | **Delete** Jira/Salesforce orphan connectors (do not wire) |
+| G-SIGN | **Not now** — release remains **NO-GO**; skip Phase 8 until owner reopens |
+
+### Documents **created** (supporting review — not expanding the 30 canonical set)
+
+Registered in `config/documentation-authority.json` → `supporting_review_inputs`
+(or under `docs/audits/` prefix).
+
+| Path | Purpose |
+|---|---|
+| `docs/audits/DataLogicEngine_Slow_Section_Audit_Findings_2026-08-11.md` | Section-by-section audit findings + orphan notes |
+| `docs/audits/ORPHAN_MODULE_DISPOSITION_WORKSHEET_2026-08-11.md` | Orphan wire/delete disposition worksheet |
+| `docs/audits/DataLogicEngine_Slow_Audit_Recommendations_10of10_2026-08-12.md` | 10/10 recommendations by section |
+| `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` | Ordered PR/ticket plan + gates + exit checklists |
+| `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` | Active ordered QC remediation and qualification gates |
+| `docs/audits/PHASE5_GODFILE_SPLIT_NOTES.md` | Why full api/mcp package splits were attempted then **restored** |
+| `docs/MEMORY_AUTHORITY.md` | Operator memory system-of-record matrix |
+| `docs/AUTH_SURFACE_MATRIX.md` | Desktop auth principals and route surfaces |
+| `docs/DMRF_TRUTH_BOUNDARY.md` | DMRF vs Truth product honesty boundary |
+| `docs/DATASET_EXPORT_HANDOFF.md` | Export-only training/dataset handoff |
+| `docs/CI_QUALITY_POLICY.md` | Hard vs soft CI gates (orphan, routes, a11y soft) |
+| `docs/DESKTOP_CSP.md` | Desktop Content-Security-Policy notes |
+| `sdk/LICENSE_NOTICE.md` | SDK packaging notice (with `ukg_sdk` 0.7.0 rebuild) |
+
+### Documents **updated** (root + canonical + generated)
+
+| Path | What changed for Codex |
+|---|---|
+| `HANDOFF.md` (this file) | Audit checkpoint, doc inventory, next actions |
+| `TODO.md` | Slow-audit P0–P7 complete; open rebuild / Phase 8 / suite re-baseline |
+| `CHANGELOG.md` | Unreleased: G-API, admin/gateway, B0, DSQP7, CI, SDK 0.7.0 |
+| `docs/INTERFACE_INTEGRATION.md` | v1.5 — legacy hard-off, admin/gateway, knowledge paths |
+| `docs/DEVELOPER_GUIDE.md` | v3.4 — remediation onboarding note |
+| `config/documentation-authority.json` | Six new supporting docs classified (not unclassified) |
+| `docs/generated/PRODUCTION_CONTRACT_INDEX.md` | Regenerated (OpenAPI document version alignment) |
+| `docs/openapi.yaml` | Gateway admin paths / product surface alignment (from P2) |
+| Frontend API clients | `frontend/lib/api/gateway.ts`, knowledge client → new paths |
+
+### Engineering work by phase (already in tree)
+
+| Phase | Status | Highlights for next agent |
+|---|---|---|
+| **0** | Done | Owner gates locked (§ above) |
+| **1 Hygiene** | Done | `scripts/scan_orphan_pyc.py`, `scripts/purge_orphan_pyc.py`, `tests/unit/test_no_orphan_pyc.py`; health uses `PRODUCT_VERSION`; `run_test_suite.py` fixed; active_defense not required in `verify_services` |
+| **2 API uniqueness** | Done | Regulatory `/api/v1/regulatory` only; knowledge `/api/v1/knowledge/*`; gateway admin `/api/v1/admin/gateway/*`; `DLE_LEGACY_API_PREFIXES` default false; `scripts/verify_route_uniqueness.py` + contract tests; `create_legacy_app` gated by `DLE_ALLOW_LEGACY_APP` |
+| **3 Generative B0** | Done | `generative_locality=cloud_byok`; local_model residue purged; settings defaults honest |
+| **4 Authority / honesty** | Done | `backend/memory/authority.py` + memory authority API; DSQP `contract.py` 7-part; vector forbid pinecone/qdrant/weaviate on desktop/prod; UI honesty dataset/truth |
+| **5 Structural** | **Partial/deferred** | `startup_contract.py`, canonical-derived `layer_contracts.py`; Electron `paths.ts` / `env-flag.ts`; full gateway/api/mcp package splits **reverted** — original decomposition goal remains open unless waived |
+| **6 Polish / SDK** | Implemented; QC focused pass | Server/Python/TypeScript KA manifest version/count/SHA-256 parity; Python SDK **0.7.0**; provider orphan residue removed |
+| **7 CI / packaging UX** | Done | CI hard steps for orphan + route uniqueness; packaging resource verify PS1; Podman recovery messaging |
+| **8 Signing / GO** | **Not started** | Owner only |
+
+### Key env / flags Codex must respect
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `DLE_LEGACY_API_PREFIXES` | **off** | When on, registers legacy `/api/*` mirrors with Deprecation/Sunset headers |
+| `DLE_ALLOW_LEGACY_APP` | **off** | Required outside pytest to call `create_legacy_app` (compat only) |
+| Generative locality | **cloud_byok** | Do not restore local generative as product path without reversing G-GEN |
+
+### Contract deltas (tests and clients must use these)
+
+- Prefer **`/api/v1/*` only**.
+- Gateway keys/providers: **`/api/v1/admin/gateway/*`** (ops remains `/api/v1/admin/*`).
+- Pillar knowledge levels: **`/api/v1/knowledge/pillar-levels`**.
+- UKG resources: **`/api/v1/pillars`**, **`/api/v1/sectors`**, … not `/api/ukg/*` unless legacy flag on.
+- Regulatory: **`/api/v1/regulatory`**; axis-7 standards still on `/api/v1/compliance/*`.
+
+### Post-QC source qualification (2026-08-15)
+
+| Check | Result (workshop) |
+|---|---|
+| Focused corrected contracts | **15 backend passed**; dataset exporter **4 frontend passed**; KA/runtime manifest **10 backend passed** |
+| Full backend | **3,108 passed**, 18 skipped, 34 warnings |
+| Full frontend | **435 passed**; lint, typecheck, Next production build, and Electron TypeScript build passed |
+| SDKs | Python **36 passed**; TypeScript **8 passed** including manifest match/drift behavior |
+| Documentation | Truth gate **10/10**; 171 Markdown files classified, zero unclassified; references 0 errors/warnings |
+| Routes / orphans | Live routes **350**, zero unclassified/unauthenticated mutations; collisions 0; legacy prefixes false; orphan/blocked counts 0 |
+| Dependencies / packaging | Node 24/npm 11 lock and production-only dry runs passed; existing unpacked packaging resources passed |
+| Diff integrity | `git diff --check` passed (line-ending notices only) |
+| Desktop rebuild | **Not started** — requires exact committed source and owner order |
+
+### What Codex should **not** redo without cause
+
+1. Re-audit the whole app from scratch (use findings + plan).
+2. Re-enable legacy `/api/*` as default product path.
+3. Reintroduce local generative product path (G-GEN=B0).
+4. Wire Jira/Salesforce MCP orphans.
+5. Re-split `api.py` / `mcp` monolithes without fixing mock.patch targets first.
+6. Claim production GO or flip signing / auto-update without owner + evidence.
+7. Treat gitignored `API KEY/` or `certs/` as product defects.
+
+These source changes **invalidate** prior installed-hash acceptance for the next
+CP19-M pass. Full post-QC source qualification and QR-5 commit-scope review
+passed; a committed, clean checkpoint is still required before an
+owner-authorized rebuild.
+
 ## Exact next action
 
-1. Execute the remaining CP19-M rows against an exact signed/timestamped
-   candidate. Preserve all 213 canonical IDs, one implementation and subsystem
-   owner per KA, and the one governed answer/effect path.
-2. Complete installed Phase 9-13, provider/corpus/blinded-human,
+1. Create the reviewed local commit groups, record exact hashes in TODO/HANDOFF,
+   and verify a clean source checkpoint. Do not push without owner instruction.
+2. **Rebuild (owner order only):** clean desktop rebuild from that exact
+   post-QC source; packaging smoke / resource verify. Green rebuild ≠ production GO.
+3. Execute remaining **CP19-M** rows against an exact signed/timestamped
+   candidate. Preserve 213 canonical KA IDs and one governed answer/effect path.
+4. Complete installed Phase 9–13, provider/corpus/blinded-human,
    visual/scaling/high-contrast/NVDA, and 24/72-hour soak acceptance.
-3. Complete the retained clean-machine object-store,
-   protected-volume, backup/restore, security/license, accessibility, provider,
-   gateway, pilot, and soak acceptance.
-4. Retain CP16-G/CP17-E, CP15-A through CP15-H, production signing/distribution
-   NO-GO, automatic-update disablement, and object-store production-approval
-   false until their exact installed and independent evidence exists.
-5. Read `CODEX_WORK_QUEUE_2026-08-10.md` and the archived completed Algorithms
-   plan before further Algorithms page, KA manifest, or axis-system work. Treat
-   them as supporting review history subordinate to
-   `PRODUCTION_COMPLETION_PLAN_2026.md`.
+5. Complete retained clean-machine object-store, protected-volume,
+   backup/restore, security/license, accessibility, provider, gateway, pilot,
+   and soak acceptance.
+6. Retain CP16-G/CP17-E, CP15-A–H, production signing/distribution NO-GO,
+   automatic-update disablement, and object-store production-approval false
+   until exact installed and independent evidence exists.
+8. Before changing API surface or reopening Phase 8: re-read
+   `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` and
+   this checkpoint. `CODEX_WORK_QUEUE_2026-08-10.md` is supporting history only.
 
 ## Phase rules
 

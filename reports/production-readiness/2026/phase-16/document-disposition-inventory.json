@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-08-12T07:20:41.251498+00:00",
+  "generated_at": "2026-08-16T04:53:04.058550+00:00",
   "authority_version": "2026.08.10-cp19l-installed-evidence",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 159,
+    "markdown_file_count": 171,
     "canonical_document_count": 30,
     "canonical_limit": 30,
     "existing_canonical_count": 30,
@@ -17,7 +17,7 @@
       "authoritative": 35,
       "generated": 6,
       "historical": 114,
-      "supporting": 4
+      "supporting": 16
     }
   },
   "unclassified": [],
@@ -1032,7 +1032,71 @@
       "basis": "normative legal or temporary program authority outside the final canonical cap"
     },
     {
+      "path": "docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/audits/DataLogicEngine_Slow_Audit_Recommendations_10of10_2026-08-12.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/audits/DataLogicEngine_Slow_Section_Audit_Findings_2026-08-11.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/audits/ORPHAN_MODULE_DISPOSITION_WORKSHEET_2026-08-11.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/audits/PHASE5_GODFILE_SPLIT_NOTES.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
       "path": "docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/AUTH_SURFACE_MATRIX.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/CI_QUALITY_POLICY.md",
       "document_class": "supporting_review",
       "disposition": "supporting review input",
       "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
@@ -1048,12 +1112,36 @@
       "basis": "selected canonical document"
     },
     {
+      "path": "docs/DATASET_EXPORT_HANDOFF.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/DESKTOP_CSP.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
       "path": "docs/DEVELOPER_GUIDE.md",
       "document_class": "engineering_maintenance",
       "disposition": "authoritative input",
       "target": "docs/DEVELOPER_GUIDE.md",
       "cap_counted": true,
       "basis": "selected canonical document"
+    },
+    {
+      "path": "docs/DMRF_TRUTH_BOUNDARY.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
     },
     {
       "path": "docs/DOCUMENTATION_BOM.md",
@@ -1134,6 +1222,14 @@
       "target": "docs/MAINTENANCE_DISASTER_RECOVERY.md",
       "cap_counted": true,
       "basis": "selected canonical document"
+    },
+    {
+      "path": "docs/MEMORY_AUTHORITY.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
     },
     {
       "path": "docs/MICROSOFT_SUBMISSION_DOSSIER.md",

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
-| Document version | v1.4.1 |
+| Document version | v1.5.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Registered routes, OpenAPI/schema contracts, gateway/MCP implementation, ADRs, and contract tests |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-12 |
 | Next-review trigger | Route, schema, auth, version, streaming, SDK, gateway profile, MCP, or compatibility change |
 | Requirements and evidence | Product requirements, generated contracts, route inventory, SDK tests, and Phase 5/8/11 evidence |
 
@@ -41,8 +41,16 @@ acceptance; these installed results remain bound to the August 10 artifact.
 
 - Canonical application endpoints use `/api/v1/*`.
 - `/live`, `/ready`, and safe health surfaces have explicit operational contracts.
+- **Legacy `/api/*` blueprint mirrors are hard-off by default** (owner gate
+  G-API). They register only when `DLE_LEGACY_API_PREFIXES` is enabled and then
+  emit `Deprecation` / `Sunset` / successor `Link` headers. New clients must
+  not depend on legacy prefixes.
+- Gateway owner admin for keys/providers is namespaced at
+  **`/api/v1/admin/gateway/*`** (distinct from ops `/api/v1/admin/*`).
+- Knowledge pillar levels are at **`/api/v1/knowledge/pillar-levels`**.
+  UKG resources mount under `/api/v1/pillars`, `/api/v1/sectors`, etc.
 - Compatibility aliases may remain only when inventoried, tested, non-conflicting,
-  and assigned a deprecation/removal policy.
+  and assigned a deprecation/removal policy (see above).
 - A breaking request/response, auth, ownership, error, streaming, lifecycle, or
   side-effect change requires a major interface version or an explicitly approved
   compatibility transition.

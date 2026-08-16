@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-08-12T07:20:45.277328+00:00",
+  "generated_at": "2026-08-16T05:00:44.554534+00:00",
   "source": "live Flask app.url_map",
   "allowed_classifications": [
     "authenticated-mutation",
@@ -13,15 +13,15 @@
     "public-health"
   ],
   "summary": {
-    "routes": 507,
+    "routes": 350,
     "classifications": {
-      "authenticated-mutation": 121,
-      "authenticated-read": 257,
+      "authenticated-mutation": 88,
+      "authenticated-read": 173,
       "desktop-only": 13,
       "external-client-governed-execution": 5,
       "external-client-read": 8,
       "internal-only": 1,
-      "owner-admin-mutation": 98,
+      "owner-admin-mutation": 58,
       "public-health": 4
     },
     "unclassified": 0,
@@ -59,134 +59,6 @@
       "auth_evidence": [],
       "source_module": "app",
       "blueprint": "dle_core",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/compliance/compliance_link",
-      "endpoint": "compliance_legacy.create_compliance_link",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "compliance_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/compliance/crosswalk",
-      "endpoint": "compliance_legacy.create_crosswalk",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "compliance_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/compliance/frameworks",
-      "endpoint": "compliance_legacy.create_framework",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "compliance_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/compliance/frameworks",
-      "endpoint": "compliance_legacy.get_frameworks",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.regulatory_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "compliance_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/compliance/jurisdiction",
-      "endpoint": "compliance_legacy.map_jurisdiction",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "compliance_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/compliance/octopus/<framework_uid>",
-      "endpoint": "compliance_legacy.get_octopus_structure",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.regulatory_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "compliance_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/compliance/requirements",
-      "endpoint": "compliance_legacy.create_requirement",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "compliance_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/compliance/standards",
-      "endpoint": "compliance_legacy.get_standards",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.regulatory_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "compliance_legacy",
       "mutation_without_auth_evidence": false
     },
     {
@@ -255,32 +127,6 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/docs/",
-      "endpoint": "swagger_ui.show",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [],
-      "source_module": "flask_swagger_ui.flask_swagger_ui",
-      "blueprint": "swagger_ui",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/docs/<path:path>",
-      "endpoint": "swagger_ui.show",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [],
-      "source_module": "flask_swagger_ui.flask_swagger_ui",
-      "blueprint": "swagger_ui",
-      "mutation_without_auth_evidence": false
-    },
-    {
       "path": "/api/honeycomb/connect",
       "endpoint": "honeycomb_api.create_connection",
       "methods": [
@@ -342,803 +188,6 @@
       ],
       "source_module": "backend.honeycomb_api",
       "blueprint": "honeycomb_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/algorithms",
-      "endpoint": "ka_legacy.list_algorithms",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/algorithms/<ka_id>",
-      "endpoint": "ka_legacy.get_algorithm",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/algorithms/<ka_id>/execute",
-      "endpoint": "ka_legacy.execute_algorithm",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/batch",
-      "endpoint": "ka_legacy.batch_execute",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/categories",
-      "endpoint": "ka_legacy.list_categories",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/dependencies/<ka_id>",
-      "endpoint": "ka_legacy.get_dependencies",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/health",
-      "endpoint": "ka_legacy.health_check",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/history",
-      "endpoint": "ka_legacy.get_execution_history",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/layers",
-      "endpoint": "ka_legacy.list_layers",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs",
-      "endpoint": "ka_legacy.list_product_runs",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs/<run_id>",
-      "endpoint": "ka_legacy.get_product_run",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs/<run_id>/artifacts",
-      "endpoint": "ka_legacy.get_product_run_artifacts",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs/<run_id>/cancel",
-      "endpoint": "ka_legacy.cancel_product_run",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs/<run_id>/effects",
-      "endpoint": "ka_legacy.get_product_run_effects",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs/<run_id>/execute",
-      "endpoint": "ka_legacy.execute_product_run",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs/<run_id>/result",
-      "endpoint": "ka_legacy.get_product_run_result",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs/<run_id>/trace",
-      "endpoint": "ka_legacy.get_product_run_trace",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/runs/plan",
-      "endpoint": "ka_legacy.create_product_run_plan",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/search",
-      "endpoint": "ka_legacy.search_algorithms",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/stats",
-      "endpoint": "ka_legacy.get_stats",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/trace/<session_id>",
-      "endpoint": "ka_legacy.get_workflow_trace",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ka/workflow/high-stakes",
-      "endpoint": "ka_legacy.execute_high_stakes_workflow",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.ka_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.ka_routes",
-      "blueprint": "ka_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/clients",
-      "endpoint": "mcp_legacy.create_client",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/clients",
-      "endpoint": "mcp_legacy.list_clients",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/clients/<client_id>/connect/<server_id>",
-      "endpoint": "mcp_legacy.connect_client",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/config",
-      "endpoint": "mcp_legacy.get_external_config",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/config",
-      "endpoint": "mcp_legacy.update_external_config",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/console",
-      "endpoint": "mcp_legacy.mcp_console",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/rpc",
-      "endpoint": "mcp_legacy.mcp_rpc",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers",
-      "endpoint": "mcp_legacy.create_server",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers",
-      "endpoint": "mcp_legacy.list_servers",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>",
-      "endpoint": "mcp_legacy.delete_server",
-      "methods": [
-        "DELETE"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>",
-      "endpoint": "mcp_legacy.get_server",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/consent",
-      "endpoint": "mcp_legacy.approve_server_consent",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/consent",
-      "endpoint": "mcp_legacy.revoke_server_consent",
-      "methods": [
-        "DELETE"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/executions",
-      "endpoint": "mcp_legacy.list_server_executions",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/executions/<execution_id>/cancel",
-      "endpoint": "mcp_legacy.cancel_server_execution",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.mcp_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/lifecycle",
-      "endpoint": "mcp_legacy.list_server_lifecycle",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/prompts",
-      "endpoint": "mcp_legacy.list_prompts",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/prompts/<int:prompt_id>/get",
-      "endpoint": "mcp_legacy.get_prompt",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/resources",
-      "endpoint": "mcp_legacy.list_resources",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/resources/<int:resource_id>",
-      "endpoint": "mcp_legacy.read_resource",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/restart",
-      "endpoint": "mcp_legacy.restart_dynamic_server",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/start",
-      "endpoint": "mcp_legacy.start_dynamic_server",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/stop",
-      "endpoint": "mcp_legacy.stop_dynamic_server",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/tools",
-      "endpoint": "mcp_legacy.list_tools",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/servers/<server_id>/tools/<int:tool_id>/call",
-      "endpoint": "mcp_legacy.call_tool",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.mcp_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/setup-default",
-      "endpoint": "mcp_legacy.setup_default_servers",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/stats",
-      "endpoint": "mcp_legacy.get_stats",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/mcp/subscriptions/stream/<client_id>",
-      "endpoint": "mcp_legacy.mcp_subscription_stream",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.routes.mcp_routes:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.routes.mcp_routes",
-      "blueprint": "mcp_legacy",
       "mutation_without_auth_evidence": false
     },
     {
@@ -1244,257 +293,6 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/persona/axis-map",
-      "endpoint": "persona_legacy.get_axis_map",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.persona_api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.persona_api",
-      "blueprint": "persona_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/persona/direct-query",
-      "endpoint": "persona_legacy.direct_query",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "backend.persona_api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.persona_api",
-      "blueprint": "persona_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/persona/personas",
-      "endpoint": "persona_legacy.get_personas",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.persona_api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.persona_api",
-      "blueprint": "persona_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/persona/query",
-      "endpoint": "persona_legacy.process_query",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "backend.persona_api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.persona_api",
-      "blueprint": "persona_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/",
-      "endpoint": "pillar_legacy.create_pillar",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/",
-      "endpoint": "pillar_legacy.get_all_pillars",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/<pillar_id>",
-      "endpoint": "pillar_legacy.get_pillar",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/<pillar_id>/expand",
-      "endpoint": "pillar_legacy.expand_pillar",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/<pillar_id>/sublevels",
-      "endpoint": "pillar_legacy.add_sublevel",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/<pillar_id>/sublevels",
-      "endpoint": "pillar_legacy.get_sublevels",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/<pillar_id>/sublevels/<sublevel_id>",
-      "endpoint": "pillar_legacy.get_sublevel",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/analyze-text",
-      "endpoint": "pillar_legacy.analyze_text",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/export",
-      "endpoint": "pillar_legacy.export_pillars",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/mappings",
-      "endpoint": "pillar_legacy.create_mapping",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/pillar/mappings",
-      "endpoint": "pillar_legacy.get_mappings",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.pillar_api:api_login_required_wrapper",
-        "backend.pillar_api:require_pillar_api_authentication"
-      ],
-      "source_module": "backend.pillar_api",
-      "blueprint": "pillar_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
       "path": "/api/search/algorithms",
       "endpoint": "search_api.search_ka",
       "methods": [
@@ -1575,1042 +373,6 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/simulations",
-      "endpoint": "simulation_legacy.create_simulation",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations",
-      "endpoint": "simulation_legacy.get_simulations",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>",
-      "endpoint": "simulation_legacy.get_simulation",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>/cancel",
-      "endpoint": "simulation_legacy.stop_simulation",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>/events",
-      "endpoint": "simulation_legacy.get_simulation_events",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>/pause",
-      "endpoint": "simulation_legacy.pause_simulation",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>/resume",
-      "endpoint": "simulation_legacy.resume_simulation",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>/retry",
-      "endpoint": "simulation_legacy.retry_simulation",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>/run",
-      "endpoint": "simulation_legacy.run_simulation_step",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>/step",
-      "endpoint": "simulation_legacy.run_simulation_step",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/<session_id>/stop",
-      "endpoint": "simulation_legacy.stop_simulation",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/simulations/preflight",
-      "endpoint": "simulation_legacy.preflight_simulation",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.simulation_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.simulation_routes",
-      "blueprint": "simulation_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/compliance/audit/<session_id>",
-      "endpoint": "truth_legacy.audit_trail",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/compliance/report",
-      "endpoint": "truth_legacy.compliance_report",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/core/session",
-      "endpoint": "truth_legacy.create_session",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/core/session/<session_id>",
-      "endpoint": "truth_legacy.get_session",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/core/session/<session_id>/process",
-      "endpoint": "truth_legacy.process_session",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/core/tiers",
-      "endpoint": "truth_legacy.get_tiers",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/gate/budget/<tenant_id>",
-      "endpoint": "truth_legacy.get_budget",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/gate/budget/<tenant_id>/reset",
-      "endpoint": "truth_legacy.reset_budget",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/gate/evaluate",
-      "endpoint": "truth_legacy.evaluate_request",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/gate/stats",
-      "endpoint": "truth_legacy.gate_stats",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/health",
-      "endpoint": "truth_legacy.health",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/link/dead-letter",
-      "endpoint": "truth_legacy.dead_letter_queue",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/link/pending",
-      "endpoint": "truth_legacy.pending_messages",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/link/publish",
-      "endpoint": "truth_legacy.publish_message",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/link/stats",
-      "endpoint": "truth_legacy.link_stats",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/link/stream/<client_id>",
-      "endpoint": "truth_legacy.stream_events",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/memory/artifacts/<session_id>",
-      "endpoint": "truth_legacy.get_artifacts",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/memory/artifacts/<session_id>",
-      "endpoint": "truth_legacy.store_artifact",
-      "methods": [
-        "POST"
-      ],
-      "classification": "authenticated-mutation",
-      "required_principal": "authenticated-mutation",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/memory/explain/<session_id>",
-      "endpoint": "truth_legacy.explain_session",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/memory/metrics/<metric_name>",
-      "endpoint": "truth_legacy.get_metrics",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/memory/session/<session_id>",
-      "endpoint": "truth_legacy.get_memory_session",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/truth/memory/stats",
-      "endpoint": "truth_legacy.memory_stats",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.truth_engine.api:api_login_required_wrapper",
-        "backend.truth_engine.api:require_truth_api_authentication"
-      ],
-      "source_module": "backend.truth_engine.api",
-      "blueprint": "truth_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/domains",
-      "endpoint": "ukg_legacy.create_domain",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/domains",
-      "endpoint": "ukg_legacy.get_domains",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/domains/<domain_id>",
-      "endpoint": "ukg_legacy.get_domain",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/edges",
-      "endpoint": "ukg_legacy.create_edge",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/edges",
-      "endpoint": "ukg_legacy.get_edges",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/edges/<edge_id>",
-      "endpoint": "ukg_legacy.get_edge",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/knowledge",
-      "endpoint": "ukg_legacy.create_knowledge_node",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/knowledge",
-      "endpoint": "ukg_legacy.get_knowledge_nodes",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/knowledge/<node_id>",
-      "endpoint": "ukg_legacy.get_knowledge_node",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/nodes",
-      "endpoint": "ukg_legacy.create_node",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/nodes",
-      "endpoint": "ukg_legacy.get_nodes",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/nodes/<node_id>",
-      "endpoint": "ukg_legacy.get_node",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/pillars",
-      "endpoint": "ukg_legacy.create_pillar",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/pillars",
-      "endpoint": "ukg_legacy.get_pillars",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/pillars/<pillar_id>",
-      "endpoint": "ukg_legacy.get_pillar",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/sectors",
-      "endpoint": "ukg_legacy.create_sector",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/sectors",
-      "endpoint": "ukg_legacy.get_sectors",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/sectors/<sector_id>",
-      "endpoint": "ukg_legacy.get_sector",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/seed/domains",
-      "endpoint": "ukg_legacy.seed_domains",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/seed/pillars",
-      "endpoint": "ukg_legacy.seed_pillar_levels",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/ukg/seed/sectors",
-      "endpoint": "ukg_legacy.seed_sectors",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/ai-audit",
-      "endpoint": "gateway_admin.list_ai_audit_events",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/api-keys",
-      "endpoint": "gateway_admin.create_api_key",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "backend.llm_gateway.api:create_api_key",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/api-keys",
-      "endpoint": "gateway_admin.list_api_keys",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "backend.llm_gateway.api:list_api_keys",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/api-keys/<key_id>",
-      "endpoint": "gateway_admin.delete_api_key",
-      "methods": [
-        "DELETE"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "backend.llm_gateway.api:delete_api_key",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/api-keys/<key_id>/expire",
-      "endpoint": "gateway_admin.expire_api_key",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "backend.llm_gateway.api:expire_api_key",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/api-keys/<key_id>/revoke",
-      "endpoint": "gateway_admin.revoke_api_key",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "backend.llm_gateway.api:revoke_api_key",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/api-keys/<key_id>/rotate",
-      "endpoint": "gateway_admin.rotate_api_key",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "backend.llm_gateway.api:rotate_api_key",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/api-keys/audit",
-      "endpoint": "gateway_admin.list_client_key_audit",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
       "path": "/api/v1/admin/cache/clear",
       "endpoint": "admin_api.clear_cache",
       "methods": [
@@ -2659,8 +421,366 @@
       "mutation_without_auth_evidence": false
     },
     {
+      "path": "/api/v1/admin/gateway/ai-audit",
+      "endpoint": "gateway_admin.list_ai_audit_events",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/api-keys",
+      "endpoint": "gateway_admin.create_api_key",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "backend.llm_gateway.api:create_api_key",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/api-keys",
+      "endpoint": "gateway_admin.list_api_keys",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "backend.llm_gateway.api:list_api_keys",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/api-keys/<key_id>",
+      "endpoint": "gateway_admin.delete_api_key",
+      "methods": [
+        "DELETE"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "backend.llm_gateway.api:delete_api_key",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/api-keys/<key_id>/expire",
+      "endpoint": "gateway_admin.expire_api_key",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "backend.llm_gateway.api:expire_api_key",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/api-keys/<key_id>/revoke",
+      "endpoint": "gateway_admin.revoke_api_key",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "backend.llm_gateway.api:revoke_api_key",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/api-keys/<key_id>/rotate",
+      "endpoint": "gateway_admin.rotate_api_key",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "backend.llm_gateway.api:rotate_api_key",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/api-keys/audit",
+      "endpoint": "gateway_admin.list_client_key_audit",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/prompt-templates",
+      "endpoint": "gateway_admin.create_prompt_template",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/prompt-templates",
+      "endpoint": "gateway_admin.list_prompt_templates",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/prompt-templates/<string:template_id>",
+      "endpoint": "gateway_admin.delete_prompt_template",
+      "methods": [
+        "DELETE"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/prompt-templates/<string:template_id>",
+      "endpoint": "gateway_admin.update_prompt_template",
+      "methods": [
+        "PATCH"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/prompt-templates/<string:template_id>/approve",
+      "endpoint": "gateway_admin.approve_prompt_template",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/prompt-templates/<string:template_id>/reject",
+      "endpoint": "gateway_admin.reject_prompt_template",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/providers",
+      "endpoint": "gateway_admin.create_provider",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/providers",
+      "endpoint": "gateway_admin.list_providers",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/providers/<provider_id>",
+      "endpoint": "gateway_admin.delete_provider",
+      "methods": [
+        "DELETE"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/providers/<provider_id>",
+      "endpoint": "gateway_admin.get_provider",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/providers/<provider_id>",
+      "endpoint": "gateway_admin.update_provider",
+      "methods": [
+        "PATCH"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/routing-policies",
+      "endpoint": "gateway_admin.create_routing_policy",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/routing-policies",
+      "endpoint": "gateway_admin.list_routing_policies",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
       "path": "/api/v1/admin/gateway/status",
       "endpoint": "gateway_admin.gateway_control_plane_status",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.llm_gateway.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway_admin",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/admin/gateway/usage",
+      "endpoint": "gateway_admin.get_usage",
       "methods": [
         "GET"
       ],
@@ -2688,230 +808,6 @@
       ],
       "source_module": "backend.routes.admin_routes",
       "blueprint": "admin_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/prompt-templates",
-      "endpoint": "gateway_admin.create_prompt_template",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/prompt-templates",
-      "endpoint": "gateway_admin.list_prompt_templates",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/prompt-templates/<string:template_id>",
-      "endpoint": "gateway_admin.delete_prompt_template",
-      "methods": [
-        "DELETE"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/prompt-templates/<string:template_id>",
-      "endpoint": "gateway_admin.update_prompt_template",
-      "methods": [
-        "PATCH"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/prompt-templates/<string:template_id>/approve",
-      "endpoint": "gateway_admin.approve_prompt_template",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/prompt-templates/<string:template_id>/reject",
-      "endpoint": "gateway_admin.reject_prompt_template",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/providers",
-      "endpoint": "gateway_admin.create_provider",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/providers",
-      "endpoint": "gateway_admin.list_providers",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/providers/<provider_id>",
-      "endpoint": "gateway_admin.delete_provider",
-      "methods": [
-        "DELETE"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/providers/<provider_id>",
-      "endpoint": "gateway_admin.get_provider",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/providers/<provider_id>",
-      "endpoint": "gateway_admin.update_provider",
-      "methods": [
-        "PATCH"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/routing-policies",
-      "endpoint": "gateway_admin.create_routing_policy",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/routing-policies",
-      "endpoint": "gateway_admin.list_routing_policies",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/admin/usage",
-      "endpoint": "gateway_admin.get_usage",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "backend.llm_gateway.api:api_session_login_required_wrapper",
-        "owner-session-or-desktop"
-      ],
-      "source_module": "backend.llm_gateway.api",
-      "blueprint": "gateway_admin",
       "mutation_without_auth_evidence": false
     },
     {
@@ -3055,86 +951,6 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/v1/compliance/compliance_link",
-      "endpoint": "regulatory_api.create_compliance_link",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/compliance/crosswalk",
-      "endpoint": "regulatory_api.create_crosswalk",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/compliance/frameworks",
-      "endpoint": "regulatory_api.create_framework",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/compliance/frameworks",
-      "endpoint": "regulatory_api.get_frameworks",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.regulatory_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/compliance/jurisdiction",
-      "endpoint": "regulatory_api.map_jurisdiction",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
       "path": "/api/v1/compliance/map-regulatory",
       "endpoint": "compliance_api.map_regulatory_to_compliance",
       "methods": [
@@ -3151,22 +967,6 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/v1/compliance/octopus/<framework_uid>",
-      "endpoint": "regulatory_api.get_octopus_structure",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.regulatory_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
       "path": "/api/v1/compliance/report/pdf",
       "endpoint": "compliance_api.export_compliance_report",
       "methods": [
@@ -3180,22 +980,6 @@
       ],
       "source_module": "backend.routes.compliance_routes",
       "blueprint": "compliance_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/compliance/requirements",
-      "endpoint": "regulatory_api.create_requirement",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.regulatory_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
@@ -3244,22 +1028,6 @@
       ],
       "source_module": "backend.routes.compliance_routes",
       "blueprint": "compliance_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/compliance/standards",
-      "endpoint": "regulatory_api.get_standards",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.regulatory_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
@@ -3376,38 +1144,6 @@
     },
     {
       "path": "/api/v1/domains",
-      "endpoint": "knowledge_api.create_domain",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.knowledge_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/domains",
-      "endpoint": "knowledge_api.get_domains",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.knowledge_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/domains",
       "endpoint": "ukg_api.create_domain",
       "methods": [
         "POST"
@@ -3436,22 +1172,6 @@
       ],
       "source_module": "backend.ukg_api",
       "blueprint": "ukg_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/domains/<domain_code>",
-      "endpoint": "knowledge_api.get_domain",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.knowledge_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
       "mutation_without_auth_evidence": false
     },
     {
@@ -4395,6 +2115,22 @@
       "mutation_without_auth_evidence": false
     },
     {
+      "path": "/api/v1/ka/manifest",
+      "endpoint": "ka.ka_manifest_meta",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.ka_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.ka_routes",
+      "blueprint": "ka",
+      "mutation_without_auth_evidence": false
+    },
+    {
       "path": "/api/v1/ka/runs",
       "endpoint": "ka.list_product_runs",
       "methods": [
@@ -4635,7 +2371,71 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/v1/knowledge-nodes",
+      "path": "/api/v1/knowledge/<node_id>",
+      "endpoint": "ukg_api.get_knowledge_node",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.ukg_api:api_login_required_wrapper"
+      ],
+      "source_module": "backend.ukg_api",
+      "blueprint": "ukg_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/domains",
+      "endpoint": "knowledge_api.create_domain",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.routes.knowledge_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/domains",
+      "endpoint": "knowledge_api.get_domains",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.knowledge_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/domains/<domain_code>",
+      "endpoint": "knowledge_api.get_domain",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.knowledge_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/knowledge-nodes",
       "endpoint": "knowledge_api.create_knowledge_node",
       "methods": [
         "POST"
@@ -4651,7 +2451,7 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/v1/knowledge-nodes",
+      "path": "/api/v1/knowledge/knowledge-nodes",
       "endpoint": "knowledge_api.get_knowledge_nodes",
       "methods": [
         "GET"
@@ -4667,7 +2467,7 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/v1/knowledge-nodes/<uid>",
+      "path": "/api/v1/knowledge/knowledge-nodes/<uid>",
       "endpoint": "knowledge_api.get_knowledge_node",
       "methods": [
         "GET"
@@ -4683,8 +2483,24 @@
       "mutation_without_auth_evidence": false
     },
     {
-      "path": "/api/v1/knowledge/<node_id>",
-      "endpoint": "ukg_api.get_knowledge_node",
+      "path": "/api/v1/knowledge/pillar-levels",
+      "endpoint": "knowledge_api.create_pillar_level",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.routes.knowledge_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/pillar-levels",
+      "endpoint": "knowledge_api.get_pillar_levels",
       "methods": [
         "GET"
       ],
@@ -4692,10 +2508,74 @@
       "required_principal": "authenticated-read",
       "auth_evidence": [
         "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
+        "backend.routes.knowledge_routes:api_login_required_wrapper"
       ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_api",
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/pillar-levels/<pillar_id>",
+      "endpoint": "knowledge_api.get_pillar_level",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.knowledge_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/sectors",
+      "endpoint": "knowledge_api.create_sector",
+      "methods": [
+        "POST"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.routes.knowledge_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/sectors",
+      "endpoint": "knowledge_api.get_sectors",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.knowledge_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/knowledge/sectors/<sector_code>",
+      "endpoint": "knowledge_api.get_sector",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "authenticated-session-desktop-or-api-key",
+        "backend.routes.knowledge_routes:api_login_required_wrapper"
+      ],
+      "source_module": "backend.routes.knowledge_routes",
+      "blueprint": "knowledge_api",
       "mutation_without_auth_evidence": false
     },
     {
@@ -5259,6 +3139,23 @@
       "mutation_without_auth_evidence": false
     },
     {
+      "path": "/api/v1/memory/authority",
+      "endpoint": "memory_api.memory_authority",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.routes.memory_routes:api_session_login_required_wrapper",
+        "backend.routes.memory_routes:memory_authority",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.memory_routes",
+      "blueprint": "memory_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
       "path": "/api/v1/memory/compact",
       "endpoint": "memory_api.compact_memory",
       "methods": [
@@ -5496,54 +3393,6 @@
       ],
       "source_module": "backend.persona_api",
       "blueprint": "persona_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/pillar-levels",
-      "endpoint": "knowledge_api.create_pillar_level",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.knowledge_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/pillar-levels",
-      "endpoint": "knowledge_api.get_pillar_levels",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.knowledge_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/pillar-levels/<pillar_id>",
-      "endpoint": "knowledge_api.get_pillar_level",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.knowledge_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
       "mutation_without_auth_evidence": false
     },
     {
@@ -5831,7 +3680,7 @@
     },
     {
       "path": "/api/v1/regulatory/compliance_link",
-      "endpoint": "regulatory_api_v1.create_compliance_link",
+      "endpoint": "regulatory_api.create_compliance_link",
       "methods": [
         "POST"
       ],
@@ -5842,12 +3691,12 @@
         "owner-admin-session-or-desktop"
       ],
       "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api_v1",
+      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/api/v1/regulatory/crosswalk",
-      "endpoint": "regulatory_api_v1.create_crosswalk",
+      "endpoint": "regulatory_api.create_crosswalk",
       "methods": [
         "POST"
       ],
@@ -5858,12 +3707,12 @@
         "owner-admin-session-or-desktop"
       ],
       "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api_v1",
+      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/api/v1/regulatory/frameworks",
-      "endpoint": "regulatory_api_v1.create_framework",
+      "endpoint": "regulatory_api.create_framework",
       "methods": [
         "POST"
       ],
@@ -5874,12 +3723,12 @@
         "owner-admin-session-or-desktop"
       ],
       "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api_v1",
+      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/api/v1/regulatory/frameworks",
-      "endpoint": "regulatory_api_v1.get_frameworks",
+      "endpoint": "regulatory_api.get_frameworks",
       "methods": [
         "GET"
       ],
@@ -5890,12 +3739,12 @@
         "backend.regulatory_api:api_login_required_wrapper"
       ],
       "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api_v1",
+      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/api/v1/regulatory/jurisdiction",
-      "endpoint": "regulatory_api_v1.map_jurisdiction",
+      "endpoint": "regulatory_api.map_jurisdiction",
       "methods": [
         "POST"
       ],
@@ -5906,12 +3755,12 @@
         "owner-admin-session-or-desktop"
       ],
       "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api_v1",
+      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/api/v1/regulatory/octopus/<framework_uid>",
-      "endpoint": "regulatory_api_v1.get_octopus_structure",
+      "endpoint": "regulatory_api.get_octopus_structure",
       "methods": [
         "GET"
       ],
@@ -5922,12 +3771,12 @@
         "backend.regulatory_api:api_login_required_wrapper"
       ],
       "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api_v1",
+      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/api/v1/regulatory/requirements",
-      "endpoint": "regulatory_api_v1.create_requirement",
+      "endpoint": "regulatory_api.create_requirement",
       "methods": [
         "POST"
       ],
@@ -5938,12 +3787,12 @@
         "owner-admin-session-or-desktop"
       ],
       "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api_v1",
+      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
       "path": "/api/v1/regulatory/standards",
-      "endpoint": "regulatory_api_v1.get_standards",
+      "endpoint": "regulatory_api.get_standards",
       "methods": [
         "GET"
       ],
@@ -5954,7 +3803,7 @@
         "backend.regulatory_api:api_login_required_wrapper"
       ],
       "source_module": "backend.regulatory_api",
-      "blueprint": "regulatory_api_v1",
+      "blueprint": "regulatory_api",
       "mutation_without_auth_evidence": false
     },
     {
@@ -6039,38 +3888,6 @@
     },
     {
       "path": "/api/v1/sectors",
-      "endpoint": "knowledge_api.create_sector",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.routes.knowledge_routes:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/sectors",
-      "endpoint": "knowledge_api.get_sectors",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.knowledge_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/sectors",
       "endpoint": "ukg_api.create_sector",
       "methods": [
         "POST"
@@ -6099,22 +3916,6 @@
       ],
       "source_module": "backend.ukg_api",
       "blueprint": "ukg_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/sectors/<sector_code>",
-      "endpoint": "knowledge_api.get_sector",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.routes.knowledge_routes:api_login_required_wrapper"
-      ],
-      "source_module": "backend.routes.knowledge_routes",
-      "blueprint": "knowledge_api",
       "mutation_without_auth_evidence": false
     },
     {
@@ -7565,342 +5366,6 @@
       ],
       "source_module": "backend.truth_engine.api",
       "blueprint": "truth_api",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/domains",
-      "endpoint": "ukg_v1_legacy.create_domain",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/domains",
-      "endpoint": "ukg_v1_legacy.get_domains",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/domains/<domain_id>",
-      "endpoint": "ukg_v1_legacy.get_domain",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/edges",
-      "endpoint": "ukg_v1_legacy.create_edge",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/edges",
-      "endpoint": "ukg_v1_legacy.get_edges",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/edges/<edge_id>",
-      "endpoint": "ukg_v1_legacy.get_edge",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/knowledge",
-      "endpoint": "ukg_v1_legacy.create_knowledge_node",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/knowledge",
-      "endpoint": "ukg_v1_legacy.get_knowledge_nodes",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/knowledge/<node_id>",
-      "endpoint": "ukg_v1_legacy.get_knowledge_node",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/nodes",
-      "endpoint": "ukg_v1_legacy.create_node",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/nodes",
-      "endpoint": "ukg_v1_legacy.get_nodes",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/nodes/<node_id>",
-      "endpoint": "ukg_v1_legacy.get_node",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/pillars",
-      "endpoint": "ukg_v1_legacy.create_pillar",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/pillars",
-      "endpoint": "ukg_v1_legacy.get_pillars",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/pillars/<pillar_id>",
-      "endpoint": "ukg_v1_legacy.get_pillar",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/sectors",
-      "endpoint": "ukg_v1_legacy.create_sector",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/sectors",
-      "endpoint": "ukg_v1_legacy.get_sectors",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/sectors/<sector_id>",
-      "endpoint": "ukg_v1_legacy.get_sector",
-      "methods": [
-        "GET"
-      ],
-      "classification": "authenticated-read",
-      "required_principal": "authenticated-read",
-      "auth_evidence": [
-        "authenticated-session-desktop-or-api-key",
-        "backend.ukg_api:api_login_required_wrapper"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/seed/domains",
-      "endpoint": "ukg_v1_legacy.seed_domains",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/seed/pillars",
-      "endpoint": "ukg_v1_legacy.seed_pillar_levels",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
-      "mutation_without_auth_evidence": false
-    },
-    {
-      "path": "/api/v1/ukg/seed/sectors",
-      "endpoint": "ukg_v1_legacy.seed_sectors",
-      "methods": [
-        "POST"
-      ],
-      "classification": "owner-admin-mutation",
-      "required_principal": "owner-admin-mutation",
-      "auth_evidence": [
-        "backend.ukg_api:api_session_login_required_wrapper",
-        "owner-admin-session-or-desktop"
-      ],
-      "source_module": "backend.ukg_api",
-      "blueprint": "ukg_v1_legacy",
       "mutation_without_auth_evidence": false
     },
     {

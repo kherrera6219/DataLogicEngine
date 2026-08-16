@@ -70,7 +70,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Slow-audit remediation (2026-08-12 through 2026-08-15):** engineering
+  hygiene, API surface uniqueness, cloud-BYOK generative locality,
+  authority/honesty planes, CI structural guards, and SDK 0.7.0 polish. Phase 5
+  decomposition remains partial/deferred; the post-implementation QC plan is
+  `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md`.
+  Production release remains **NO-GO** (Phase 8 / signing deferred).
+- **Governed layer contract correction:** supplemental L1–L10 metadata now
+  derives its names from the live ten-layer authority; provider execution and
+  trace persistence are no longer mislabeled as canonical L6/L9.
+- **KA client/server manifest parity:** the TypeScript SDK compares the live
+  server manifest version, 213-capability count, and generated JSON SHA-256;
+  Python and TypeScript catalog generation/parity tests cover drift.
+- **G-API hard-off default:** legacy `/api/*` blueprint mirrors are registered
+  only when `DLE_LEGACY_API_PREFIXES` is true; product path is `/api/v1/*`.
+- **Gateway admin namespace:** client keys/providers live under
+  `/api/v1/admin/gateway/*` (ops admin remains `/api/v1/admin/*`).
+- **Knowledge pillar levels:** frontend and API use
+  `/api/v1/knowledge/pillar-levels` (avoids UKG sector/domain collisions).
+- **Regulatory surface:** `/api/v1/regulatory` only; axis-7 compliance standards
+  remain on `/api/v1/compliance/*`.
+- **Generative locality (G-GEN=B0):** capabilities advertise
+  `generative_locality=cloud_byok`; local generative defaults off.
+- **DSQP (G-DSQP):** frozen 7-part persona contract (includes Traits and Related
+  Roles labels) with dedicated contract module and tests.
+- **CI hard guards:** orphan `.pyc` scan and route uniqueness verification run
+  as fail-on-error steps; a11y sweep remains soft (`continue-on-error`).
+- **Python SDK:** rebuild as `ukg_sdk` 0.7.0 with license notice.
+
 ### Added
+- Memory authority documentation and `GET` memory-authority surface for the
+  operator-visible working-memory system of record.
+- Orphan bytecode scanner/purge scripts and unit guard
+  (`scripts/scan_orphan_pyc.py`, `tests/unit/test_no_orphan_pyc.py`).
+- Packaging resource verification script and Podman first-run recovery messaging.
+- Supporting authority docs: `docs/MEMORY_AUTHORITY.md`,
+  `docs/AUTH_SURFACE_MATRIX.md`, `docs/DMRF_TRUTH_BOUNDARY.md`,
+  `docs/DATASET_EXPORT_HANDOFF.md`, `docs/CI_QUALITY_POLICY.md`,
+  `docs/DESKTOP_CSP.md`.
+
+### Removed
+- Orphan connector residue for Jira/Salesforce (G-MCP-CONN=delete) and local
+  model bytecode clusters under the B0 track.
+- Misleading GraphiQL / dead Swagger registration when static assets are absent.
+
+### Historical (still unreleased relative to last published notes)
 - **Phase 19 CP19-K completion**: qualified all 213 canonical Knowledge
   Algorithms through individually named semantic, selector, owning-path,
   limitation, trace, security, effect, and performance evidence. Final Batches

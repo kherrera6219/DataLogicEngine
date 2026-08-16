@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-08-12T07:20:51.119221+00:00",
+  "generated_at": "2026-08-16T05:00:48.402135+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -19,7 +19,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "{\n  \"routes\": 507,\n  \"classifications\": {\n    \"authenticated-mutation\": 121,\n    \"authenticated-read\": 257,\n    \"desktop-only\": 13,\n    \"external-client-governed-execution\": 5,\n    \"external-client-read\": 8,\n    \"internal-only\": 1,\n    \"owner-admin-mutation\": 98,\n    \"public-health\": 4\n  },\n  \"unclassified\": 0,\n  \"mutations_without_auth_evidence\": 0,\n  \"graphql_operations\": 12,\n  \"ipc_channels\": 19,\n  \"mcp_methods\": 3,\n  \"file_capabilities\": 5,\n  \"network_surfaces\": 5,\n  \"unclassified_non_http_surfaces\": 0,\n  \"incomplete_ipc_channels\": 0\n}\nWrote reports\\production-readiness\\2026\\phase-17\\route-manifest.json\n",
+      "stdout": "{\n  \"routes\": 350,\n  \"classifications\": {\n    \"authenticated-mutation\": 88,\n    \"authenticated-read\": 173,\n    \"desktop-only\": 13,\n    \"external-client-governed-execution\": 5,\n    \"external-client-read\": 8,\n    \"internal-only\": 1,\n    \"owner-admin-mutation\": 58,\n    \"public-health\": 4\n  },\n  \"unclassified\": 0,\n  \"mutations_without_auth_evidence\": 0,\n  \"graphql_operations\": 12,\n  \"ipc_channels\": 19,\n  \"mcp_methods\": 3,\n  \"file_capabilities\": 5,\n  \"network_surfaces\": 5,\n  \"unclassified_non_http_surfaces\": 0,\n  \"incomplete_ipc_channels\": 0\n}\nWrote reports\\production-readiness\\2026\\phase-17\\route-manifest.json\n",
       "stderr": "Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30\n"
     },
     {
@@ -50,11 +50,12 @@
       "name": "generated_contract_index",
       "command": [
         "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
-        "scripts/generate_documentation_contract_index.py"
+        "scripts/generate_documentation_contract_index.py",
+        "--check"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Generated documentation contract index: C:\\software\\DataLogicEngine\\docs\\generated\\PRODUCTION_CONTRACT_INDEX.md\n",
+      "stdout": "Generated documentation contract index matches authorities\n",
       "stderr": ""
     },
     {
@@ -76,7 +77,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=159 errors=0\n",
+      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=171 errors=0\n",
       "stderr": ""
     },
     {
@@ -120,7 +121,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Discovered 44 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
+      "stdout": "Discovered 56 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
       "stderr": ""
     }
   ]

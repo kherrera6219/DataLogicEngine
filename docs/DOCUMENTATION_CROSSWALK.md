@@ -134,9 +134,20 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/archive/wireframes/README__active-through-2026-07-15.md` | `historical_research` | historical archive | `docs/archive/wireframes/README__active-through-2026-07-15.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md` | `engineering_maintenance` | authoritative input | `docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md` | normative legal or temporary program authority outside the final canonical cap |
+| `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/audits/DataLogicEngine_Slow_Audit_Recommendations_10of10_2026-08-12.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/audits/DataLogicEngine_Slow_Section_Audit_Findings_2026-08-11.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/audits/ORPHAN_MODULE_DISPOSITION_WORKSHEET_2026-08-11.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/audits/PHASE5_GODFILE_SPLIT_NOTES.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/AUTH_SURFACE_MATRIX.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/CI_QUALITY_POLICY.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/DATA_ARCHITECTURE.md` | `engineering_maintenance` | authoritative input | `docs/DATA_ARCHITECTURE.md` | selected canonical document |
+| `docs/DATASET_EXPORT_HANDOFF.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/DESKTOP_CSP.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/DEVELOPER_GUIDE.md` | `engineering_maintenance` | authoritative input | `docs/DEVELOPER_GUIDE.md` | selected canonical document |
+| `docs/DMRF_TRUTH_BOUNDARY.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/DOCUMENTATION_BOM.md` | `engineering_maintenance` | generated replacement | `docs/DOCUMENTATION_BOM.md` | generated companion artifact |
 | `docs/DOCUMENTATION_CROSSWALK.md` | `engineering_maintenance` | generated replacement | `docs/DOCUMENTATION_CROSSWALK.md` | generated companion artifact |
 | `docs/evaluation/AI_SYSTEM_CARD.md` | `assurance_release_external` | authoritative input | `docs/evaluation/AI_SYSTEM_CARD.md` | selected canonical document |
@@ -147,6 +158,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/INTERFACE_INTEGRATION.md` | `engineering_maintenance` | authoritative input | `docs/INTERFACE_INTEGRATION.md` | selected canonical document |
 | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | `assurance_release_external` | authoritative input | `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md` | selected canonical document |
 | `docs/MAINTENANCE_DISASTER_RECOVERY.md` | `engineering_maintenance` | authoritative input | `docs/MAINTENANCE_DISASTER_RECOVERY.md` | selected canonical document |
+| `docs/MEMORY_AUTHORITY.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | `assurance_release_external` | authoritative input | `docs/MICROSOFT_SUBMISSION_DOSSIER.md` | selected canonical document |
 | `docs/PRIVACY_AI_NOTICE.md` | `product_public` | authoritative input | `docs/PRIVACY_AI_NOTICE.md` | selected canonical document |
 | `docs/PRIVACY_IMPACT_ASSESSMENT.md` | `assurance_release_external` | authoritative input | `docs/PRIVACY_IMPACT_ASSESSMENT.md` | selected canonical document |

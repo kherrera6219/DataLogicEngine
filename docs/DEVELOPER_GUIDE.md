@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.3.0 |
+| Document version | v3.4.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-12 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -29,6 +29,14 @@ rebuilt unsigned candidate installed and reached readiness; CP19-M remains the
 exact signed installed acceptance boundary.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
+
+**2026-08-12 slow-audit remediation (Phases 1–7):** engineering hygiene is in
+tree. Default boot is **legacy API mirrors off** (`DLE_LEGACY_API_PREFIXES`);
+prefer `/api/v1/*` in tests and clients. Generative locality is **cloud BYOK**
+only. CI hard-fails on orphan `.pyc` and route uniqueness collisions; a11y is
+soft. See `docs/CI_QUALITY_POLICY.md`, `docs/AUTH_SURFACE_MATRIX.md`, and
+`docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md`. Phase 8
+signing remains owner-gated; production release is still **NO-GO**.
 
 ## Audience
 

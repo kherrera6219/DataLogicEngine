@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -19,7 +19,7 @@
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; CP19-L complete, CP19-M installed acceptance active |
+| Current phase | Phase 19; CP19-M retained acceptance open, post-QC source qualified before rebuild |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -343,10 +343,68 @@ Phase 18 source baseline while completing the whole-application wiring.
       data adoption, five managed services, authentication, diagnostics, and
       representative governed KA execution. Signing and the retained installed,
       manual, external, provider, pilot, and soak rows remain open. Subsequent
-      source-only CI portability, packaging retry, Algorithms-page, and
-      documentation-authority fixes are committed after that payload; a new
-      exact-source rebuild/install is intentionally pending before any further
-      installed-artifact acceptance.
+      source-only CI portability, packaging retry, Algorithms-page,
+      documentation-authority fixes, and the **2026-08-12 slow-audit
+      remediation workshop changes** remain local and uncommitted while the
+      2026-08-15 QC remediation plan is executed. A new exact-source
+      rebuild/install is blocked until source qualification passes and an exact
+      commit exists.
+
+## Slow-audit remediation (engineering) — 2026-08-12
+
+Plan authority:
+`docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md`.
+Active QC plan:
+`docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md`.
+Findings / recommendations / orphan worksheet live under `docs/audits/`.
+Does **not** authorize production/public release (G-SIGN deferred).
+
+- [x] **Phase 0 — owner gates locked:** G-GEN=B0, G-API=hard-off default,
+      G-GQL=keep+harden, G-DSQP=7-part, G-TRAIN=export-only,
+      G-MCP-CONN=delete, G-SIGN=not now.
+- [x] **Phase 1 — hygiene / orphans:** orphan pyc scan+purge tools and unit
+      guard; `run_test_suite` path fix; health product version; service verify
+      no longer treats active_defense as required.
+- [x] **Phase 2 — API surface uniqueness:** single regulatory owner at
+      `/api/v1/regulatory`; knowledge at `/api/v1/knowledge/*`; gateway admin
+      `/api/v1/admin/gateway/*`; legacy mirrors off unless
+      `DLE_LEGACY_API_PREFIXES`; route uniqueness script/contract tests;
+      OpenAPI + frontend clients updated.
+- [x] **Phase 3 — generative B0:** `generative_locality=cloud_byok`; local
+      model residue purged; settings defaults honest.
+- [x] **Phase 4 — authority / honesty:** memory authority API + docs; DSQP
+      7-part contract; vector backend forbid-list on desktop/prod; dataset/
+      truth UI honesty; runtime package deps corrected.
+- [ ] **Phase 5 — structural (partial/deferred):** startup/layer contracts and
+      Electron path helpers landed; the original major package-split goal was
+      attempted then restored and remains open unless formally waived (see
+      `docs/audits/PHASE5_GODFILE_SPLIT_NOTES.md`).
+- [x] **Phase 6 — polish / SDK implementation:** server, Python catalog, and
+      TypeScript SDK KA manifest version/count/SHA-256 parity; Python SDK 0.7.0;
+      provider orphan residue removed. Full post-QC qualification passed.
+- [x] **Phase 7 — CI / packaging UX:** CI orphan + route uniqueness hard steps;
+      packaging resource verification; Podman recovery UX; CSP policy doc.
+- [ ] **Phase 8 — signing / release GO:** owner only; keep fail-closed updates
+      and release **NO-GO** until CP19-M and trust policy pass.
+- [ ] **Post-remediation rebuild:** clean build + packaging smoke of the
+      post-P1–7 tree; bind new installer hash only after green qualification.
+- [x] **Full post-QC source re-baseline (2026-08-15):** 3,108 backend tests
+      passed with 18 skipped; 435 frontend tests passed; frontend lint,
+      typecheck, Next production build, and Electron TypeScript build passed;
+      Python SDK 36 passed; TypeScript SDK 8 passed; documentation truth 10/10;
+      live route inventory 350 with zero unclassified/unauthenticated
+      mutations; route collisions 0; orphan/blocked counts 0; lock clean-install
+      dry runs and packaging-resource verification passed. Rebuild only from an
+      exact committed source checkpoint after QR-5 review.
+
+### Integrator notes (open until docs/SDK consumers migrate)
+
+- Default boot exposes **canonical `/api/v1` only** (plus intentional OpenAI
+  `/v1` compat and a few retained non-versioned control paths such as
+  `/api/methods`, `/api/search`).
+- External clients must not call `/api/ukg/*`, `/api/simulations`,
+  `/api/truth/*`, `/api/ka/*`, or bare gateway-admin paths unless the owner
+  deliberately enables legacy mirrors.
 
 Phase 18 audit and transfer evidence:
 `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`
@@ -1208,9 +1266,16 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-Continue CP19-M against an exact signed/timestamped candidate. Run the retained
-installed Phase 9-13 matrices, OpenAI/Google corpus and blinded-human acceptance,
-packaged visual/scaling/high-contrast and NVDA acceptance, protected-volume
+QR-0 through QR-5 in
+`docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` are
+complete. Create the reviewed local commit groups, record their exact hashes,
+and verify a clean source checkpoint. Do not push, rebuild, or resume installed
+CP19-M acceptance until that checkpoint is committed, clean, and authorized.
+
+After an authorized rebuild, continue CP19-M against the exact
+signed/timestamped candidate. Run the retained installed Phase 9-13 matrices,
+OpenAI/Google corpus and blinded-human acceptance, packaged
+visual/scaling/high-contrast and NVDA acceptance, protected-volume
 lifecycle/backup/recovery, independent reviews, pilot, and 24/72-hour soaks.
 Bind CP16-G/CP17-E only to that exact artifact.
 

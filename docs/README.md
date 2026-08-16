@@ -6,12 +6,12 @@
 
 ## Authority and release status
 
-- Generated: `2026-08-12`
+- Generated: `2026-08-16`
 - Documentation authority: `2026.08.10-cp19l-installed-evidence` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19; CP19-L complete, CP19-M installed acceptance active
+- Current program checkpoint: Phase 19; CP19-M retained acceptance open, post-QC source qualified before rebuild
 - Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The current local engineering build from runtime source `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` is `DataLogicEngine Setup 4.4.0.exe` (283876702 bytes; SHA-256 `b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438`); it is unsigned, its integrity/checksum/block-map gate passes, and portable smoke was not run for this artifact. It has not passed installed-mode acceptance and does not replace the distinct 2026-08-10 installed qualification artifact recorded in the release and V&V records. One-time installed retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
@@ -89,6 +89,13 @@ These current findings and work queues inform remediation but do not
 supersede the root production plan, TODO, or handoff:
 
 - `CODEX_WORK_QUEUE_2026-08-10.md`
+- `docs/AUTH_SURFACE_MATRIX.md`
+- `docs/CI_QUALITY_POLICY.md`
+- `docs/DATASET_EXPORT_HANDOFF.md`
+- `docs/DESKTOP_CSP.md`
+- `docs/DMRF_TRUTH_BOUNDARY.md`
+- `docs/MEMORY_AUTHORITY.md`
+- `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md`
 - `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`
 - `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md`
 - `docs/spec-exports/ka_registry_213.yaml`
