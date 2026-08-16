@@ -19,7 +19,7 @@
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; CP19-M retained acceptance open, post-QC source qualified before rebuild |
+| Current phase | Phase 19; CP19-M retained acceptance open, post-QC rebuild authorized from the local commit checkpoint |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -345,10 +345,9 @@ Phase 18 source baseline while completing the whole-application wiring.
       manual, external, provider, pilot, and soak rows remain open. Subsequent
       source-only CI portability, packaging retry, Algorithms-page,
       documentation-authority fixes, and the **2026-08-12 slow-audit
-      remediation workshop changes** remain local and uncommitted while the
-      2026-08-15 QC remediation plan is executed. A new exact-source
-      rebuild/install is blocked until source qualification passes and an exact
-      commit exists.
+      remediation workshop changes** are now qualified and committed locally.
+      The owner authorized a new exact-source rebuild/install from the clean
+      post-QC checkpoint. Signing and production/public release remain blocked.
 
 ## Slow-audit remediation (engineering) — 2026-08-12
 
@@ -386,16 +385,18 @@ Does **not** authorize production/public release (G-SIGN deferred).
       packaging resource verification; Podman recovery UX; CSP policy doc.
 - [ ] **Phase 8 — signing / release GO:** owner only; keep fail-closed updates
       and release **NO-GO** until CP19-M and trust policy pass.
-- [ ] **Post-remediation rebuild:** clean build + packaging smoke of the
-      post-P1–7 tree; bind new installer hash only after green qualification.
+- [ ] **Post-remediation rebuild:** owner-authorized clean build + packaging
+      smoke of the exact post-P1–7 checkpoint; bind the new installer hash only
+      after the rebuilt artifact passes its engineering checks.
 - [x] **Full post-QC source re-baseline (2026-08-15):** 3,108 backend tests
       passed with 18 skipped; 435 frontend tests passed; frontend lint,
       typecheck, Next production build, and Electron TypeScript build passed;
       Python SDK 36 passed; TypeScript SDK 8 passed; documentation truth 10/10;
       live route inventory 350 with zero unclassified/unauthenticated
       mutations; route collisions 0; orphan/blocked counts 0; lock clean-install
-      dry runs and packaging-resource verification passed. Rebuild only from an
-      exact committed source checkpoint after QR-5 review.
+      dry runs and packaging-resource verification passed. Reviewed local
+      commits: `3054d5de` (source), `6e2fdd5b` (governance), and `cbfacbdb`
+      (documentation/evidence). None have been pushed.
 
 ### Integrator notes (open until docs/SDK consumers migrate)
 
@@ -1268,12 +1269,12 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 QR-0 through QR-5 in
 `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` are
-complete. Create the reviewed local commit groups, record their exact hashes,
-and verify a clean source checkpoint. Do not push, rebuild, or resume installed
-CP19-M acceptance until that checkpoint is committed, clean, and authorized.
+complete. The reviewed local commit groups are recorded above and rebuild
+authorization is explicit. Commit this checkpoint metadata, verify a clean
+local `HEAD`, and perform the governed clean desktop build without pushing.
 
-After an authorized rebuild, continue CP19-M against the exact
-signed/timestamped candidate. Run the retained installed Phase 9-13 matrices,
+Bind the installer hash and automatable CP19-M evidence to that exact rebuilt
+artifact. Retain signed/timestamped acceptance, installed Phase 9-13 matrices,
 OpenAI/Google corpus and blinded-human acceptance, packaged
 visual/scaling/high-contrast and NVDA acceptance, protected-volume
 lifecycle/backup/recovery, independent reviews, pilot, and 24/72-hour soaks.

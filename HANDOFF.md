@@ -19,9 +19,9 @@
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 (release program) |
 | Supporting engineering plan | `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` (Phase 5 partial/deferred; P8 not started) |
-| QC remediation plan | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` (QR-0 through QR-5 complete; QR-6 gated) |
+| QC remediation plan | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` (QR-0 through QR-5 complete; QR-6 active) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; CP19-M retained acceptance open, post-QC source qualified before rebuild |
+| Current phase | Phase 19; CP19-M retained acceptance open, post-QC rebuild authorized from the local commit checkpoint |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -689,10 +689,11 @@ release approval are pending. The provider rows remain quarantined and
 
 ## Current checkpoint
 
-**Workshop state (2026-08-12):** slow-audit remediation Phases 1–7 are
-implemented and documented (see “Audit remediation checkpoint” below). Focused
-API/route/orphan suites pass; full-suite re-baseline and **desktop rebuild are
-pending owner order**. Production/public release remains **NO-GO**.
+**Post-QC state (2026-08-15):** slow-audit remediation Phases 1–7 are
+implemented and documented (see “Audit remediation checkpoint” below). The full
+source re-baseline passes and the reviewed source, governance, and documentation
+groups are committed locally. The owner authorized a clean desktop rebuild from
+this checkpoint; production/public release remains **NO-GO**.
 
 CP19-L passed on 2026-08-10. The full source and release qualification authorized
 a clean rebuild. The resulting unsigned 4.3.0 installer (283,890,413 bytes,
@@ -1180,10 +1181,10 @@ in dependency order. The runtime authority checks and full backend suite pass.
 
 ## Audit remediation checkpoint (2026-08-12 → 2026-08-15) — for Codex
 
-> **Codex / next session:** slow-audit engineering work is implemented in this
-> tree, but the local checkpoint remains under the 2026-08-15 QC remediation
-> plan. Continue that plan; do **not** rebuild or resume installed CP19-M from
-> the workshop tree until post-QC source qualification passes.
+> **Codex / next session:** slow-audit engineering work is implemented,
+> qualified, and grouped into the local source checkpoint recorded below. The
+> owner authorized the exact-source clean rebuild and automatable installed
+> CP19-M work. Do not push, distribute, sign, or claim production GO.
 > Phase **8** (signing / production GO) is **owner-only** and not started.
 
 ### Authority and location
@@ -1204,8 +1205,9 @@ gates (G-*). Implementers then executed the Phase 1–7 workshop changes,
 updated tests for **legacy-API-off by default**, and left the desktop rebuild
 unstarted. QC subsequently found and corrected source-contract, URL, version,
 frontend-test, KA parity, dependency-lock, and documentation-governance issues.
-QR-0 through QR-5 and full post-QC source qualification now pass; no commit,
-push, or rebuild has been performed.
+QR-0 through QR-5 and full post-QC source qualification pass. Three reviewed
+local commit groups now hold the implementation, governance, and documentation
+evidence; no push or rebuild has been performed.
 
 **Product invariants preserved:** gateway → `GovernedExecutionOrchestrator` →
 trace; thin SDKs; desktop single-owner auth; simulation off the chat path;
@@ -1303,7 +1305,18 @@ Registered in `config/documentation-authority.json` → `supporting_review_input
 | Routes / orphans | Live routes **350**, zero unclassified/unauthenticated mutations; collisions 0; legacy prefixes false; orphan/blocked counts 0 |
 | Dependencies / packaging | Node 24/npm 11 lock and production-only dry runs passed; existing unpacked packaging resources passed |
 | Diff integrity | `git diff --check` passed (line-ending notices only) |
-| Desktop rebuild | **Not started** — requires exact committed source and owner order |
+| Desktop rebuild | **Authorized, not started** — use the exact clean local checkpoint below |
+
+### Local source checkpoint (2026-08-15)
+
+| Commit | Scope |
+|---|---|
+| `3054d5de` | Product, runtime, frontend, SDK, and regression remediation |
+| `6e2fdd5b` | Route, orphan, dependency, and packaging governance |
+| `cbfacbdb` | QC plan, canonical documentation, and qualification evidence |
+
+All three commits are local and unpushed. The metadata-only commit that records
+this table follows them; use the resulting clean `HEAD` as the rebuild source.
 
 ### What Codex should **not** redo without cause
 
@@ -1317,18 +1330,19 @@ Registered in `config/documentation-authority.json` → `supporting_review_input
 
 These source changes **invalidate** prior installed-hash acceptance for the next
 CP19-M pass. Full post-QC source qualification and QR-5 commit-scope review
-passed; a committed, clean checkpoint is still required before an
-owner-authorized rebuild.
+passed, the reviewed commit groups exist, and the owner authorized a clean
+rebuild from the resulting local checkpoint.
 
 ## Exact next action
 
-1. Create the reviewed local commit groups, record exact hashes in TODO/HANDOFF,
-   and verify a clean source checkpoint. Do not push without owner instruction.
-2. **Rebuild (owner order only):** clean desktop rebuild from that exact
-   post-QC source; packaging smoke / resource verify. Green rebuild ≠ production GO.
-3. Execute remaining **CP19-M** rows against an exact signed/timestamped
-   candidate. Preserve 213 canonical KA IDs and one governed answer/effect path.
-4. Complete installed Phase 9–13, provider/corpus/blinded-human,
+1. Commit this checkpoint metadata and verify a clean, reproducible local
+   `HEAD`. Do not push without a separate owner instruction.
+2. Clean-build the desktop from that exact source, then run packaging smoke and
+   resource verification. A green rebuild is not production GO.
+3. Install and run the automatable **CP19-M** engineering rows against that
+   exact rebuilt artifact. Preserve 213 canonical KA IDs and one governed
+   answer/effect path.
+4. Retain signing/timestamp, installed Phase 9–13, provider/corpus/blinded-human,
    visual/scaling/high-contrast/NVDA, and 24/72-hour soak acceptance.
 5. Complete retained clean-machine object-store, protected-volume,
    backup/restore, security/license, accessibility, provider, gateway, pilot,

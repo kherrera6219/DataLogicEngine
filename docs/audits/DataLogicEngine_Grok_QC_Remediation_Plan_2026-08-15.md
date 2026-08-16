@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Date | 2026-08-15 |
-| Status | QR-0 through QR-5 complete; QR-6 awaits committed source and owner rebuild authorization |
-| Scope | Local, uncommitted slow-audit remediation produced from Phases 1–7 |
+| Status | QR-0 through QR-5 complete; QR-6 active with local commits and explicit rebuild authorization |
+| Scope | Local slow-audit remediation produced from Phases 1–7; no push or release authorization |
 | Release authority | `PRODUCTION_COMPLETION_PLAN_2026.md` |
 | Open-work authority | `TODO.md` |
 | Session authority | `HANDOFF.md` |
@@ -338,9 +338,14 @@ QR-6 begins only after QR-1 through QR-5 are complete.
 **Acceptance gate QR-6**
 
 - [ ] Source checkpoint is clean, reproducible, and fully qualified.
-- [ ] Rebuild authorization is explicit.
+- [x] Rebuild authorization is explicit (owner instruction, 2026-08-15).
 - [ ] Installed evidence binds to the exact rebuilt artifact.
-- [ ] Production/public release remains NO-GO until every retained gate passes.
+- [x] Production/public release remains NO-GO until every retained gate passes.
+
+**Local commit checkpoint:** `3054d5de` (source remediation), `6e2fdd5b`
+(governance), and `cbfacbdb` (documentation/evidence). These commits are local
+and unpushed. The checkpoint-metadata commit follows them and is the intended
+clean-rebuild `HEAD`.
 
 ## 5. Keep, rework, and exclude disposition
 
