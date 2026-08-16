@@ -229,6 +229,39 @@ def test_runtime_rejects_installation_version_mismatch(tmp_path):
     assert app.extensions["dle_runtime"].failure_detail == "installation_version_mismatch"
 
 
+def test_runtime_advances_supported_candidate_version_only_after_migration(
+    tmp_path,
+    monkeypatch,
+):
+    root = tmp_path / "supported-candidate-upgrade"
+    installation_path = root / "installation.json"
+    InstallationIdentity.load_or_create(installation_path, version="4.3.0")
+    migration_calls = []
+
+    def migration_passed(app, runtime):
+        migration_calls.append((app.config["APP_VERSION"], runtime.runtime_root))
+        return {"status": "ready"}
+
+    monkeypatch.setattr(
+        "backend.storage.runtime_migrations.run_managed_data_plane_migrations",
+        migration_passed,
+    )
+    app = _runtime_app(
+        root,
+        APP_VERSION="4.4.0",
+        DLE_DATA_PLANE_DRIVER="podman",
+    )
+    runtime = app.extensions["dle_runtime"]
+
+    runtime.start()
+
+    assert migration_calls == [("4.4.0", root)]
+    assert InstallationIdentity.load(installation_path).version == "4.4.0"
+    assert runtime.ownership.identity is not None
+    assert runtime.ownership.identity.version == "4.4.0"
+    runtime.shutdown()
+
+
 def test_required_service_failure_stops_before_verification_and_migrations(tmp_path):
     app = _runtime_app(
         tmp_path / "required-service",
