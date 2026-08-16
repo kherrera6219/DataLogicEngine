@@ -81,6 +81,9 @@ def test_compliance_enforcer_core_paths():
     assert result["article_53"]["logged"] is False
     assert result["article_53"]["result"] == "not_measured"
     assert result["article_13"]["result"] == "passed"
+    assert result["article_13"]["explainability_url"] == (
+        "/api/v1/truth/memory/explain/session-1"
+    )
     assert result["pii_check"]["pii_found"] is True
 
     hashed = enforcer._hash_query("hello")

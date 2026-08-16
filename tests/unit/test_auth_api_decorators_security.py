@@ -87,7 +87,7 @@ def test_api_admin_required_rejects_external_api_key_principal(app, monkeypatch)
         return {"ok": True}, 200
 
     with app.test_request_context(
-        "/api/v1/admin/providers",
+        "/api/v1/admin/gateway/providers",
         method="POST",
         headers={"Authorization": "Bearer ukg_abcdef_admin"},
     ):

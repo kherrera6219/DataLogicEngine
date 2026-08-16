@@ -26,7 +26,9 @@ describe('DatasetExporterSettings Component', () => {
   it('renders title and is disabled by default', () => {
     render(<DatasetExporterSettings />);
 
-    expect(screen.getByText('Training Data Creation & Dataset Exporter')).toBeInTheDocument();
+    expect(
+      screen.getByText('Dataset preparation & export (no in-app trainer)')
+    ).toBeInTheDocument();
     const toggle = screen.getByLabelText('Toggle dataset exporter');
     expect(toggle).toBeInTheDocument();
     expect(toggle).not.toBeChecked();

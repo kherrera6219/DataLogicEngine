@@ -289,6 +289,53 @@ def _manifest_version():
     return getattr(manifest, 'manifest_version', None)
 
 
+def _manifest_integrity() -> dict:
+    """Return version + content hash for client/server KA catalog parity."""
+    import hashlib
+    from pathlib import Path
+
+    version = _manifest_version()
+    controller = _get_controller()
+    manifest = getattr(controller, "manifest", None)
+    # Prefer on-disk generated manifest when present for a stable hash.
+    candidates = [
+        Path(__file__).resolve().parents[1]
+        / "knowledge_algorithms"
+        / "ka_manifest.v1.generated.json",
+        Path(__file__).resolve().parents[2]
+        / "backend"
+        / "knowledge_algorithms"
+        / "ka_manifest.v1.generated.json",
+    ]
+    digest = None
+    source = None
+    for path in candidates:
+        if path.is_file():
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            source = str(path.name)
+            break
+    if digest is None and manifest is not None:
+        # Fallback: hash sorted capability ids from live controller
+        try:
+            algorithms = controller.get_available_algorithms() or {}
+            payload = ",".join(sorted(str(k) for k in algorithms.keys())).encode("utf-8")
+            digest = hashlib.sha256(payload).hexdigest()
+            source = "live_registry"
+        except Exception:
+            digest = None
+            source = "unavailable"
+    return {
+        "manifest_version": version,
+        "sha256": digest,
+        "source": source,
+        "capability_count": (
+            len(controller.get_available_algorithms() or {})
+            if hasattr(controller, "get_available_algorithms")
+            else None
+        ),
+    }
+
+
 def format_algorithm(ka):
     """Format algorithm data for API response"""
     ka_id = ka.get('KA_ID') or ka.get('id')
@@ -709,6 +756,20 @@ def get_product_run_effects(run_id):
     })
 
 
+@ka_bp.route('/manifest', methods=['GET'])
+@api_login_required
+def ka_manifest_meta():
+    """KA manifest version/hash for client parity checks (Phase 6)."""
+    scope_error = _require_ka_scope("ka:read")
+    if scope_error:
+        return scope_error
+    try:
+        return jsonify({"success": True, "data": _manifest_integrity()}), 200
+    except Exception:
+        logger.exception("Error reading KA manifest integrity")
+        return _error_response("KA manifest integrity is unavailable", 500)
+
+
 @ka_bp.route('/algorithms', methods=['GET'])
 @api_login_required
 def list_algorithms():
@@ -774,6 +835,7 @@ def list_algorithms():
             'categories': categories,
             'total_count': len(live_registry),
             'manifest_version': _manifest_version(),
+            'manifest_integrity': _manifest_integrity(),
         }), 200
     except Exception:
         logger.exception("Error listing algorithms")

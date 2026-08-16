@@ -224,7 +224,8 @@ def test_live_ka_routes_are_registered(app):
     rules = {str(rule.rule) for rule in app.url_map.iter_rules()}
 
     assert "/api/v1/ka/algorithms" in rules
-    assert "/api/ka/algorithms" in rules
+    # G-API hard-off: legacy /api/ka/* is not registered by default.
+    assert "/api/ka/algorithms" not in rules
 
 
 def test_ka_algorithm_list_requires_json_auth(client):
@@ -648,14 +649,36 @@ def test_ka_layers_accepts_non_numeric_layer_names(app, client, monkeypatch):
     assert set(body["layers"].keys()) == {"L2", "Layer 1"}
 
 
-def test_legacy_ka_alias_emits_deprecation_headers(app, client, monkeypatch):
-    monkeypatch.setattr(ka_routes, "_controller", _FakeKAController())
-    _install_api_key_user(app, monkeypatch, username="ka_legacy_alias_user")
+def test_legacy_ka_alias_emits_deprecation_headers(tmp_path, monkeypatch):
+    """Legacy /api/ka/* exists only when DLE_LEGACY_API_PREFIXES is enabled."""
+    from app import create_app
+    from tests._helpers import authenticate_client_session
+    from tests.conftest import create_test_user
 
-    response = client.get(
-        "/api/ka/algorithms",
-        headers={"X-API-Key": "ukg_valid_ka_key"},
+    monkeypatch.setenv("DLE_LEGACY_API_PREFIXES", "true")
+    monkeypatch.setattr(ka_routes, "_controller", _FakeKAController())
+    legacy_app = create_app(
+        "testing",
+        {
+            "SQLALCHEMY_DATABASE_URI": f"sqlite:///{tmp_path / 'ka_legacy.db'}",
+            "DLE_RUNTIME_ROOT": str(tmp_path / "runtime"),
+            "DLE_INITIALIZE_SCHEMA": True,
+            "DLE_INITIALIZE_STORES": False,
+            "DLE_START_MANAGED_SERVICES": False,
+            "DLE_START_BACKGROUND_WORKERS": False,
+            "TESTING": True,
+            "WTF_CSRF_ENABLED": False,
+            "DLE_LEGACY_API_PREFIXES": True,
+        },
+        start_runtime=False,
     )
+    client = legacy_app.test_client()
+    with legacy_app.app_context():
+        db.create_all()
+        user_id = create_test_user(username="ka_legacy_alias_user")
+        authenticate_client_session(client, user_id)
+
+    response = client.get("/api/ka/algorithms")
 
     assert response.status_code == 200
     assert response.headers["Deprecation"] == "true"

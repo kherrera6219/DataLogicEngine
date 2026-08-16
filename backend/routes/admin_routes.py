@@ -24,6 +24,8 @@ from backend.utils.responses import (
 
 logger = logging.getLogger(__name__)
 
+# Ops-only admin surface. Gateway keys/providers live under
+# `/api/v1/admin/gateway/*` (backend.llm_gateway.api.admin_bp).
 admin_bp = Blueprint('admin_api', __name__, url_prefix='/api/v1/admin')
 
 

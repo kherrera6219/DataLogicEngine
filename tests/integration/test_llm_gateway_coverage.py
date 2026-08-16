@@ -21,19 +21,19 @@ def test_list_providers(authenticated_client):
 
 def test_list_api_keys(authenticated_client):
     """Test API key management via admin endpoint."""
-    response = authenticated_client.get('/api/v1/admin/api-keys')
+    response = authenticated_client.get('/api/v1/admin/gateway/api-keys')
     assert response.status_code == 200
     data = response.get_json()
     assert 'api_keys' in data
 
 def test_get_usage(authenticated_client):
     """Test usage statistics."""
-    response = authenticated_client.get('/api/v1/admin/usage')
+    response = authenticated_client.get('/api/v1/admin/gateway/usage')
     assert response.status_code == 200
 
 def test_llm_admin_requires_json_session_auth(client):
     """LLM admin endpoints should reject unauthenticated clients with JSON 401."""
-    response = client.get('/api/v1/admin/api-keys')
+    response = client.get('/api/v1/admin/gateway/api-keys')
     assert response.status_code == 401
     body = response.get_json()
     assert body['success'] is False
@@ -48,7 +48,7 @@ def test_gateway_chat_validation(authenticated_client):
 
 def test_create_api_key(authenticated_client):
     """Test External API key creation."""
-    response = authenticated_client.post('/api/v1/admin/api-keys',
+    response = authenticated_client.post('/api/v1/admin/gateway/api-keys',
                                 json={'name': 'test-key-new', 'scopes': ['run:read']})
     assert response.status_code == 201
     data = response.get_json()
@@ -62,7 +62,7 @@ def test_phase8_client_key_rotation_revoke_expire_delete_lifecycle(authenticated
     from models import AuditLog, ExternalAPIKey
 
     created = authenticated_client.post(
-        '/api/v1/admin/api-keys',
+        '/api/v1/admin/gateway/api-keys',
         json={
             'name': 'phase8-client',
             'scopes': ['chat', 'models:read'],
@@ -75,12 +75,12 @@ def test_phase8_client_key_rotation_revoke_expire_delete_lifecycle(authenticated
     assert created_body['scopes'] == ['chat', 'models:read']
     assert created_body['api_key'].startswith('ukg_')
 
-    active_delete = authenticated_client.delete(f'/api/v1/admin/api-keys/{original_id}')
+    active_delete = authenticated_client.delete(f'/api/v1/admin/gateway/api-keys/{original_id}')
     assert active_delete.status_code == 409
     assert active_delete.get_json()['code'] == 'CLIENT_KEY_STILL_ACTIVE'
 
     rotated = authenticated_client.post(
-        f'/api/v1/admin/api-keys/{original_id}/rotate',
+        f'/api/v1/admin/gateway/api-keys/{original_id}/rotate',
         json={'overlap_seconds': 0},
     )
     assert rotated.status_code == 201
@@ -91,20 +91,20 @@ def test_phase8_client_key_rotation_revoke_expire_delete_lifecycle(authenticated
     assert rotated_body['rotated_from_id'] == original_id
 
     revoked = authenticated_client.post(
-        f'/api/v1/admin/api-keys/{replacement_id}/revoke',
+        f'/api/v1/admin/gateway/api-keys/{replacement_id}/revoke',
         json={'reason': 'compromise drill'},
     )
     assert revoked.status_code == 200
 
-    deleted = authenticated_client.delete(f'/api/v1/admin/api-keys/{replacement_id}')
+    deleted = authenticated_client.delete(f'/api/v1/admin/gateway/api-keys/{replacement_id}')
     assert deleted.status_code == 200
 
     expiring = authenticated_client.post(
-        '/api/v1/admin/api-keys',
+        '/api/v1/admin/gateway/api-keys',
         json={'name': 'phase8-expire', 'scopes': ['run:read']},
     ).get_json()
     expired = authenticated_client.post(
-        f"/api/v1/admin/api-keys/{expiring['id']}/expire",
+        f"/api/v1/admin/gateway/api-keys/{expiring['id']}/expire",
         json={'reason': 'expiry drill'},
     )
     assert expired.status_code == 200
@@ -138,7 +138,7 @@ def test_phase8_sync_idempotency_replays_without_duplicate_provider_spend(authen
     from unittest.mock import AsyncMock, MagicMock, patch
 
     created = authenticated_client.post(
-        '/api/v1/admin/api-keys',
+        '/api/v1/admin/gateway/api-keys',
         json={'name': 'phase8-idempotency', 'scopes': ['chat']},
     ).get_json()
     headers = {'Authorization': f"Bearer {created['api_key']}"}

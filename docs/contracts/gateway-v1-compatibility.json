@@ -13,11 +13,11 @@
     "/gateway/traces/{run_id}": {"methods": ["get"], "success_responses": ["200"]},
     "/v1/models": {"methods": ["get"], "success_responses": ["200"]},
     "/v1/chat/completions": {"methods": ["post"], "success_responses": ["200"]},
-    "/admin/api-keys": {"methods": ["get", "post"], "success_responses": ["200", "201"]},
-    "/admin/api-keys/{key_id}/rotate": {"methods": ["post"], "success_responses": ["201"]},
-    "/admin/api-keys/{key_id}/revoke": {"methods": ["post"], "success_responses": ["200"]},
-    "/admin/api-keys/{key_id}/expire": {"methods": ["post"], "success_responses": ["200"]},
-    "/admin/api-keys/{key_id}": {"methods": ["delete"], "success_responses": ["200"]}
+    "/admin/gateway/api-keys": {"methods": ["get", "post"], "success_responses": ["200", "201"]},
+    "/admin/gateway/api-keys/{key_id}/rotate": {"methods": ["post"], "success_responses": ["201"]},
+    "/admin/gateway/api-keys/{key_id}/revoke": {"methods": ["post"], "success_responses": ["200"]},
+    "/admin/gateway/api-keys/{key_id}/expire": {"methods": ["post"], "success_responses": ["200"]},
+    "/admin/gateway/api-keys/{key_id}": {"methods": ["delete"], "success_responses": ["200"]}
   },
   "schemas": {
     "ChatRequest": {

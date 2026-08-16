@@ -6,9 +6,17 @@ from flask import Blueprint, jsonify, request
 
 from backend.auth.api_decorators import api_admin_required
 from backend.memory import get_unified_memory_service
+from backend.memory.authority import authority_summary
 
 
 memory_api = Blueprint("memory_api", __name__, url_prefix="/api/v1/memory")
+
+
+@memory_api.route("/authority", methods=["GET"])
+@api_admin_required
+def memory_authority():
+    """Describe the operator-visible memory system of record."""
+    return jsonify({"success": True, "data": authority_summary()})
 
 
 @memory_api.route("/review", methods=["GET"])
@@ -26,6 +34,7 @@ def review_memory():
             "data": {
                 "items": service.review(include_working=include_working),
                 "stats": service.stats(),
+                "authority": authority_summary(),
             },
         }
     )

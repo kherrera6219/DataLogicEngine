@@ -62,7 +62,7 @@ function normalizeGraph(payload: GraphApiResponse): KnowledgeGraph {
 }
 
 export const knowledge = {
-    pillars: () => request<KnowledgePillar[]>('/pillar-levels'),
+    pillars: () => request<KnowledgePillar[]>('/knowledge/pillar-levels'),
     stats: () => request<KnowledgeStats>('/analytics/overview'),
     graph: (axis?: number, options?: { root?: string; depth?: number }) => {
         const params = new URLSearchParams();

@@ -101,8 +101,12 @@ def validate_production_security(app: Flask) -> None:
 # Server configuration remains a constant default; each entry point resolves its
 # final port from the application configuration.
 DEFAULT_PORT = int(os.environ.get("PORT", 5000))
+# Maps retired/legacy prefixes to canonical /api/v1 successors (deprecation headers).
+# Regulatory content that used to be dual-mounted under /api/compliance now lives only
+# under /api/v1/regulatory (compliance_bp owns /api/v1/compliance for axis-7 standards).
 LEGACY_API_PREFIXES = {
-    "/api/compliance": "/api/v1/compliance",
+    "/api/compliance": "/api/v1/regulatory",
+    "/api/regulatory": "/api/v1/regulatory",
     "/api/ka": "/api/v1/ka",
     "/api/mcp": "/api/v1/mcp",
     "/api/persona": "/api/v1/persona",
@@ -566,46 +570,95 @@ def _initialize_database_schema(app: Flask) -> None:
 
 # KA Routes moved to routes/ka_routes.py (registered via routes package)
 
+def _env_flag(name: str, default: bool = False) -> bool:
+    from backend.runtime.startup_contract import env_flag
+
+    return env_flag(name, default)
+
+
+def _legacy_api_prefixes_enabled() -> bool:
+    """Legacy /api/* mirrors are off by default (G-API hard-off)."""
+    from backend.runtime.startup_contract import legacy_api_prefixes_enabled
+
+    return legacy_api_prefixes_enabled()
+
+
 def _register_application_routes(app: Flask) -> None:
     """Register canonical application blueprints in one startup location."""
+    legacy = _legacy_api_prefixes_enabled()
+    app.config["DLE_LEGACY_API_PREFIXES"] = legacy
+    if legacy:
+        logger.warning(
+            "DLE_LEGACY_API_PREFIXES enabled: registering legacy /api/* mirrors "
+            "alongside /api/v1/*"
+        )
+
     from backend.truth_engine.api import truth_api
 
     app.register_blueprint(truth_api, url_prefix='/api/v1/truth')
-    app.register_blueprint(truth_api, name='truth_legacy', url_prefix='/api/truth')
-    logger.info("Truth Engine API blueprint registered (v1 + legacy)")
+    if legacy:
+        app.register_blueprint(truth_api, name='truth_legacy', url_prefix='/api/truth')
+    logger.info(
+        "Truth Engine API blueprint registered (v1%s)",
+        " + legacy" if legacy else "",
+    )
 
     try:
         from backend.persona_api import persona_api
         app.register_blueprint(persona_api, url_prefix='/api/v1/persona')
-        app.register_blueprint(persona_api, name='persona_legacy', url_prefix='/api/persona')
-        logger.info("Persona API blueprint registered (v1 + legacy)")
+        if legacy:
+            app.register_blueprint(persona_api, name='persona_legacy', url_prefix='/api/persona')
+        logger.info(
+            "Persona API blueprint registered (v1%s)",
+            " + legacy" if legacy else "",
+        )
     except ImportError as e:
         logger.warning(f"Could not register Persona API blueprint: {e}")
 
     try:
         from backend.pillar_api import pillar_api
         app.register_blueprint(pillar_api, url_prefix='/api/v1/pillar')
-        app.register_blueprint(pillar_api, name='pillar_legacy', url_prefix='/api/pillar')
-        logger.info("Pillar API blueprint registered (v1 + legacy)")
+        if legacy:
+            app.register_blueprint(pillar_api, name='pillar_legacy', url_prefix='/api/pillar')
+        logger.info(
+            "Pillar API blueprint registered (v1%s)",
+            " + legacy" if legacy else "",
+        )
     except ImportError as e:
         logger.warning(f"Could not register Pillar API blueprint: {e}")
 
     try:
+        # P2-01: regulatory owns /api/v1/regulatory only.
+        # Axis-7 UKG compliance standards live on compliance_bp at /api/v1/compliance
+        # (registered via backend.routes.register_routes). Do not also mount
+        # regulatory_api on /api/v1/compliance — that shadowed /standards.
         from backend.regulatory_api import regulatory_api
-        app.register_blueprint(regulatory_api, url_prefix='/api/v1/compliance')
-        app.register_blueprint(regulatory_api, name='compliance_legacy', url_prefix='/api/compliance')
-        app.register_blueprint(regulatory_api, name='regulatory_api_v1', url_prefix='/api/v1/regulatory')
-        logger.info("Regulatory/Compliance API blueprint registered (v1 + legacy)")
+        app.register_blueprint(regulatory_api, url_prefix='/api/v1/regulatory')
+        if legacy:
+            app.register_blueprint(
+                regulatory_api, name='compliance_legacy', url_prefix='/api/compliance'
+            )
+            app.register_blueprint(
+                regulatory_api, name='regulatory_legacy', url_prefix='/api/regulatory'
+            )
+        logger.info(
+            "Regulatory API blueprint registered at /api/v1/regulatory%s",
+            " (+ legacy /api/compliance,/api/regulatory)" if legacy else "",
+        )
     except ImportError as e:
-        logger.warning(f"Could not register Regulatory/Compliance API blueprint: {e}")
+        logger.warning(f"Could not register Regulatory API blueprint: {e}")
 
     from backend.ukg_api import ukg_api
 
     app.register_blueprint(ukg_api, url_prefix='/api/v1')
-    app.register_blueprint(ukg_api, name='ukg_legacy', url_prefix='/api/ukg')
-    app.register_blueprint(ukg_api, name='ukg_v1_legacy', url_prefix='/api/v1/ukg')
+    if legacy:
+        app.register_blueprint(ukg_api, name='ukg_legacy', url_prefix='/api/ukg')
+        app.register_blueprint(ukg_api, name='ukg_v1_legacy', url_prefix='/api/v1/ukg')
+    # Always keep /api/v1/ukg as an explicit alias only when legacy v1 nested path is needed;
+    # without legacy flag, ukg routes under /api/v1 prefix alone remain authoritative.
 
-    if os.environ.get("REPLIT_AUTH_ENABLED", "false").lower() == "true":
+    # Replit web auth is not part of the desktop product. Opt-in only.
+    if _env_flag("REPLIT_AUTH_ENABLED", default=False):
         try:
             from replit_auth import make_replit_blueprint
 
@@ -618,15 +671,29 @@ def _register_application_routes(app: Flask) -> None:
         except ImportError as e:
             logger.warning(f"Could not register Replit Auth blueprint: {e}")
 
-    from flask_swagger_ui import get_swaggerui_blueprint
+    # Swagger UI only when a real swagger/openapi asset is present (avoid dead /api/docs).
+    swagger_candidates = [
+        Path(app.root_path) / "static" / "swagger.json",
+        Path(app.root_path) / "docs" / "openapi.yaml",
+    ]
+    swagger_url = None
+    if (Path(app.root_path) / "static" / "swagger.json").is_file():
+        swagger_url = "/static/swagger.json"
+    if swagger_url:
+        from flask_swagger_ui import get_swaggerui_blueprint
 
-    swaggerui_blueprint = get_swaggerui_blueprint(
-        '/api/docs',
-        '/static/swagger.json',
-        config={'app_name': "Universal Knowledge Graph API"},
-    )
-    app.register_blueprint(swaggerui_blueprint, url_prefix='/api/docs')
-    logger.info("Swagger UI registered at /api/docs")
+        swaggerui_blueprint = get_swaggerui_blueprint(
+            '/api/docs',
+            swagger_url,
+            config={'app_name': "DataLogicEngine API"},
+        )
+        app.register_blueprint(swaggerui_blueprint, url_prefix='/api/docs')
+        logger.info("Swagger UI registered at /api/docs (%s)", swagger_url)
+    else:
+        logger.info(
+            "Swagger UI not registered (no static/swagger.json). "
+            "Public contract: docs/openapi.yaml"
+        )
 
     try:
         from backend.tracing.api import trace_bp
@@ -638,7 +705,9 @@ def _register_application_routes(app: Flask) -> None:
     try:
         from backend.llm_gateway.api import register_gateway_routes
         register_gateway_routes(app)
-        logger.info("LLM Gateway API registered at /api/v1/gateway and /api/v1/admin")
+        logger.info(
+            "LLM Gateway API registered at /api/v1/gateway and /api/v1/admin/gateway"
+        )
     except ImportError as e:
         logger.warning(f"Could not register LLM Gateway API: {e}")
 
@@ -653,7 +722,8 @@ def _register_application_routes(app: Flask) -> None:
         logger.debug("Registering GraphQL...")
         from backend.graphql_schema import register_graphql
         register_graphql(app)
-        logger.info("GraphQL API registered at /graphql (GraphiQL enabled)")
+        # GraphQL is POST JSON only + auth required; no GraphiQL IDE surface.
+        logger.info("GraphQL API registered at /graphql (auth required, no GraphiQL)")
     except ImportError as e:
         logger.warning(f"Could not register GraphQL API: {e}")
     except Exception as e:

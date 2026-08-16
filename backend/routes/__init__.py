@@ -18,8 +18,20 @@ from backend.routes.search_routes import search_api
 logger = logging.getLogger(__name__)
 
 
+def _legacy_api_prefixes_enabled(app) -> bool:
+    """Honor app config from create_app, else env (default off)."""
+    if app is not None and "DLE_LEGACY_API_PREFIXES" in app.config:
+        return bool(app.config.get("DLE_LEGACY_API_PREFIXES"))
+    import os
+
+    raw = (os.environ.get("DLE_LEGACY_API_PREFIXES") or "").strip().lower()
+    return raw in {"1", "true", "yes", "on"}
+
+
 def register_routes(app):
     """Register application blueprints."""
+    legacy = _legacy_api_prefixes_enabled(app)
+
     # Auth routes (`/api/v1/auth/*`)
     app.register_blueprint(auth_bp)
 
@@ -27,25 +39,29 @@ def register_routes(app):
     app.register_blueprint(api_bp)
     app.register_blueprint(memory_api)
 
-    # Admin routes (`/api/v1/admin/*`)
+    # Ops admin routes (`/api/v1/admin/cache/*`, `/api/v1/admin/health`)
+    # Gateway admin is registered separately under `/api/v1/admin/gateway/*`.
     app.register_blueprint(admin_bp)
 
     # Core knowledge routes (`/api/v1/knowledge/*`)
     app.register_blueprint(knowledge_bp)
 
-    # Knowledge algorithm routes (`/api/v1/ka/*` + legacy)
+    # Knowledge algorithm routes (`/api/v1/ka/*` + optional legacy)
     app.register_blueprint(ka_bp, url_prefix="/api/v1/ka")
-    app.register_blueprint(ka_bp, name="ka_legacy", url_prefix="/api/ka")
+    if legacy:
+        app.register_blueprint(ka_bp, name="ka_legacy", url_prefix="/api/ka")
 
-    # Simulation routes (`/api/v1/simulations/*` + legacy)
+    # Simulation routes (`/api/v1/simulations/*` + optional legacy)
     app.register_blueprint(simulation_bp)
-    app.register_blueprint(simulation_bp, name="simulation_legacy", url_prefix="/api")
+    if legacy:
+        app.register_blueprint(simulation_bp, name="simulation_legacy", url_prefix="/api")
 
-    # MCP routes (`/api/v1/mcp/*` + legacy)
+    # MCP routes (`/api/v1/mcp/*` + optional legacy)
     app.register_blueprint(mcp_bp, url_prefix="/api/v1/mcp")
-    app.register_blueprint(mcp_bp, name="mcp_legacy", url_prefix="/api/mcp")
+    if legacy:
+        app.register_blueprint(mcp_bp, name="mcp_legacy", url_prefix="/api/mcp")
 
-    # Compliance routes
+    # Axis-7 UKG compliance standards (`/api/v1/compliance/*`) — sole owner of this prefix.
     from .compliance_routes import compliance_bp
 
     app.register_blueprint(compliance_bp)

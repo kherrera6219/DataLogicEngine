@@ -233,8 +233,19 @@ def test_create_legacy_app():
             )
 
 
-def test_create_legacy_app_requires_secrets_outside_pytest():
+def test_create_legacy_app_requires_explicit_allow_outside_pytest():
+    """Gated factory: refuse unless DLE_ALLOW_LEGACY_APP is set (outside pytest)."""
     with patch.dict('os.environ', {}, clear=True):
+        with pytest.raises(RuntimeError, match="create_legacy_app is deprecated"):
+            create_legacy_app()
+
+
+def test_create_legacy_app_requires_secrets_when_explicitly_allowed():
+    with patch.dict(
+        'os.environ',
+        {'DLE_ALLOW_LEGACY_APP': '1'},
+        clear=True,
+    ):
         with pytest.raises(RuntimeError, match="SECRET_KEY must be configured"):
             create_legacy_app()
 

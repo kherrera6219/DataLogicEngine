@@ -1,4 +1,4 @@
-"""CP19-K Batch 19 owning-path proof for the five-node DSQP foundation."""
+"""CP19-K Batch 19 owning-path proof for the seven-component DSQP foundation."""
 
 from __future__ import annotations
 

@@ -20,11 +20,12 @@ DEFAULT_STORAGE_SETTINGS: dict[str, Any] = {
     "auto_start_databases": True,
     "local_slm_audit_mode": True,
     "offline_queue_enabled": True,
-    # Local Model Acceleration (Phase 1)
-    "local_model_acceleration_enabled": True,
-    "local_model_keepalive_enabled": True,
-    "local_model_exact_cache_enabled": True,
-    "local_model_semantic_cache_enabled": False,  # Phase 2 — always False for now
+    # Local Model Acceleration — disabled (G-GEN=B0 cloud BYOK generative).
+    # Settings keys retained for migration/read compatibility only.
+    "local_model_acceleration_enabled": False,
+    "local_model_keepalive_enabled": False,
+    "local_model_exact_cache_enabled": False,
+    "local_model_semantic_cache_enabled": False,
     "local_model_keepalive_minutes": 60,
     "local_model_heartbeat_seconds": 240,
     "local_model_cache_ttl_days": 30,

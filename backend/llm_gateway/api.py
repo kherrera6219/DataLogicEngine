@@ -98,7 +98,9 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 gateway_bp = Blueprint('gateway', __name__, url_prefix='/api/v1/gateway')
-admin_bp = Blueprint('gateway_admin', __name__, url_prefix='/api/v1/admin')
+# P2-02: gateway admin is namespaced under /api/v1/admin/gateway/* so it never
+# shares a flat prefix with ops admin (`/api/v1/admin/cache/*`, `/health`).
+admin_bp = Blueprint('gateway_admin', __name__, url_prefix='/api/v1/admin/gateway')
 openai_compat_bp = Blueprint('openai_compat', __name__, url_prefix='/v1')
 
 
@@ -893,12 +895,16 @@ def gateway_capabilities():
     else:
         scopes = frozenset()
     profile = resolve_gateway_profile()
+    # G-GEN=B0 (2026-08-12): generative answers use cloud BYOK only on mainline.
+    # Local-model acceleration is not a product path; data plane remains local.
     return jsonify({
         'contract_version': GATEWAY_CONTRACT_VERSION,
         'profile': profile.value,
         'virtual_models': virtual_model_catalog(),
         'scopes': sorted(scopes),
         'provider_credentials_exposed': False,
+        'generative_locality': 'cloud_byok',
+        'local_model_acceleration': False,
     })
 
 
@@ -2674,7 +2680,7 @@ def list_client_key_audit():
     return jsonify({'events': result})
 
 
-@admin_bp.route('/gateway/status', methods=['GET'])
+@admin_bp.route('/status', methods=['GET'])
 @api_session_login_required
 def gateway_control_plane_status():
     """Return truthful owner-only listener and dependency state."""

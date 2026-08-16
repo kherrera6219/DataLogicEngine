@@ -6,6 +6,7 @@ import {
   DataLogicEngineError,
   GATEWAY_CONTRACT_VERSION,
   KA_RUNTIME_MANIFEST,
+  KA_RUNTIME_MANIFEST_SHA256,
 } from "../dist/index.js";
 
 const result = {
@@ -175,6 +176,37 @@ test("generated KA catalog is deduplicated and the client uses canonical routes"
 
   assert.equal(response.result.output.is_valid, true);
   assert.ok(seen[0].url.endsWith("/ka/algorithms/KA-004/execute"));
+});
+
+test("KA manifest parity compares the server with the generated client authority", async () => {
+  const server = {
+    manifest_version: KA_RUNTIME_MANIFEST.manifest_version,
+    sha256: KA_RUNTIME_MANIFEST_SHA256,
+    source: "ka_manifest.v1.generated.json",
+    capability_count: KA_RUNTIME_MANIFEST.capability_count,
+  };
+  const client = new DataLogicEngineClient({
+    apiKey: "ukg_test",
+    fetch: async (url) => {
+      assert.ok(String(url).endsWith("/ka/manifest"));
+      return Response.json({ success: true, data: server });
+    },
+  });
+
+  const matching = await client.verifyKnowledgeAlgorithmManifest();
+  assert.equal(matching.matches, true);
+  assert.deepEqual(matching.mismatches, []);
+
+  const driftedClient = new DataLogicEngineClient({
+    apiKey: "ukg_test",
+    fetch: async () => Response.json({
+      success: true,
+      data: { ...server, sha256: "0".repeat(64), capability_count: 212 },
+    }),
+  });
+  const drifted = await driftedClient.verifyKnowledgeAlgorithmManifest();
+  assert.equal(drifted.matches, false);
+  assert.deepEqual(drifted.mismatches, ["sha256", "capability_count"]);
 });
 
 test("KA client exposes durable plan, confirmation, history, and evidence routes", async () => {

@@ -179,6 +179,15 @@ def apply_virtual_model(payload: dict[str, Any]) -> VirtualModelPolicy:
 
     requested = str(payload.get("virtual_model") or "").strip().lower()
     requested_mode = str(payload.get("mode") or "").strip().lower()
+    # Simulation is a separate product path (bounded multi-agent). Never admit
+    # it through the chat gateway virtual-model contract.
+    if requested_mode == "simulation" or requested in {
+        "simulation",
+        "dle-simulation",
+        "dle-simulation.v1",
+        "sim",
+    }:
+        raise ValueError("Unsupported governed virtual model")
     if not requested:
         requested = {
             "enhanced": "dle-enhanced",

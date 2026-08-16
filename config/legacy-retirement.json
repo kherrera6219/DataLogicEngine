@@ -40,6 +40,86 @@
       "disposition": "replacement_control_candidate_only",
       "production_bundle_allowed": true,
       "release_workflow_allowed": false
+    },
+    {
+      "id": "orphan-pyc-security-multiuser",
+      "paths": [
+        "backend/security/mfa.py",
+        "backend/security/rbac.py",
+        "backend/security/tenant_rls.py",
+        "backend/security/honeypot.py",
+        "backend/security/defense_supervisor.py",
+        "backend/security/zero_trust.py",
+        "backend/security/active_defense.py",
+        "backend/security/api_security.py",
+        "backend/security/context_aware.py",
+        "backend/security/security_monitoring.py",
+        "backend/security/token_manager.py",
+        "backend/security/data_classification.py",
+        "backend/security/vulnerability_scanner.py",
+        "backend/security/sanitizer.py"
+      ],
+      "disposition": "retired_source_removed_bytecode_purged_2026-08-12",
+      "production_bundle_allowed": false,
+      "release_workflow_allowed": false,
+      "notes": "Single-owner desktop auth; live screening is prompt_injection_shield + ai_guardrail"
+    },
+    {
+      "id": "orphan-pyc-consolidated-routes-models",
+      "paths": [
+        "backend/routes/storage_download_routes.py",
+        "backend/routes/storage_management_routes.py",
+        "backend/routes/storage_upload_routes.py",
+        "backend/models/"
+      ],
+      "disposition": "superseded_by_storage_routes_and_root_models_py",
+      "production_bundle_allowed": false,
+      "release_workflow_allowed": false
+    },
+    {
+      "id": "orphan-pyc-mcp-jira-salesforce",
+      "paths": [
+        "backend/mcp_server/tools/jira.py",
+        "backend/mcp_server/tools/salesforce.py"
+      ],
+      "disposition": "retired_owner_gate_G_MCP_CONN_delete",
+      "production_bundle_allowed": false,
+      "release_workflow_allowed": false
+    },
+    {
+      "id": "orphan-pyc-sdk-client-providers",
+      "paths": [
+        "sdk/UKG_Python_SDK/ukg_sdk/providers/",
+        "sdk/UKG_Python_SDK/ukg_sdk/ka/handlers.py"
+      ],
+      "disposition": "retired_thin_sdk_no_client_provider_brain",
+      "production_bundle_allowed": false,
+      "release_workflow_allowed": false
+    },
+    {
+      "id": "non-dsqp-persona-engines",
+      "paths": [
+        "core/persona/quad_persona_engine.py",
+        "core/persona/persona_manager.py",
+        "core/persona/persona_system.py"
+      ],
+      "disposition": "retired_live_path_is_backend_dsqp_seven_part",
+      "production_bundle_allowed": false,
+      "release_workflow_allowed": false,
+      "notes": "G-DSQP seven-part contract frozen in backend/dsqp/contract.py"
+    },
+    {
+      "id": "orphan-pyc-local-model-acceleration",
+      "paths": [
+        "backend/local_model_acceleration/",
+        "backend/llm_gateway/complexity_classifier.py",
+        "backend/llm_gateway/escalation_config.py",
+        "backend/llm_gateway/tier_availability.py"
+      ],
+      "disposition": "retired_bytecode_purged_phase3_B0_cloud_byok",
+      "production_bundle_allowed": false,
+      "release_workflow_allowed": false,
+      "notes": "G-GEN=B0: generative_locality=cloud_byok; Electron local-model-status remains stub false"
     }
   ]
 }

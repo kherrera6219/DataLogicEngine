@@ -24,7 +24,9 @@ from backend.utils.error_normalization import normalize_public_error_message
 from backend.utils.flask_request_validation import get_validated_payload, validate_json_payload
 from backend.utils.responses import error_response, success_response
 
-knowledge_bp = Blueprint('knowledge_api', __name__, url_prefix='/api/v1')
+# Namespaced under /api/v1/knowledge/* so sectors/domains do not collide with
+# ukg_api routes mounted at /api/v1 (Phase 2 uniqueness).
+knowledge_bp = Blueprint('knowledge_api', __name__, url_prefix='/api/v1/knowledge')
 logger = logging.getLogger(__name__)
 
 # --- PILLAR LEVELS ---

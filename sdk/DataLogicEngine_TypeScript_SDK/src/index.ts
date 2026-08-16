@@ -8,8 +8,12 @@ import type {
   KAProductRunEnvelope,
   KAProductRunListEnvelope,
 } from "./ka-types.js";
+import {
+  KA_RUNTIME_MANIFEST,
+  KA_RUNTIME_MANIFEST_SHA256,
+} from "./ka-manifest.generated.js";
 
-export { KA_RUNTIME_MANIFEST } from "./ka-manifest.generated.js";
+export { KA_RUNTIME_MANIFEST, KA_RUNTIME_MANIFEST_SHA256 };
 export type * from "./ka-types.js";
 
 export const GATEWAY_CONTRACT_VERSION = "dle-gateway.v1" as const;
@@ -57,6 +61,24 @@ export type GatewayCapabilities = {
   virtual_models: Record<string, Record<string, unknown>>;
   scopes: string[];
   provider_credentials_exposed: false;
+};
+
+export type KAManifestIntegrity = {
+  manifest_version: string | null;
+  sha256: string | null;
+  source: string | null;
+  capability_count: number | null;
+};
+
+export type KAManifestParity = {
+  matches: boolean;
+  mismatches: Array<"manifest_version" | "sha256" | "capability_count">;
+  server: KAManifestIntegrity;
+  client: {
+    manifest_version: string;
+    sha256: string;
+    capability_count: number;
+  };
 };
 
 export type GatewayJob = {
@@ -245,6 +267,38 @@ export class DataLogicEngineClient {
       undefined,
       signal,
     ) as KAListResponse;
+  }
+
+  async knowledgeAlgorithmManifest(
+    signal?: AbortSignal,
+  ): Promise<KAManifestIntegrity> {
+    const payload = await this.request("GET", "/ka/manifest", undefined, signal);
+    return (payload.data ?? payload) as KAManifestIntegrity;
+  }
+
+  async verifyKnowledgeAlgorithmManifest(
+    signal?: AbortSignal,
+  ): Promise<KAManifestParity> {
+    const server = await this.knowledgeAlgorithmManifest(signal);
+    const client = {
+      manifest_version: KA_RUNTIME_MANIFEST.manifest_version,
+      sha256: KA_RUNTIME_MANIFEST_SHA256,
+      capability_count: KA_RUNTIME_MANIFEST.capability_count,
+    };
+    const mismatches: KAManifestParity["mismatches"] = [];
+    if (server.manifest_version !== client.manifest_version) {
+      mismatches.push("manifest_version");
+    }
+    if (server.sha256 !== client.sha256) mismatches.push("sha256");
+    if (server.capability_count !== client.capability_count) {
+      mismatches.push("capability_count");
+    }
+    return {
+      matches: mismatches.length === 0,
+      mismatches,
+      server,
+      client,
+    };
   }
 
   async knowledgeAlgorithm(

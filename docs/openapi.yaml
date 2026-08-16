@@ -8,7 +8,7 @@ info:
     sessions, CSRF protection, and copy-once client keys for the explicitly
     versioned gateway surface. Removed web login/register/MFA/SSO routes are intentionally
     not part of this contract.
-  version: 3.5.2
+  version: 4.4.0
   contact:
     name: DataLogicEngine Support
     url: https://github.com/kherrera6219/DataLogicEngine/issues
@@ -1540,7 +1540,7 @@ paths:
         "429": {description: Client or provider limit reached.}
         "503": {description: Required gateway capability is unavailable.}
 
-  /admin/api-keys:
+  /admin/gateway/api-keys:
     get:
       summary: List owner-visible client-key metadata
       tags: [LLM Gateway]
@@ -1567,7 +1567,7 @@ paths:
         "422":
           description: Strict lifecycle request validation failed.
 
-  /admin/api-keys/audit:
+  /admin/gateway/api-keys/audit:
     get:
       summary: List redacted client-key lifecycle audit evidence
       tags: [LLM Gateway]
@@ -1587,7 +1587,7 @@ paths:
         "200":
           description: Truthful profile, bind, TLS, mTLS, firewall, CORS, and required-service state.
 
-  /admin/api-keys/{key_id}/rotate:
+  /admin/gateway/api-keys/{key_id}/rotate:
     post:
       summary: Rotate a client key with bounded overlap
       tags: [LLM Gateway]
@@ -1613,7 +1613,7 @@ paths:
         "409":
           description: The key is not active.
 
-  /admin/api-keys/{key_id}/revoke:
+  /admin/gateway/api-keys/{key_id}/revoke:
     post:
       summary: Immediately revoke a client key
       tags: [LLM Gateway]
@@ -1631,7 +1631,7 @@ paths:
         "200":
           description: Revocation recorded with durable audit metadata.
 
-  /admin/api-keys/{key_id}/expire:
+  /admin/gateway/api-keys/{key_id}/expire:
     post:
       summary: Immediately expire a client key
       tags: [LLM Gateway]
@@ -1649,7 +1649,7 @@ paths:
         "200":
           description: Expiration recorded with durable audit metadata.
 
-  /admin/api-keys/{key_id}:
+  /admin/gateway/api-keys/{key_id}:
     delete:
       summary: Delete inactive client-key verification material
       tags: [LLM Gateway]

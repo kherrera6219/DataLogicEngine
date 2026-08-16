@@ -1,6 +1,9 @@
 
 """
 Time API endpoints for the UKG system
+
+**Registration status (Phase 2):** Not mounted by ``app.create_app``. Axis time
+context is served via live axis/UKG routes. Kept for explicit test mounts only.
 """
 
 from flask import Blueprint, request, jsonify

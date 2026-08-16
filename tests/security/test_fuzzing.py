@@ -68,7 +68,7 @@ def test_fuzz_ukg_knowledge(client, iteration):
          patch('flask_login.utils._get_user', return_value=MagicMock(is_authenticated=True, is_admin=True)):
         
         response = client.post(
-            '/api/ukg/knowledge',
+            '/api/v1/knowledge',
             data=json.dumps(payload),
             content_type='application/json'
         )
@@ -109,7 +109,7 @@ def test_fuzz_malformed_json(client):
         with patch('backend.auth.api_decorators.api_admin_required', lambda x: x), \
              patch('flask_login.utils._get_user', return_value=MagicMock(is_authenticated=True, is_admin=True)):
             response = client.post(
-                '/api/ukg/nodes',
+                '/api/v1/nodes',
                 data=payload,
                 content_type='application/json'
             )

@@ -28,6 +28,7 @@ from models import (
     Sector,
 )
 from backend.auth.api_decorators import api_login_required
+from backend.product_version import PRODUCT_VERSION
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.utils.responses import error_response, internal_error
 from backend.schemas.api_request_schemas import QueryRequest, SimulationRunRequest
@@ -69,7 +70,7 @@ def api_health():
     
     return jsonify({
         "status": "ok" if db_status == "healthy" else "degraded",
-        "version": "1.0.0",
+        "version": PRODUCT_VERSION,
         "timestamp": datetime.datetime.now(UTC).isoformat(),
         "components": {
             "api": "healthy",

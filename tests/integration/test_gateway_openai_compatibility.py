@@ -9,7 +9,7 @@ from backend.llm_gateway.gateway import GatewayResponse
 
 def _client_key(authenticated_client) -> str:
     response = authenticated_client.post(
-        '/api/v1/admin/api-keys',
+        '/api/v1/admin/gateway/api-keys',
         json={
             'name': 'openai-compat-client',
             'scopes': ['chat', 'stream', 'models:read'],

@@ -3,6 +3,11 @@
 Universal Knowledge Graph (UKG) Security API
 
 This module provides REST API endpoints for security and compliance management.
+
+**Registration status (Phase 2):** Not mounted by ``app.create_app``. Live desktop
+security surfaces are desktop auth, gateway governance, and ``backend/security/*``
+modules used in-process. Kept for tests that mount the blueprint explicitly.
+Do not re-register on the product path without an intentional design review.
 """
 
 from flask import Blueprint, jsonify, request

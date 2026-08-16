@@ -23,19 +23,11 @@ export default function Home() {
   const isAvailable = systemStatus === 'ok';
   const isChecking = systemStatus === undefined;
 
+  // Control-center first; chat is a path probe, not the product center of gravity.
   const features = [
     {
-      title: "Chat Interface",
-      desc: "Deep reasoning with the Truth Engine via the LLM Gateway.",
-      icon: MessageSquare,
-      href: "/chat",
-      color: "text-blue-400",
-      bg: "bg-blue-500/10",
-      border: "border-blue-500/20"
-    },
-    {
-      title: "Compliance Hub",
-      desc: "Real-time metrics, audit logs, and system statistics.",
+      title: "Command Center",
+      desc: "Operations dashboard: health, activity, and provider readiness.",
       icon: LayoutDashboard,
       href: "/dashboard",
       color: "text-emerald-400",
@@ -43,17 +35,8 @@ export default function Home() {
       border: "border-emerald-500/20"
     },
     {
-      title: "Graph Explorer",
-      desc: "Interactive 17-Dimensional Knowledge Visualization.",
-      icon: Share2,
-      href: "/graph",
-      color: "text-violet-400",
-      bg: "bg-violet-500/10",
-      border: "border-violet-500/20"
-    },
-    {
-      title: "System Control",
-      desc: "Fine-tune Knowledge Algorithms and registry settings.",
+      title: "System Settings",
+      desc: "Providers, gateway client keys, storage, ingestion, and dataset export.",
       icon: Settings,
       href: "/settings",
       color: "text-gray-400",
@@ -61,8 +44,26 @@ export default function Home() {
       border: "border-gray-500/20"
     },
     {
-       title: "Data Sovereignty",
-       desc: "Review local storage, cloud AI processing, and provider data-handling controls.",
+      title: "Trace Explorer",
+      desc: "Inspect governed run evidence, stages, and exports.",
+      icon: Share2,
+      href: "/runs",
+      color: "text-violet-400",
+      bg: "bg-violet-500/10",
+      border: "border-violet-500/20"
+    },
+    {
+      title: "Governed Chat Probe",
+      desc: "Reference chat that exercises the gateway path — not the main control surface.",
+      icon: MessageSquare,
+      href: "/chat",
+      color: "text-blue-400",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20"
+    },
+    {
+       title: "Cloud AI Disclosure",
+       desc: "How cloud BYOK generative calls relate to local data-plane control.",
        icon: ShieldCheck,
        href: "/about/cloud-services",
        color: "text-blue-400",
@@ -71,7 +72,7 @@ export default function Home() {
     },
     {
        title: "Knowledge Base",
-       desc: "Browse nodes, edges, and relationships in the knowledge graph.",
+       desc: "Browse local knowledge graph nodes and relationships.",
        icon: Share2,
        href: "/knowledge",
        color: "text-violet-400",
@@ -101,7 +102,8 @@ export default function Home() {
                DataLogic<span className="text-blue-500">Engine</span>
              </h1>
              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto font-light leading-relaxed">
-               Enterprise Universal Knowledge Graph System with 17-Axis Reasoning and MCP Unified Standards.
+               Local-first control center for governed LLM middleware — setup, evidence, and API-out clients.
+               Chat is a probe that the path works.
              </p>
           </div>
         </header>

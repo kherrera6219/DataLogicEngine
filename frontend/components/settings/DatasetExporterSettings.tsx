@@ -87,7 +87,7 @@ export default function DatasetExporterSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5 text-primary" />
-            Training Data Creation & Dataset Exporter
+            Dataset preparation & export (no in-app trainer)
           </CardTitle>
           <CardDescription>
             Manually create candidate SFT or status-labelled PRM records from explicitly released traces.

@@ -15,7 +15,7 @@ describe('knowledge API', () => {
   it('fetches knowledge pillars', async () => {
     vi.mocked(apiBase.request).mockResolvedValueOnce([]);
     await knowledge.pillars();
-    expect(apiBase.request).toHaveBeenCalledWith('/pillar-levels');
+    expect(apiBase.request).toHaveBeenCalledWith('/knowledge/pillar-levels');
   });
 
   it('fetches knowledge stats', async () => {

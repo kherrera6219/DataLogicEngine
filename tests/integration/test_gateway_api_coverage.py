@@ -460,7 +460,7 @@ def test_create_provider(mock_curr_user, app_client):
     mock_new_provider.to_dict.return_value = {'id': 1, 'name': 'New Provider', 'provider_type': 'openai'}
     MockProvider.return_value = mock_new_provider
     
-    resp = app_client.post('/api/v1/admin/providers', json={
+    resp = app_client.post('/api/v1/admin/gateway/providers', json={
         'name': 'New Provider',
         'provider_type': 'openai'
     })
@@ -479,7 +479,7 @@ def test_list_api_keys_admin(mock_curr_user, app_client):
     
     MockAPIKey.query.order_by.return_value.all.return_value = []
     
-    resp = app_client.get('/api/v1/admin/api-keys')
+    resp = app_client.get('/api/v1/admin/gateway/api-keys')
     assert resp.status_code == 200
 
 @patch('flask_login.utils._get_user')
@@ -498,7 +498,7 @@ def test_create_api_key(mock_curr_user, app_client):
     mock_key_instance.to_dict.return_value = {'id': 1, 'name': 'Test Key'}
     MockAPIKey.return_value = mock_key_instance
     
-    resp = app_client.post('/api/v1/admin/api-keys', json={'name': 'Test Key'})
+    resp = app_client.post('/api/v1/admin/gateway/api-keys', json={'name': 'Test Key'})
     
     assert resp.status_code == 201
     assert resp.json['api_key'] == "full_key"

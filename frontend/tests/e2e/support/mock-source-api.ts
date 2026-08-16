@@ -19,7 +19,7 @@ export async function installSourceApiMocks(page: Page) {
       payload = { flags: {} };
     } else if (path === '/gateway/sessions') {
       payload = { sessions: [] };
-    } else if (path === '/pillar-levels' || path === '/nodes' || path === '/edges' || path === '/simulations') {
+    } else if (path === '/knowledge/pillar-levels' || path === '/pillar-levels' || path === '/nodes' || path === '/edges' || path === '/simulations') {
       payload = [];
     } else if (path.startsWith('/trace/runs')) {
       payload = { runs: [] };

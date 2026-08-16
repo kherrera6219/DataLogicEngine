@@ -211,6 +211,11 @@ export default function SimulationsPage() {
                   className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
               </div>
+              <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-xs text-muted-foreground" data-testid="simulation-bounds-note">
+                Bounded simulation only (contract <span className="font-mono">dle-simulation.v1</span>).
+                Depth caps provider work: quick / standard / deep. Not available on the chat gateway path —
+                use this page, not Governed Chat.
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <label htmlFor="simulation-depth" className="text-sm font-medium">Depth</label>
@@ -219,9 +224,9 @@ export default function SimulationsPage() {
                     value={simulationDepth}
                     onChange={(event) => { setSimulationDepth(event.target.value as typeof simulationDepth); setPreflight(null); }}
                   >
-                    <option value="quick">Quick</option>
+                    <option value="quick">Quick (lower call budget)</option>
                     <option value="standard">Standard</option>
-                    <option value="deep">Deep</option>
+                    <option value="deep">Deep (higher call budget)</option>
                   </Select>
                 </div>
                 <div className="space-y-2">

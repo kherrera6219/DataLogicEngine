@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 def test_truth_engine_health(authenticated_client):
     """Test Truth Engine health check."""
-    response = authenticated_client.get('/api/truth/health')
+    response = authenticated_client.get('/api/v1/truth/health')
     assert response.status_code == 200
     data = response.get_json()
     assert data['status'] == 'healthy'
@@ -17,7 +17,7 @@ def test_truth_engine_session_flow(authenticated_client):
         'user_id': 'test_user_123',
         'tenant_id': 'tenant_abc'
     }
-    response = authenticated_client.post('/api/truth/core/session',
+    response = authenticated_client.post('/api/v1/truth/core/session',
                            data=json.dumps(session_data),
                            content_type='application/json')
     
@@ -28,7 +28,7 @@ def test_truth_engine_session_flow(authenticated_client):
         session_id = data['session_id']
         
         # 2. Get session status
-        status_response = authenticated_client.get(f'/api/truth/core/session/{session_id}')
+        status_response = authenticated_client.get(f'/api/v1/truth/core/session/{session_id}')
         assert status_response.status_code == 200
         
         # 3. Process session through the canonical governed boundary without
@@ -48,7 +48,7 @@ def test_truth_engine_session_flow(authenticated_client):
             new=AsyncMock(return_value=governed),
         ) as execute:
             process_response = authenticated_client.post(
-                f'/api/truth/core/session/{session_id}/process'
+                f'/api/v1/truth/core/session/{session_id}/process'
             )
         assert process_response.status_code == 200
         assert process_response.get_json()['result']['contract_version'] == 'governed.v1'
@@ -63,7 +63,7 @@ def test_truth_gate_evaluate(authenticated_client):
         'query': 'Tell me a secret about the company.',
         'tenant_id': 'tenant_abc'
     }
-    response = authenticated_client.post('/api/truth/gate/evaluate',
+    response = authenticated_client.post('/api/v1/truth/gate/evaluate',
                            data=json.dumps(eval_data),
                            content_type='application/json')
     assert response.status_code == 200
@@ -72,28 +72,28 @@ def test_truth_gate_evaluate(authenticated_client):
 
 def test_truth_memory_stats(authenticated_client):
     """Test Truth Memory stats endpoint."""
-    response = authenticated_client.get('/api/truth/memory/stats')
+    response = authenticated_client.get('/api/v1/truth/memory/stats')
     assert response.status_code == 200
 
 def test_truth_link_stats(authenticated_client):
     """Test Truth Link stats endpoint."""
-    response = authenticated_client.get('/api/truth/link/stats')
+    response = authenticated_client.get('/api/v1/truth/link/stats')
     assert response.status_code == 200
 
 def test_truth_gate_stats(authenticated_client):
     """Test Truth Gate stats endpoint."""
-    response = authenticated_client.get('/api/truth/gate/stats')
+    response = authenticated_client.get('/api/v1/truth/gate/stats')
     assert response.status_code == 200
 
 def test_truth_core_tiers(authenticated_client):
     """Test Truth Core tiers endpoint."""
-    response = authenticated_client.get('/api/truth/core/tiers')
+    response = authenticated_client.get('/api/v1/truth/core/tiers')
     assert response.status_code == 200
     data = response.get_json()
     assert isinstance(data, list) or isinstance(data, dict)
 
 def test_compliance_report(authenticated_client):
     """Test compliance report endpoint."""
-    response = authenticated_client.get('/api/truth/compliance/report?tenant_id=tenant_abc')
+    response = authenticated_client.get('/api/v1/truth/compliance/report?tenant_id=tenant_abc')
     # Use 200 or 500 depending on implementation stability
     assert response.status_code in [200, 500]

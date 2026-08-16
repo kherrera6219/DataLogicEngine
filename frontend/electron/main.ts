@@ -13,6 +13,13 @@ import {
   redactDesktopLogText,
   type DesktopLogLevel,
 } from './desktop-log';
+import {
+  desktopLogFilePath,
+  desktopRuntimeDir,
+  desktopSecretFilePath,
+  desktopSecretVaultDir,
+} from './paths';
+import { envFlag } from './env-flag';
 
 // GUI launches do not guarantee that inherited stdout/stderr handles remain
 // writable. A closed parent pipe must never crash the Electron main process.
@@ -98,22 +105,6 @@ const updateState: UpdateState = {
   availableVersion: null,
   message: 'Auto-update is disabled.',
 };
-
-function desktopSecretFilePath(): string {
-  return path.join(app.getPath('userData'), 'desktop-install-secret');
-}
-
-function desktopLogFilePath(): string {
-  return path.join(app.getPath('userData'), 'logs', 'desktop-runtime.log');
-}
-
-function desktopRuntimeDir(): string {
-  return path.join(app.getPath('userData'), 'runtime');
-}
-
-function desktopSecretVaultDir(): string {
-  return path.join(app.getPath('userData'), 'secrets');
-}
 
 async function responseJson<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
@@ -326,15 +317,8 @@ function loadOrCreateDesktopInstallSecret(): string {
   return generated;
 }
 
-function envFlag(name: string, defaultValue: boolean): boolean {
-  const raw = (process.env[name] || '').trim().toLowerCase();
-  if (!raw) {
-    return defaultValue;
-  }
-  return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
-}
-
 function setUpdateState(
+
   status: UpdateStatus,
   message: string,
   availableVersion: string | null = updateState.availableVersion,
@@ -521,6 +505,19 @@ function secureWindowsAclBestEffort(targetPath: string): void {
   }
 }
 
+function podmanRecoveryMessage(detail: string): string {
+  return (
+    `${detail}\n\n` +
+    'Recovery steps:\n' +
+    '1. Install Podman Desktop / Podman for Windows if missing.\n' +
+    `2. Create the machine (once): podman machine init ${MANAGED_PODMAN_MACHINE}\n` +
+    `3. Start it: podman machine start ${MANAGED_PODMAN_MACHINE}\n` +
+    '4. Confirm: podman machine list\n' +
+    '5. Relaunch DataLogicEngine.\n\n' +
+    `Desktop log: ${desktopLogFilePath()}`
+  );
+}
+
 function ensureManagedPodmanMachineAvailable(): void {
   if (!app.isPackaged || os.platform() !== 'win32') {
     return;
@@ -532,7 +529,14 @@ function ensureManagedPodmanMachineAvailable(): void {
     { encoding: 'utf8', windowsHide: true, timeout: 30_000 },
   );
   if (inspect.status !== 0) {
-    throw new Error('The app-owned local data runtime is not installed.');
+    const stderr = String(inspect.stderr || inspect.stdout || '').trim();
+    throw new Error(
+      podmanRecoveryMessage(
+        'The app-owned local data runtime (Podman machine ' +
+          `"${MANAGED_PODMAN_MACHINE}") is not installed or not visible.` +
+          (stderr ? `\nDetails: ${stderr.slice(0, 400)}` : ''),
+      ),
+    );
   }
 
   let state = '';
@@ -540,7 +544,11 @@ function ensureManagedPodmanMachineAvailable(): void {
     const payload = JSON.parse(inspect.stdout || '[]') as Array<{ State?: string }>;
     state = String(payload[0]?.State || '').toLowerCase();
   } catch {
-    throw new Error('The app-owned local data runtime returned invalid status.');
+    throw new Error(
+      podmanRecoveryMessage(
+        'The app-owned local data runtime returned invalid status JSON.',
+      ),
+    );
   }
   if (state === 'running') {
     return;
@@ -553,7 +561,13 @@ function ensureManagedPodmanMachineAvailable(): void {
     { encoding: 'utf8', windowsHide: true, timeout: 120_000 },
   );
   if (started.status !== 0) {
-    throw new Error('The app-owned local data runtime could not be started.');
+    const stderr = String(started.stderr || started.stdout || '').trim();
+    throw new Error(
+      podmanRecoveryMessage(
+        'The app-owned local data runtime could not be started.' +
+          (stderr ? `\nDetails: ${stderr.slice(0, 400)}` : ''),
+      ),
+    );
   }
 }
 
@@ -1056,6 +1070,9 @@ app.on('ready', async () => {
   });
 
   // Security: Set CSP headers on all responses.
+  // Residual risk: 'unsafe-inline' is required for Next static export + inline
+  // styles in the packaged renderer. Mitigations: contextIsolation, sandbox,
+  // no nodeIntegration, navigation lock, IPC allowlist. See docs/DESKTOP_CSP.md.
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     const scriptSrc = "'self' 'unsafe-inline' app:";
     const styleSrc = "'self' 'unsafe-inline' app:";

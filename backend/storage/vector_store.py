@@ -363,11 +363,26 @@ class VectorStore:
             self._backend = self._create_backend()
     
     def _create_backend(self) -> VectorBackend:
-        """Create appropriate backend based on configuration."""
+        """Create appropriate backend based on configuration.
+
+        Desktop / product path is app-owned Chroma only. Cloud vector backends
+        (Pinecone class remains in-module for non-desktop experiments) are not
+        selected here — Phase 4 storage purity.
+        """
         from backend.storage.connection_manager import get_connection_manager
-        
+        import os
+
+        forced = (os.environ.get("DLE_VECTOR_BACKEND") or "").strip().lower()
+        desktop = os.environ.get("IS_DESKTOP_APP", "false").lower() == "true"
+        if forced in {"pinecone", "qdrant", "weaviate"} and (
+            desktop or os.environ.get("FLASK_ENV", "").lower() == "production"
+        ):
+            raise RuntimeError(
+                f"vector_backend_forbidden_on_desktop_profile:{forced}"
+            )
+
         config = get_connection_manager().config.vector
-        
+
         logger.info("Using app-owned ChromaDB Rust service")
         port = getattr(config, "port", None)
         return ChromaDBBackend(

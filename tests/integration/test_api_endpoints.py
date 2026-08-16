@@ -75,7 +75,7 @@ class TestUKGEndpoints:
 
     def test_get_pillars(self, authenticated_client):
         """Test retrieving pillar levels."""
-        response = authenticated_client.get('/api/ukg/pillars')
+        response = authenticated_client.get('/api/v1/pillars')
 
         assert response.status_code in [200, 404]
         if response.status_code == 200:
@@ -84,7 +84,7 @@ class TestUKGEndpoints:
 
     def test_get_sectors(self, authenticated_client):
         """Test retrieving sectors."""
-        response = authenticated_client.get('/api/ukg/sectors')
+        response = authenticated_client.get('/api/v1/sectors')
 
         assert response.status_code in [200, 404]
         if response.status_code == 200:
@@ -93,7 +93,7 @@ class TestUKGEndpoints:
 
     def test_create_pillar(self, authenticated_client):
         """Test creating a new pillar."""
-        response = authenticated_client.post('/api/ukg/pillars', json={
+        response = authenticated_client.post('/api/v1/pillars', json={
             'name': 'Test Pillar',
             'level': 'PL50',
             'description': 'Test pillar level'
@@ -103,7 +103,7 @@ class TestUKGEndpoints:
 
     def test_create_sector(self, authenticated_client):
         """Test creating a new sector."""
-        response = authenticated_client.post('/api/ukg/sectors', json={
+        response = authenticated_client.post('/api/v1/sectors', json={
             'name': 'Technology',
             'description': 'Technology sector'
         })
@@ -112,11 +112,11 @@ class TestUKGEndpoints:
 
 
 class TestSimulationEndpoints:
-    """Test legacy simulation compatibility endpoints."""
+    """Test canonical simulation endpoints under /api/v1."""
 
     def test_create_simulation(self, authenticated_client):
         """Test creating a new simulation."""
-        response = authenticated_client.post('/api/simulations', json={
+        response = authenticated_client.post('/api/v1/simulations', json={
             'name': 'Test Simulation',
             'query': 'What are the compliance requirements?',
             'sim_type': 'standard',
@@ -128,23 +128,22 @@ class TestSimulationEndpoints:
         body = response.get_json()
         assert body["success"] is True
         assert body["data"]["parameters"]["query"] == 'What are the compliance requirements?'
-        assert response.headers["Deprecation"] == "true"
-        assert "/api/v1/simulations" in response.headers.get("Link", "")
+        assert "Deprecation" not in response.headers
 
     def test_list_simulations(self, authenticated_client):
         """Test listing user simulations."""
-        response = authenticated_client.get('/api/simulations')
+        response = authenticated_client.get('/api/v1/simulations')
 
         assert response.status_code == 200
         data = response.get_json()
         assert data["success"] is True
         assert isinstance(data["data"], list)
-        assert response.headers["Deprecation"] == "true"
+        assert "Deprecation" not in response.headers
 
     def test_run_simulation(self, authenticated_client):
-        """Legacy run requests queue the authoritative durable workflow."""
+        """Run requests queue the authoritative durable workflow."""
         # Create simulation first
-        create_response = authenticated_client.post('/api/simulations', json={
+        create_response = authenticated_client.post('/api/v1/simulations', json={
             'name': 'Run Test',
             'query': 'Test query',
             'sim_type': 'standard'
@@ -157,19 +156,19 @@ class TestSimulationEndpoints:
         # Isolate the background worker from this fixture's in-memory database;
         # durable execution itself is covered by the Phase 10 authority tests.
         with patch("backend.simulation.jobs.get_simulation_job_runner") as get_runner:
-            response = authenticated_client.post(f'/api/simulations/{session_id}/run')
+            response = authenticated_client.post(f'/api/v1/simulations/{session_id}/run')
 
         assert response.status_code == 202
         body = response.get_json()
         assert body["success"] is True
         assert body["data"]["status"] == "queued"
         get_runner.return_value.submit.assert_called_once_with(session_id)
-        assert response.headers["Deprecation"] == "true"
+        assert "Deprecation" not in response.headers
 
     def test_get_simulation_results(self, authenticated_client):
         """Test retrieving simulation results."""
         # Create and run simulation
-        create_response = authenticated_client.post('/api/simulations', json={
+        create_response = authenticated_client.post('/api/v1/simulations', json={
             'name': 'Results Test',
             'query': 'Test query'
         })
@@ -180,12 +179,12 @@ class TestSimulationEndpoints:
 
         with patch("backend.simulation.jobs.get_simulation_job_runner") as get_runner:
             get_runner.return_value.live_state.return_value = None
-            run_response = authenticated_client.post(f'/api/simulations/{session_id}/run')
+            run_response = authenticated_client.post(f'/api/v1/simulations/{session_id}/run')
             assert run_response.status_code == 202
 
             # A queued job exposes durable status immediately while the worker
             # continues asynchronously.
-            response = authenticated_client.get(f'/api/simulations/{session_id}')
+            response = authenticated_client.get(f'/api/v1/simulations/{session_id}')
 
         assert response.status_code == 200
         body = response.get_json()
@@ -194,7 +193,7 @@ class TestSimulationEndpoints:
         assert body["data"]["status"] == "queued"
         assert body["data"]["results"] == {}
         get_runner.return_value.reconcile_artifacts.assert_called_once()
-        assert response.headers["Deprecation"] == "true"
+        assert "Deprecation" not in response.headers
 
 
 class TestGraphEndpoints:
@@ -237,7 +236,7 @@ class TestPersonaEndpoints:
     def test_query_knowledge_expert(self, authenticated_client):
         """Test querying knowledge expert persona."""
         # The persona API expects 'query' and optional 'context'
-        response = authenticated_client.post('/api/persona/query', json={
+        response = authenticated_client.post('/api/v1/persona/query', json={
             'query': 'Explain machine learning concepts',
             'context': {
                 'domain': 'technology',
@@ -251,7 +250,7 @@ class TestPersonaEndpoints:
 
     def test_query_sector_expert(self, authenticated_client):
         """Test querying sector expert persona."""
-        response = authenticated_client.post('/api/persona/query', json={
+        response = authenticated_client.post('/api/v1/persona/query', json={
             'query': 'Healthcare industry trends',
             'context': {
                 'sector': 'healthcare',
@@ -265,7 +264,7 @@ class TestPersonaEndpoints:
 
     def test_query_regulatory_expert(self, authenticated_client):
         """Test querying regulatory expert persona."""
-        response = authenticated_client.post('/api/persona/query', json={
+        response = authenticated_client.post('/api/v1/persona/query', json={
             'query': 'GDPR compliance requirements',
             'context': {
                 'framework': 'GDPR',
@@ -279,8 +278,8 @@ class TestPersonaEndpoints:
 
     def test_list_persona_types(self, authenticated_client):
         """Test listing available persona types."""
-        # The actual endpoint is /api/persona/personas not /api/persona/types
-        response = authenticated_client.get('/api/persona/personas')
+        # The actual endpoint is /api/v1/persona/personas not /api/persona/types
+        response = authenticated_client.get('/api/v1/persona/personas')
 
         # Accept 200 for success, 302 for redirect, 404 if not found
         assert response.status_code in [200, 302, 404]
@@ -382,23 +381,23 @@ class TestErrorHandling:
 
     def test_400_for_invalid_json(self, client):
         """Test error response returned for invalid JSON."""
-        response = client.post('/api/simulations',
+        response = client.post('/api/v1/simulations',
                                data='invalid json',
                                content_type='application/json')
 
-        # Authentication is enforced before payload parsing on this compatibility route.
+        # Authentication is enforced before payload parsing.
         assert response.status_code == 401
         body = response.get_json()
         assert body["code"] == "UNAUTHORIZED"
-        assert response.headers["Deprecation"] == "true"
+        assert "Deprecation" not in response.headers
 
     def test_401_for_unauthorized_access(self, client):
         """Test unauthorized access returns canonical JSON 401."""
-        response = client.get('/api/simulations')
+        response = client.get('/api/v1/simulations')
         assert response.status_code == 401
         body = response.get_json()
         assert body["code"] == "UNAUTHORIZED"
-        assert response.headers["Deprecation"] == "true"
+        assert "Deprecation" not in response.headers
 
 
 class TestCORSHeaders:

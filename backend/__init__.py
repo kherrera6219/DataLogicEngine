@@ -18,6 +18,19 @@ def _required_secret_config(name: str, *, pytest_default: str) -> str:
 
 
 def create_legacy_app():
+    """Deprecated dual factory — not the desktop product path.
+
+    Default production/desktop boot uses ``app.create_app`` only. Outside pytest,
+    set ``DLE_ALLOW_LEGACY_APP=1`` to construct this factory (compat/tests only).
+    """
+    from backend.runtime.startup_contract import allow_legacy_app
+
+    if not allow_legacy_app():
+        raise RuntimeError(
+            "create_legacy_app is deprecated; use app.create_app. "
+            "Set DLE_ALLOW_LEGACY_APP=1 only for explicit compatibility use."
+        )
+
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
     # Keep deterministic defaults under pytest only; runtime callers must provide secrets.
     app.config['SECRET_KEY'] = _required_secret_config('SECRET_KEY', pytest_default='dev-secret-key')

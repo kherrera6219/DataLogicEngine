@@ -59,6 +59,9 @@ export interface GatewayCapabilities {
   }>;
   scopes: string[];
   provider_credentials_exposed: false;
+  /** G-GEN=B0: generative answers use cloud BYOK; data plane stays local. */
+  generative_locality?: 'cloud_byok' | 'local' | 'hybrid';
+  local_model_acceleration?: boolean;
 }
 
 export interface GatewayControlPlaneStatus {
@@ -87,25 +90,26 @@ export const gateway = {
   health: () => request<Record<string, unknown>>('/gateway/health'),
   usage: () => request<Record<string, unknown>>('/gateway/usage-ledger?days=30'),
   jobs: () => request<{ jobs: Array<Record<string, unknown>> }>('/gateway/runs?limit=25'),
-  clientKeys: () => request<{ api_keys: ClientKeyMetadata[] }>('/admin/api-keys'),
-  clientKeyAudit: () => request<{ events: GatewayAuditEvent[] }>('/admin/api-keys/audit?limit=100'),
-  createClientKey: (payload: ClientKeyCreate) => request<CopyOnceClientKey>('/admin/api-keys', {
+  // P2-02: gateway admin is under /admin/gateway/* (ops admin remains /admin/health, etc.)
+  clientKeys: () => request<{ api_keys: ClientKeyMetadata[] }>('/admin/gateway/api-keys'),
+  clientKeyAudit: () => request<{ events: GatewayAuditEvent[] }>('/admin/gateway/api-keys/audit?limit=100'),
+  createClientKey: (payload: ClientKeyCreate) => request<CopyOnceClientKey>('/admin/gateway/api-keys', {
     method: 'POST',
     body: JSON.stringify(payload),
   }),
   rotateClientKey: (id: string, overlapSeconds = 300) => request<CopyOnceClientKey>(
-    `/admin/api-keys/${id}/rotate`,
+    `/admin/gateway/api-keys/${id}/rotate`,
     { method: 'POST', body: JSON.stringify({ overlap_seconds: overlapSeconds }) },
   ),
   revokeClientKey: (id: string, reason: string) => request<{ message: string }>(
-    `/admin/api-keys/${id}/revoke`,
+    `/admin/gateway/api-keys/${id}/revoke`,
     { method: 'POST', body: JSON.stringify({ reason }) },
   ),
   expireClientKey: (id: string, reason: string) => request<{ message: string }>(
-    `/admin/api-keys/${id}/expire`,
+    `/admin/gateway/api-keys/${id}/expire`,
     { method: 'POST', body: JSON.stringify({ reason }) },
   ),
-  deleteClientKey: (id: string) => request<{ message: string }>(`/admin/api-keys/${id}`, {
+  deleteClientKey: (id: string) => request<{ message: string }>(`/admin/gateway/api-keys/${id}`, {
     method: 'DELETE',
   }),
 };

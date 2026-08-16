@@ -58,7 +58,7 @@ describe('AppSidebar', () => {
   it('should render sidebar items', () => {
     render(<AppSidebar />);
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Enterprise AI')).toBeInTheDocument();
+    expect(screen.getByText('Governed Chat')).toBeInTheDocument();
     expect(screen.getByText('Diagnostics')).toBeInTheDocument();
   });
 

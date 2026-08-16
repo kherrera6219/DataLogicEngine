@@ -7,24 +7,13 @@ import re
 import pytest
 
 
+# Canonical surfaces only (G-API: legacy /api/* mirrors are off by default).
 ANONYMOUS_DENIAL_CASES = [
     ("/api/v1/csp-report", {"csp-report": {}}),
     ("/api/methods", {}),
     ("/api/methods/cross-pillar", {}),
     ("/api/methods/cross-sector", {}),
     ("/api/methods/hierarchy", {}),
-    ("/api/pillar/", {}),
-    ("/api/pillar/test/expand", {}),
-    ("/api/pillar/test/sublevels", {}),
-    ("/api/pillar/analyze-text", {}),
-    ("/api/pillar/export", {}),
-    ("/api/pillar/mappings", {}),
-    ("/api/truth/core/session", {}),
-    ("/api/truth/core/session/test/process", {}),
-    ("/api/truth/gate/budget/test/reset", {}),
-    ("/api/truth/gate/evaluate", {}),
-    ("/api/truth/link/publish", {}),
-    ("/api/truth/memory/artifacts/test", {}),
     ("/api/v1/pillar/", {}),
     ("/api/v1/pillar/test/expand", {}),
     ("/api/v1/pillar/test/sublevels", {}),

@@ -84,7 +84,7 @@ export default function TruthEnginePage() {
   return (
     <PageLayout
       title="Truth Engine"
-      description="Live validation telemetry from stored trace runs."
+      description="Gate and confidence telemetry from stored TraceRuns (not a separate generative engine)."
       breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Truth Engine" }]}
     >
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -110,11 +110,11 @@ def test_gateway_openapi_documents_typed_boundary_failures() -> None:
 def test_owner_client_key_lifecycle_is_in_the_openapi_contract() -> None:
     paths = _spec()["paths"]
     expected = {
-        "/admin/api-keys": {"get", "post"},
-        "/admin/api-keys/{key_id}/rotate": {"post"},
-        "/admin/api-keys/{key_id}/revoke": {"post"},
-        "/admin/api-keys/{key_id}/expire": {"post"},
-        "/admin/api-keys/{key_id}": {"delete"},
+        "/admin/gateway/api-keys": {"get", "post"},
+        "/admin/gateway/api-keys/{key_id}/rotate": {"post"},
+        "/admin/gateway/api-keys/{key_id}/revoke": {"post"},
+        "/admin/gateway/api-keys/{key_id}/expire": {"post"},
+        "/admin/gateway/api-keys/{key_id}": {"delete"},
     }
     for path, methods in expected.items():
         assert methods.issubset(paths[path])

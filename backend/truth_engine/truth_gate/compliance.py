@@ -186,7 +186,9 @@ class ComplianceEnforcer:
         
         Ensure users can understand AI decisions.
         """
-        explainability_url = f"/api/truth/memory/explain/{session_id}" if session_id else None
+        explainability_url = (
+            f"/api/v1/truth/memory/explain/{session_id}" if session_id else None
+        )
         result = 'passed' if explainability_url else 'not_measured'
         
         return {
