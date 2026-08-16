@@ -13,11 +13,13 @@
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
 | Current local artifact | `DataLogicEngine Setup 4.4.0.exe` |
-| Current local artifact size | `283876702` bytes |
-| Current local artifact SHA-256 | `b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438` |
-| Current build source commit | `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` |
-| Current artifact signature | `not_evaluated` |
-| Installed-mode smoke accepted | `not_evaluated` |
+| Current local artifact size | `358857127` bytes |
+| Current local artifact SHA-256 | `54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97` |
+| Current build source commit | `e893d42436c8f250de7a2781dc7f621ae4ddab1f` |
+| Current artifact signature | `NotSigned` |
+| Portable backend readiness | `true` |
+| Portable readiness listener owned by package | `true` |
+| Installed-mode smoke accepted | `false` |
 
 ## Provider and model allowlist
 

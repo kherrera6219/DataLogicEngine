@@ -17,9 +17,9 @@
 | Last reviewed | 2026-08-12 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.69.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; CP19-M retained acceptance open, post-QC rebuild authorized from the local commit checkpoint |
+| Current phase | Phase 19; repaired post-QC portable engineering candidate accepted, CP19-M installed/signed acceptance open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -347,7 +347,13 @@ Phase 18 source baseline while completing the whole-application wiring.
       documentation-authority fixes, and the **2026-08-12 slow-audit
       remediation workshop changes** are now qualified and committed locally.
       The owner authorized a new exact-source rebuild/install from the clean
-      post-QC checkpoint. Signing and production/public release remain blocked.
+      post-QC checkpoint. The first rebuild exposed and then received a fix for
+      retained 4.3.0 runtime identity migration. The replacement package from
+      `e893d424` passes integrity/resources, package-owned `/ready`, `/health`,
+      retained-identity advancement, and visible dashboard/trace/diagnostics/
+      algorithm-registry checks. It is unsigned and the elevated per-machine
+      lifecycle is not conclusively accepted. Signing and production/public
+      release remain blocked.
 
 ## Slow-audit remediation (engineering) — 2026-08-12
 
@@ -385,18 +391,28 @@ Does **not** authorize production/public release (G-SIGN deferred).
       packaging resource verification; Podman recovery UX; CSP policy doc.
 - [ ] **Phase 8 — signing / release GO:** owner only; keep fail-closed updates
       and release **NO-GO** until CP19-M and trust policy pass.
-- [ ] **Post-remediation rebuild:** owner-authorized clean build + packaging
-      smoke of the exact post-P1–7 checkpoint; bind the new installer hash only
-      after the rebuilt artifact passes its engineering checks.
+- [x] **Post-remediation portable engineering rebuild:** replacement artifact
+      built from `e893d424`; 358,857,127 bytes; SHA-256
+      `54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97`;
+      unsigned. Integrity, checksum/block map, NSIS governance, packaged
+      resources, package-owned `/ready` (46,402 ms), `/health`, retained 4.3.0
+      to 4.4.0 identity advancement, and visible dashboard/Trace Explorer/
+      Diagnostics/Algorithm Registry checks pass. Evidence is under
+      `reports/production-readiness/2026/phase-19/post-qc-rebuild/`.
+- [ ] **Exact-artifact elevated installed lifecycle:** per-machine install,
+      Program Files launch, upgrade/repair, retained data, uninstall, and cleanup
+      remain inconclusive after UAC canceled the retry. Do not treat the
+      portable pass as installed acceptance.
 - [x] **Full post-QC source re-baseline (2026-08-15):** 3,108 backend tests
       passed with 18 skipped; 435 frontend tests passed; frontend lint,
       typecheck, Next production build, and Electron TypeScript build passed;
       Python SDK 36 passed; TypeScript SDK 8 passed; documentation truth 10/10;
       live route inventory 350 with zero unclassified/unauthenticated
       mutations; route collisions 0; orphan/blocked counts 0; lock clean-install
-      dry runs and packaging-resource verification passed. Reviewed local
-      commits: `3054d5de` (source), `6e2fdd5b` (governance), and `cbfacbdb`
-      (documentation/evidence). None have been pushed.
+      dry runs and packaging-resource verification passed. Initial reviewed
+      commits are `3054d5de` (source), `6e2fdd5b` (governance), and `cbfacbdb`
+      (documentation/evidence); later local checkpoints are `2d166456`,
+      `16faaeb4`, `e893d424`, and `56bc4aa7`. None have been pushed.
 
 ### Integrator notes (open until docs/SDK consumers migrate)
 
@@ -1267,14 +1283,17 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-QR-0 through QR-5 in
+QR-0 through QR-5 and the QR-6 portable engineering subset in
 `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` are
-complete. The reviewed local commit groups are recorded above and rebuild
-authorization is explicit. Commit this checkpoint metadata, verify a clean
-local `HEAD`, and perform the governed clean desktop build without pushing.
+complete. The exact repaired candidate is the unsigned 4.4.0 installer from
+`e893d424`, SHA-256
+`54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97`.
+All work remains local and unpushed.
 
-Bind the installer hash and automatable CP19-M evidence to that exact rebuilt
-artifact. Retain signed/timestamped acceptance, installed Phase 9-13 matrices,
+Next, run the elevated per-machine install/upgrade/repair/uninstall and retained-
+data lifecycle for that exact hash. Classify and exercise the packaged
+Diagnostics `Api_gateway` and `Workers` stopped states under the installed
+service-role matrix. Retain signed/timestamped acceptance, installed Phase 9-13 matrices,
 OpenAI/Google corpus and blinded-human acceptance, packaged
 visual/scaling/high-contrast and NVDA acceptance, protected-volume
 lifecycle/backup/recovery, independent reviews, pilot, and 24/72-hour soaks.

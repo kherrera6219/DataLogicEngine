@@ -1,0 +1,59 @@
+{
+  "schema_version": "dle.post-qc-candidate-acceptance.v1",
+  "generated_at": "2026-08-16T06:04:00.4295531Z",
+  "status": "engineering_pass_release_no_go",
+  "build_source_commit": "e893d42436c8f250de7a2781dc7f621ae4ddab1f",
+  "runtime_fix_commit": "16faaeb4",
+  "readiness_smoke_commit": "56bc4aa7",
+  "artifact": {
+    "name": "DataLogicEngine Setup 4.4.0.exe",
+    "version": "4.4.0",
+    "size_bytes": 358857127,
+    "built_at_utc": "2026-08-16T05:52:02.9721321Z",
+    "sha256": "54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97",
+    "signature_status": "NotSigned",
+    "integrity_passed": true,
+    "nsis_governance_passed": true,
+    "packaging_resources_passed": true
+  },
+  "retained_identity_upgrade": {
+    "installation_id_preserved": true,
+    "version_before": "4.3.0",
+    "version_after": "4.4.0",
+    "advanced_only_after_managed_migration": true
+  },
+  "portable_runtime": {
+    "readiness_required": true,
+    "ready": true,
+    "ready_latency_ms": 46402,
+    "ready_status": "ready",
+    "ready_blockers": [],
+    "listener_owned_by_launched_package": true,
+    "health_status": "ok",
+    "scoped_processes_after_shutdown": 0,
+    "port_5000_listeners_after_shutdown": 0,
+    "version_mismatch_count": 0,
+    "traceback_count": 0,
+    "fatal_count": 0,
+    "rate_limit_429_count": 0,
+    "nonfatal_stderr_warning_count": 1
+  },
+  "desktop_checks": {
+    "dashboard_loaded": true,
+    "trace_explorer_loaded": true,
+    "diagnostics_loaded_and_refreshed": true,
+    "algorithm_registry_loaded": true,
+    "manifest_version": "2026.08.11-AL10.2",
+    "effectful_ka_run_performed": false,
+    "diagnostics_stopped_services": [
+      "Api_gateway",
+      "Workers"
+    ]
+  },
+  "installed_mode": {
+    "accepted": false,
+    "reason": "Elevated per-machine lifecycle remains inconclusive and open."
+  },
+  "cp19_m_complete": false,
+  "production_release_authorized": false
+}

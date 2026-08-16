@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | Date | 2026-08-15 |
-| Status | QR-0 through QR-5 complete; QR-6 active with local commits and explicit rebuild authorization |
+| Status | QR-0 through QR-5 complete; QR-6 portable engineering subset complete; installed CP19-M acceptance retained |
 | Scope | Local slow-audit remediation produced from Phases 1–7; no push or release authorization |
 | Release authority | `PRODUCTION_COMPLETION_PLAN_2026.md` |
 | Open-work authority | `TODO.md` |
@@ -337,15 +337,33 @@ QR-6 begins only after QR-1 through QR-5 are complete.
 
 **Acceptance gate QR-6**
 
-- [ ] Source checkpoint is clean, reproducible, and fully qualified.
+- [x] Source checkpoint is clean, reproducible, and fully qualified.
 - [x] Rebuild authorization is explicit (owner instruction, 2026-08-15).
 - [ ] Installed evidence binds to the exact rebuilt artifact.
 - [x] Production/public release remains NO-GO until every retained gate passes.
 
+**QR-6 portable engineering result (2026-08-15):** the first rebuilt artifact
+exposed a retained 4.3.0-to-4.4.0 runtime-lock incompatibility and proved the
+old process-alive smoke was insufficient. Commit `16faaeb4` corrected the
+upgrade-source contract and passed 34 focused lifecycle/migration tests. The
+replacement artifact built from `e893d424` is 358,857,127 bytes with SHA-256
+`54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97`.
+It is unsigned. Integrity, NSIS governance, resources, package-owned backend
+readiness, `/health`, retained-identity advancement, and visible dashboard,
+Trace Explorer, Diagnostics, and Algorithm Registry checks pass. Commit
+`56bc4aa7` hardens the smoke to require and ownership-check `/ready`.
+
+Per-machine installed acceptance, signing/timestamping, providers,
+accessibility/NVDA, independent review, pilot, and soak gates remain open.
+Evidence:
+`reports/production-readiness/2026/phase-19/post-qc-rebuild/repaired-candidate-engineering-acceptance.md`.
+
 **Local commit checkpoint:** `3054d5de` (source remediation), `6e2fdd5b`
-(governance), and `cbfacbdb` (documentation/evidence). These commits are local
-and unpushed. The checkpoint-metadata commit follows them and is the intended
-clean-rebuild `HEAD`.
+(governance), `cbfacbdb` and `2d166456` (documentation/checkpoint), `16faaeb4`
+(retained upgrade), `e893d424` (first-artifact blocker evidence), and `56bc4aa7`
+(readiness-smoke hardening). These commits are local and unpushed. The final
+evidence/handoff commit follows them. The exact rebuilt binary remains bound to
+source commit `e893d424`, not to later evidence-only commits.
 
 ## 5. Keep, rework, and exclude disposition
 

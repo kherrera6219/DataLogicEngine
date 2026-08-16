@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.5.0 |
+| Document version | v1.6.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,11 +17,11 @@
 | Last reviewed | 2026-08-15 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.68.0 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.69.0 (release program) |
 | Supporting engineering plan | `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` (Phase 5 partial/deferred; P8 not started) |
-| QC remediation plan | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` (QR-0 through QR-5 complete; QR-6 active) |
+| QC remediation plan | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` (QR-0 through QR-5 complete; QR-6 portable subset complete, installed acceptance open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; CP19-M retained acceptance open, post-QC rebuild authorized from the local commit checkpoint |
+| Current phase | Phase 19; repaired post-QC portable engineering candidate accepted, CP19-M installed/signed acceptance open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -1183,7 +1183,7 @@ in dependency order. The runtime authority checks and full backend suite pass.
 
 > **Codex / next session:** slow-audit engineering work is implemented,
 > qualified, and grouped into the local source checkpoint recorded below. The
-> owner authorized the exact-source clean rebuild and automatable installed
+> owner authorized the exact-source clean rebuild and automatable packaged
 > CP19-M work. Do not push, distribute, sign, or claim production GO.
 > Phase **8** (signing / production GO) is **owner-only** and not started.
 
@@ -1201,13 +1201,14 @@ in dependency order. The runtime authority checks and full backend suite pass.
 
 A code-validated **slow section audit** of DataLogicEngine produced findings,
 recommendations, an orphan worksheet, and a phased plan. Owner locked product
-gates (G-*). Implementers then executed the Phase 1–7 workshop changes,
-updated tests for **legacy-API-off by default**, and left the desktop rebuild
-unstarted. QC subsequently found and corrected source-contract, URL, version,
-frontend-test, KA parity, dependency-lock, and documentation-governance issues.
-QR-0 through QR-5 and full post-QC source qualification pass. Three reviewed
-local commit groups now hold the implementation, governance, and documentation
-evidence; no push or rebuild has been performed.
+gates (G-*). Implementers then executed the Phase 1–7 workshop changes and
+updated tests for **legacy-API-off by default**. QC subsequently found and
+corrected source-contract, URL, version, frontend-test, KA parity,
+dependency-lock, and documentation-governance issues. QR-0 through QR-5 and
+full post-QC source qualification pass. The authorized clean rebuild then found
+and corrected a retained 4.3.0-to-4.4.0 runtime-lock incompatibility. The
+replacement package passes the portable engineering subset recorded below.
+All commits and artifacts remain local; nothing was pushed or distributed.
 
 **Product invariants preserved:** gateway → `GovernedExecutionOrchestrator` →
 trace; thin SDKs; desktop single-owner auth; simulation off the chat path;
@@ -1305,7 +1306,7 @@ Registered in `config/documentation-authority.json` → `supporting_review_input
 | Routes / orphans | Live routes **350**, zero unclassified/unauthenticated mutations; collisions 0; legacy prefixes false; orphan/blocked counts 0 |
 | Dependencies / packaging | Node 24/npm 11 lock and production-only dry runs passed; existing unpacked packaging resources passed |
 | Diff integrity | `git diff --check` passed (line-ending notices only) |
-| Desktop rebuild | **Authorized, not started** — use the exact clean local checkpoint below |
+| Desktop rebuild | **Complete for portable engineering acceptance** — exact artifact and retained gates recorded below |
 
 ### Local source checkpoint (2026-08-15)
 
@@ -1314,9 +1315,31 @@ Registered in `config/documentation-authority.json` → `supporting_review_input
 | `3054d5de` | Product, runtime, frontend, SDK, and regression remediation |
 | `6e2fdd5b` | Route, orphan, dependency, and packaging governance |
 | `cbfacbdb` | QC plan, canonical documentation, and qualification evidence |
+| `2d166456` | Clean local checkpoint metadata used for the first rebuild |
+| `16faaeb4` | Allow retained 4.3.0 candidates through the governed 4.4.0 migration path |
+| `e893d424` | First-artifact blocker evidence; exact source of the repaired rebuild |
+| `56bc4aa7` | Require package-owned backend readiness in portable smoke |
 
-All three commits are local and unpushed. The metadata-only commit that records
-this table follows them; use the resulting clean `HEAD` as the rebuild source.
+All commits are local and unpushed. The final evidence/handoff commit follows
+them. The exact rebuilt binary is bound to `e893d424`; `56bc4aa7` is the
+post-build smoke-governance correction used to qualify it.
+
+### Repaired post-QC candidate (2026-08-15)
+
+| Item | Result |
+|---|---|
+| Artifact | `DataLogicEngine Setup 4.4.0.exe` |
+| Exact source | `e893d42436c8f250de7a2781dc7f621ae4ddab1f` |
+| Size / SHA-256 | 358,857,127 bytes / `54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97` |
+| Signature | `NotSigned` — release blocker retained |
+| Build/resource gates | Backend, Next/Electron, NSIS, integrity, checksum/block map, and packaged resources pass |
+| Runtime | Package-owned `/ready` pass in 46,402 ms; `/health` pass; retained identity preserved and advanced 4.3.0 → 4.4.0 after migration |
+| Visible desktop | Dashboard, Trace Explorer, refreshed Diagnostics, and Algorithm Registry manifest `2026.08.11-AL10.2` load |
+| Shutdown | Zero scoped packaged processes and zero port-5000 listeners remain |
+| Installed acceptance | **Open** — elevated per-machine lifecycle was not conclusively accepted |
+
+Evidence:
+`reports/production-readiness/2026/phase-19/post-qc-rebuild/repaired-candidate-engineering-acceptance.md`.
 
 ### What Codex should **not** redo without cause
 
@@ -1335,14 +1358,15 @@ rebuild from the resulting local checkpoint.
 
 ## Exact next action
 
-1. Commit this checkpoint metadata and verify a clean, reproducible local
-   `HEAD`. Do not push without a separate owner instruction.
-2. Clean-build the desktop from that exact source, then run packaging smoke and
-   resource verification. A green rebuild is not production GO.
-3. Install and run the automatable **CP19-M** engineering rows against that
-   exact rebuilt artifact. Preserve 213 canonical KA IDs and one governed
-   answer/effect path.
-4. Retain signing/timestamp, installed Phase 9–13, provider/corpus/blinded-human,
+1. Use only the repaired candidate hash above for the next CP19-M slice; do not
+   reuse the first-artifact hash in `first-rebuild-runtime-blocker.md`.
+2. Run the elevated per-machine install/upgrade/repair/uninstall and retained-
+   data lifecycle on the exact candidate, including Program Files launch and
+   post-uninstall cleanup. Treat UAC cancellation as no result, not a pass.
+3. Classify and exercise the Diagnostics `Api_gateway` and `Workers` stopped
+   states under the installed service-role matrix; do not waive them from the
+   portable observation alone.
+4. Complete signing/timestamp, installed Phase 9–13, provider/corpus/blinded-human,
    visual/scaling/high-contrast/NVDA, and 24/72-hour soak acceptance.
 5. Complete retained clean-machine object-store, protected-volume,
    backup/restore, security/license, accessibility, provider, gateway, pilot,
@@ -1350,7 +1374,7 @@ rebuild from the resulting local checkpoint.
 6. Retain CP16-G/CP17-E, CP15-A–H, production signing/distribution NO-GO,
    automatic-update disablement, and object-store production-approval false
    until exact installed and independent evidence exists.
-8. Before changing API surface or reopening Phase 8: re-read
+7. Before changing API surface or reopening Phase 8: re-read
    `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` and
    this checkpoint. `CODEX_WORK_QUEUE_2026-08-10.md` is supporting history only.
 

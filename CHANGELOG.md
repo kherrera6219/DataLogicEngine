@@ -51,7 +51,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -59,7 +59,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-15 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -71,6 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Retained 4.3.0 candidate upgrade:** the 4.4.0 runtime-lock authority now
+  admits the prior 4.3.0 engineering identity into the managed migration path
+  and advances the retained version only after migrations pass.
+- **Portable packaging smoke:** release-review runs can require `/ready`, reject
+  a pre-existing listener, and verify that the listener belongs to the exact
+  launched package process tree. This prevents an Electron-only process from
+  masking a crashed frozen backend.
 - **Slow-audit remediation (2026-08-12 through 2026-08-15):** engineering
   hygiene, API surface uniqueness, cloud-BYOK generative locality,
   authority/honesty planes, CI structural guards, and SDK 0.7.0 polish. Phase 5

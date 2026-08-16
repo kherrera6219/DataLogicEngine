@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.68.0 |
+| Document version | v1.69.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -67,6 +67,23 @@ installed engineering evidence remains bound only to SHA-256
 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
 The canonical record is
 `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`.
+
+The 2026-08-15 slow-audit workshop was subsequently source-qualified and
+committed locally. Its first authorized 4.4.0 rebuild exposed a fail-closed
+retained-version mismatch and proved the process-alive portable smoke was not a
+backend-readiness assertion. Commit `16faaeb4` corrected the governed 4.3.0 to
+4.4.0 upgrade-source contract, and commit `56bc4aa7` hardened portable smoke to
+require `/ready` from a listener owned by the launched package process tree.
+The repaired candidate was built from `e893d424` as
+`DataLogicEngine Setup 4.4.0.exe` (358,857,127 bytes; SHA-256
+`54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97`).
+Integrity, NSIS governance, packaged resources, package-owned `/ready`,
+`/health`, retained-identity advancement, and visible dashboard, trace,
+diagnostics, and algorithm-registry checks pass. The artifact is unsigned and
+its elevated per-machine lifecycle remains inconclusive, so this is a portable
+engineering subset only. CP19-M and production/public release remain **NO-GO**.
+See
+`reports/production-readiness/2026/phase-19/post-qc-rebuild/repaired-candidate-engineering-acceptance.md`.
 
 Scheduled Security run 31561547302 failed its full-history secret scan on
 Lob-detector matches in generated KA evidence/test identifiers. The current
@@ -6314,11 +6331,14 @@ independent-review, human-pilot, and 24/72-hour evidence as release blockers.
 Phase 19 source evidence cannot convert unsigned qualification into installed
 production acceptance.
 
-The later local August 11 installer is a separate unsigned, not-installed-
-qualified artifact. Do not transfer the August 10 Program Files, retained-data,
-or five-service evidence to it. Close the scheduled full-history secret-scan
-finding and rerun that workflow clean as part of the remaining supply-chain
-evidence.
+The August 12 documentation-reconciliation installer and the first post-QC
+rebuild are superseded engineering diagnostics. The current repaired local
+candidate is the unsigned 4.4.0 artifact from `e893d424`, SHA-256
+`54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97`.
+Do not transfer the August 10 Program Files, retained-data, or five-service
+evidence to it. Complete the elevated lifecycle for this exact hash, close the
+scheduled full-history secret-scan finding, and rerun that workflow clean as
+part of the remaining supply-chain evidence.
 
 Preserve automatic-update disablement, production signing/distribution NO-GO,
 all independent-review requirements, and object-store production-approval false
