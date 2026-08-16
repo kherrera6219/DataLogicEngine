@@ -39,29 +39,15 @@ async def verify_rag_embedding_failover():
         print("[FAIL] No embedding generated")
 
 async def verify_active_defense_live():
-    print("\n=== Verifying Active Defense (Live Gateway) ===")
-    from backend.security.active_defense import ActiveDefenseService
+    """Retired module check — ActiveDefenseService was removed from mainline.
 
-    with unittest.mock.patch('backend.llm_gateway.gateway.LLMGateway') as MockGateway:
-        mock_instance = MockGateway.return_value
-        
-        # Setup async return for process()
-        async def mock_process(*args, **kwargs):
-            class MockResponse:
-                ok = True
-                content = '{"is_safe": true, "threat_score": 0.1, "reason": "Test benign"}'
-            return MockResponse()
-            
-        mock_instance.process.side_effect = mock_process
-        
-        service = ActiveDefenseService()
-        verdict = await service.assess_incoming("Hello", "Summary", "user")
-        
-        print(f"Verdict: {verdict}")
-        if verdict.reason == "Test benign":
-             print("[PASS] Active Defense correctly called Gateway")
-        else:
-             print(f"[FAIL] Active Defense did not return expected mock result. Got: {verdict.reason}")
+    Live input screening is prompt_injection_shield + ai_guardrail on the gateway.
+    """
+    print("\n=== Verifying Active Defense (retired) ===")
+    if importlib.util.find_spec("backend.security.active_defense") is not None:
+        print("[FAIL] backend.security.active_defense still importable; expected retired")
+        return
+    print("[PASS] active_defense is retired; live controls are gateway shield/guardrail")
 
 async def verify_audio_failover():
     print("\n=== Verifying Audio Service Failover ===")

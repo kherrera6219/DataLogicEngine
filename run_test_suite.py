@@ -17,7 +17,8 @@ PHASES = [
     },
     {
         "name": "Phase 4: System & E2E",
-        "targets": ["tests/end_to_end", "tests/simulation", "tests/resilience", "tests/windows", "tests/performance"]
+        # tests/resilience was removed; do not re-add without a real package.
+        "targets": ["tests/end_to_end", "tests/simulation", "tests/windows", "tests/performance"]
     }
 ]
 

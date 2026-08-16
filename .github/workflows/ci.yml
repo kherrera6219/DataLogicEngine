@@ -84,6 +84,8 @@ jobs:
         python scripts/validate_schema_parity.py --report reports/schema_parity_report_ci.json
 
     - name: Run Tests
+      # Coverage is intentionally not enforced in CI (see docs/CI_QUALITY_POLICY.md).
+      # Local optional gate: python run_test_suite.py
       run: |
         python -m pytest tests/ --no-cov
       env:
@@ -94,6 +96,22 @@ jobs:
         SESSION_SECRET: "ci-session-secret"
         SECRET_KEY: "ci-test-secret-key"
         JWT_SECRET_KEY: "ci-test-jwt-secret"
+
+    - name: Orphan bytecode scan
+      run: |
+        python scripts/scan_orphan_pyc.py --fail-on-orphan
+
+    - name: Route uniqueness guard
+      run: |
+        python scripts/verify_route_uniqueness.py
+      env:
+        PYTHONPATH: "."
+        DATABASE_URL: "sqlite:///:memory:"
+        FLASK_ENV: "testing"
+        SESSION_SECRET: "ci-session-secret"
+        SECRET_KEY: "ci-test-secret-key"
+        JWT_SECRET_KEY: "ci-test-jwt-secret"
+        ENCRYPTION_KEK_SECRET: "ci-encryption-kek-secret-32-bytes-xx"
 
     - name: Run API contract tests
       run: |
@@ -197,6 +215,7 @@ jobs:
           echo "::warning::No Chrome binary found; a11y sweep may fail"
         fi
 
+    # Soft gate: see docs/CI_QUALITY_POLICY.md (hard fail only when release claims a11y).
     - name: Run Frontend Accessibility Sweep
       continue-on-error: true
       run: |
@@ -267,6 +286,10 @@ jobs:
       run: |
         npm --prefix frontend run electron:dist
 
+    - name: Verify packaging resources (backend, policies, release JSON)
+      run: |
+        powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/verify_packaging_resources.ps1 -RepoRoot (Get-Location).Path
+
     - name: Run packaging smoke (portable launch)
       run: |
         powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run_packaging_smoke.ps1 -RepoRoot (Get-Location).Path
@@ -279,6 +302,7 @@ jobs:
         path: |
           reports/packaging_smoke_report.json
           reports/nsis_governance_report.json
+          reports/packaging_resources_report.json
         if-no-files-found: warn
 
   governance:
