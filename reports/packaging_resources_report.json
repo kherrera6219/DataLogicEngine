@@ -1,13 +1,15 @@
-{
-  "generated_at": "2026-08-16T04:44:32.8972193Z",
-  "unpacked_root": "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked",
-  "resources_root": "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources",
-  "required_checked": [
-    "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\backend\\DataLogic_Backend.exe",
-    "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\config\\release-trust-policy.json",
-    "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\config\\release-channel.json"
-  ],
-  "rego_count": 1,
-  "missing": [],
-  "ok": true
+﻿{
+    "generated_at":  "2026-08-16T05:20:44.5282643Z",
+    "unpacked_root":  "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked",
+    "resources_root":  "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources",
+    "required_checked":  [
+                             "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\backend\\DataLogic_Backend.exe",
+                             "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\config\\release-trust-policy.json",
+                             "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\config\\release-channel.json"
+                         ],
+    "rego_count":  1,
+    "missing":  [
+
+                ],
+    "ok":  true
 }

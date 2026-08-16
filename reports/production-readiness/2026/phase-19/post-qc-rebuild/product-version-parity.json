@@ -1,0 +1,116 @@
+{
+  "schema_version": "dle.product-version-parity.v1",
+  "generated_at": "2026-08-16T05:37:26.128385+00:00",
+  "authority": "config/product-versions.json",
+  "checks": [
+    {
+      "surface": "pyproject",
+      "expected": "4.4.0",
+      "actual": "4.4.0",
+      "passed": true
+    },
+    {
+      "surface": "frontend-package",
+      "expected": "4.4.0",
+      "actual": "4.4.0",
+      "passed": true
+    },
+    {
+      "surface": "frontend-lock",
+      "expected": "4.4.0",
+      "actual": "4.4.0",
+      "passed": true
+    },
+    {
+      "surface": "frontend-lock-root",
+      "expected": "4.4.0",
+      "actual": "4.4.0",
+      "passed": true
+    },
+    {
+      "surface": "python-sdk",
+      "expected": "0.7.0",
+      "actual": "0.7.0",
+      "passed": true
+    },
+    {
+      "surface": "typescript-sdk",
+      "expected": "0.1.0",
+      "actual": "0.1.0",
+      "passed": true
+    },
+    {
+      "surface": "provider-manifest",
+      "expected": "provider-manifest.v1",
+      "actual": "provider-manifest.v1",
+      "passed": true
+    },
+    {
+      "surface": "data-plane-schema",
+      "expected": "0a1b2c3d4e5f",
+      "actual": "0a1b2c3d4e5f",
+      "passed": true
+    },
+    {
+      "surface": "electron-artifact-name",
+      "expected": "version macro",
+      "actual": "present",
+      "passed": true
+    },
+    {
+      "surface": "electron-update-signature",
+      "expected": "true",
+      "actual": "true",
+      "passed": true
+    },
+    {
+      "surface": "changelog-lineage",
+      "expected": ">=4.2.0",
+      "actual": "4.4.0",
+      "passed": true
+    },
+    {
+      "surface": "next-build-injection",
+      "expected": "authority",
+      "actual": "present",
+      "passed": true
+    },
+    {
+      "surface": "about-ui",
+      "expected": "NEXT_PUBLIC_APP_VERSION",
+      "actual": "present",
+      "passed": true
+    },
+    {
+      "surface": "frozen-bundle",
+      "expected": "config/product-versions.json",
+      "actual": "present",
+      "passed": true
+    },
+    {
+      "surface": "backend-file-version",
+      "expected": "build/backend-version-info.txt",
+      "actual": "present",
+      "passed": true
+    },
+    {
+      "surface": "backend-runtime",
+      "expected": "PRODUCT_VERSION",
+      "actual": "present",
+      "passed": true
+    },
+    {
+      "surface": "gateway-contract",
+      "expected": "authority reference",
+      "actual": "present",
+      "passed": true
+    },
+    {
+      "surface": "virtual-model-manifest",
+      "expected": "authority reference",
+      "actual": "present",
+      "passed": true
+    }
+  ],
+  "passed": true
+}
