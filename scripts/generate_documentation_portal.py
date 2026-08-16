@@ -87,13 +87,20 @@ def render(
     installer_size = current_installer.get("size_bytes", "not_evaluated")
     build_commit = installer_report.get("results", {}).get("source_commit", "not_evaluated")
     packaging_matches = packaging_report.get("installer_sha256") == installer_hash
-    smoke_state = (
-        "started and timed out without installed-mode acceptance"
-        if packaging_matches
+    backend_readiness = packaging_report.get("backend_readiness", {})
+    if packaging_matches and backend_readiness.get("ready"):
+        smoke_state = (
+            "reached package-owned backend readiness in "
+            f"{backend_readiness.get('latency_ms', 'not_evaluated')} ms"
+        )
+    elif (
+        packaging_matches
         and packaging_report.get("portable_launch_started")
         and packaging_report.get("portable_launch_timed_out")
-        else "was not run for this artifact"
-    )
+    ):
+        smoke_state = "started but did not prove backend readiness"
+    else:
+        smoke_state = "was not run for this artifact"
     ka_evidence = (
         "- Current evidence: all 213/213 KAs are individually qualified and the "
         "186-row baseline backlog is closed through 36 dependency-safe groups. "

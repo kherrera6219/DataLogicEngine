@@ -60,6 +60,7 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
     installer_size = installer.get("size_bytes", "not_evaluated")
     installer_hash = installer.get("sha256", "not_evaluated")
     packaging_matches = packaging_report.get("installer_sha256") == installer_hash
+    backend_readiness = packaging_report.get("backend_readiness", {})
     lines = [
         "# Generated production contract index",
         "",
@@ -80,6 +81,8 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
         f"| Current local artifact SHA-256 | `{installer_hash}` |",
         f"| Current build source commit | `{installer_report.get('results', {}).get('source_commit', 'not_evaluated')}` |",
         f"| Current artifact signature | `{packaging_report.get('installer_signature_status', 'not_evaluated') if packaging_matches else 'not_evaluated'}` |",
+        f"| Portable backend readiness | `{str(backend_readiness.get('ready', False)).lower() if packaging_matches else 'not_evaluated'}` |",
+        f"| Portable readiness listener owned by package | `{str(backend_readiness.get('owner_verified_as_launch_descendant', False)).lower() if packaging_matches else 'not_evaluated'}` |",
         f"| Installed-mode smoke accepted | `{str(packaging_report.get('installer_mode', {}).get('install_success', False)).lower() if packaging_matches else 'not_evaluated'}` |",
         "",
         "## Provider and model allowlist",
