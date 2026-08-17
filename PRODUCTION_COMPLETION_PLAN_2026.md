@@ -90,8 +90,9 @@ On 2026-08-16, source advanced the supported cloud defaults to OpenAI
 `gemini-3.7-flash`. Provider-manifest, settings/dashboard, adapters, stored-row
 migration, evaluation matrix, and documentation contracts were synchronized.
 This runtime and data-plane revision supersedes every prior installer as a
-CP19-M acceptance target. A local replacement was built from the uncommitted
-working tree based on `b3132966` as `DataLogicEngine Setup 4.4.0.exe`
+CP19-M acceptance target. A local replacement was built immediately before the
+complete source checkpoint was committed to `main` as `5e8733b3` (based on
+`b3132966`) as `DataLogicEngine Setup 4.4.0.exe`
 (358,859,969 bytes; SHA-256
 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
 Integrity, NSIS/resources, payload, and package-owned portable `/ready` pass;

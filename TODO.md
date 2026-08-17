@@ -376,8 +376,10 @@ Phase 18 source baseline while completing the whole-application wiring.
       Integrity, NSIS/resources, 6,096-file payload, package-owned `/ready`, and
       retained migration to Alembic `b2c3d4e5f6a7` pass. Saved Google/OpenAI
       rows are `gemini-3.7-flash` / `gpt-5.6-sol`; no key was read or printed.
-      The artifact is unsigned and bound only to an uncommitted local tree based
-      on `b3132966`, so exact clean-source/signing/installed acceptance is open.
+      The artifact is unsigned and was built immediately before source checkpoint
+      `5e8733b3` was committed to `main` (based on `b3132966`). It was not rebuilt
+      from that clean commit, so exact clean-source/signing/installed acceptance
+      is open.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
       owner-authorized Google/OpenAI tests, bind a clean committed rebuild,
       sign/timestamp it, and complete the remaining CP19-M installed rows.

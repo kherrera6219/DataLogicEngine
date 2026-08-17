@@ -78,8 +78,9 @@ The coverage-qualified local artifact is `DataLogicEngine Setup 4.4.0.exe`
 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
 Installer integrity, NSIS governance, packaged resources, and package-owned
 portable backend readiness pass; `/ready` completed in 30,790 ms. The artifact
-is unsigned and comes from an uncommitted local tree based on `b3132966`, so it
-does not satisfy CP19-M signed/clean-source or installed acceptance.
+is unsigned and was built immediately before source checkpoint `5e8733b3` was
+committed to `main` (based on `b3132966`). It was not rebuilt from that clean
+commit and does not satisfy CP19-M signed/clean-source or installed acceptance.
 
 ## Completion criteria
 

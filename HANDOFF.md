@@ -740,9 +740,10 @@ matrix, active documentation, and a forward migration for only the two retired
 stored defaults are synchronized. The final local replacement engineering
 artifact is `DataLogicEngine Setup 4.4.0.exe` (358,859,969 bytes; SHA-256
 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
-It is unsigned and was built from an uncommitted local tree based on
-`b3132966fd9c9f3d92a21036e06e636c1e96c97c`, so it is not the clean signed
-exact-source CP19-M artifact. Integrity, NSIS/resources, 6,096-file payload,
+It is unsigned and was built immediately before the complete source checkpoint
+was committed to `main` as `5e8733b3` (based on `b3132966`). It was not rebuilt
+from that clean commit, so it is not the signed exact-source CP19-M artifact.
+Integrity, NSIS/resources, 6,096-file payload,
 and package-owned portable `/ready` pass in 30,790 ms. The retained PostgreSQL
 store
 advanced from `0a1b2c3d4e5f` to `b2c3d4e5f6a7`, and read-only verification

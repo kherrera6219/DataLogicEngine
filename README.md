@@ -52,7 +52,9 @@ The current local provider-refresh engineering build is
 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
 It passes integrity, payload, and package-owned portable readiness, including
 the retained migration to Alembic `b2c3d4e5f6a7`. It is unsigned and was built
-from an uncommitted local tree, so it is not the clean signed CP19-M candidate.
+immediately before source checkpoint `5e8733b3` was committed to `main`; it was
+not rebuilt from that clean commit and is therefore not the signed CP19-M
+candidate.
 
 ## Repository guide
 

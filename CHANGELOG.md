@@ -79,6 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   retained PostgreSQL store advanced to Alembic `b2c3d4e5f6a7`, and the known
   saved Google/OpenAI rows migrated without exposing keys. Clean exact-source
   binding, signing, live-provider, and installed acceptance remain open.
+  The complete source checkpoint was committed to `main` as `5e8733b3`; the
+  installer predates that commit and was not rebuilt from a clean checkout.
 - **80% coverage qualification:** raised and independently gated Python
   `backend/` (80.30%), `backend/security/` (80.67%), and `core/` (80.89%), plus
   frontend statements (89.54%), branches (80.69%), functions (86.11%), and
