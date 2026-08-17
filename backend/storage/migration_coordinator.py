@@ -40,6 +40,7 @@ class MigrationCoordinator:
         ledger_path: str | Path,
         product_version: str,
         supported_paths: Set[tuple[str, str, str]] | None = None,
+        backup_required_paths: Set[tuple[str, str, str]] | None = None,
         backup_verifier: Callable[[], bool] | None = None,
     ) -> None:
         if set(adapters) != set(target_versions):
@@ -56,6 +57,13 @@ class MigrationCoordinator:
         if not self.product_version:
             raise ValueError("product_version_required")
         self.supported_paths = set(supported_paths or set())
+        self.backup_required_paths = (
+            set(self.supported_paths)
+            if backup_required_paths is None
+            else set(backup_required_paths)
+        )
+        if not self.backup_required_paths <= self.supported_paths:
+            raise ValueError("migration_backup_path_not_supported")
         self.backup_verifier = backup_verifier
 
     def assess(self) -> dict[str, dict[str, str | None]]:
@@ -101,7 +109,17 @@ class MigrationCoordinator:
         upgrade_stores = [
             store for store, item in assessment.items() if item["action"] == "upgrade"
         ]
-        if upgrade_stores:
+        backup_required_stores = [
+            store
+            for store in upgrade_stores
+            if (
+                store,
+                str(assessment[store]["observed_version"]),
+                self.target_versions[store],
+            )
+            in self.backup_required_paths
+        ]
+        if backup_required_stores:
             if self.backup_verifier is None:
                 raise MigrationCoordinatorError("coordinated_backup_required")
             try:
@@ -144,7 +162,8 @@ class MigrationCoordinator:
             "generated_at": datetime.now(UTC).isoformat(),
             "status": "ready",
             "stores": store_results,
-            "coordinated_backup_verified": bool(upgrade_stores),
+            "coordinated_backup_verified": bool(backup_required_stores),
+            "backup_required_stores": backup_required_stores,
             "downgrade_automatic": False,
         }
         self._write_ledger(ledger)

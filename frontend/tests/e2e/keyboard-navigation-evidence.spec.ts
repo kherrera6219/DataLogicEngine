@@ -38,7 +38,7 @@ async function mockApi(page: Page) {
     if (path === '/gateway/sessions') return route.fulfill(jsonResponse({ sessions: [] }));
     if (path === '/gateway/providers') {
       return route.fulfill(jsonResponse({
-        providers: [{ id: 'provider-openai', name: 'OpenAI', type: 'openai', model: 'gpt-5.5', is_default: true }],
+        providers: [{ id: 'provider-openai', name: 'OpenAI', type: 'openai', model: 'gpt-5.6-sol', is_default: true }],
       }));
     }
     if (path === '/settings/ai') return route.fulfill(jsonResponse({ ai_processing_enabled: true, store_chat_history: true }));

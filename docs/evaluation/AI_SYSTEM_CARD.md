@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-003 |
 | Title | AI system card and evaluation report |
-| Document version | v1.2.1 |
+| Document version | v1.4.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, AI assurance reviewers, risk reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented governed request path, evaluation protocol, model records, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | Model/provider, evaluation method, risk, limitation, metric, or release-status change |
 | Requirements and evidence | Evaluation suite, golden corpus, model manifest, risk records, and Phase 12 evidence |
 
@@ -30,8 +30,11 @@ judgment.
 All 213 KAs and the clean source boundary now pass CP19-K/L verification, and
 representative governed KAs execute from the installed frozen backend. Installed
 OpenAI/Google corpus rows, blinded-human review, and owner approval remain open.
-The newer August 11 local build has not passed installed provider or corpus
-acceptance; evaluation does not transfer from the earlier artifact.
+The 2026-08-16 source refresh selects OpenAI `gpt-5.6-sol` with explicit High
+reasoning and Google `gemini-3.7-flash`. The replacement package passes
+portable readiness and migrated the known retained provider rows to those
+identifiers. It has not yet passed live-provider, installed-provider, or corpus
+acceptance; evaluation does not transfer from an earlier artifact.
 
 The supported product is the local Windows desktop application and its approved
 private client-gateway profile. Public multi-user web/cloud hosting, implicit
@@ -95,10 +98,16 @@ is used for a request, and the application does not silently switch providers.
 Native stream capability and buffered renderer delivery are identified
 separately.
 
-| Provider | Supported default model | API contract |
-|---|---|---|
-| OpenAI | `gpt-5.5` | `responses` |
-| Google | `gemini-3.1-pro-preview` | `generate_content` |
+| Provider | Supported default model | API contract | Reasoning default |
+|---|---|---|---|
+| OpenAI | `gpt-5.6-sol` | `responses` | `high` |
+| Google | `gemini-3.7-flash` | `generate_content` | Provider-managed |
+
+The OpenAI adapter sends the explicit Responses API setting
+`reasoning: { effort: "high" }`. The Google adapter retains the stable
+`generate_content` integration exposed by the pinned `google-genai` SDK. Model
+identity is bound to the [OpenAI model guidance](https://developers.openai.com/api/docs/guides/latest-model#update-api-and-model-parameters)
+and the [Google Gemini 3.7 Flash model page](https://ai.google.dev/gemini-api/docs/models/gemini-3.7-flash).
 
 Server-owned per-request, session, daily, and monthly call/token ceilings apply.
 Retries and refinements consume the same allowance. At the warning threshold the

@@ -101,12 +101,26 @@ def render(
         smoke_state = "started but did not prove backend readiness"
     else:
         smoke_state = "was not run for this artifact"
+    if "replacement rebuild required" in current_phase.lower():
+        artifact_evidence = (
+            f"The latest recorded local engineering build is `{installer_name}` "
+            f"({installer_size} bytes; SHA-256 `{installer_hash}`), but it is "
+            "superseded by the current provider/model source refresh and is not "
+            "the active CP19-M acceptance target. A replacement artifact has not "
+            "yet been recorded."
+        )
+    else:
+        artifact_evidence = (
+            f"The current local engineering build recorded against source base `{build_commit}` "
+            f"is `{installer_name}` ({installer_size} bytes; SHA-256 `{installer_hash}`); "
+            f"it is unsigned, its integrity/checksum/block-map gate passes, and "
+            f"portable smoke {smoke_state}. This report does not establish a clean-commit "
+            "source binding."
+        )
     ka_evidence = (
         "- Current evidence: all 213/213 KAs are individually qualified and the "
         "186-row baseline backlog is closed through 36 dependency-safe groups. "
-        f"The current local engineering build from runtime source `{build_commit}` "
-        f"is `{installer_name}` ({installer_size} bytes; SHA-256 `{installer_hash}`); "
-        f"it is unsigned, its integrity/checksum/block-map gate passes, and portable smoke {smoke_state}. "
+        f"{artifact_evidence} "
         "It has not passed installed-mode acceptance and does not replace the distinct "
         "2026-08-10 installed qualification artifact recorded in the release and V&V records. "
         "One-time installed retained-data adoption preserved 22,068 listed relational "

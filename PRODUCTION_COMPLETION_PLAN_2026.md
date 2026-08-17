@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.69.0 |
+| Document version | v1.71.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -84,6 +84,32 @@ its elevated per-machine lifecycle remains inconclusive, so this is a portable
 engineering subset only. CP19-M and production/public release remain **NO-GO**.
 See
 `reports/production-readiness/2026/phase-19/post-qc-rebuild/repaired-candidate-engineering-acceptance.md`.
+
+On 2026-08-16, source advanced the supported cloud defaults to OpenAI
+`gpt-5.6-sol` with explicit `high` reasoning and Google
+`gemini-3.7-flash`. Provider-manifest, settings/dashboard, adapters, stored-row
+migration, evaluation matrix, and documentation contracts were synchronized.
+This runtime and data-plane revision supersedes every prior installer as a
+CP19-M acceptance target. A local replacement was built from the uncommitted
+working tree based on `b3132966` as `DataLogicEngine Setup 4.4.0.exe`
+(358,859,969 bytes; SHA-256
+`1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
+Integrity, NSIS/resources, payload, and package-owned portable `/ready` pass;
+the package-owned readiness probe completed in 30,790 ms.
+The retained PostgreSQL store transactionally advanced to Alembic
+`b2c3d4e5f6a7`, and the known saved provider rows migrated to
+`gpt-5.6-sol` / `gemini-3.7-flash` without reading or printing keys. The
+artifact is unsigned and not clean-commit-bound; live-provider, installed,
+signing, accessibility, recovery, independent, pilot, and soak evidence remain
+open. Production/public release remains **NO-GO**.
+
+The clean split-language coverage qualification now clears the 80% engineering
+floor independently in every maintained application scope: Python `backend/`
+is 80.30%, `backend/security/` is 80.67%, and `core/` is 80.89%; frontend V8
+coverage is 89.54% statements, 80.69% branches, 86.11% functions, and 91.36%
+lines. The blocking runs passed 3,287 Python tests with 18 skipped and 482
+frontend tests. CI enforces the same independent thresholds; Python and V8 are
+not blended into a misleading whole-application percentage.
 
 Scheduled Security run 31561547302 failed its full-history secret scan on
 Lob-detector matches in generated KA evidence/test identifiers. The current
@@ -1897,8 +1923,9 @@ explicit evidence and category-appropriate validation.
 CP6-A through CP6-E pass in source, database-migration, API, UI, and deterministic
 test evidence. CP6-F has the versioned repository-authored corpus, thresholds,
 automated contract checks, provider/model drift gate, human-review rubric, and AI
-system card. The deterministic local row passes. OpenAI `gpt-5.5`, Google
-`gemini-3.1-pro-preview`, the blinded sample, second-reviewer assignment, and
+system card. The deterministic local row passes. The current OpenAI
+`gpt-5.6-sol` and Google `gemini-3.7-flash` rows, the blinded sample,
+second-reviewer assignment, and
 owner release approval remain pending rebuilt-installed evidence. Those rows are
 quarantined and the matrix reports `release_ready=false`.
 
@@ -5145,8 +5172,8 @@ review.
 Forty-one focused backend/frontend workflow tests, six Python SDK tests, seven
 TypeScript SDK tests, 426 frontend tests across 87 files, and all 2,557 Python
 source tests pass. The source result has 19 skipped and 35 known warnings.
-Frontend type checking and the production build pass. Alembic has 26 linear
-revisions and one head `0a1b2c3d4e5f`; the owned data inventory contains 87 SQL
+Frontend type checking and the production build pass. Alembic now has 27 linear
+revisions and one current head `b2c3d4e5f6a7`; the owned data inventory contains 87 SQL
 entities and 32 logical contracts. Manifest/runtime/integration/selector,
 OpenAPI, migration, product-version, documentation, compilation, Ruff, and
 source-hygiene gates pass.
@@ -6315,8 +6342,10 @@ batches (08-43), all complete with individual semantic, owner-path, trace,
 security, effect, and performance proof.
 
 CP19-L passed on 2026-08-10 and the clean unsigned candidate rebuild and
-per-machine installed engineering smoke completed. Proceed with the remaining
-CP19-M rows against an exact signed/timestamped artifact. Preserve all 213
+per-machine installed engineering smoke completed. The 2026-08-16 provider
+refresh replacement now passes static and portable readiness qualification;
+the exact clean-commit/signed installed candidate and bounded live-provider
+tests remain open. Preserve all 213
 capabilities and the one-controller boundary while exercising the ten layers,
 L9/L10, Quad Persona/DSQP, canonical 12-step workflow, Truth modules,
 data/knowledge lifecycle, simulation, MCP, providers, gateway, security,
@@ -6331,13 +6360,13 @@ independent-review, human-pilot, and 24/72-hour evidence as release blockers.
 Phase 19 source evidence cannot convert unsigned qualification into installed
 production acceptance.
 
-The August 12 documentation-reconciliation installer and the first post-QC
-rebuild are superseded engineering diagnostics. The current repaired local
-candidate is the unsigned 4.4.0 artifact from `e893d424`, SHA-256
-`54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97`.
-Do not transfer the August 10 Program Files, retained-data, or five-service
-evidence to it. Complete the elevated lifecycle for this exact hash, close the
-scheduled full-history secret-scan finding, and rerun that workflow clean as
+The August 12 documentation-reconciliation installer and both earlier post-QC
+rebuilds are superseded engineering diagnostics. Do not transfer their Program
+Files, retained-data, five-service, or provider evidence. Use the current
+provider-refresh portable evidence only as a bridge: complete its bounded live
+provider checks, commit the reviewed source/evidence, rebuild from that clean
+exact commit, and sign/timestamp it before the elevated lifecycle. Close
+the scheduled full-history secret-scan finding and rerun that workflow clean as
 part of the remaining supply-chain evidence.
 
 Preserve automatic-update disablement, production signing/distribution NO-GO,

@@ -51,7 +51,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.2.0 |
+| Document version | v1.4.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -59,7 +59,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-15 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -71,6 +71,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Coverage-qualified replacement rebuild:** built the unsigned local 4.4.0
+  engineering package at SHA-256
+  `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`.
+  Static package validation and package-owned portable readiness pass in
+  30,790 ms. The
+  retained PostgreSQL store advanced to Alembic `b2c3d4e5f6a7`, and the known
+  saved Google/OpenAI rows migrated without exposing keys. Clean exact-source
+  binding, signing, live-provider, and installed acceptance remain open.
+- **80% coverage qualification:** raised and independently gated Python
+  `backend/` (80.30%), `backend/security/` (80.67%), and `core/` (80.89%), plus
+  frontend statements (89.54%), branches (80.69%), functions (86.11%), and
+  lines (91.36%). The clean runs pass 3,287 Python and 482 frontend tests, and
+  CI now fails when any named scope or metric falls below 80.00%.
+- **Cloud model defaults:** advanced the single-provider allowlist to OpenAI
+  `gpt-5.6-sol` with explicit High reasoning and Google
+  `gemini-3.7-flash`. Stored rows using only the two retired defaults migrate
+  forward, settings no longer re-offer stale saved model IDs, and the bounded
+  live connectivity check now reserves enough output for thinking models.
 - **Retained 4.3.0 candidate upgrade:** the 4.4.0 runtime-lock authority now
   admits the prior 4.3.0 engineering identity into the managed migration path
   and advances the retained version only after migrations pass.

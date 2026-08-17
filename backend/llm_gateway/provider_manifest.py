@@ -19,6 +19,7 @@ class ProviderModel:
     id: str
     label: str
     minimum_output_tokens: int
+    reasoning_effort: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,9 +72,23 @@ def _load_manifest() -> tuple[dict[str, Any], tuple[ProviderDefinition, ...]]:
                 id=_required_text(model.get("id"), f"providers[{provider_id}].models[].id"),
                 label=_required_text(model.get("label"), f"providers[{provider_id}].models[].label"),
                 minimum_output_tokens=max(1, int(model.get("minimum_output_tokens") or 1)),
+                reasoning_effort=(
+                    str(model["reasoning_effort"]).strip().lower()
+                    if model.get("reasoning_effort")
+                    else None
+                ),
             )
             for model in entry.get("models") or []
         )
+        invalid_efforts = {
+            model.reasoning_effort
+            for model in models
+            if model.reasoning_effort not in {None, "none", "low", "medium", "high", "xhigh", "max"}
+        }
+        if invalid_efforts:
+            raise ValueError(
+                f"Unsupported reasoning effort for {provider_id}: {sorted(invalid_efforts)}"
+            )
         default_model = _required_text(
             entry.get("default_model"), f"providers[{provider_id}].default_model"
         )
@@ -153,3 +168,13 @@ def validate_provider_model(provider_type: str | None, model: str | None) -> str
     if selected not in provider.model_ids:
         raise ValueError(f"Unsupported model {selected!r} for provider {provider.id}")
     return selected
+
+
+def provider_model_definition(
+    provider_type: str | None,
+    model: str | None,
+) -> ProviderModel:
+    """Return the validated model contract for a supported provider."""
+    provider = provider_definition(provider_type)
+    selected = validate_provider_model(provider.id, model)
+    return next(candidate for candidate in provider.models if candidate.id == selected)

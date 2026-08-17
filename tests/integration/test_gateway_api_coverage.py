@@ -422,14 +422,14 @@ def test_save_provider_key_normalizes_provider_key_and_model(mock_curr_user, app
     mock_new_provider.to_dict.return_value = {
         'id': 'provider-google-id',
         'provider_type': 'google',
-        'model_id': 'gemini-3.1-pro-preview',
+        'model_id': 'gemini-3.7-flash',
     }
     MockProvider.return_value = mock_new_provider
 
     resp = app_client.post('/api/v1/gateway/keys', json={
         'provider': ' Google ',
         'key': '  test-google-key  ',
-        'model': ' gemini-3.1-pro-preview ',
+        'model': ' gemini-3.7-flash ',
     })
 
     assert resp.status_code == 200
@@ -439,7 +439,7 @@ def test_save_provider_key_normalizes_provider_key_and_model(mock_curr_user, app
     assert kwargs['provider_type'] == 'google'
     assert kwargs['name'] == 'Google'
     assert kwargs['created_by'] == 7
-    assert mock_new_provider.model_id == 'gemini-3.1-pro-preview'
+    assert mock_new_provider.model_id == 'gemini-3.7-flash'
     mock_new_provider.set_api_key.assert_called_once_with('test-google-key')
     mock_db.session.add.assert_called_once_with(mock_new_provider)
     mock_db.session.commit.assert_called()

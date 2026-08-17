@@ -151,7 +151,7 @@ def test_phase8_sync_idempotency_replays_without_duplicate_provider_spend(authen
     governed.content = 'governed result'
     governed.run_id = '00000000-0000-0000-0000-000000000111'
     governed.provider_used = 'openai'
-    governed.model_used = 'gpt-5.5'
+    governed.model_used = 'gpt-5.6-sol'
     governed.usage = {'tokens_in': 3, 'tokens_out': 2}
     governed.coordinate = None
     governed.warnings = []

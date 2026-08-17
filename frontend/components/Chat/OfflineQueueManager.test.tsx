@@ -106,4 +106,115 @@ describe('OfflineQueueManager', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Backend unavailable');
   });
+
+  it('renders optional metadata fallbacks and deletes one record', async () => {
+    const detailedQueue = {
+      items: [
+        {
+          id: 'second-item-87654321', status: '', created_at: 'not-a-date', expires_at: null,
+          encrypted: false, response: { run_id: 'run-22' }, last_error: 'previous failure',
+        },
+        {
+          id: 'first-item-12345678', status: 'failed', failure_class: null,
+          created_at: '2026-07-15T10:00:00Z', payload_bytes: 0, attempts: 2,
+        },
+      ],
+      counts: { pending: 2 },
+      snapshot_at: 'not-a-date',
+    };
+    let deleted = false;
+    (request as ReturnType<typeof vi.fn>).mockImplementation((endpoint: string) => {
+      if (endpoint.includes('second-item-87654321')) {
+        deleted = true;
+        return Promise.resolve({ deleted: true });
+      }
+      return Promise.resolve(deleted ? emptyQueue : detailedQueue);
+    });
+
+    renderManager();
+    fireEvent.click(await screen.findByRole('button', { name: /review offline replay queue, 2 pending/i }));
+    expect(await screen.findAllByText(/failure class unavailable/i)).toHaveLength(2);
+    expect(screen.getByText(/Encryption state unavailable · Unknown bytes · 0 replay attempts/i)).toBeInTheDocument();
+    expect(screen.getByText('Last error: previous failure')).toBeInTheDocument();
+    expect(screen.getByText('Run: run-22')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /delete queue record second-i/i }));
+    await waitFor(() => expect(request).toHaveBeenCalledWith(
+      '/gateway/offline-queue/second-item-87654321',
+      { method: 'DELETE' },
+    ));
+    expect(await screen.findByText(/queue record second-i deleted/i)).toBeInTheDocument();
+  });
+
+  it('reports failed replay results and honors replay cancellation', async () => {
+    (request as ReturnType<typeof vi.fn>).mockImplementation((endpoint: string) => {
+      if (endpoint === '/gateway/offline-queue/replay') {
+        return Promise.resolve({
+          replayed: 2,
+          results: [
+            { id: 'one', status: 'completed' },
+            { id: 'two', status: 'failed', error: 'still offline' },
+          ],
+          queue: pendingQueue,
+        });
+      }
+      return Promise.resolve({ ...pendingQueue, counts: { pending: 2 } });
+    });
+    vi.mocked(window.confirm).mockReturnValueOnce(false).mockReturnValue(true);
+
+    renderManager();
+    fireEvent.click(await screen.findByRole('button', { name: /review offline replay queue, 2 pending/i }));
+    const replay = screen.getByRole('button', { name: /replay pending/i });
+    fireEvent.click(replay);
+    expect(request).not.toHaveBeenCalledWith('/gateway/offline-queue/replay', { method: 'POST' });
+    fireEvent.click(replay);
+    expect((await screen.findAllByText(/1 completed and 1 remain pending or failed/i)).length).toBeGreaterThan(0);
+  });
+
+  it('reports invalid replay, delete, and refresh responses', async () => {
+    let mode = 'initial';
+    (request as ReturnType<typeof vi.fn>).mockImplementation((endpoint: string) => {
+      if (endpoint === '/gateway/offline-queue/replay') return Promise.resolve({ replayed: 0, results: [], queue: {} });
+      if (endpoint.includes('queue-item-12345678')) return Promise.reject('delete unavailable');
+      if (mode === 'invalid-refresh') return Promise.resolve({ items: [] });
+      return Promise.resolve(pendingQueue);
+    });
+
+    renderManager();
+    fireEvent.click(await screen.findByRole('button', { name: /review offline replay queue, 1 pending/i }));
+    fireEvent.click(screen.getByRole('button', { name: /replay pending/i }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Replay response was invalid.');
+
+    fireEvent.click(screen.getByRole('button', { name: /delete queue record queue-it/i }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Queue record deletion failed.');
+
+    mode = 'invalid-refresh';
+    fireEvent.click(screen.getByRole('button', { name: /^refresh$/i }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Queue status response was invalid.');
+  });
+
+  it('reports partial failures while clearing multiple records', async () => {
+    const twoItems = {
+      ...pendingQueue,
+      items: [
+        pendingQueue.items[0],
+        { ...pendingQueue.items[0], id: 'queue-item-abcdefgh' },
+      ],
+      counts: { pending: 2 },
+    };
+    let clearing = false;
+    (request as ReturnType<typeof vi.fn>).mockImplementation((endpoint: string) => {
+      if (endpoint.includes('queue-item-12345678')) {
+        clearing = true;
+        return Promise.reject(new Error('locked'));
+      }
+      if (endpoint.includes('queue-item-abcdefgh')) return Promise.resolve({ deleted: true });
+      return Promise.resolve(clearing ? emptyQueue : twoItems);
+    });
+
+    renderManager();
+    fireEvent.click(await screen.findByRole('button', { name: /review offline replay queue, 2 pending/i }));
+    fireEvent.click(screen.getByRole('button', { name: /clear queue/i }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('1 queue record could not be deleted.');
+  });
 });

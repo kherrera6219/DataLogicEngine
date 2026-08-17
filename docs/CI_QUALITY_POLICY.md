@@ -2,18 +2,42 @@
 
 | Field | Value |
 |---|---|
-| Date | 2026-08-12 |
+| Date | 2026-08-16 |
 | Applies to | `.github/workflows/ci.yml` |
 
 ## Coverage
 
 | Context | Policy |
 |---|---|
-| **CI** (`backend-test`) | `pytest tests/ --no-cov` — functional pass/fail is the gate |
-| **Local phased runner** | `python run_test_suite.py` may still run a full-suite coverage pass at the end |
-| **Threshold enforcement** | Not a hard CI fail-under today (avoids flaky gates on a large solo monorepo) |
+| **CI** (`backend-test`) | Complete `pytest tests/` run with `backend/` and `core/` instrumentation, followed by the independent Python scope gate |
+| **CI** (`frontend-build`) | Complete Vitest V8 coverage run with independent statements, branches, functions, and lines gates |
+| **Threshold enforcement** | Hard minimum of 80.00% for every scope and metric listed below |
 
-When enabling CI fail-under later, set a realistic floor after measuring a clean main baseline.
+Fresh 2026-08-16 coverage measurement:
+
+| Denominator | Result |
+|---|---:|
+| Python `backend/` | 80.30% (37,348 / 46,511) |
+| Python `backend/security/` | 80.67% (1,653 / 2,049) |
+| Python `core/` | 80.89% (12,374 / 15,298) |
+| Frontend statements | 89.54% (2,474 / 2,763) |
+| Frontend branches | 80.69% (1,902 / 2,357) |
+| Frontend functions | 86.11% (701 / 814) |
+| Frontend lines | 91.36% (2,337 / 2,558) |
+
+Commands:
+
+```powershell
+.\.venv311\Scripts\python.exe -m pytest tests -q --cov=backend --cov=core --cov-report=json:coverage-python.json
+python scripts/verify_python_coverage.py --report coverage-python.json --minimum 80
+npm --prefix frontend run test:coverage
+```
+
+There is no truthful single combined application percentage because Python and
+V8 use different coverage models. The gate therefore requires each named Python
+scope and each V8 metric to pass independently; one strong result cannot conceal
+a failing result elsewhere. The clean qualification passed 3,287 Python tests
+with 18 skipped and 482 frontend tests.
 
 ## Accessibility (a11y)
 

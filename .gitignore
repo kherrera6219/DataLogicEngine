@@ -97,6 +97,7 @@ certs/
 
 # Coverage and testing
 coverage.json
+coverage-*.json
 .coverage
 htmlcov/
 .pytest_cache/

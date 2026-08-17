@@ -35,6 +35,18 @@ from extensions import db
 
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRESQL_TARGET_REVISION = CONTRACT_VERSIONS["data_plane_schema"]
+POSTGRESQL_PROVIDER_DEFAULT_SOURCE_REVISION = "0a1b2c3d4e5f"
+SUPPORTED_RUNTIME_MIGRATION_PATHS = {
+    (
+        "postgresql",
+        POSTGRESQL_PROVIDER_DEFAULT_SOURCE_REVISION,
+        POSTGRESQL_TARGET_REVISION,
+    ),
+}
+# This revision only substitutes the two retired provider-default identifiers.
+# Alembic applies it transactionally and its downgrade restores those identifiers,
+# so it is authorized as lossless and does not require a coordinated recovery set.
+BACKUP_REQUIRED_RUNTIME_MIGRATION_PATHS: set[tuple[str, str, str]] = set()
 MANAGED_STORE_TARGETS = {
     "chroma": "dle.chroma.v1",
     "local_json_memory": "unified-memory.v2",
@@ -161,7 +173,8 @@ def build_managed_migration_coordinator(app, runtime, resources):
         target_versions=MANAGED_STORE_TARGETS,
         ledger_path=runtime.runtime_root / "migrations" / "migration-ledger.json",
         product_version=str(app.config.get("APP_VERSION", PRODUCT_VERSION)),
-        supported_paths=set(),
+        supported_paths=SUPPORTED_RUNTIME_MIGRATION_PATHS,
+        backup_required_paths=BACKUP_REQUIRED_RUNTIME_MIGRATION_PATHS,
         backup_verifier=None,
     )
 

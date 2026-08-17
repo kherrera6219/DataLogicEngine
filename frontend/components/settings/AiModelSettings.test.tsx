@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AiModelSettings, getProviderStatus } from './AiModelSettings';
 
@@ -8,9 +8,11 @@ vi.mock('@/lib/api', () => ({
   request: vi.fn(),
 }));
 
+const toastMock = vi.fn();
+
 vi.mock('@/components/ui/use-toast', () => ({
   useToast: () => ({
-    toast: vi.fn(),
+    toast: toastMock,
   }),
 }));
 
@@ -87,6 +89,10 @@ describe('AiModelSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (vi.mocked(request) as any).mockResolvedValue({ providers: [] });
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:ledger') });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
   });
 
   it('should render component without crashing', () => {
@@ -223,6 +229,8 @@ describe('AiModelSettings', () => {
 
     await waitFor(() => {
       expect(request).toHaveBeenCalled();
+      expect(screen.getByRole('option', { name: 'gpt-5.6-sol' })).toBeInTheDocument();
+      expect(screen.getByText(/Reasoning level:/)).toHaveTextContent('high (default)');
     });
   });
 
@@ -281,5 +289,142 @@ describe('AiModelSettings', () => {
     await waitFor(() => {
       expect(request).toHaveBeenCalled();
     });
+  });
+
+  it('loads saved preferences, toggles them, and persists success and failure', async () => {
+    (vi.mocked(request) as any).mockImplementation((endpoint: string, options?: RequestInit) => {
+      if (endpoint === '/gateway/providers') return Promise.resolve({ providers: [] });
+      if (endpoint === '/gateway/usage-ledger?days=30') return Promise.resolve(null);
+      if (endpoint === '/settings/ai' && !options) {
+        return Promise.resolve({ ai_processing_enabled: false, store_chat_history: false });
+      }
+      if (endpoint === '/settings/ai') return Promise.resolve({ success: true });
+      return Promise.resolve({});
+    });
+    render(<AiModelSettings />);
+    const aiSwitch = await screen.findByRole('switch', { name: /enable ai processing/i });
+    const historySwitch = screen.getByRole('switch', { name: /store chat history/i });
+    await waitFor(() => expect(aiSwitch).toHaveAttribute('aria-checked', 'false'));
+    expect(historySwitch).toHaveAttribute('aria-checked', 'false');
+    fireEvent.click(aiSwitch);
+    fireEvent.click(historySwitch);
+    fireEvent.click(screen.getByRole('button', { name: /save preferences/i }));
+    await waitFor(() => expect(request).toHaveBeenCalledWith('/settings/ai', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ ai_processing_enabled: true, store_chat_history: true }),
+    })));
+    expect(toastMock).toHaveBeenCalledWith('AI preferences saved.', 'success');
+
+    (vi.mocked(request) as any).mockRejectedValueOnce(new Error('save failed'));
+    fireEvent.click(screen.getByRole('button', { name: /save preferences/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Failed to save AI preferences.', 'error'));
+  });
+
+  it('saves a new key, reveals it, tests the provider, and marks it available', async () => {
+    (vi.mocked(request) as any).mockImplementation((endpoint: string) => {
+      if (endpoint === '/gateway/providers') return Promise.resolve({ providers: [] });
+      if (endpoint === '/gateway/usage-ledger?days=30') return Promise.resolve(null);
+      if (endpoint === '/settings/ai') return Promise.resolve({});
+      if (endpoint === '/gateway/keys') {
+        return Promise.resolve({ provider: { id: 'openai-1', provider_type: 'openai' } });
+      }
+      if (endpoint === '/gateway/providers/openai-1/test') {
+        return Promise.resolve({ success: true, message: 'Connected.' });
+      }
+      return Promise.resolve({});
+    });
+    render(<AiModelSettings />);
+    const key = await screen.findByLabelText('API Key');
+    fireEvent.change(key, { target: { value: '  secret-key  ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Show API key' }));
+    expect(key).toHaveAttribute('type', 'text');
+    fireEvent.click(screen.getByRole('button', { name: 'Hide API key' }));
+    fireEvent.click(screen.getByRole('button', { name: /save model configuration/i }));
+    await waitFor(() => expect(request).toHaveBeenCalledWith('/gateway/keys', expect.objectContaining({
+      method: 'POST',
+      body: expect.stringContaining('secret-key'),
+    })));
+    expect(await screen.findByText('Stored')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /test provider model/i }));
+    await waitFor(() => expect(request).toHaveBeenCalledWith('/gateway/providers/openai-1/test', { method: 'POST' }));
+    expect(await screen.findByText(/openai is available/i)).toBeInTheDocument();
+    expect(toastMock).toHaveBeenCalledWith('Connected.', 'success');
+  });
+
+  it('tests an existing provider and reports unsuccessful, thrown, and missing-key outcomes', async () => {
+    (vi.mocked(request) as any).mockImplementation((endpoint: string) => {
+      if (endpoint === '/gateway/providers') {
+        return Promise.resolve({ providers: [{ id: 'google-1', name: 'Google', type: 'google', has_api_key: true }] });
+      }
+      if (endpoint === '/gateway/providers/google-1/test') {
+        return Promise.resolve({ success: false, error: 'invalid key' });
+      }
+      return Promise.resolve(null);
+    });
+    render(<AiModelSettings />);
+    await screen.findByText('Stored');
+    fireEvent.click(screen.getByRole('button', { name: /test provider model/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Provider model test failed: invalid key', 'error'));
+
+    (vi.mocked(request) as any).mockRejectedValueOnce('offline');
+    fireEvent.click(screen.getByRole('button', { name: /test provider model/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Provider model test failed: offline', 'error'));
+
+    (vi.mocked(request) as any).mockResolvedValue({ providers: [] });
+    const empty = render(<AiModelSettings />);
+    await waitFor(() => expect(screen.getAllByText(/No providers detected yet/i).length).toBeGreaterThan(0));
+    fireEvent.click(screen.getAllByRole('button', { name: /test provider model/i }).at(-1)!);
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith(
+      'Enter an API key before saving the model configuration.',
+      'warning',
+    ));
+    empty.unmount();
+  });
+
+  it('renders usage details and refreshes, exports, resets, and cancels reset', async () => {
+    const ledger = {
+      schema_version: 'provider-usage-ledger.v1',
+      generated_at: '2026-08-16T00:00:00Z',
+      limits: { daily_calls: 10, monthly_calls: 100, daily_tokens: 1000, monthly_tokens: 5000, monthly_spend_usd: null },
+      remaining: { daily_calls: 7, monthly_calls: 80, daily_tokens: 800, monthly_tokens: 4000, monthly_spend_usd: null },
+      daily: { calls: 3, tokens_total: 200, known_estimated_cost_usd: 0.1, unknown_price_calls: 0 },
+      monthly: { calls: 20, tokens_total: 1000, known_estimated_cost_usd: null, unknown_price_calls: 2 },
+      pricing_status: 'unknown',
+      entries: [{ id: 'e1', provider: 'google', model: null, purpose: 'chat', status: 'success', disclosed_categories: [] }],
+    };
+    (vi.mocked(request) as any).mockImplementation((endpoint: string, options?: RequestInit) => {
+      if (endpoint === '/gateway/providers') return Promise.resolve({ providers: [] });
+      if (endpoint === '/gateway/usage-ledger?days=30') return Promise.resolve(ledger);
+      if (endpoint === '/gateway/usage-ledger/export?days=366') return Promise.resolve({ ...ledger, export_notice: 'redacted' });
+      if (endpoint === '/gateway/usage-ledger' && options?.method === 'DELETE') return Promise.resolve({ success: true });
+      return Promise.resolve({});
+    });
+    render(<AiModelSettings />);
+    expect(await screen.findByText('google / unknown model')).toBeInTheDocument();
+    expect(screen.getByText('Unknown')).toBeInTheDocument();
+    expect(screen.getByText('No owner ceiling configured')).toBeInTheDocument();
+    expect(screen.getByText(/none recorded/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /refresh provider usage ledger/i }));
+    await waitFor(() => expect(request).toHaveBeenCalledWith('/gateway/usage-ledger?days=30'));
+    fireEvent.click(screen.getByRole('button', { name: /export provider usage ledger/i }));
+    await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: /reset provider usage ledger/i }));
+    await waitFor(() => expect(request).toHaveBeenCalledWith('/gateway/usage-ledger', expect.objectContaining({ method: 'DELETE' })));
+    expect(toastMock).toHaveBeenCalledWith('Provider usage ledger reset.', 'success');
+    vi.mocked(window.confirm).mockReturnValue(false);
+    fireEvent.click(screen.getByRole('button', { name: /reset provider usage ledger/i }));
+  });
+
+  it('reports usage refresh, export, reset, provider-load, and preference-load error branches', async () => {
+    (vi.mocked(request) as any).mockRejectedValue(new Error('offline'));
+    render(<AiModelSettings />);
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Failed to load provider models: offline', 'error'));
+    const refresh = await screen.findByRole('button', { name: /refresh provider usage ledger/i });
+    fireEvent.click(refresh);
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Failed to load provider usage: offline', 'error'));
+    fireEvent.click(screen.getByRole('button', { name: /export provider usage ledger/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Failed to export provider usage: offline', 'error'));
+    fireEvent.click(screen.getByRole('button', { name: /reset provider usage ledger/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Failed to reset provider usage: offline', 'error'));
   });
 });

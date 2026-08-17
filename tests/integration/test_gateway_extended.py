@@ -101,7 +101,7 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     # Provider
     mock_prov = MagicMock()
     mock_prov.provider_type = "openai"
-    mock_prov.model_id = "gpt-5.5"
+    mock_prov.model_id = "gpt-5.6-sol"
     mock_prov.timeout_seconds = 30
     mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
@@ -109,11 +109,13 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     # Gateway Adapter
     mock_gw_instance = mock_gateway_cls.return_value
     mock_adapter = MagicMock()
+    observed_request = {}
     
     # Adapter complete is async
     async def mock_complete(**kwargs):
+        observed_request.update(kwargs)
         resp = MagicMock()
-        resp.model = "gpt-5.5"
+        resp.model = "gpt-5.6-sol"
         return resp
         
     mock_adapter.complete = mock_complete
@@ -125,8 +127,9 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     
     assert resp.status_code == 200
     assert resp.json['success'] is True
-    assert resp.json['model'] == "gpt-5.5"
+    assert resp.json['model'] == "gpt-5.6-sol"
     assert 'latency_ms' in resp.json
+    assert observed_request['max_tokens'] == 256
 
 @patch('flask_login.utils._get_user')
 def test_test_provider_fail(mock_curr_user, app_client):
@@ -137,7 +140,7 @@ def test_test_provider_fail(mock_curr_user, app_client):
     mock_curr_user.return_value = MockUser()
     mock_prov = MagicMock()
     mock_prov.provider_type = "openai"
-    mock_prov.model_id = "gpt-5.5"
+    mock_prov.model_id = "gpt-5.6-sol"
     mock_prov.timeout_seconds = 30
     mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
@@ -162,7 +165,7 @@ def test_test_provider_unauthenticated_error_returns_invalid_api_key(mock_curr_u
     mock_curr_user.return_value = MockUser()
     mock_prov = MagicMock()
     mock_prov.provider_type = "google"
-    mock_prov.model_id = "gemini-3.1-pro-preview"
+    mock_prov.model_id = "gemini-3.7-flash"
     mock_prov.timeout_seconds = 30
     mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
@@ -196,7 +199,7 @@ def test_test_provider_model_error_remains_invalid_model(mock_curr_user, app_cli
     mock_curr_user.return_value = MockUser()
     mock_prov = MagicMock()
     mock_prov.provider_type = "google"
-    mock_prov.model_id = "gemini-3.1-pro-preview"
+    mock_prov.model_id = "gemini-3.7-flash"
     mock_prov.timeout_seconds = 30
     mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov

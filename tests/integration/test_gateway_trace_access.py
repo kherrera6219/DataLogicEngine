@@ -34,7 +34,7 @@ def test_external_trace_read_is_client_owned_and_evidence_scoped(app) -> None:
             name='other-trace-reader',
             scopes=['trace:read'],
         )
-        run = TraceRun(user_id=user_id, status='completed', model_name='gpt-5.5')
+        run = TraceRun(user_id=user_id, status='completed', model_name='gpt-5.6-sol')
         db.session.add(run)
         db.session.flush()
         db.session.add(AIAuditEvent(
@@ -42,8 +42,8 @@ def test_external_trace_read_is_client_owned_and_evidence_scoped(app) -> None:
             user_id=user_id,
             api_key_id=key.id,
             provider='openai',
-            model='gpt-5.5',
-            model_version='gpt-5.5',
+            model='gpt-5.6-sol',
+            model_version='gpt-5.6-sol',
             success=True,
         ))
         db.session.add(TraceStage(

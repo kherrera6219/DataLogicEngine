@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v3.9.1 |
+| Document version | v4.1.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -24,10 +24,12 @@ Provide task-focused instructions for day-to-day use of DataLogicEngine by analy
 
 This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, Diagnostics, and admin workflows.
 
-The 2026-08-10 unsigned installed candidate is suitable only for controlled
-qualification. It reached readiness with retained local data. A newer unsigned
-local build exists but has not passed installed-mode acceptance. Production
-release remains blocked by the signed installed, provider, accessibility,
+The current source selects OpenAI `gpt-5.6-sol` with High reasoning and Google
+`gemini-3.7-flash`. The local replacement engineering package contains that
+refresh and passes portable readiness; saved rows using the retired defaults
+were migrated without re-entering their keys. The package is unsigned and has
+not passed live-provider or installed acceptance. Production release remains
+blocked by a clean signed installed artifact plus provider, accessibility,
 independent, pilot, and soak gates.
 
 ## Audience
@@ -106,7 +108,7 @@ the local desktop trust boundary.
 8. If the test fails, use the specific reason: invalid key, unauthorized/invalid
    model, quota/rate/billing, network/outage, or timeout.
 
-**Choose a cloud model:** the app uses one user-selected cloud model. In **Settings → AI/Model**, pick **OpenAI** (`gpt-5.5`) or **Google** (`gemini-3.1-pro-preview`) and save its API key. Every request is then served by that model. An API key and internet connection are required for reasoning.
+**Choose a cloud model:** the app uses one user-selected cloud model. In **Settings → AI/Model**, pick **OpenAI** (`gpt-5.6-sol`, High reasoning) or **Google** (`gemini-3.7-flash`) and save its API key. Every request is then served by that model. An API key and internet connection are required for reasoning.
 
 ### 2. Start governed AI chat
 

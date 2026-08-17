@@ -156,7 +156,7 @@ class VideoService:
         from backend.llm_gateway.model_defaults import OPENAI_LATEST_MODEL
         request = GovernedRequest(
             messages=[{"role": "user", "content": content}],
-            model=OPENAI_LATEST_MODEL,  # current OpenAI model (gpt-5.5; multimodal/vision-capable)
+            model=OPENAI_LATEST_MODEL,  # current OpenAI model (gpt-5.6-sol; multimodal/vision-capable)
             mode="standard",
             metadata={"task": "video_analysis", "priority": "high"},
             source="video_analysis",

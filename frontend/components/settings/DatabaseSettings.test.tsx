@@ -264,4 +264,129 @@ describe('DatabaseSettings', () => {
       expect(screen.queryByText(/last backup/i)).not.toBeInTheDocument();
     });
   });
+
+  it('renders all-healthy service details and policy fallbacks', async () => {
+    const services = {
+      postgres: { healthy: true, is_cloud: false, url: 'postgres://local', provider: 'bundled', version: '18.4' },
+      redis: { healthy: true, is_cloud: false },
+      neo4j: { healthy: true, is_cloud: false },
+      vector: { healthy: true, is_cloud: false },
+      object: { healthy: true, is_cloud: false },
+    };
+    mockRequestRoutes({ '/storage/health': { mode: '', services } });
+
+    render(<DatabaseSettings />);
+    expect(await screen.findByText('5/5 Services Online')).toBeInTheDocument();
+    expect(screen.getByText('Provider: bundled')).toBeInTheDocument();
+    expect(screen.getByText('Version: 18.4')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Runtime Policy'));
+    expect(screen.getAllByText('Endpoint unavailable')).toHaveLength(4);
+    expect(screen.getAllByText('Version pending')).toHaveLength(5);
+  });
+
+  it('uses HTTP metrics fallback and formats bytes through gigabytes', async () => {
+    const metrics = {
+      ...baseMetrics,
+      sqlite: { size_bytes: 512, tables: 0, rows: 0 },
+      neo4j: { size_bytes: 2 * 1024 * 1024, exists: false },
+      chroma: { size_bytes: 2 * 1024 * 1024 * 1024, exists: true },
+      object_store: {},
+      total_local_bytes: 0,
+    };
+    installElectronApi({ getDesktopStorageMetrics: undefined });
+    mockRequestRoutes({ '/storage/desktop-metrics': metrics });
+
+    render(<DatabaseSettings />);
+    await screen.findByText('Internal Data Plane');
+    fireEvent.click(screen.getByText('Metrics & Backup'));
+    expect(screen.getByText('512 B')).toBeInTheDocument();
+    expect(screen.getByText('2.0 MB')).toBeInTheDocument();
+    expect(screen.getByText('2.0 GB')).toBeInTheDocument();
+    expect(screen.getAllByText('0 B').length).toBeGreaterThan(0);
+    expect(screen.getByText('Not created')).toBeInTheDocument();
+  });
+
+  it('reports connection and database lifecycle failures', async () => {
+    render(<DatabaseSettings />);
+    await screen.findByText('Internal Data Plane');
+    vi.mocked(request).mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/storage/health') return baseHealth as never;
+      if (endpoint === '/storage/databases/autostart') return { enabled: true } as never;
+      if (endpoint === '/storage/health/postgres') throw 'probe denied';
+      if (endpoint === '/storage/databases/start') throw new Error('start denied');
+      if (endpoint === '/storage/databases/stop') throw 'stop denied';
+      if (endpoint === '/storage/desktop-metrics') return baseMetrics as never;
+      throw new Error(`Unexpected request for ${endpoint}`);
+    });
+
+    fireEvent.click(screen.getAllByRole('button', { name: /test connection/i })[0]);
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith(
+      'Failed to test PostgreSQL: probe denied',
+      'error',
+    ));
+    fireEvent.click(screen.getByRole('button', { name: /start all/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Failed to start databases: start denied', 'error'));
+    fireEvent.click(screen.getByRole('button', { name: /stop all/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Failed to stop databases: stop denied', 'error'));
+  });
+
+  it('uses lifecycle and auto-start default success messages', async () => {
+    mockRequestRoutes({
+      '/storage/databases/start': {},
+      '/storage/databases/stop': {},
+      '/storage/databases/autostart:POST': {},
+    });
+    render(<DatabaseSettings />);
+    await screen.findByText('Internal Data Plane');
+    fireEvent.click(screen.getByRole('button', { name: /start all/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Database startup initiated.', 'success'));
+    fireEvent.click(screen.getByRole('button', { name: /stop all/i }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Database shutdown initiated.', 'success'));
+    fireEvent.click(screen.getByText('Runtime Policy'));
+    fireEvent.click(await screen.findByRole('switch'));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Auto-start preference saved.', 'success', 2000));
+  });
+
+  it('validates backup secrets and reports unavailable desktop backup support', async () => {
+    installElectronApi({ chooseBackupFolder: undefined, runDatabaseBackup: undefined });
+    render(<DatabaseSettings />);
+    await screen.findByText('Internal Data Plane');
+    fireEvent.click(screen.getByText('Metrics & Backup'));
+    const runBackup = screen.getByRole('button', { name: /run backup/i });
+    fireEvent.click(runBackup);
+    expect(toastMock).toHaveBeenCalledWith('Use a recovery passphrase with at least 12 characters.', 'error');
+
+    fireEvent.change(screen.getByLabelText('Recovery passphrase'), { target: { value: 'long-secret-123' } });
+    fireEvent.change(screen.getByLabelText('Confirm recovery passphrase'), { target: { value: 'different-1234' } });
+    fireEvent.click(runBackup);
+    expect(toastMock).toHaveBeenCalledWith('Recovery passphrases do not match.', 'error');
+
+    fireEvent.change(screen.getByLabelText('Confirm recovery passphrase'), { target: { value: 'long-secret-123' } });
+    fireEvent.click(runBackup);
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith(
+      'Backup failed: Database backup is available only in the desktop application.',
+      'error',
+    ));
+  });
+
+  it('requests cancellation for a running backup', async () => {
+    type BackupResult = { artifact_path: string; size_bytes: number; manifest: Record<string, unknown> };
+    let finishBackup: ((value: BackupResult) => void) | undefined;
+    const runDatabaseBackup = vi.fn(() => new Promise<BackupResult>((resolve) => { finishBackup = resolve; }));
+    const cancelDesktopOperation = vi.fn().mockResolvedValue({ cancelled: true });
+    installElectronApi({ runDatabaseBackup, cancelDesktopOperation });
+
+    render(<DatabaseSettings />);
+    await screen.findByText('Internal Data Plane');
+    fireEvent.click(screen.getByText('Metrics & Backup'));
+    fireEvent.change(screen.getByLabelText('Recovery passphrase'), { target: { value: 'owner-secret-123' } });
+    fireEvent.change(screen.getByLabelText('Confirm recovery passphrase'), { target: { value: 'owner-secret-123' } });
+    fireEvent.click(screen.getByRole('button', { name: /run backup/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /cancel database backup/i }));
+    await waitFor(() => expect(cancelDesktopOperation).toHaveBeenCalledWith(expect.any(String)));
+    expect(toastMock).toHaveBeenCalledWith('Backup cancellation requested.', 'success', 3000);
+
+    finishBackup?.({ artifact_path: 'C:\\Backups\\late.zip', size_bytes: 1, manifest: {} });
+    await waitFor(() => expect(screen.getByText('C:\\Backups\\late.zip')).toBeInTheDocument());
+  });
 });

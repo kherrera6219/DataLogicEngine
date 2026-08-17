@@ -1940,8 +1940,8 @@ def list_active_providers():
 def save_provider_key():
     """Create or update an LLM provider API key (basic UI helper).
 
-    The app uses one user-selected cloud model (OpenAI ``gpt-5.5`` or Google
-    ``gemini-3.1-pro-preview``), so an API key is required.
+    The app uses one user-selected cloud model (OpenAI ``gpt-5.6-sol`` or
+    Google ``gemini-3.7-flash``), so an API key is required.
     """
     data = request.get_json() or {}
     provider_type = str(data.get('provider') or '').strip().lower()
@@ -2330,7 +2330,9 @@ def test_provider(provider_id):
             adapter.complete(
                 messages=[{"role": "user", "content": "Hello, are you online?"}],
                 model=validate_provider_model(provider.provider_type, provider.model_id),
-                max_tokens=16
+                # Modern thinking models need room for internal reasoning plus
+                # a short visible answer; 16 tokens can yield a false failure.
+                max_tokens=256
             ),
             timeout=min(30, max(1, int(provider.timeout_seconds or 30))),
         ))

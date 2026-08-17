@@ -36,9 +36,15 @@ def test_provider_alias_is_explicit_and_unknown_provider_fails_closed() -> None:
 
 
 def test_undeclared_model_fails_closed() -> None:
-    assert validate_provider_model("openai", None) == "gpt-5.5"
+    assert validate_provider_model("openai", None) == "gpt-5.6-sol"
     with pytest.raises(ValueError, match="Unsupported model"):
         validate_provider_model("openai", "gpt-4")
+
+
+def test_openai_default_declares_high_reasoning_effort() -> None:
+    openai = next(provider for provider in PROVIDERS if provider.id == "openai")
+    assert openai.default_model == "gpt-5.6-sol"
+    assert openai.models[0].reasoning_effort == "high"
 
 
 def test_generated_provider_artifacts_are_current() -> None:

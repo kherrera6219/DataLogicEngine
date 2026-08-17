@@ -167,7 +167,7 @@ describe('lib/api/client', () => {
       await expect(
         request('/gateway/keys', {
           method: 'POST',
-          body: JSON.stringify({ provider: 'google', key: 'provider-key', model: 'gemini-3.1-pro-preview' }),
+          body: JSON.stringify({ provider: 'google', key: 'provider-key', model: 'gemini-3.7-flash' }),
         }),
       ).resolves.toEqual({ saved: true });
 

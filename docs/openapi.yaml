@@ -977,7 +977,7 @@ components:
             - gemini
         preferred_model:
           type: string
-          example: gemini-3.1-pro-preview
+          example: gemini-3.7-flash
         ai_processing_enabled:
           type: boolean
         store_chat_history:

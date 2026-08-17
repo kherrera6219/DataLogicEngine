@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 import { api, AnalyticsOverview, Activity as ActivityType, request } from '@/lib/api';
+import { PROVIDER_MANIFEST } from '@/lib/provider-manifest.generated';
 import { useToast } from "@/components/ui/use-toast";
 
 interface DashboardProvider {
@@ -260,10 +261,12 @@ export default function DashboardPage() {
                           <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">AI Model</span>
                        </div>
                        <div className="space-y-1.5">
-                          {[
-                            { label: 'OpenAI', model: 'gpt-5.5', providerKey: ['openai'] },
-                            { label: 'Google', model: 'gemini-3.1-pro-preview', providerKey: ['google', 'gemini'] },
-                          ].map((m) => {
+                          {PROVIDER_MANIFEST.providers.map((entry) => {
+                            const m = {
+                              label: entry.label,
+                              model: entry.default_model,
+                              providerKey: [entry.id, ...entry.aliases] as readonly string[],
+                            };
                             const configured = cloudProviders.some((p) =>
                               m.providerKey.includes((p.type || '').toLowerCase()) && p.has_api_key
                             );

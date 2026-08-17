@@ -3,7 +3,7 @@
 This is the cloud-only replacement for the former local-Ollama path used by
 internal steps (DSQP answer generation, defense-supervisor screening). The app
 no longer ships local models, so these steps call the user's configured cloud
-model — OpenAI ``gpt-5.5`` or Google ``gemini-3.1-pro-preview``.
+model — OpenAI ``gpt-5.6-sol`` or Google ``gemini-3.7-flash``.
 
 Design contract
 ---------------

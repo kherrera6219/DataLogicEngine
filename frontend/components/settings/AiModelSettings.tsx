@@ -10,7 +10,9 @@ import { Select } from '@/components/ui/select';
 import { request } from '@/lib/api';
 import {
   CONFIGURABLE_PROVIDER_TYPES,
+  DEFAULT_MODEL_BY_PROVIDER,
   MODEL_LIBRARY,
+  PROVIDER_MANIFEST,
 } from '@/lib/provider-manifest.generated';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -116,7 +118,7 @@ export function AiModelSettings() {
   const [providers, setProviders] = useState<ProviderOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [provider, setProvider] = useState('openai');
-  const [model, setModel] = useState('gpt-5.5');
+  const [model, setModel] = useState(DEFAULT_MODEL_BY_PROVIDER.openai);
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -155,9 +157,12 @@ export function AiModelSettings() {
 
           const nextType = preferred.type || preferred.name.toLowerCase();
           setProvider(nextType);
-          if (preferred.model) {
-            setModel(preferred.model);
-          }
+          const supportedModels = MODEL_LIBRARY[nextType] || [];
+          setModel(
+            preferred.model && supportedModels.includes(preferred.model)
+              ? preferred.model
+              : DEFAULT_MODEL_BY_PROVIDER[nextType] || '',
+          );
         }
       } catch (error) {
         if (!cancelled) {
@@ -232,7 +237,7 @@ export function AiModelSettings() {
     }
   };
 
-  // Only two cloud models are offered: OpenAI (gpt-5.5) and Google (gemini-3.1-pro-preview).
+  // The generated provider manifest is the only model selector authority.
   const providerChoices = useMemo(() => CONFIGURABLE_PROVIDER_TYPES, []);
 
   const selectedProvider = useMemo(
@@ -242,13 +247,8 @@ export function AiModelSettings() {
   const selectedProviderVerified = Boolean(selectedProvider && verifiedProviders[selectedProvider.type]);
 
   const modelOptions = useMemo(() => {
-    const fromProvider = providers
-      .filter((entry) => entry.type === provider)
-      .map((entry) => entry.model)
-      .filter((entry): entry is string => Boolean(entry));
-    const defaults = MODEL_LIBRARY[provider] || [];
-    return Array.from(new Set([...fromProvider, ...defaults]));
-  }, [provider, providers]);
+    return MODEL_LIBRARY[provider] || [];
+  }, [provider]);
 
   const effectiveModel = useMemo(() => {
     if (modelOptions.length && !modelOptions.includes(model)) {
@@ -256,6 +256,11 @@ export function AiModelSettings() {
     }
     return model;
   }, [model, modelOptions]);
+
+  const reasoningEffort = useMemo(() => {
+    const providerContract = PROVIDER_MANIFEST.providers.find((entry) => entry.id === provider);
+    return providerContract?.models.find((entry) => entry.id === effectiveModel)?.reasoning_effort;
+  }, [effectiveModel, provider]);
 
   const upsertProvider = (providerType: string, providerId: string | null) => {
     setProviders((previous) => {
@@ -511,6 +516,11 @@ export function AiModelSettings() {
                     <option key={entry} value={entry}>{entry}</option>
                   ))}
                 </Select>
+                {reasoningEffort && (
+                  <p className="text-xs text-muted-foreground">
+                    Reasoning level: <span className="font-medium capitalize">{reasoningEffort}</span> (default)
+                  </p>
+                )}
               </div>
             </div>
 

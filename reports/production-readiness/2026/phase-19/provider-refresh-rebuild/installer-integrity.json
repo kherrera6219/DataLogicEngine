@@ -1,0 +1,23 @@
+{
+  "status": "pass",
+  "summary": {
+    "errors": 0,
+    "warnings": 0,
+    "total_issues": 0
+  },
+  "results": {
+    "expected_installer": "DataLogicEngine Setup 4.4.0.exe",
+    "source_commit": "b3132966fd9c9f3d92a21036e06e636c1e96c97c",
+    "installers": [
+      {
+        "artifact": "DataLogicEngine Setup 4.4.0.exe",
+        "size_bytes": 358859589,
+        "sha256": "5ec7af72638bde793dbb60fb48745055d0b61c2f11e334dde0a8df5060415bab",
+        "checksum_file": "DataLogicEngine Setup 4.4.0.exe.sha256",
+        "blockmap_present": true,
+        "valid": true
+      }
+    ]
+  },
+  "issues": []
+}

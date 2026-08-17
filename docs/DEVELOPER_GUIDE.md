@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.4.0 |
+| Document version | v3.6.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-12 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -22,11 +22,13 @@
 
 Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
 
-The CP19-L clean-build baseline passed on 2026-08-10: 3,098 backend tests with
-19 skipped, 430 frontend tests, 36 Python SDK tests, seven TypeScript SDK tests,
-clean dependency/security gates, and the release payload/integrity checks. The
-rebuilt unsigned candidate installed and reached readiness; CP19-M remains the
-exact signed installed acceptance boundary.
+The current provider-refresh source baseline passes 3,115 backend tests with 18
+skipped, 435 frontend tests, 36 Python SDK tests, and eight TypeScript SDK tests.
+It selects OpenAI `gpt-5.6-sol` with High reasoning and Google
+`gemini-3.7-flash`. The provider-refresh replacement passes static packaging,
+retained migration, and package-owned portable `/ready`; it is unsigned and
+was built from an uncommitted local tree. CP19-M remains the clean exact signed
+installed acceptance boundary.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
 
@@ -104,7 +106,7 @@ Set in `.env`:
    - `OPENAI_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
    - `LLM_DEFAULT_PROVIDER=google` when both OpenAI and Google keys are present and Google should be the env fallback default
-   - The app uses one user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
+   - The app uses one user-selected cloud model (OpenAI `gpt-5.6-sol` or Google `gemini-3.7-flash`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 3. Runtime mode/storage values only when overriding defaults. The current supported data modes are local, VM, and auto internal service modes.
 
 Do not carry `AUTO_CREATE_SCHEMA=true` into shared or production environments.
@@ -387,6 +389,22 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows\run_packag
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests --maxfail=20
 ```
+
+### Coverage measurement
+
+Coverage is a hard CI gate. Keep the Python and frontend denominators separate:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests -q --cov=backend --cov=core --cov-report=term --cov-report=json:coverage-python.json
+python scripts/verify_python_coverage.py --report coverage-python.json --minimum 80
+npm --prefix frontend run test:coverage
+```
+
+The clean 2026-08-16 qualification is 80.30% for `backend/`, 80.67% for
+`backend/security/`, and 80.89% for `core/`. Frontend V8 coverage is 89.54%
+statements, 80.69% branches, 86.11% functions, and 91.36% lines. The Python
+verifier and Vitest thresholds independently require every result to be at
+least 80.00%; these figures are not blended into a whole-app percentage.
 
 ### Backend contract, parity, and security sweeps
 

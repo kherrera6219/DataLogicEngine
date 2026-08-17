@@ -43,7 +43,7 @@ def test_openai_chat_adapts_to_the_governed_contract_and_is_idempotent(
         content='Governed compatibility answer',
         run_id='00000000-0000-0000-0000-000000000777',
         provider_used='openai',
-        model_used='gpt-5.5',
+        model_used='gpt-5.6-sol',
         usage={'prompt_tokens': 10, 'completion_tokens': 5},
         confidence_measurement={'status': 'measured', 'value': 0.9},
     )

@@ -13,9 +13,9 @@
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
 | Current local artifact | `DataLogicEngine Setup 4.4.0.exe` |
-| Current local artifact size | `358857127` bytes |
-| Current local artifact SHA-256 | `54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97` |
-| Current build source commit | `e893d42436c8f250de7a2781dc7f621ae4ddab1f` |
+| Current local artifact size | `358859969` bytes |
+| Current local artifact SHA-256 | `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521` |
+| Current build source commit | `b3132966fd9c9f3d92a21036e06e636c1e96c97c` |
 | Current artifact signature | `NotSigned` |
 | Portable backend readiness | `true` |
 | Portable readiness listener owned by package | `true` |
@@ -25,8 +25,8 @@
 
 | Provider ID | Label | Models | Request API | Key environment | Pricing |
 |---|---|---|---|---|---|
-| `openai` | OpenAI | `gpt-5.5` | `responses` | `OPENAI_API_KEY` | `unknown` |
-| `google` | Google | `gemini-3.1-pro-preview` | `generate_content` | `GOOGLE_API_KEY`, `GEMINI_API_KEY` | `unknown` |
+| `openai` | OpenAI | `gpt-5.6-sol` | `responses` | `OPENAI_API_KEY` | `unknown` |
+| `google` | Google | `gemini-3.7-flash` | `generate_content` | `GOOGLE_API_KEY`, `GEMINI_API_KEY` | `unknown` |
 
 ## Internal service candidate lock
 

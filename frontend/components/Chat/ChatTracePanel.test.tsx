@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatTracePanel } from './ChatTracePanel';
 import * as apiModule from '@/lib/api';
 import type { TraceBundle } from '@/lib/api/types';
+import { useTraceStream } from '@/hooks/useTraceStream';
 
 // Mock the API module
 vi.mock('@/lib/api', () => ({
@@ -142,5 +143,64 @@ describe('ChatTracePanel', () => {
 
     render(<ChatTracePanel auditTrail={auditTrail as any} />);
     expect(screen.getByText(/Reasoning Trace/i)).toBeInTheDocument();
+  });
+
+  it('renders running stage and stream detail with score normalization', async () => {
+    vi.mocked(useTraceStream).mockReturnValue({
+      layers: [
+        { stage_id: 'live-1', layer_index: 7, name: 'Live analysis', status: 'running' },
+        { stage_id: '', layer_index: 0, name: '', status: '' },
+      ],
+    } as ReturnType<typeof useTraceStream>);
+    vi.mocked(apiModule.api.trace.getBundle).mockReset().mockResolvedValue({
+      ...mockTraceBundle,
+      status: 'running',
+      metrics: { confidence: 0.75, stage_count: 4, total_duration_ms: 10 },
+      personas: [{ id: 'persona-1' }],
+      evidence_sources: [{ id: 'source-1' }, { id: 'source-2' }],
+      frost_layers: [
+        { stage_id: 'stage-1', layer_index: 2, name: 'Evidence', status: 'completed' },
+        { stage_id: 'stage-2', layer_index: 0, name: 'Synthesis', status: 'running' },
+      ],
+      run: { ...mockTraceBundle.run, data_snapshot: { confidence_measurement: {} } },
+    } as TraceBundle);
+
+    render(<ChatTracePanel runId="running-run" auditTrail={{ decision_path: '/api/v1/trace/runs/running-run' } as any} />);
+    fireEvent.click(screen.getByRole('button', { name: /Reasoning Trace/i }));
+    expect(await screen.findByText('75.0%')).toBeInTheDocument();
+    expect(screen.getByText('4')).toBeInTheDocument();
+    expect(screen.getByText('L2 Evidence')).toBeInTheDocument();
+    expect(screen.getByText('Synthesis')).toBeInTheDocument();
+    expect(screen.getByText('L7 Live analysis')).toBeInTheDocument();
+    expect(screen.getByText('Trace update')).toBeInTheDocument();
+    expect(screen.getByText('live')).toBeInTheDocument();
+    expect(screen.getByText(/Evidence-support coverage was not measured/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open details' })).toHaveAttribute('href', '/runs/view?id=running-run');
+  });
+
+  it('handles non-Error loads and object or empty exports', async () => {
+    vi.mocked(useTraceStream).mockReturnValue({ layers: [] } as ReturnType<typeof useTraceStream>);
+    vi.mocked(apiModule.api.trace.getBundle).mockRejectedValueOnce('trace unavailable');
+    const view = render(<ChatTracePanel auditTrail={{ complete_trace_url: '/not-a-run-url' } as any} />);
+    fireEvent.click(screen.getByRole('button', { name: /Reasoning Trace/i }));
+    expect(apiModule.api.trace.getBundle).not.toHaveBeenCalled();
+
+    view.unmount();
+    vi.mocked(apiModule.api.trace.getBundle).mockReset().mockResolvedValue({
+      ...mockTraceBundle,
+      metrics: { confidence: 82, total_duration_ms: 5 },
+    });
+    vi.mocked(apiModule.api.trace.export).mockResolvedValueOnce({ run_id: 'object-export' } as any).mockResolvedValueOnce('');
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:object-export');
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    render(<ChatTracePanel runId="object-run" />);
+    fireEvent.click(screen.getByRole('button', { name: /Reasoning Trace/i }));
+    expect(await screen.findByText('82.0%')).toBeInTheDocument();
+    const exportButton = screen.getByRole('button', { name: /Export/i });
+    fireEvent.click(exportButton);
+    await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled());
+    fireEvent.click(exportButton);
+    await waitFor(() => expect(apiModule.api.trace.export).toHaveBeenCalledTimes(2));
   });
 });

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.6.0 |
+| Document version | v1.8.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -46,6 +46,13 @@ policy.
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
+
+The current local provider-refresh engineering build is
+`DataLogicEngine Setup 4.4.0.exe` (358,859,969 bytes; SHA-256
+`1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
+It passes integrity, payload, and package-owned portable readiness, including
+the retained migration to Alembic `b2c3d4e5f6a7`. It is unsigned and was built
+from an uncommitted local tree, so it is not the clean signed CP19-M candidate.
 
 ## Repository guide
 
@@ -224,7 +231,7 @@ flowchart LR
 | Desktop | Electron 40, Next.js 16, React 18 | Control, configuration, chat, audit, observability, and validation |
 | Backend | Flask 3.1, SQLAlchemy, Socket.IO | API gateway, policy, orchestration, tracing, and service supervision |
 | Data | PostgreSQL, Redis, Neo4j, ChromaDB, SeaweedFS | Relational state, queues, graph provenance, vector retrieval, and artifacts |
-| AI | OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview` | Owner-selected cloud inference using BYOK |
+| AI | OpenAI `gpt-5.6-sol` (High reasoning) or Google `gemini-3.7-flash` | Owner-selected cloud inference using BYOK |
 
 The data plane is local and app-owned. External processing is limited to the
 configured model provider and explicitly approved connectors. Desktop and API
@@ -445,6 +452,15 @@ npm --prefix frontend run test
 npm --prefix frontend run build
 npm --prefix frontend audit --audit-level=high
 ```
+
+Coverage is measured separately for Python and TypeScript; the repository does
+not claim one blended whole-app percentage. The 2026-08-16 clean qualification
+measured `backend/` at **80.30%**, `backend/security/` at **80.67%**, and
+`core/` at **80.89%**. Frontend V8 coverage is **89.54% statements**, **80.69%
+branches**, **86.11% functions**, and **91.36% lines**. All 3,287 Python tests
+and 482 frontend tests passed (18 Python tests skipped). CI now enforces 80.00%
+independently for every named Python scope and frontend metric; see
+`docs/CI_QUALITY_POLICY.md`.
 
 GitHub Actions also validates backend and frontend behavior, security,
 documentation consistency, container builds, SDKs, and Windows packaging.

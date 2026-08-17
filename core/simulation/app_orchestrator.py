@@ -58,7 +58,7 @@ class AppOrchestrator:
             # Initialize engines
             self.location_context_engine = LocationContextEngine(
                 graph_manager=self.graph_manager,
-                db_manager=self.db_manager
+                ukg_db_manager=self.db_manager
             )
             
             # Phase 10 removed this duplicate in-process simulation authority.

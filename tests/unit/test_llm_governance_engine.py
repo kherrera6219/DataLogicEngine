@@ -59,12 +59,12 @@ def test_output_classification_detects_sensitive_patterns():
 
 def test_cost_estimation_is_unknown_without_owner_pricing(monkeypatch):
     monkeypatch.delenv("AI_MODEL_PRICING_USD_PER_1K", raising=False)
-    assert AIGovernanceEngine.estimate_cost_usd("gpt-5.5", 2000, 1000) is None
+    assert AIGovernanceEngine.estimate_cost_usd("gpt-5.6-sol", 2000, 1000) is None
 
 
 def test_cost_estimation_uses_explicit_owner_pricing(monkeypatch):
     monkeypatch.setenv(
         "AI_MODEL_PRICING_USD_PER_1K",
-        '{"gpt-5.5":{"input":0.005,"output":0.03}}',
+        '{"gpt-5.6-sol":{"input":0.005,"output":0.03}}',
     )
-    assert AIGovernanceEngine.estimate_cost_usd("gpt-5.5", 2000, 1000) == 0.04
+    assert AIGovernanceEngine.estimate_cost_usd("gpt-5.6-sol", 2000, 1000) == 0.04

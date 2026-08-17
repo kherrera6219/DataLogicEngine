@@ -6,13 +6,13 @@
 
 ## Authority and release status
 
-- Generated: `2026-08-16`
+- Generated: `2026-08-17`
 - Documentation authority: `2026.08.10-cp19l-installed-evidence` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19; repaired post-QC portable engineering candidate accepted, CP19-M installed/signed acceptance open
-- Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The current local engineering build from runtime source `e893d42436c8f250de7a2781dc7f621ae4ddab1f` is `DataLogicEngine Setup 4.4.0.exe` (358857127 bytes; SHA-256 `54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97`); it is unsigned, its integrity/checksum/block-map gate passes, and portable smoke reached package-owned backend readiness in 46402 ms. It has not passed installed-mode acceptance and does not replace the distinct 2026-08-10 installed qualification artifact recorded in the release and V&V records. One-time installed retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
+- Current program checkpoint: Phase 19; provider-refresh replacement passes portable engineering qualification; installed/provider CP19-M acceptance remains open
+- Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The current local engineering build recorded against source base `b3132966fd9c9f3d92a21036e06e636c1e96c97c` is `DataLogicEngine Setup 4.4.0.exe` (358859969 bytes; SHA-256 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`); it is unsigned, its integrity/checksum/block-map gate passes, and portable smoke reached package-owned backend readiness in 30790 ms. This report does not establish a clean-commit source binding. It has not passed installed-mode acceptance and does not replace the distinct 2026-08-10 installed qualification artifact recorded in the release and V&V records. One-time installed retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root

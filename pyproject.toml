@@ -19,7 +19,7 @@ filterwarnings = [
 testpaths = ["tests"]
 
 [tool.coverage.run]
-source = ["backend", "."]
+source = ["backend", "core"]
 omit = [
     "*/tests/*",
     "*/test_*.py",

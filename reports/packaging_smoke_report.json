@@ -1,12 +1,12 @@
 ﻿{
     "status":  "pass",
     "failure_reason":  "",
-    "generated_at":  "2026-08-16T06:04:00.4295531Z",
+    "generated_at":  "2026-08-17T04:56:15.8922304Z",
     "repo_root":  "C:\\software\\DataLogicEngine",
-    "source_commit":  "e893d42436c8f250de7a2781dc7f621ae4ddab1f",
+    "source_commit":  "b3132966fd9c9f3d92a21036e06e636c1e96c97c",
     "mode":  "portable",
     "installer":  "C:\\software\\DataLogicEngine\\DataLogicEngine Setup 4.4.0.exe",
-    "installer_sha256":  "54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97",
+    "installer_sha256":  "1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521",
     "installer_signature_status":  "NotSigned",
     "portable_executable":  "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\DataLogicEngine Desktop.exe",
     "portable_launch_started":  true,
@@ -16,12 +16,12 @@
                               "required":  true,
                               "uri":  "http://127.0.0.1:5000/ready",
                               "ready":  true,
-                              "latency_ms":  46402,
+                              "latency_ms":  30790,
                               "status":  "ready",
                               "blockers":  [
 
                                            ],
-                              "owner_pid":  33296,
+                              "owner_pid":  25552,
                               "owner_verified_as_launch_descendant":  true,
                               "error":  ""
                           },

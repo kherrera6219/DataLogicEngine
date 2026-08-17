@@ -1,0 +1,81 @@
+{
+  "schema_version": "dle.provider-refresh-rebuild-acceptance.v1",
+  "generated_at": "2026-08-16T20:05:00-07:00",
+  "status": "portable_engineering_pass_release_blocked",
+  "source_binding": {
+    "base_commit": "b3132966fd9c9f3d92a21036e06e636c1e96c97c",
+    "working_tree_clean": false,
+    "exact_commit_bound": false,
+    "pushed": false
+  },
+  "artifact": {
+    "name": "DataLogicEngine Setup 4.4.0.exe",
+    "size_bytes": 358859589,
+    "sha256": "5ec7af72638bde793dbb60fb48745055d0b61c2f11e334dde0a8df5060415bab",
+    "authenticode_status": "NotSigned",
+    "checksum_matches": true,
+    "blockmap_present": true
+  },
+  "coverage": {
+    "whole_application_80_percent_claim_supported": false,
+    "python_backend_and_core": {
+      "covered": 41231,
+      "total": 61530,
+      "percent": 67.01,
+      "tests_passed": 3115,
+      "tests_skipped": 18
+    },
+    "python_backend_only": {
+      "covered": 35712,
+      "total": 46511,
+      "percent": 76.78
+    },
+    "python_backend_security": {
+      "covered": 1624,
+      "total": 2049,
+      "percent": 79.26
+    },
+    "frontend": {
+      "statements_covered": 2108,
+      "statements_total": 2763,
+      "statements_percent": 76.29,
+      "lines_covered": 2009,
+      "lines_total": 2558,
+      "lines_percent": 78.53,
+      "functions_percent": 71.37,
+      "branches_percent": 65.71,
+      "tests_passed": 435
+    },
+    "hard_fail_under_enabled": false
+  },
+  "package_validation": {
+    "nsis_governance": "pass",
+    "packaging_resources": "pass",
+    "installer_integrity": "pass",
+    "release_payload": "pass",
+    "backend_files": 6096,
+    "payload_issues": 0,
+    "portable_readiness": "pass",
+    "ready_latency_ms": 52549,
+    "ready_listener_owned_by_launched_package": true
+  },
+  "retained_data_migration": {
+    "source_revision": "0a1b2c3d4e5f",
+    "target_revision": "b2c3d4e5f6a7",
+    "postgresql_action": "upgrade",
+    "all_store_versions_ready": true,
+    "saved_provider_rows": {
+      "google": "gemini-3.7-flash",
+      "openai": "gpt-5.6-sol"
+    },
+    "provider_keys_read_or_printed": false
+  },
+  "remaining_release_gates": [
+    "clean exact source commit binding",
+    "Authenticode signing and timestamping",
+    "elevated per-machine installed lifecycle",
+    "owner-authorized live OpenAI and Google provider tests",
+    "installed accessibility and protected-volume recovery",
+    "independent review, pilot, and 24/72-hour soak"
+  ]
+}

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-004 |
 | Title | Contribution controls |
-| Document version | v1.1.0 |
+| Document version | v1.2.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Contributors, maintainers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, branch protections, and required validation workflows |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | Contribution workflow, toolchain, branch, or validation-gate change |
 | Requirements and evidence | CI workflows, root plan, and `docs/DEVELOPER_GUIDE.md` |
 
@@ -449,13 +449,20 @@ Closes #<issue-number>
 
 ## Testing Requirements
 
-### Test Coverage Minimums
+### Coverage minimums and current policy
 
-| Module | Minimum Coverage |
+| Scope | Enforced minimum |
 |--------|-----------------|
 | `core/` | 80% |
 | `backend/security/` | 80% |
-| `backend/` (all other) | 70% |
+| `backend/` | 80% |
+| Frontend statements, branches, functions, and lines | 80% each |
+
+These are blocking CI minimums. The clean 2026-08-16 qualification is 80.30%
+for `backend/`, 80.67% for `backend/security/`, and 80.89% for `core/`; frontend
+coverage is 89.54% statements, 80.69% branches, 86.11% functions, and 91.36%
+lines. Do not blend Python and V8 into one percentage. Re-measure every scope
+after changing its denominator or coverage configuration.
 
 ### Writing Tests
 
@@ -512,13 +519,13 @@ describe('KnowledgeNode', () => {
 python -m pytest tests/ -v
 
 # Python with coverage report
-python -m pytest --cov=core --cov=backend --cov-report=html tests/
+python -m pytest tests --cov=backend --cov=core --cov-report=term --cov-report=json
 
 # JavaScript unit tests
 cd frontend && npm test
 
 # JavaScript with coverage
-cd frontend && npm test -- --coverage
+cd frontend && npm run test:coverage
 
 # E2E tests (Playwright)
 cd frontend && npm run test:e2e

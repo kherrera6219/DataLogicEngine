@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
-| Document version | v5.0.1 |
+| Document version | v5.2.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, implemented runtime, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | Runtime boundary, service, interface, data-flow, or deployment-architecture change |
 | Requirements and evidence | Root plan, source tree, ADRs, diagrams, and production-readiness reports |
 
@@ -27,11 +27,13 @@ local data was adopted once with a verified recovery receipt; no new or fallback
 user database became authoritative. This is installed engineering evidence, not
 production release authorization.
 
-The current local build was produced from runtime source commit `a3879446`.
-Only build-evidence and public-documentation commits follow it; the runtime
-architecture described here is unchanged. That newer artifact has not passed
-installed-mode acceptance, so the installed evidence above remains bound to the
-separate August 10 candidate.
+The current source advances the provider defaults to OpenAI `gpt-5.6-sol` with
+High reasoning and Google `gemini-3.7-flash`, plus a forward migration for the
+two retired saved defaults. The local replacement passes static package and
+package-owned portable readiness qualification. Its retained PostgreSQL store
+advanced transactionally to Alembic `b2c3d4e5f6a7`, and the saved provider rows
+now use the two current model IDs. The artifact remains unsigned and is not
+clean-commit-bound; installed/provider CP19-M evidence is still open.
 
 Define the current logical and runtime architecture of DataLogicEngine for engineering, security, operations, and technical-review stakeholders.
 
@@ -403,7 +405,7 @@ flowchart TD
 | Truth Engine | `backend/truth_engine/` | Security gate, workflow engine, memory/audit, event bus. |
 | Persona engine | `backend/dsqp/` | Deterministic/offline seven-component personas for axes 8-11. |
 | Knowledge axes | `core/axes/`, `backend/dmrf/router.py` | 17-axis coordinate routing and FROST mode selection. |
-| Model access | `backend/llm_gateway/`, MCP server modules | Cloud model execution (OpenAI gpt-5.5 / Google gemini-3.1-pro-preview), tool execution, connector integration. |
+| Model access | `backend/llm_gateway/`, MCP server modules | Cloud model execution (OpenAI gpt-5.6-sol / Google gemini-3.7-flash), tool execution, connector integration. |
 | Relational store | PostgreSQL production authority; SQLite bootstrap/development/repair only | Users, sessions, traces, artifacts, graph rows, audit records. |
 | Graph store | Neo4j + USKD NetworkX memory graph | Durable and RAM-resident graph reasoning context. |
 | Vector store | ChromaDB PersistentClient | Local embeddings and semantic search. |
@@ -473,7 +475,7 @@ The current architecture baseline is defined by these code-backed subsystems:
 7. **Local-first runtime** — desktop/local/hybrid behavior uses loopback auth, per-install secret, nonce/HMAC signatures, DPAPI helper, and app-owned storage services.
 8. **Frontend review surface** — `/chat`, `/runs`, `/graph`, `/knowledge`, `/truth-engine`, `/mcp`, `/admin`, and disclosure pages expose system operation to users and reviewers.
 9. **Testing/release governance** — CI validates backend, frontend, contract, parity, security, packaging, environment, lockfile, Docker, and release governance gates.
-10. **Cloud AI model** — `backend/llm_gateway/`: every request is served by the user-selected cloud model (OpenAI `gpt-5.5` or Google `gemini-3.1-pro-preview`), resolved from `UserAIPreferences` / configured `LLMProvider` records. There is no local model tier or escalation engine; an API key + internet are required for reasoning.
+10. **Cloud AI model** — `backend/llm_gateway/`: every request is served by the user-selected cloud model (OpenAI `gpt-5.6-sol` or Google `gemini-3.7-flash`), resolved from `UserAIPreferences` / configured `LLMProvider` records. There is no local model tier or escalation engine; an API key + internet are required for reasoning.
 
 ## DMRF control plane
 
@@ -725,8 +727,14 @@ when explicitly selected. Defaults are generated from
 
 | Provider | Default model |
 |---|---|
-| OpenAI | `gpt-5.5` |
-| Google / Gemini | `gemini-3.1-pro-preview` |
+| OpenAI | `gpt-5.6-sol` |
+| Google / Gemini | `gemini-3.7-flash` |
+
+OpenAI `gpt-5.6-sol` requests use the Responses API with explicit `high`
+reasoning effort. Google `gemini-3.7-flash` requests use the pinned SDK's
+`generate_content` surface. Alembic advances stored rows from only the two
+retired defaults; other owner-pinned values are preserved and continue to fail
+closed if they are outside the manifest allowlist.
 
 ### Cloud model selection
 
@@ -737,8 +745,8 @@ one provider/model selection and no cross-provider failover:
 
 | Provider type | Model |
 |---|---|
-| `openai` | `gpt-5.5` |
-| `google` / `gemini` | `gemini-3.1-pro-preview` |
+| `openai` | `gpt-5.6-sol` |
+| `google` / `gemini` | `gemini-3.7-flash` |
 
 There is no local model tier or complexity-based escalation. A provider-backed
 answer requires an owner-configured key and network access; `local_review` must

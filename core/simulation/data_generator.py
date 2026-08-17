@@ -360,7 +360,7 @@ def distribute_nodes(total_nodes, num_axes):
     priority_axes = [1, 2, 3, 8, 9, 10, 11]  # Priority axes
 
     for axis in priority_axes:
-        if extra_nodes > 0:
+        if extra_nodes > 0 and axis in distribution:
             distribution[axis] += 1
             extra_nodes -= 1
 

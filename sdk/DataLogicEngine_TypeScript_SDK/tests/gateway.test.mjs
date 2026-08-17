@@ -14,7 +14,7 @@ const result = {
   response: "governed answer",
   run_id: "run-123",
   provider_used: "openai",
-  model_used: "gpt-5.5",
+  model_used: "gpt-5.6-sol",
   virtual_model: "dle-standard",
   gateway_contract_version: GATEWAY_CONTRACT_VERSION,
   contract_version: "governed.v1",

@@ -107,6 +107,39 @@ def test_verified_upgrade_runs_once_and_rechecks_target(tmp_path):
     assert result["stores"]["neo4j"]["observed_version"] == "neo4j.v1"
 
 
+def test_explicit_lossless_upgrade_does_not_claim_or_require_backup(tmp_path):
+    adapter = FakeAdapter(version="postgresql.v1", empty=False)
+    path = ("postgresql", "postgresql.v1", "postgresql.v2")
+    coordinator = MigrationCoordinator(
+        adapters={"postgresql": adapter},
+        target_versions={"postgresql": "postgresql.v2"},
+        supported_paths={path},
+        backup_required_paths=set(),
+        ledger_path=tmp_path / "ledger.json",
+        product_version="4.4.0",
+    )
+
+    result = coordinator.run()
+
+    assert adapter.actions == [("migrate", "postgresql.v1", "postgresql.v2")]
+    assert result["coordinated_backup_verified"] is False
+    assert result["backup_required_stores"] == []
+
+
+def test_backup_required_path_must_also_be_supported(tmp_path):
+    with pytest.raises(ValueError, match="migration_backup_path_not_supported"):
+        MigrationCoordinator(
+            adapters={"postgresql": FakeAdapter()},
+            target_versions={"postgresql": "postgresql.v2"},
+            supported_paths=set(),
+            backup_required_paths={
+                ("postgresql", "postgresql.v1", "postgresql.v2")
+            },
+            ledger_path=tmp_path / "ledger.json",
+            product_version="4.4.0",
+        )
+
+
 def test_unknown_or_newer_version_is_not_downgraded(tmp_path):
     adapter = FakeAdapter(version="chroma.v99", empty=False)
     coordinator = MigrationCoordinator(

@@ -86,7 +86,7 @@ beforeEach(() => {
           id: 'provider-openai-id',
           name: 'OpenAI',
           type: 'openai',
-          model: 'gpt-5.5',
+          model: 'gpt-5.6-sol',
           is_default: true,
         }]
       });
@@ -169,7 +169,7 @@ describe('ApiOverlayConfig', () => {
       }
       if (url.includes('/gateway/providers')) {
         return jsonResponse({
-          providers: [{ id: 'provider-openai-id', name: 'OpenAI', type: 'openai', model: 'gpt-5.5', is_default: true }],
+          providers: [{ id: 'provider-openai-id', name: 'OpenAI', type: 'openai', model: 'gpt-5.6-sol', is_default: true }],
         });
       }
       if (url.includes('/analytics/activity')) return jsonResponse([]);
@@ -210,8 +210,109 @@ describe('ApiOverlayConfig', () => {
     const modelSelect = screen.getByRole('combobox', { name: 'Model' }) as HTMLSelectElement;
     await waitFor(() => {
       const options = Array.from(modelSelect.options).map((option) => option.value);
-      expect(options).toContain('gemini-3.1-pro-preview');
-      expect(options).not.toContain('gemini-3.5-flash');
+      expect(options).toContain('gemini-3.7-flash');
+      expect(options).not.toContain('gemini-3.1-pro-preview');
     });
+  });
+
+  it('falls back from incomplete provider metadata and supports key visibility', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/gateway/providers')) {
+        return jsonResponse({ providers: [{ name: 'Google', type: '', model: 'retired-model' }] });
+      }
+      return jsonResponse({ success: true });
+    }));
+
+    render(<ApiOverlayConfig />);
+    const providerSelect = screen.getByRole('combobox', { name: 'Provider' });
+    const modelSelect = screen.getByRole('combobox', { name: 'Model' });
+    await waitFor(() => expect(providerSelect).toHaveValue('google'));
+    expect(modelSelect).toHaveValue('gemini-3.7-flash');
+
+    const input = screen.getByLabelText('Provider API key');
+    expect(input).toHaveAttribute('type', 'password');
+    fireEvent.click(screen.getByRole('button', { name: 'Show provider API key' }));
+    expect(input).toHaveAttribute('type', 'text');
+    fireEvent.click(screen.getByRole('button', { name: 'Hide provider API key' }));
+    expect(input).toHaveAttribute('type', 'password');
+  });
+
+  it('handles provider-list and key-save failures', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/gateway/providers')) throw new Error('provider list offline');
+      if (url.includes('/gateway/keys')) throw 'vault unavailable';
+      return jsonResponse({ success: true });
+    }));
+
+    render(<ApiOverlayConfig />);
+    await waitFor(() => expect(screen.getByText('0 configured')).toBeInTheDocument());
+    const input = screen.getByLabelText('Provider API key');
+    fireEvent.change(input, { target: { value: '  key-to-save  ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save provider key' }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith(
+      'Provider key could not be saved: vault unavailable',
+      'error',
+    ));
+  });
+
+  it('saves a new provider before testing and handles unsuccessful results', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/gateway/providers')) return jsonResponse({ providers: [] });
+      if (url.includes('/gateway/keys')) return jsonResponse({ provider: { id: 'new-provider' } });
+      if (url.includes('/gateway/providers/new-provider/test')) {
+        return jsonResponse({ success: false, error: 'provider rejected request' });
+      }
+      return jsonResponse({ success: true });
+    }));
+
+    render(<ApiOverlayConfig />);
+    fireEvent.change(screen.getByLabelText('Provider API key'), { target: { value: 'new-key' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Test provider connection' }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('provider rejected request', 'error'));
+    expect(screen.getByText('provider rejected request')).toBeInTheDocument();
+  });
+
+  it('stops a test when saving returns no provider identifier', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/gateway/providers')) return jsonResponse({});
+      if (url.includes('/gateway/keys')) return jsonResponse({ success: true, provider: {} });
+      throw new Error(`Unexpected provider test: ${url}`);
+    }));
+
+    render(<ApiOverlayConfig />);
+    fireEvent.change(screen.getByLabelText('Provider API key'), { target: { value: 'orphan-key' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Test provider connection' }));
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith(
+      'Provider key saved in protected local storage.',
+      'success',
+    ));
+    expect(screen.queryByText(/^Connection Error/)).not.toBeInTheDocument();
+  });
+
+  it.each([
+    [422, 'Invalid model'],
+    [429, 'Provider rate limit reached'],
+    [504, 'Provider network timeout'],
+    [500, 'Connection failed'],
+  ])('labels provider test HTTP %s failures', async (status, label) => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/gateway/providers/provider-openai-id/test')) {
+        return jsonResponse({ error: 'upstream response' }, status);
+      }
+      if (url.includes('/gateway/providers')) {
+        return jsonResponse({ providers: [{ id: 'provider-openai-id', name: 'OpenAI', type: 'openai' }] });
+      }
+      return jsonResponse({ success: true });
+    }));
+
+    render(<ApiOverlayConfig />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Test provider connection' }));
+    await waitFor(() => expect(screen.getByText(new RegExp(label, 'i'))).toBeInTheDocument());
+    expect(screen.getByText(new RegExp(`HTTP ${status}`))).toBeInTheDocument();
   });
 });

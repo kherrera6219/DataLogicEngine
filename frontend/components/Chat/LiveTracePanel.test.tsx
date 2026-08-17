@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LiveTracePanel } from './LiveTracePanel';
 
@@ -38,6 +38,7 @@ describe('LiveTracePanel', () => {
     getStagesMock.mockReset();
     requestMock.mockReset();
     requestMock.mockResolvedValue(null);
+    Object.defineProperty(window, 'electronAPI', { configurable: true, value: undefined });
 
     listMock.mockResolvedValue([
       {
@@ -112,5 +113,100 @@ describe('LiveTracePanel', () => {
     expect(screen.getByText('KA-042')).toBeInTheDocument();
     expect(screen.getByText('completed (87ms)')).toBeInTheDocument();
     expect(getStagesMock).not.toHaveBeenCalled();
+  });
+
+  it('renders reasoning, persona, score, stage-status, and fallback formatting branches', async () => {
+    listMock.mockResolvedValueOnce([
+      {
+        run_id: 'completed-run',
+        status: 'completed',
+        scores: { confidence: 87, entropy: Number.NaN },
+      },
+    ]);
+    getStagesMock.mockResolvedValueOnce({
+      stages: [
+        { stage_id: 'pass', name: 'Passed', status: 'completed', timing: { duration_ms: 1 } },
+        { stage_id: 'warn', name: 'Warning', status: 'warn' },
+        { stage_id: 'fail', name: 'Failure', status: 'semantic_failure', timing: {} },
+        { stage_id: 'unknown', name: 'Unknown' },
+      ],
+    });
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/trace/live-progress') {
+        return Promise.resolve({
+          active_run_id: 'completed-run',
+          status: 'completed',
+          current_layer: null,
+          layer_name: null,
+          kas_running: [
+            { ka_id: 'KA-001', ka_name: 'Named KA', status: 'running' },
+            { ka_id: 'KA-002', status: 'blocked' },
+          ],
+          confidence_so_far: null,
+          persona_confidences: [
+            { persona: 'knowledge', confidence: -1 },
+            { persona: 'sector', confidence: 150 },
+            { persona: 'regulatory', confidence: 0.75 },
+          ],
+          frost_snapshot_count: 0,
+        });
+      }
+      if (path.startsWith('/trace/ka-execution-feed')) {
+        return Promise.resolve({
+          items: [
+            { id: 1, uid: '', ka_id: '', status: '', execution_time_ms: -4, started_at: '' },
+            { id: 2, ka_id: 'KA-002', status: 'unavailable', execution_time_ms: Number.POSITIVE_INFINITY },
+          ],
+        });
+      }
+      return Promise.resolve(null);
+    });
+    render(<LiveTracePanel />);
+    expect(await screen.findByText('COMPLETED')).toBeInTheDocument();
+    expect(screen.getByText('No captured input text for this run.')).toBeInTheDocument();
+    expect(screen.getByText('Created: Unknown')).toBeInTheDocument();
+    expect(screen.getByText('No active reasoning layer')).toBeInTheDocument();
+    expect(screen.getByText('Named KA')).toBeInTheDocument();
+    expect(screen.getByText('0.0%')).toBeInTheDocument();
+    expect(screen.getByText('100.0%')).toBeInTheDocument();
+    expect(screen.getAllByText('--').length).toBeGreaterThan(0);
+    expect(screen.getByText('unknown KA')).toBeInTheDocument();
+    expect(screen.getByText('unknown (0ms)')).toBeInTheDocument();
+    expect(screen.getByText('unavailable')).toBeInTheDocument();
+  });
+
+  it('uses desktop telemetry bridges and supports manual refresh', async () => {
+    const progress = vi.fn().mockResolvedValue({
+      active_run_id: 'run-1', status: 'running', current_layer: 7, layer_name: 'AGI',
+      kas_running: [], confidence_so_far: 0.5, persona_confidences: [], frost_snapshot_count: 2,
+    });
+    const feed = vi.fn().mockResolvedValue({ items: [] });
+    Object.defineProperty(window, 'electronAPI', {
+      configurable: true,
+      value: { getReasoningLayerProgress: progress, getKAExecutionFeed: feed },
+    });
+    render(<LiveTracePanel />);
+    expect(await screen.findByText('AGI')).toBeInTheDocument();
+    expect(progress).toHaveBeenCalled();
+    expect(feed).toHaveBeenCalled();
+    expect(requestMock).not.toHaveBeenCalledWith('/trace/live-progress');
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() => expect(listMock).toHaveBeenCalledTimes(2));
+  });
+
+  it('shows running progress without stages and tolerates all telemetry failures', async () => {
+    getStagesMock.mockRejectedValueOnce(new Error('stage unavailable'));
+    requestMock.mockRejectedValue(new Error('telemetry unavailable'));
+    render(<LiveTracePanel />);
+    expect(await screen.findByText('10%')).toBeInTheDocument();
+    expect(screen.getByText('No stages')).toBeInTheDocument();
+    expect(screen.getByText('Waiting for stage data')).toBeInTheDocument();
+  });
+
+  it('falls back to idle when trace listing fails', async () => {
+    listMock.mockRejectedValueOnce(new Error('startup race'));
+    render(<LiveTracePanel />);
+    expect(await screen.findByText('IDLE')).toBeInTheDocument();
+    expect(screen.getByText(/No trace runs found yet/i)).toBeInTheDocument();
   });
 });

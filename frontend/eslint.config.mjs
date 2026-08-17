@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     "dist-electron/**",
     "dist/**",
     "dist-smoke/**",
+    "coverage/**",
     // Generated artifacts and debug outputs
     "stories/**",
     "storybook-static/**",

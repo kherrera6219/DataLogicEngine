@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.4.0 |
+| Document version | v1.6.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-12 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.69.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.71.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; repaired post-QC portable engineering candidate accepted, CP19-M installed/signed acceptance open |
+| Current phase | Phase 19; provider-refresh replacement passes portable engineering qualification; installed/provider CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -140,7 +140,7 @@ Phase 18 source baseline while completing the whole-application wiring.
       prevent duplicate claims. Exact confirmation is
       required for high/critical/effect plans; interrupted running work is not
       silently replayed; only owning-service receipts may report an applied
-      effect. Alembic has 26 linear revisions and head `0a1b2c3d4e5f`.
+      effect. Alembic now has 27 linear revisions and head `b2c3d4e5f6a7`.
       Forty-one focused workflow, six Python SDK, seven TypeScript SDK, 426
       frontend, and 2,557 full-source tests pass; the source suite has 19
       skipped and 35 known warnings.
@@ -353,7 +353,34 @@ Phase 18 source baseline while completing the whole-application wiring.
       retained-identity advancement, and visible dashboard/trace/diagnostics/
       algorithm-registry checks. It is unsigned and the elevated per-machine
       lifecycle is not conclusively accepted. Signing and production/public
-      release remain blocked.
+      release remain blocked. The 2026-08-16 provider refresh superseded that
+      package. Its local replacement now passes static and portable readiness
+      qualification, but live-provider, clean-source binding, signing, and
+      installed lifecycle rows remain open.
+- [x] **Current cloud-model source refresh:** the canonical manifest now allows
+      OpenAI `gpt-5.6-sol` with explicit High reasoning and Google
+      `gemini-3.7-flash`; adapters, settings/dashboard, saved-default migration,
+      evaluation matrix, tests, and active product documentation are aligned.
+      Validation passes 3,115 backend tests with 18 skipped, 435 frontend
+      tests, frontend lint/typecheck, 36 Python SDK tests, eight TypeScript SDK
+      tests, focused Ruff/compile checks, migration/product-version gates, and
+      documentation validation with zero errors or warnings.
+- [x] **Independent 80% coverage gates:** the clean complete-suite run passes
+      3,287 Python tests with 18 skipped at 80.30% `backend/`, 80.67%
+      `backend/security/`, and 80.89% `core/`. The complete 482-test frontend
+      run passes at 89.54% statements, 80.69% branches, 86.11% functions, and
+      91.36% lines. CI now blocks below 80.00% for every named scope/metric.
+- [x] **Portable replacement artifact after provider refresh:** local artifact
+      `DataLogicEngine Setup 4.4.0.exe` is 358,859,969 bytes with SHA-256
+      `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`.
+      Integrity, NSIS/resources, 6,096-file payload, package-owned `/ready`, and
+      retained migration to Alembic `b2c3d4e5f6a7` pass. Saved Google/OpenAI
+      rows are `gemini-3.7-flash` / `gpt-5.6-sol`; no key was read or printed.
+      The artifact is unsigned and bound only to an uncommitted local tree based
+      on `b3132966`, so exact clean-source/signing/installed acceptance is open.
+- [ ] **Live-provider and installed replacement acceptance:** run bounded
+      owner-authorized Google/OpenAI tests, bind a clean committed rebuild,
+      sign/timestamp it, and complete the remaining CP19-M installed rows.
 
 ## Slow-audit remediation (engineering) — 2026-08-12
 
@@ -1283,21 +1310,18 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-QR-0 through QR-5 and the QR-6 portable engineering subset in
-`docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` are
-complete. The exact repaired candidate is the unsigned 4.4.0 installer from
-`e893d424`, SHA-256
-`54dfb496bc2c45a5d02656bdf3d9a02a571868889dc7a76b59ce4fc1ed44fc97`.
-All work remains local and unpushed.
+The local provider-refresh replacement now passes portable engineering
+qualification at SHA-256 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`.
+The retained rows are migrated and all work remains local and unpushed. Next,
+run the bounded owner-authorized Google and OpenAI model tests without exposing
+or re-entering stored keys. Then commit the reviewed source/evidence, rebuild
+from that clean exact commit, and sign/timestamp the resulting CP19-M candidate.
 
-Next, run the elevated per-machine install/upgrade/repair/uninstall and retained-
-data lifecycle for that exact hash. Classify and exercise the packaged
-Diagnostics `Api_gateway` and `Workers` stopped states under the installed
-service-role matrix. Retain signed/timestamped acceptance, installed Phase 9-13 matrices,
-OpenAI/Google corpus and blinded-human acceptance, packaged
-visual/scaling/high-contrast and NVDA acceptance, protected-volume
-lifecycle/backup/recovery, independent reviews, pilot, and 24/72-hour soaks.
-Bind CP16-G/CP17-E only to that exact artifact.
+Only after that replacement hash exists, resume elevated per-machine install/
+upgrade/repair/uninstall, retained-data, Diagnostics service-role, installed
+Phase 9-13, provider corpus/blinded-human, visual/scaling/high-contrast/NVDA,
+protected-volume lifecycle/backup/recovery, independent review, pilot, and
+24/72-hour soak acceptance. Bind CP16-G/CP17-E only to the replacement artifact.
 
 Continue to retain every CP15-A through CP15-H installed/signed/manual gate,
 legal/distribution NO-GO, automatic-update disablement, and object-store

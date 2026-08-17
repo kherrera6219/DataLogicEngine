@@ -83,11 +83,10 @@ jobs:
       run: |
         python scripts/validate_schema_parity.py --report reports/schema_parity_report_ci.json
 
-    - name: Run Tests
-      # Coverage is intentionally not enforced in CI (see docs/CI_QUALITY_POLICY.md).
-      # Local optional gate: python run_test_suite.py
+    - name: Run Tests with Python coverage
       run: |
-        python -m pytest tests/ --no-cov
+        python -m pytest tests/ --cov=backend --cov=core --cov-report=json:coverage-python.json
+        python scripts/verify_python_coverage.py --report coverage-python.json --minimum 80
       env:
         PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"
@@ -178,10 +177,10 @@ jobs:
         cd frontend
         npm run typecheck
 
-    - name: Run Frontend Unit Tests
+    - name: Run Frontend Unit Tests with coverage
       run: |
         cd frontend
-        npm run test
+        npm run test:coverage
         
     - name: Build Next.js
       run: |

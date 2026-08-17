@@ -2,7 +2,7 @@
     "max_plan_depth": 5,
     "default_step_duration_ms": 100,
     "planner_models": {
-        "fast": "gpt-5.5",
-        "detailed": "gpt-5.5"
+        "fast": "gpt-5.6-sol",
+        "detailed": "gpt-5.6-sol"
     }
 }

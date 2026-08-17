@@ -20,6 +20,12 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       include: ['app/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}', 'lib/**/*.{ts,tsx}'],
       exclude: ['**/*.stories.{ts,tsx}', '**/*.test.{ts,tsx}', '**/layout.tsx', '**/page.tsx', '.next/**', 'dist/**', 'coverage/**'],
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
     },
   },
 });

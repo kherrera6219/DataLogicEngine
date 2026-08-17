@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.6.0 |
+| Document version | v1.8.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,14 +14,14 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-15 |
+| Last reviewed | 2026-08-16 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.69.0 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.71.0 (release program) |
 | Supporting engineering plan | `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` (Phase 5 partial/deferred; P8 not started) |
 | QC remediation plan | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` (QR-0 through QR-5 complete; QR-6 portable subset complete, installed acceptance open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; repaired post-QC portable engineering candidate accepted, CP19-M installed/signed acceptance open |
+| Current phase | Phase 19; provider-refresh replacement passes portable engineering qualification; installed/provider CP19-M acceptance remains open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -247,7 +247,7 @@ effect workflow through the canonical selector/executor/controller only.
 Content-free renewable Redis leases prevent cross-worker duplicate claims. The
 generated Python SDK provides nine sync and nine async operations; the
 TypeScript SDK provides nine. Algorithms and Tool History use the real backend.
-Alembic has 26 revisions and one head `0a1b2c3d4e5f`. Forty-one focused
+Alembic now has 27 revisions and one head `b2c3d4e5f6a7`. Forty-one focused
 workflow, six Python SDK, seven TypeScript SDK, 426 frontend, and 2,557 full-source tests
 pass; the source suite has 19 skipped and 35 known warnings.
 
@@ -682,8 +682,8 @@ Key results:
   provider matrix, and AI system card are versioned.
 
 CP6-A through CP6-E pass for the engineering checkpoint. CP6-F remains an
-explicit installed-release blocker: OpenAI `gpt-5.5`, Google
-`gemini-3.1-pro-preview`, the blinded human sample, second reviewer, and owner
+explicit installed-release blocker: current OpenAI `gpt-5.6-sol`, Google
+`gemini-3.7-flash`, the blinded human sample, second reviewer, and owner
 release approval are pending. The provider rows remain quarantined and
 `release_ready=false`. Production/public release remains **NO-GO**.
 
@@ -732,6 +732,32 @@ installed Phase 9-13 matrices, providers/corpus/blinded-human review, packaged
 visual/scaling/high-contrast/NVDA, protected-volume lifecycle/recovery,
 independent review, pilot, and 24/72-hour soak evidence remain release-blocking.
 Production/public release remains **NO-GO**.
+
+On 2026-08-16, the owner requested and source implemented a provider refresh:
+OpenAI `gpt-5.6-sol` with explicit High reasoning and Google
+`gemini-3.7-flash`. The manifest, adapters, settings/dashboard, evaluation
+matrix, active documentation, and a forward migration for only the two retired
+stored defaults are synchronized. The final local replacement engineering
+artifact is `DataLogicEngine Setup 4.4.0.exe` (358,859,969 bytes; SHA-256
+`1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
+It is unsigned and was built from an uncommitted local tree based on
+`b3132966fd9c9f3d92a21036e06e636c1e96c97c`, so it is not the clean signed
+exact-source CP19-M artifact. Integrity, NSIS/resources, 6,096-file payload,
+and package-owned portable `/ready` pass in 30,790 ms. The retained PostgreSQL
+store
+advanced from `0a1b2c3d4e5f` to `b2c3d4e5f6a7`, and read-only verification
+showed saved Google/OpenAI rows at `gemini-3.7-flash` / `gpt-5.6-sol` without
+reading or printing a key. Current artifact evidence is in
+`reports/installer_integrity_report.json`, `reports/packaging_resources_report.json`,
+and `reports/packaging_smoke_report.json`.
+
+The clean 80% coverage qualification is complete. Python `backend/` is 80.30%
+(37,348/46,511), `backend/security/` is 80.67% (1,653/2,049), and `core/` is
+80.89% (12,374/15,298). Frontend V8 coverage is 89.54% statements, 80.69%
+branches, 86.11% functions, and 91.36% lines. The blocking runs passed 3,287
+Python tests with 18 skipped and 482 frontend tests. CI now enforces 80.00%
+independently for each Python scope and each frontend metric; the language
+results are not blended into a whole-application percentage.
 
 The active documentation set was recursively reconciled on 2026-08-11 against
 the current source, build reports, generated contracts, manifest, route surface,
@@ -1351,30 +1377,36 @@ Evidence:
 6. Claim production GO or flip signing / auto-update without owner + evidence.
 7. Treat gitignored `API KEY/` or `certs/` as product defects.
 
-These source changes **invalidate** prior installed-hash acceptance for the next
-CP19-M pass. Full post-QC source qualification and QR-5 commit-scope review
-passed, the reviewed commit groups exist, and the owner authorized a clean
-rebuild from the resulting local checkpoint.
+The provider-refresh replacement now has portable engineering evidence only.
+It does not inherit prior installed-hash acceptance, and its dirty local source
+binding, missing signature, live-provider rows, and installed lifecycle keep
+CP19-M open.
 
 ## Exact next action
 
-1. Use only the repaired candidate hash above for the next CP19-M slice; do not
-   reuse the first-artifact hash in `first-rebuild-runtime-blocker.md`.
-2. Run the elevated per-machine install/upgrade/repair/uninstall and retained-
-   data lifecycle on the exact candidate, including Program Files launch and
+1. Run the bounded owner-authorized live Google and OpenAI model tests against
+   the provider-refresh replacement source. The saved rows have already
+   migrated to `gemini-3.7-flash` and `gpt-5.6-sol`; do not expose, print, or
+   require re-entry of stored keys. OpenAI must use High reasoning.
+2. Commit the reviewed local source/evidence, rebuild from that clean exact
+   commit, then sign and timestamp the artifact before treating it as the
+   CP19-M release candidate. The current `5ec7af72...` artifact is portable
+   engineering evidence, not the signed exact-source candidate.
+3. Run the elevated per-machine install/upgrade/repair/uninstall and retained-
+   data lifecycle on that exact replacement, including Program Files launch and
    post-uninstall cleanup. Treat UAC cancellation as no result, not a pass.
-3. Classify and exercise the Diagnostics `Api_gateway` and `Workers` stopped
+4. Classify and exercise the Diagnostics `Api_gateway` and `Workers` stopped
    states under the installed service-role matrix; do not waive them from the
    portable observation alone.
-4. Complete signing/timestamp, installed Phase 9–13, provider/corpus/blinded-human,
+5. Complete signing/timestamp, installed Phase 9–13, provider/corpus/blinded-human,
    visual/scaling/high-contrast/NVDA, and 24/72-hour soak acceptance.
-5. Complete retained clean-machine object-store, protected-volume,
+6. Complete retained clean-machine object-store, protected-volume,
    backup/restore, security/license, accessibility, provider, gateway, pilot,
    and soak acceptance.
-6. Retain CP16-G/CP17-E, CP15-A–H, production signing/distribution NO-GO,
+7. Retain CP16-G/CP17-E, CP15-A–H, production signing/distribution NO-GO,
    automatic-update disablement, and object-store production-approval false
    until exact installed and independent evidence exists.
-7. Before changing API surface or reopening Phase 8: re-read
+8. Before changing API surface or reopening Phase 8: re-read
    `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` and
    this checkpoint. `CODEX_WORK_QUEUE_2026-08-10.md` is supporting history only.
 

@@ -28,7 +28,7 @@ async def test_gateway_does_not_cross_provider_failover(gateway, mock_db):
     provider1.name = "Primary"
     provider1.provider_type = "openai"
     provider1.priority = 1
-    provider1.model_id = "gpt-5.5"
+    provider1.model_id = "gpt-5.6-sol"
     provider1.max_retries = 3
     provider1.timeout_seconds = 30
     
@@ -37,7 +37,7 @@ async def test_gateway_does_not_cross_provider_failover(gateway, mock_db):
     provider2.name = "Secondary"
     provider2.provider_type = "google"
     provider2.priority = 2
-    provider2.model_id = "gemini-3.1-pro-preview"
+    provider2.model_id = "gemini-3.7-flash"
     
     with patch.object(gateway, '_get_eligible_providers', AsyncMock(return_value=[provider1, provider2])), \
          patch.object(gateway, '_create_sdk_provider') as mock_create_sdk, \
@@ -74,7 +74,7 @@ async def test_legacy_ollama_request_is_not_silently_rewritten(gateway, monkeypa
     provider.name = "google-default"
     provider.provider_type = "google"
     provider.priority = 1
-    provider.model_id = "gemini-3.1-pro-preview"
+    provider.model_id = "gemini-3.7-flash"
     provider.max_retries = 1
     provider.timeout_seconds = 30
     query = MagicMock()
@@ -125,12 +125,12 @@ async def test_gateway_circuit_breaker_integration(gateway, mock_db):
     """Test that gateway respects an open circuit breaker."""
     
     provider1 = MagicMock(id=uuid.uuid4(), name="Primary", provider_type="openai", priority=1)
-    provider1.model_id = "gpt-5.5"
+    provider1.model_id = "gpt-5.6-sol"
     provider1.max_retries = 1
     provider1.timeout_seconds = 30
     
     # Manually open circuit for provider 1
-    cb1 = gateway._get_circuit_breaker("openai:gpt-5.5")
+    cb1 = gateway._get_circuit_breaker("openai:gpt-5.6-sol")
     cb1.record_failure()
     cb1.record_failure()
     cb1.record_failure()
@@ -159,7 +159,7 @@ async def test_gateway_usage_tracking(gateway, mock_db):
     """Test that gateway records usage information."""
     
     provider = MagicMock(id=uuid.uuid4(), name="Primary", provider_type="openai", priority=1)
-    provider.model_id = "gpt-5.5"
+    provider.model_id = "gpt-5.6-sol"
     provider.max_retries = 1
     provider.timeout_seconds = 30
     
@@ -191,7 +191,7 @@ async def test_gateway_respects_provider_retry_configuration(gateway, mock_db):
     provider.id = uuid.uuid4()
     provider.name = "Primary"
     provider.provider_type = "openai"
-    provider.model_id = "gpt-5.5"
+    provider.model_id = "gpt-5.6-sol"
     provider.max_retries = 2
     provider.timeout_seconds = 30
 
@@ -222,7 +222,7 @@ async def test_gateway_enforces_provider_timeout(gateway, mock_db):
     provider.id = uuid.uuid4()
     provider.name = "TimeoutProvider"
     provider.provider_type = "openai"
-    provider.model_id = "gpt-5.5"
+    provider.model_id = "gpt-5.6-sol"
     provider.max_retries = 1
     provider.timeout_seconds = 1
 
@@ -266,7 +266,7 @@ async def test_gateway_persists_full_governed_trace_when_legacy_bypass_is_reques
         provider.id = uuid.uuid4()
         provider.name = "DirectProvider"
         provider.provider_type = "openai"
-        provider.model_id = "gpt-5.5"
+        provider.model_id = "gpt-5.6-sol"
         provider.max_retries = 1
         provider.timeout_seconds = 30
 
@@ -294,7 +294,7 @@ async def test_gateway_persists_full_governed_trace_when_legacy_bypass_is_reques
         assert run is not None
         assert run.input_message == "Persist direct trace"
         assert run.final_answer == "Direct trace response"
-        assert run.model_name == "gpt-5.5"
+        assert run.model_name == "gpt-5.6-sol"
         assert run.user_id is None
         stages = run.stages.order_by(TraceStage.layer_index).all()
         assert [stage.name for stage in stages] == [
@@ -359,7 +359,7 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
             str(run_id),
             "anonymous",
             "not-a-session-uuid",
-            "gpt-5.5",
+            "gpt-5.6-sol",
         )
 
         run = db.session.get(TraceRun, run_id)
@@ -374,7 +374,7 @@ async def test_create_trace_run_accepts_anonymous_dmrf_metadata(app):
         assert run.data_snapshot["provider_used"] == "google"
         assert run.coordinate17_id is not None
         assert run.to_dict()["provider_used"] == "google"
-        assert run.to_dict()["model_name"] == "gpt-5.5"
+        assert run.to_dict()["model_name"] == "gpt-5.6-sol"
         assert run.stages.count() == 1
         assert run.stages.first().status == "completed"
 
@@ -421,7 +421,7 @@ async def test_create_trace_run_persists_dsqp_personas(app):
             str(run_id),
             "anonymous",
             None,
-            "gemini-3.1-pro-preview",
+            "gemini-3.7-flash",
         )
 
         run = db.session.get(TraceRun, run_id)
@@ -444,7 +444,7 @@ async def test_gateway_persists_failed_trace_run_for_provider_exhaustion(app):
             response = await gateway.process(
                 GatewayRequest(
                     messages=[{"role": "user", "content": "Persist failed trace"}],
-                    model="gpt-5.5",
+                    model="gpt-5.6-sol",
                     run_ukg_pipeline=False,
                 )
             )
@@ -455,7 +455,7 @@ async def test_gateway_persists_failed_trace_run_for_provider_exhaustion(app):
         assert run is not None
         assert run.status == "provider_failure"
         assert run.input_message == "Persist failed trace"
-        assert run.model_name == "gpt-5.5"
+        assert run.model_name == "gpt-5.6-sol"
         assert run.data_snapshot["failure"]["message"] == "No active providers found"
         assert "layer_6_evidence_validation" not in [
             stage.name for stage in run.stages.all()

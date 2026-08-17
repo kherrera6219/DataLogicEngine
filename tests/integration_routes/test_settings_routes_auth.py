@@ -36,7 +36,7 @@ def test_ai_settings_session_read_write_uses_authenticated_user(app, client):
         "/api/v1/settings/ai",
         json={
             "preferred_provider": " Google ",
-            "preferred_model": "gemini-3.1-pro-preview",
+            "preferred_model": "gemini-3.7-flash",
             "ai_processing_enabled": False,
             "store_chat_history": False,
         },
@@ -46,7 +46,7 @@ def test_ai_settings_session_read_write_uses_authenticated_user(app, client):
     payload = response.get_json()
     assert payload["success"] is True
     assert payload["settings"]["preferred_provider"] == "google"
-    assert payload["settings"]["preferred_model"] == "gemini-3.1-pro-preview"
+    assert payload["settings"]["preferred_model"] == "gemini-3.7-flash"
     assert payload["settings"]["ai_processing_enabled"] is False
     assert payload["settings"]["store_chat_history"] is False
 
@@ -96,7 +96,7 @@ def test_ai_settings_accepts_signed_desktop_request_without_session(app, client,
         headers=_signed_desktop_headers("/api/v1/settings/ai", method="POST"),
         json={
             "preferred_provider": "openai",
-            "preferred_model": "gpt-5.5",
+            "preferred_model": "gpt-5.6-sol",
             "ai_processing_enabled": True,
             "store_chat_history": False,
         },
@@ -113,4 +113,4 @@ def test_ai_settings_accepts_signed_desktop_request_without_session(app, client,
         prefs = UserAIPreferences.query.filter_by(user_id=user.id).first()
         assert prefs is not None
         assert prefs.preferred_provider == "openai"
-        assert prefs.preferred_model == "gpt-5.5"
+        assert prefs.preferred_model == "gpt-5.6-sol"

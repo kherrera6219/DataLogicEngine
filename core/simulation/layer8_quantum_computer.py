@@ -498,12 +498,19 @@ class SimulatedQuantumComputer:
             )
             
             if total_fidelity <= 0:
-                total_fidelity = 1.0  # Avoid division by zero
-            
-            collapse_probabilities = {
-                qubit_id: fidelity_scores["individual_fidelities"].get(qubit_id, 0.5) / total_fidelity
-                for qubit_id in qubits
-            }
+                # With no fidelity signal, every candidate is equally likely.
+                # Dividing zero scores by an arbitrary denominator leaves a
+                # distribution that numpy correctly rejects because it sums
+                # to zero.
+                collapse_probabilities = {
+                    qubit_id: 1.0 / len(qubits)
+                    for qubit_id in qubits
+                }
+            else:
+                collapse_probabilities = {
+                    qubit_id: fidelity_scores["individual_fidelities"].get(qubit_id, 0.5) / total_fidelity
+                    for qubit_id in qubits
+                }
             
             # Run multiple collapse iterations
             iteration_results = {}

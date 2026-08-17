@@ -80,7 +80,12 @@ export function ApiOverlayConfig() {
           const type = (preferred.type || preferred.name).toLowerCase();
           setProvider(type);
           setSelectedProviderId(preferred.id || null);
-          if (preferred.model) setModel(preferred.model);
+          const supportedModels = MODEL_LIBRARY[type] || [];
+          setModel(
+            preferred.model && supportedModels.includes(preferred.model)
+              ? preferred.model
+              : DEFAULT_MODEL_BY_PROVIDER[type] || '',
+          );
         }
       })
       .catch(() => {
@@ -99,12 +104,8 @@ export function ApiOverlayConfig() {
   };
 
   const modelOptions = useMemo(() => {
-    const live = providers
-      .filter((item) => (item.type || item.name).toLowerCase() === provider)
-      .map((item) => item.model)
-      .filter((item): item is string => Boolean(item));
-    return Array.from(new Set([...live, ...(MODEL_LIBRARY[provider] || [])]));
-  }, [provider, providers]);
+    return MODEL_LIBRARY[provider] || [];
+  }, [provider]);
 
   const effectiveModel = modelOptions.includes(model) ? model : (modelOptions[0] || model);
 
@@ -114,7 +115,12 @@ export function ApiOverlayConfig() {
       (item) => (item.type || item.name).toLowerCase() === nextProvider,
     );
     setSelectedProviderId(matching?.id || null);
-    setModel(matching?.model || DEFAULT_MODEL_BY_PROVIDER[nextProvider] || '');
+    const supportedModels = MODEL_LIBRARY[nextProvider] || [];
+    setModel(
+      matching?.model && supportedModels.includes(matching.model)
+        ? matching.model
+        : DEFAULT_MODEL_BY_PROVIDER[nextProvider] || '',
+    );
     markDirty();
   };
 

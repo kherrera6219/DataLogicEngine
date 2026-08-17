@@ -1,0 +1,116 @@
+﻿{
+    "generated_at":  "2026-08-17T03:23:44.8629432Z",
+    "config_path":  "C:\\software\\DataLogicEngine\\frontend\\electron-builder.yml",
+    "package_path":  "C:\\software\\DataLogicEngine\\frontend\\package.json",
+    "nsis_script_path":  "C:\\software\\DataLogicEngine\\frontend\\electron\\installer.nsh",
+    "results":  [
+                    {
+                        "id":  "target_nsis",
+                        "passed":  true,
+                        "message":  "Windows target must include NSIS."
+                    },
+                    {
+                        "id":  "copyright_kevin_herrera",
+                        "passed":  true,
+                        "message":  "Copyright metadata must use Kevin Herrera."
+                    },
+                    {
+                        "id":  "oneclick_disabled",
+                        "passed":  true,
+                        "message":  "oneClick must be false for enterprise governance."
+                    },
+                    {
+                        "id":  "per_machine",
+                        "passed":  true,
+                        "message":  "perMachine install must be enabled."
+                    },
+                    {
+                        "id":  "elevation_enabled",
+                        "passed":  true,
+                        "message":  "allowElevation must be enabled."
+                    },
+                    {
+                        "id":  "change_install_dir",
+                        "passed":  true,
+                        "message":  "Installer must allow choosing the install directory."
+                    },
+                    {
+                        "id":  "desktop_shortcut",
+                        "passed":  true,
+                        "message":  "Installer must create a desktop shortcut."
+                    },
+                    {
+                        "id":  "start_menu_shortcut",
+                        "passed":  true,
+                        "message":  "Installer must create a Start Menu shortcut."
+                    },
+                    {
+                        "id":  "uninstall_display_name",
+                        "passed":  true,
+                        "message":  "Uninstaller display name must be DataLogicEngine Desktop."
+                    },
+                    {
+                        "id":  "retain_app_data",
+                        "passed":  true,
+                        "message":  "Uninstall must default to retaining app data."
+                    },
+                    {
+                        "id":  "run_after_finish",
+                        "passed":  true,
+                        "message":  "Installer must show finish/run completion behavior."
+                    },
+                    {
+                        "id":  "update_signature_verification",
+                        "passed":  true,
+                        "message":  "Electron update signature verification must be enabled."
+                    },
+                    {
+                        "id":  "versioned_artifact_name",
+                        "passed":  true,
+                        "message":  "Installer artifact name must include the authoritative package version."
+                    },
+                    {
+                        "id":  "custom_nsis_include",
+                        "passed":  true,
+                        "message":  "Custom NSIS include must be present."
+                    },
+                    {
+                        "id":  "package_author_kevin_herrera",
+                        "passed":  true,
+                        "message":  "Package author must be Kevin Herrera for Windows file metadata."
+                    },
+                    {
+                        "id":  "package_product_version",
+                        "passed":  true,
+                        "message":  "Frontend package version must match config/product-versions.json."
+                    },
+                    {
+                        "id":  "macro_customHeader",
+                        "passed":  true,
+                        "message":  "NSIS macro \u0027customHeader\u0027 should be defined."
+                    },
+                    {
+                        "id":  "macro_customInstall",
+                        "passed":  true,
+                        "message":  "NSIS macro \u0027customInstall\u0027 should be defined."
+                    },
+                    {
+                        "id":  "macro_customUnInstall",
+                        "passed":  true,
+                        "message":  "NSIS macro \u0027customUnInstall\u0027 should be defined."
+                    },
+                    {
+                        "id":  "registry_install_location",
+                        "passed":  true,
+                        "message":  "Installer should write InstallLocation for Windows Apps metadata."
+                    },
+                    {
+                        "id":  "legacy_installer_scripts_excluded",
+                        "passed":  true,
+                        "message":  "Legacy standalone installer scripts must not be copied into the NSIS payload."
+                    }
+                ],
+    "failures":  [
+
+                 ]
+}

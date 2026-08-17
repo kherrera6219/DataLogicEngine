@@ -53,7 +53,7 @@ async function mockBaseApi(page: Page) {
 
     if (path === '/gateway/providers') {
       return route.fulfill(jsonResponse({
-        providers: [{ id: 'provider-openai', name: 'OpenAI', type: 'openai', model: 'gpt-5.5', is_default: true }],
+        providers: [{ id: 'provider-openai', name: 'OpenAI', type: 'openai', model: 'gpt-5.6-sol', is_default: true }],
       }));
     }
 
