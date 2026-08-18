@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.6.0 |
+| Document version | v1.6.1 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-16 |
+| Last reviewed | 2026-08-17 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.71.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.71.1 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; provider-refresh replacement passes portable engineering qualification; installed/provider CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
@@ -370,6 +370,15 @@ Phase 18 source baseline while completing the whole-application wiring.
       `backend/security/`, and 80.89% `core/`. The complete 482-test frontend
       run passes at 89.54% statements, 80.69% branches, 86.11% functions, and
       91.36% lines. CI now blocks below 80.00% for every named scope/metric.
+- [x] **Clean-runner documentation/CI repair:** commit `1a631128` replaced four
+      historical wildcard examples that incorrectly required ignored local
+      directories during active-reference validation. A fresh clone passes 57
+      active Markdown references with zero errors/warnings and the 10/10
+      documentation truth gate. Replacement Deploy run 32099906333 and CI/CD
+      Pipeline run 32099906332 both pass, including the originally failing
+      `Build and Test` / `backend-test` jobs, independent coverage gates,
+      Windows packaging smoke, and Docker builds. Production deployment remains
+      gated and this result does not close CP19-M.
 - [x] **Portable replacement artifact after provider refresh:** local artifact
       `DataLogicEngine Setup 4.4.0.exe` is 358,859,969 bytes with SHA-256
       `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`.

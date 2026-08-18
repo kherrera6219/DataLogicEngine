@@ -51,7 +51,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.4.0 |
+| Document version | v1.4.1 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -59,7 +59,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-16 |
+| Last reviewed | 2026-08-17 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -86,6 +86,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   frontend statements (89.54%), branches (80.69%), functions (86.11%), and
   lines (91.36%). The clean runs pass 3,287 Python and 482 frontend tests, and
   CI now fails when any named scope or metric falls below 80.00%.
+- **Clean-runner documentation validation:** replaced four local-only
+  historical wildcard references that failed in fresh GitHub checkouts. Commit
+  `1a631128` passes active-reference validation with zero errors/warnings and
+  the documentation truth gate 10/10. Replacement Deploy run 32099906333 and
+  CI/CD Pipeline run 32099906332 pass end to end, including coverage, Windows
+  packaging smoke, and Docker image builds.
 - **Cloud model defaults:** advanced the single-provider allowlist to OpenAI
   `gpt-5.6-sol` with explicit High reasoning and Google
   `gemini-3.7-flash`. Stored rows using only the two retired defaults migrate

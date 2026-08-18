@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.71.0 |
+| Document version | v1.71.1 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -111,6 +111,17 @@ coverage is 89.54% statements, 80.69% branches, 86.11% functions, and 91.36%
 lines. The blocking runs passed 3,287 Python tests with 18 skipped and 482
 frontend tests. CI enforces the same independent thresholds; Python and V8 are
 not blended into a misleading whole-application percentage.
+
+Commit `1a631128` subsequently made active-document reference validation safe
+for clean runners by converting four local-only historical wildcard examples
+into non-path historical descriptions. A fresh checkout validates 57 active
+Markdown files with zero errors or warnings and passes the documentation truth
+gate 10/10. Replacement Deploy run 32099906333 and CI/CD Pipeline run
+32099906332 completed successfully, including the previously failing `Build and
+Test` and `backend-test` jobs, all independent coverage gates, Windows
+packaging smoke, and Docker image builds. These are source and CI qualification
+results only; they do not close CP19-M or alter production/public release
+**NO-GO**.
 
 Scheduled Security run 31561547302 failed its full-history secret scan on
 Lob-detector matches in generated KA evidence/test identifiers. The current

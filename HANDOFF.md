@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.8.0 |
+| Document version | v1.8.1 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-16 |
+| Last reviewed | 2026-08-17 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.71.0 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.71.1 (release program) |
 | Supporting engineering plan | `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` (Phase 5 partial/deferred; P8 not started) |
 | QC remediation plan | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` (QR-0 through QR-5 complete; QR-6 portable subset complete, installed acceptance open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
@@ -759,6 +759,17 @@ branches, 86.11% functions, and 91.36% lines. The blocking runs passed 3,287
 Python tests with 18 skipped and 482 frontend tests. CI now enforces 80.00%
 independently for each Python scope and each frontend metric; the language
 results are not blended into a whole-application percentage.
+
+Commit `1a631128` corrected clean-runner documentation validation that had
+treated four historical wildcard examples as current paths. Those ignored
+local directories existed in the workshop tree but not in a GitHub checkout.
+A fresh clone now validates 57 active Markdown files with zero errors or
+warnings, and the documentation truth gate passes 10/10. Replacement Deploy
+run 32099906333 and CI/CD Pipeline run 32099906332 both completed successfully,
+including Deploy `Build and Test`, CI `backend-test`, the independent 80%
+coverage gates, Windows packaging smoke, and Docker image builds. This source
+and CI checkpoint does not close CP19-M or change production/public release
+**NO-GO**.
 
 The active documentation set was recursively reconciled on 2026-08-11 against
 the current source, build reports, generated contracts, manifest, route surface,
