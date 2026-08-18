@@ -92,7 +92,7 @@ When docs and code disagree, **code is truth**. This audit preferred source and 
 | `API KEY/` folder with live test provider keys | **Local build-machine state**. Gitignored (`API KEY/`). Not a shipping defect. Do not delete as part of “security cleanup” without owner confirmation. |
 | `certs/*.pfx` and password files | **Local dev codesign material**. Gitignored (`certs/`). Not a product defect in a workshop tree. |
 | Large `dist/`, `frontend/dist*`, installer EXEs, databases, object-store blobs | Expected local build/runtime artifacts. |
-| `.claude/worktrees/*` | Agent experiment trees; gitignored (`.claude/`). Source of experimental local-model work — not mainline product surface. |
+| `.claude/worktrees/<agent-worktree>` (historical pattern) | Agent experiment trees; gitignored (`.claude/`). Source of experimental local-model work — not mainline product surface. |
 | Release **NO-GO** / unsigned installer | **Intentional governance**, already encoded in `config/release-trust-policy.json`, `config/release-channel.json`, README, release readiness record. Plan may *prepare* gates; do not fake production_authorized. |
 
 ---
@@ -225,7 +225,7 @@ Status: **Open** unless noted.
 | Severity | **S1** (hygiene with security confusion) |
 | Sections | 2, 20 |
 | Summary | ~70 orphan `.pyc` modules without `.py` under `backend/` + `core/`, including MFA, RBAC, honeypot, zero_trust, tenant_rls, defense_supervisor, etc. |
-| Evidence | `backend/security/__pycache__/*` orphans; scan listed in §8 |
+| Evidence | Historical `backend/security/__pycache__/` orphan cluster; scan listed in §8 |
 | Risk | False confidence that features exist; accidental import of stale pyc; audit noise |
 | Suggested direction | Purge orphan pyc; optional quarantine list in `legacy-retirement.json`; never reintroduce multi-tenant SaaS auth without explicit product decision |
 | Verify | Script: every `.pyc` has matching `.py`; CI hygiene check optional |
@@ -859,7 +859,7 @@ Align purge vs wire with current product identity (§2):
 |---|---|
 | Single-owner desktop auth | MFA / RBAC / tenant_rls / multi-user email → **DELETE** |
 | Live injection screening | gateway + `prompt_injection_shield` + `ai_guardrail` — **not** `defense_supervisor` |
-| Models SoR | root `models.py` — split `backend/models/*` pyc → **SUPERSEDED → DELETE** |
+| Models SoR | root `models.py` — historical split `backend/models/` bytecode → **SUPERSEDED → DELETE** |
 | Canonical personas | `backend/dsqp` (+ live `core/persona/quad`) — old persona engines → **DELETE** |
 | Generative on mainline | Cloud BYOK; Electron stubs local models — local_model stack is **decision fork** (§18.5) |
 | Thin SDK | Client providers/handlers → **DELETE** |

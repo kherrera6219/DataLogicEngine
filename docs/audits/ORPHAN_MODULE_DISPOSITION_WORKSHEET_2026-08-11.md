@@ -279,7 +279,7 @@ $securityOrphans = @(
 | Jira / Salesforce tools | Older worktrees |
 | `email_service` / `security_scan_api` | Older worktrees |
 | Axes old names | Not needed — live renames exist on main |
-| `backend/models/*` split | Not needed — root `models.py` |
+| Historical `backend/models/` split | Not needed — root `models.py` |
 
 Worktrees are **gitignored agent caches** — treat as recovery archive, not product.
 
