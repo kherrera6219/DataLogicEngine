@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.5.0 |
+| Document version | v1.6.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-12 |
+| Last reviewed | 2026-08-18 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
@@ -26,9 +26,19 @@ tests passed with 26 skipped, plus 23 contract tests with one skipped, five
 parity tests, six focused security tests, 435 frontend unit tests, and 51
 frontend end-to-end/visual/app-readiness tests. Lint, typecheck, build,
 packaging, governance, deployment, and the push-triggered security workflow
-passed. A later scheduled full-history secret scan failed on Lob-shaped
-historical/generated identifiers and remains open pending disposition and a
-clean rerun.
+passed. The later Lob-detector finding is now closed: scheduled full-history
+run `32093054806`, job `95578937904`, scanned 1,298 commits and
+2,632,118,047 bytes with zero verified and zero unverified secrets. Future
+exact-candidate secret scans remain required.
+
+The source Trace Explorer now renders the existing canonical nested refinement
+receipt as named step detail. Focused trace persistence/bundle tests pass 4/4,
+the Trace Detail page passes 3/3 tests, the complete frontend suite passes 483
+tests, and focused TypeScript/lint plus optimized production-build gates pass.
+The reviewed 213-row KA registry and axes 14-17 replacement also passed export
+freshness tests 3/3 and were published to connected Google Drive with byte-count
+readback. These results do not replace packaged accessibility validation; stale
+external analysis cleanup remains blocked on Google file-scoped write access.
 
 The August 10 rebuilt unsigned candidate installed, reached readiness,
 preserved retained data across the five managed services, and passed installed
@@ -79,10 +89,10 @@ acceptance. This report is not a production approval.
 | Knowledge/memory | Hostile parser, reconciliation, provenance, retrieval, deletion, memory trust/recovery | Populated installed restart/recovery/remnant/visual acceptance |
 | Simulation | Lifecycle/budget/checkpoint/artifact/failure tests | Installed provider/restart/event/UI/artifact/result validation |
 | MCP | Registration/consent/scope/process/result/containment contracts | Installed OS isolation, lifecycle, store recovery, Electron walkthrough |
-| UI/accessibility | Route/control inventory, axe and keyboard workflows, truthful state contracts | Packaged visual/scaling/contrast and manual keyboard/NVDA/user acceptance |
+| UI/accessibility | Route/control inventory, axe/keyboard workflows, truthful state contracts, and named canonical nested-refinement source rendering | Packaged trace-detail visual/scaling/contrast and manual keyboard/NVDA/user acceptance |
 | Observability/support | Correlation/error taxonomy/redacted logs/diagnostics/support/soak evaluator | Installed cross-process correlation, canary/no-egress, support, 24/72-hour soak |
 | Packaging/supply chain | Versions/locks/SBOM/manifests/payload/integrity/update fail-closed | Reproducibility resolution, trusted signatures, legal/scans, lifecycle/update matrix |
-| Documentation/review | CP16-A-E content/authority plus CP16-F 72-source retained-hash/link/archive closure | Signed-RC walkthroughs, exact-artifact binding, independent/professional/Microsoft acceptance, and CP17-E clean-machine walkthrough |
+| Documentation/review | CP16-A-E authority plus CP16-F closure and published current KA/axis exports; stale Google Docs remain write-blocked | External stale-file archive/de-rank, signed-RC walkthroughs, exact-artifact binding, independent/professional/Microsoft acceptance, and CP17-E clean-machine walkthrough |
 
 ## Current candidate evidence
 

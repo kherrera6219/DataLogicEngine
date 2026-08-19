@@ -39,7 +39,24 @@ def test_trace_bundle_endpoint_returns_aggregate_contract(app, authenticated_cli
                 status="completed",
                 duration_ms=12,
                 metrics={"tokens_in": 4, "tokens_out": 8, "retrieval_count": 1},
-                outputs={"summary": "context parsed"},
+                outputs={
+                    "summary": "context parsed",
+                    "refinement": {
+                        "schema_version": "dle.canonical-refinement-result.v1",
+                        "registry_version": "2026.08.08-rw12.1",
+                        "status": "completed",
+                        "step_count": 12,
+                        "rewrite_authorized": True,
+                        "steps": [
+                            {
+                                "step": 1,
+                                "step_id": "claim_inventory",
+                                "name": "Claim inventory",
+                                "status": "executed",
+                            }
+                        ],
+                    },
+                },
             )
         )
         db.session.add(
@@ -95,6 +112,9 @@ def test_trace_bundle_endpoint_returns_aggregate_contract(app, authenticated_cli
     assert payload["run"]["provider_used"] == "google"
     assert payload["run"]["model_name"] == "gemini-3.7-flash"
     assert payload["frost_layers"][0]["name"] == "L1 Context"
+    refinement = payload["stages"][0]["outputs"]["refinement"]
+    assert refinement["schema_version"] == "dle.canonical-refinement-result.v1"
+    assert refinement["steps"][0]["name"] == "Claim inventory"
     assert payload["evidence_sources"][0]["evidence_tier"] == "GOLD"
     assert payload["evidence_sources"][0]["claims_supported"] == ["claim-1"]
     assert payload["personas"][0]["synthesis_weight"] == 0.4

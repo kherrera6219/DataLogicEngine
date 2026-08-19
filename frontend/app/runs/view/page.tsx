@@ -14,6 +14,8 @@ import type {
   TraceEvidenceSource,
   TraceKAInvocation,
   TracePersona,
+  TraceRefinementReceipt,
+  TraceRefinementStep,
   TraceStage,
 } from '@/lib/api/types';
 
@@ -94,6 +96,68 @@ function jsonPreview(value: unknown): string | null {
 
 function arrayOrEmpty<T>(value: T[] | null | undefined): T[] {
   return Array.isArray(value) ? value : [];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+function unknownArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function refinementStep(value: unknown, index: number): TraceRefinementStep | null {
+  if (!isRecord(value)) return null;
+  const rawStep = value.step;
+  const step = isFiniteNumber(rawStep) ? rawStep : index + 1;
+  const stepId = typeof value.step_id === 'string' ? value.step_id : 'step_' + step;
+  const name = typeof value.name === 'string' ? value.name : stepId;
+  const status = typeof value.status === 'string' ? value.status : 'unknown';
+  return {
+    step,
+    step_id: stepId,
+    name,
+    status,
+    reason: typeof value.reason === 'string' ? value.reason : null,
+    candidate_ka_ids: stringArray(value.candidate_ka_ids),
+    selected_ka_ids: stringArray(value.selected_ka_ids),
+    executed_ka_ids: stringArray(value.executed_ka_ids),
+    reused_ka_ids: stringArray(value.reused_ka_ids),
+    findings: unknownArray(value.findings).filter(isRecord),
+    constraints: stringArray(value.constraints),
+    effects: unknownArray(value.effects).filter(isRecord),
+  };
+}
+
+function refinementReceipts(stages: TraceStage[]): TraceRefinementReceipt[] {
+  const receipts: TraceRefinementReceipt[] = [];
+  stages.forEach((stage) => {
+    const candidate = isRecord(stage.outputs) ? stage.outputs.refinement : null;
+    if (!isRecord(candidate) || candidate.schema_version !== 'dle.canonical-refinement-result.v1') return;
+    const steps = unknownArray(candidate.steps)
+      .map(refinementStep)
+      .filter((step): step is TraceRefinementStep => step !== null);
+    receipts.push({
+      schema_version: 'dle.canonical-refinement-result.v1',
+      registry_version: typeof candidate.registry_version === 'string' ? candidate.registry_version : 'unknown',
+      status: typeof candidate.status === 'string' ? candidate.status : 'unknown',
+      steps,
+      step_count: isFiniteNumber(candidate.step_count) ? candidate.step_count : steps.length,
+      step_status_counts: isRecord(candidate.step_status_counts)
+        ? Object.fromEntries(Object.entries(candidate.step_status_counts).filter((entry): entry is [string, number] => isFiniteNumber(entry[1])))
+        : {},
+      rewrite_authorized: candidate.rewrite_authorized === true,
+      rewrite_constraints: stringArray(candidate.rewrite_constraints),
+      provider_subcalls_used: isFiniteNumber(candidate.provider_subcalls_used) ? candidate.provider_subcalls_used : undefined,
+      max_provider_rewrites: isFiniteNumber(candidate.max_provider_rewrites) ? candidate.max_provider_rewrites : undefined,
+      blocked_by_step: typeof candidate.blocked_by_step === 'string' ? candidate.blocked_by_step : null,
+    });
+  });
+  return receipts;
 }
 
 function axisEntries(axisVector: TraceAxisVector | null): Array<[string, { name?: string | null; selected?: boolean | null }]> {
@@ -197,6 +261,7 @@ function TraceDetailContent() {
 
   const traceId = trace.run_id || runId || 'unknown';
   const coordinateAxes = axisEntries(axes);
+  const refinements = refinementReceipts(stages);
 
   return (
     <div className="container mx-auto max-w-7xl space-y-8">
@@ -261,6 +326,67 @@ function TraceDetailContent() {
                   })}
                 </CardContent>
               </Card>
+              {refinements.map((receipt, receiptIndex) => (
+                <Card key={receipt.registry_version + '-' + receiptIndex}>
+                  <CardHeader>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <CardTitle>12-Step Refinement Receipt</CardTitle>
+                        <CardDescription>
+                          Canonical nested workflow {receipt.registry_version}; {receipt.step_count} recorded steps.
+                        </CardDescription>
+                      </div>
+                      <Badge variant={statusVariant(receipt.status)}>{statusLabel(receipt.status)}</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+                      <div className="rounded-lg border p-3">
+                        <div className="text-xs font-semibold uppercase text-gray-500">Rewrite</div>
+                        <div className="mt-1 font-medium">{receipt.rewrite_authorized ? 'Authorized' : 'Not authorized'}</div>
+                      </div>
+                      <div className="rounded-lg border p-3">
+                        <div className="text-xs font-semibold uppercase text-gray-500">Provider subcalls</div>
+                        <div className="mt-1 font-medium">{formatCount(receipt.provider_subcalls_used)}</div>
+                      </div>
+                      <div className="rounded-lg border p-3">
+                        <div className="text-xs font-semibold uppercase text-gray-500">Blocked by</div>
+                        <div className="mt-1 break-words font-medium">{receipt.blocked_by_step || 'None'}</div>
+                      </div>
+                    </div>
+                    <ol aria-label="Canonical refinement steps" className="space-y-3">
+                      {receipt.steps.map((step) => {
+                        const selected = arrayOrEmpty(step.selected_ka_ids);
+                        const executed = arrayOrEmpty(step.executed_ka_ids);
+                        const reused = arrayOrEmpty(step.reused_ka_ids);
+                        return (
+                          <li key={step.step_id} className="rounded-lg border bg-white p-4 dark:bg-gray-900">
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div>
+                                <div className="text-xs font-semibold uppercase text-gray-500">Step {step.step}</div>
+                                <h4 className="font-semibold">{step.name}</h4>
+                                <div className="mt-1 font-mono text-xs text-gray-500">{step.step_id}</div>
+                              </div>
+                              <span className={'rounded-full px-2 py-0.5 text-xs ' + statusPillClass(step.status)}>
+                                {statusLabel(step.status)}
+                              </span>
+                            </div>
+                            {step.reason && <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{step.reason}</p>}
+                            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                              <span>Selected KAs: {selected.length ? selected.join(', ') : 'None'}</span>
+                              <span>Executed KAs: {executed.length ? executed.join(', ') : 'None'}</span>
+                              <span>Reused KAs: {reused.length ? reused.join(', ') : 'None'}</span>
+                              <span>Findings: {arrayOrEmpty(step.findings).length}</span>
+                              <span>Constraints: {arrayOrEmpty(step.constraints).length}</span>
+                              <span>Effects: {arrayOrEmpty(step.effects).length}</span>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </CardContent>
+                </Card>
+              ))}
             </TabsContent>
 
             <TabsContent value="evidence" className="mt-4 space-y-4">

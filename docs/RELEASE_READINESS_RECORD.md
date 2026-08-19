@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.5.0 |
+| Document version | v1.6.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-12 |
+| Last reviewed | 2026-08-18 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -38,12 +38,21 @@ These maintenance results do not substitute for the signed installed release
 evidence. GitHub reports alert 389 fixed as of 2026-07-15.
 
 The latest push-triggered CI, deploy, and security workflows pass for runtime-
-equivalent source. The 2026-08-12 scheduled full-history secret scan later
-failed on Lob-shaped identifiers in retained/generated KA evidence and a test
-identifier. No current-tree Lob integration or credential was identified by
-the repository search, but the failed run remains a release blocker until the
-detector findings are formally dispositioned and the scheduled gate reruns
-cleanly.
+equivalent source. The 2026-08-12 scheduled Lob-detector finding is formally
+closed by later scheduled full-history evidence. Run `32093054806`, job
+`95578937904`, scanned 1,298 commits and 2,632,118,047 bytes with zero verified
+and zero unverified secrets; three intervening scheduled runs and push Security
+run `32102824942` also pass. This closes that recorded finding without waiving
+future exact-candidate secret scans.
+
+The source Trace Explorer now expands the persisted canonical 12-step
+refinement receipt with named step governance detail, and focused source tests,
+lint, and type checking pass. The reviewed 213-row KA registry and axes 14-17
+replacement are published to the connected Google Drive project-knowledge
+root. These are documentation/source checkpoints only: installed packaged
+visual/accessibility proof remains open, and the three stale external analyses
+remain retrievable because the connected app lacks write access to move or
+rename them.
 
 CP19-K and CP19-L are now complete. The clean unsigned 4.3.0 candidate installed
 per-machine, launched from Program Files, reached readiness with five real
@@ -118,7 +127,7 @@ artifact.
 | Supply chain/legal | Exact locks/SBOM/manifest foundations exist | Final exact SBOM/notices/scans, ten legal actions, redistribution/export approval |
 | Dependency risk | Alert 389 fixed through SDK replacement and adversarial requalification | Re-run exact release scans and retain zero-blocker evidence |
 | Object store | ADR-0010 capability architecture; SeaweedFS 4.40-dle.1 selected; engineering Replacement Control passed | Rebuilt-installed protected-volume, recovery, independent legal/security, signing, and release acceptance |
-| Documentation/external review | CP16 authority and content construction active | All canonical/external records, walkthroughs, link/archive closure, independent reviews |
+| Documentation/external review | CP16 authority/content construction plus current KA/axis export publication pass; three stale Google Docs remain write-blocked | Stale external archive/de-rank, all canonical records, walkthroughs, link/archive closure, independent reviews |
 | Pilot and owner approval | Protocol exists | Named multi-day two-machine pilot and signed final owner GO decision |
 
 ## Phase status

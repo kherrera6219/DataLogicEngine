@@ -51,7 +51,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.4.1 |
+| Document version | v1.5.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -59,7 +59,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-17 |
+| Last reviewed | 2026-08-18 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -71,6 +71,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Trace refinement visibility and external spec publication:** the Trace
+  Explorer now expands the existing persisted canonical refinement receipt into
+  named 12-step governance detail without introducing another trace authority.
+  The reviewed 213-row KA registry and axes 14-17 replacement were published to
+  connected Google Drive and verified by byte count. Archive/de-rank of three
+  stale external Docs remains blocked on file-scoped Google write access.
+- **Provider acceptance evidence:** Google `gemini-3.7-flash` passes two bounded
+  source-level calls. OpenAI `gpt-5.6-sol` reaches the live API with High
+  reasoning but remains blocked by `quota_exhausted`, including a fresh bounded
+  retry. No credential or response content is retained in the receipts.
 - **Coverage-qualified replacement rebuild:** built the unsigned local 4.4.0
   engineering package at SHA-256
   `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`.
@@ -107,8 +117,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Slow-audit remediation (2026-08-12 through 2026-08-15):** engineering
   hygiene, API surface uniqueness, cloud-BYOK generative locality,
   authority/honesty planes, CI structural guards, and SDK 0.7.0 polish. Phase 5
-  decomposition remains partial/deferred; the post-implementation QC plan is
-  `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md`.
+  decomposition remains partial/deferred; remaining work is carried by
+  `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md`.
   Production release remains **NO-GO** (Phase 8 / signing deferred).
 - **Governed layer contract correction:** supplemental L1–L10 metadata now
   derives its names from the live ten-layer authority; provider execution and

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.8.1 |
+| Document version | v1.10.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,14 +14,13 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-17 |
+| Last reviewed | 2026-08-18 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.71.1 (release program) |
-| Supporting engineering plan | `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` (Phase 5 partial/deferred; P8 not started) |
-| QC remediation plan | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` (QR-0 through QR-5 complete; QR-6 portable subset complete, installed acceptance open) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.73.0 (release program) |
+| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 active; CU-3/CU-4 decision-gated; CU-5 source/publication partial) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; provider-refresh replacement passes portable engineering qualification; installed/provider CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; Google source-level live availability passes, OpenAI is quota-blocked, and installed/signed CP19-M acceptance remains open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -30,24 +29,23 @@
 Read these documents in order before changing code or making a readiness claim:
 
 1. **This file** — especially **Audit remediation checkpoint**.
-2. `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` — completed source-QC plan and gated QR-6 handoff.
-3. `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` — source audit plan (not at repo root).
-4. `TODO.md` — open production and QC work ledger.
-5. `PRODUCTION_COMPLETION_PLAN_2026.md` — sole **release** execution plan.
-6. `docs/audits/DataLogicEngine_Slow_Section_Audit_Findings_2026-08-11.md`.
-7. `docs/audits/DataLogicEngine_Slow_Audit_Recommendations_10of10_2026-08-12.md`.
-8. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
-9. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
-10. `docs/SECURITY_ARCHITECTURE.md`.
-11. `docs/README.md`.
-12. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
-13. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
+2. `TODO.md` — open production and QC work ledger.
+3. `PRODUCTION_COMPLETION_PLAN_2026.md` — sole **release** execution plan.
+4. `docs/README.md` — active documentation portal.
+5. `README.md` — public product and repository entry point.
+6. `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` — current supporting work sequence and archived-source disposition.
+7. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
+8. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
+9. `docs/SECURITY_ARCHITECTURE.md`.
+10. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
+11. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
 
 Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
-**release** execution plan. The slow-audit plan under `docs/audits/` records
-implemented workshop work, while the 2026-08-15 QC plan controls the current
-source corrections and qualification. Phase 5 remains partial/deferred.
+**release** execution plan. The consolidated update plan carries forward the
+remaining supporting work. Completed slow-audit, QC, coverage, and rejected
+terminology source plans are historical records under `docs/archive/audits/`.
+Phase 5 remains partial/deferred.
 
 ## Phase 19 execution authority
 
@@ -771,18 +769,56 @@ coverage gates, Windows packaging smoke, and Docker image builds. This source
 and CI checkpoint does not close CP19-M or change production/public release
 **NO-GO**.
 
+On 2026-08-18, CU-2 executed one bounded source-level call to each refreshed
+provider from dirty HEAD `254be21f`. Google `gemini-3.7-flash` passed in
+2,552.15 ms. OpenAI `gpt-5.6-sol` used the manifest-required High reasoning
+contract but returned `quota_exhausted` in 3,109.56 ms. The runner did not print
+or persist credentials or response bodies. The focused provider/evidence tests
+pass 26/26. Production signing remains unauthorized by
+`config/release-trust-policy.json`; local self-signed development certificates
+do not satisfy the publisher gate. Evidence is under
+`reports/production-readiness/2026/phase-19/cu-2-provider-acceptance/`.
+An owner-requested second Google call passed again in 1,021.73 ms.
+A fresh OpenAI retry reached the live API with the same required High reasoning
+contract and returned `quota_exhausted` in 2,224.49 ms; its sanitized receipt is
+`openai-live-retry.json` in the same evidence directory.
+
+Independent work that does not bypass the CU-2 artifact order also advanced on
+2026-08-18. CU-3 measured the four retained monoliths and recommends a named
+post-release maintenance deferral; that recommendation is not an owner waiver,
+so the durable disposition remains open. CU-4 completed the terminology
+evidence inventory, rejected unsupported conformal/EAL/air-gap/provider/training
+claims, and preserved all compatibility identifiers pending owner approval.
+CU-5 now exposes the existing canonical nested refinement receipt as named
+12-step detail in the source Trace Explorer; focused persistence/bundle tests
+pass 4/4, the page passes 3/3 tests, the complete frontend suite passes 483
+tests, and focused lint/type plus optimized production-build checks pass.
+
+The two reviewed spec exports were also published to the connected Google Drive
+project-knowledge root: `ka_registry_213.yaml` is Drive file
+`1mlD37Pmj-Xj08VB_pq7ppSARkt-cAXTC`, and the axes 14-17 replacement is
+`1MP_D9IbYZLFXsbX1Ebq3R2nWAB81SnIG`. Readback byte counts match the local
+validated files. Google rejected move/rename of the three stale gap analyses
+with `403 appNotAuthorizedToFile`; they remain unchanged until file write access
+is granted or the owner moves them manually. Source trace-detail and external
+publication evidence is under
+`reports/production-readiness/2026/phase-19/cu-5-trace-detail/`. Installed
+visual/accessibility acceptance remains open against the later exact signed
+candidate.
+
 The active documentation set was recursively reconciled on 2026-08-11 against
 the current source, build reports, generated contracts, manifest, route surface,
 and CI results. All active `docs/` content was updated or explicitly retained;
 `docs/archive/` remains frozen historical evidence. See
 `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`.
 
-Scheduled Security run 31561547302 subsequently failed its full-history secret
-scan on verified Lob-detector matches in generated KA evidence/test identifiers.
-No Lob integration is present in the current tree, and the push-triggered
-security run passed, but this is still an open evidence-disposition item: do not
-claim a clean full-history secret scan until the findings are formally resolved
-and that scheduled workflow reruns clean.
+The scheduled full-history secret-scan finding from run `31561547302` is now
+formally closed. Three later scheduled scans passed. The latest inspected
+scheduled receipt, run `32093054806` job `95578937904`, scanned 1,298 commits
+and 2,632,118,047 bytes with zero verified and zero unverified secrets; push
+Security run `32102824942` also passed at HEAD `254be21f`. This disposition does
+not waive future failures or the exact candidate's required scans. Evidence is
+in the CU-2 provider-acceptance folder.
 
 Phase 9 reached its engineering checkpoint on 2026-07-14. Electron picker
 authority is consumed by the main process and selected files/folders are copied
@@ -1229,8 +1265,8 @@ in dependency order. The runtime authority checks and full backend suite pass.
 
 | Role | Path | Notes |
 |---|---|---|
-| **Source audit plan** | `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` | **Not** at repo root. Phase 5 and overall completion were corrected in v1.4. |
-| **Active QC remediation** | `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` | Ordered source, docs, qualification, and commit-readiness gates. |
+| **Supporting update plan** | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` | Consolidates the August audit, QC, coverage, Phase 5, and terminology inputs without replacing release authority. |
+| **Archived source plans** | `docs/archive/audits/README.md` | Historical audit/remediation inputs; do not use them as current work queues. |
 | Release program plan | `PRODUCTION_COMPLETION_PLAN_2026.md` | Still sole release authority; NO-GO until CP19-M + gates. |
 | Open work ledger | `TODO.md` | Includes audit implementation, partial Phase 5, QC, and rebuild rows. |
 | Product change log | `CHANGELOG.md` → `[Unreleased]` | Contract deltas and remediation notes. |
@@ -1246,7 +1282,8 @@ dependency-lock, and documentation-governance issues. QR-0 through QR-5 and
 full post-QC source qualification pass. The authorized clean rebuild then found
 and corrected a retained 4.3.0-to-4.4.0 runtime-lock incompatibility. The
 replacement package passes the portable engineering subset recorded below.
-All commits and artifacts remain local; nothing was pushed or distributed.
+The recorded source/evidence checkpoints were later committed and pushed;
+installers remain local and undistributed.
 
 **Product invariants preserved:** gateway → `GovernedExecutionOrchestrator` →
 trace; thin SDKs; desktop single-owner auth; simulation off the chat path;
@@ -1267,19 +1304,21 @@ release fail-closed; chat is a probe, not a second product path.
 | G-MCP-CONN | **Delete** Jira/Salesforce orphan connectors (do not wire) |
 | G-SIGN | **Not now** — release remains **NO-GO**; skip Phase 8 until owner reopens |
 
-### Documents **created** (supporting review — not expanding the 30 canonical set)
+### Documents created or consolidated
 
-Registered in `config/documentation-authority.json` → `supporting_review_inputs`
-(or under `docs/audits/` prefix).
+The active supporting plan is registered in
+`config/documentation-authority.json` → `supporting_review_inputs`. Completed
+source plans are preserved under the historical archive prefix.
 
 | Path | Purpose |
 |---|---|
-| `docs/audits/DataLogicEngine_Slow_Section_Audit_Findings_2026-08-11.md` | Section-by-section audit findings + orphan notes |
-| `docs/audits/ORPHAN_MODULE_DISPOSITION_WORKSHEET_2026-08-11.md` | Orphan wire/delete disposition worksheet |
-| `docs/audits/DataLogicEngine_Slow_Audit_Recommendations_10of10_2026-08-12.md` | 10/10 recommendations by section |
-| `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` | Ordered PR/ticket plan + gates + exit checklists |
-| `docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` | Active ordered QC remediation and qualification gates |
-| `docs/audits/PHASE5_GODFILE_SPLIT_NOTES.md` | Why full api/mcp package splits were attempted then **restored** |
+| `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` | Active supporting plan carrying forward all still-open work |
+| `docs/archive/audits/DataLogicEngine_Slow_Section_Audit_Findings_2026-08-11.md` | Historical section-by-section audit findings + orphan notes |
+| `docs/archive/audits/ORPHAN_MODULE_DISPOSITION_WORKSHEET_2026-08-11.md` | Historical orphan wire/delete disposition worksheet |
+| `docs/archive/audits/DataLogicEngine_Slow_Audit_Recommendations_10of10_2026-08-12.md` | Historical 10/10 recommendations by section |
+| `docs/archive/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` | Historical ordered PR/ticket plan + gates + exit checklists |
+| `docs/archive/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md` | Historical ordered QC remediation and qualification gates |
+| `docs/archive/audits/PHASE5_GODFILE_SPLIT_NOTES.md` | Historical record of why full api/mcp package splits were attempted then **restored** |
 | `docs/MEMORY_AUTHORITY.md` | Operator memory system-of-record matrix |
 | `docs/AUTH_SURFACE_MATRIX.md` | Desktop auth principals and route surfaces |
 | `docs/DMRF_TRUTH_BOUNDARY.md` | DMRF vs Truth product honesty boundary |
@@ -1358,9 +1397,9 @@ Registered in `config/documentation-authority.json` → `supporting_review_input
 | `e893d424` | First-artifact blocker evidence; exact source of the repaired rebuild |
 | `56bc4aa7` | Require package-owned backend readiness in portable smoke |
 
-All commits are local and unpushed. The final evidence/handoff commit follows
-them. The exact rebuilt binary is bound to `e893d424`; `56bc4aa7` is the
-post-build smoke-governance correction used to qualify it.
+These source/evidence commits were later pushed to `origin/main`. The exact
+rebuilt binary is bound to `e893d424`; `56bc4aa7` is the post-build
+smoke-governance correction used to qualify it.
 
 ### Repaired post-QC candidate (2026-08-15)
 
@@ -1396,13 +1435,13 @@ CP19-M open.
 
 ## Exact next action
 
-1. Run the bounded owner-authorized live Google and OpenAI model tests against
-   the provider-refresh replacement source. The saved rows have already
-   migrated to `gemini-3.7-flash` and `gpt-5.6-sol`; do not expose, print, or
-   require re-entry of stored keys. OpenAI must use High reasoning.
-2. Commit the reviewed local source/evidence, rebuild from that clean exact
-   commit, then sign and timestamp the artifact before treating it as the
-   CP19-M release candidate. The current `5ec7af72...` artifact is portable
+1. Restore or replenish OpenAI quota, then rerun the bounded `gpt-5.6-sol`
+   source-level check with High reasoning. Google `gemini-3.7-flash` already
+   passes. Do not expose, print, or require re-entry of stored keys.
+2. After both source-level checks pass, commit the reviewed source/evidence and
+   rebuild from that clean exact commit. Obtain owner-authorized production
+   signing material, then sign and timestamp the artifact before treating it as
+   the CP19-M release candidate. The current `1da8b8d6...` artifact is portable
    engineering evidence, not the signed exact-source candidate.
 3. Run the elevated per-machine install/upgrade/repair/uninstall and retained-
    data lifecycle on that exact replacement, including Program Files launch and
@@ -1418,9 +1457,12 @@ CP19-M open.
 7. Retain CP16-G/CP17-E, CP15-A–H, production signing/distribution NO-GO,
    automatic-update disablement, and object-store production-approval false
    until exact installed and independent evidence exists.
-8. Before changing API surface or reopening Phase 8: re-read
-   `docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md` and
-   this checkpoint. `CODEX_WORK_QUEUE_2026-08-10.md` is supporting history only.
+8. Grant the connected Google Drive app write access to the three exact stale
+   gap-analysis Docs, or manually move them to the created archive folder; the
+   current replacement exports are already published.
+9. Before changing API surface or reopening Phase 8: re-read the consolidated
+   update plan and this checkpoint. `CODEX_WORK_QUEUE_2026-08-10.md` is
+   supporting history only.
 
 ## Phase rules
 

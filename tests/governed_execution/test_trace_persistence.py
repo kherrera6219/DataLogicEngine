@@ -9,8 +9,8 @@ from backend.llm_gateway.gateway import LLMGateway
 async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(app):
     from extensions import db
     from models import (
-        TraceClaim,
         TraceCitation,
+        TraceClaim,
         TraceEvidence,
         TraceKAInvocation,
         TracePersona,
@@ -45,7 +45,24 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
                 "end_time": "2026-07-13T20:00:00.001000+00:00",
                 "duration_ms": 1,
                 "input": {"request_id": "request-1"},
-                "output": {"decision": "allow"},
+                "output": {
+                    "decision": "allow",
+                    "refinement": {
+                        "schema_version": "dle.canonical-refinement-result.v1",
+                        "registry_version": "2026.08.08-rw12.1",
+                        "status": "completed",
+                        "step_count": 12,
+                        "rewrite_authorized": True,
+                        "steps": [
+                            {
+                                "step": 1,
+                                "step_id": "claim_inventory",
+                                "name": "Claim inventory",
+                                "status": "executed",
+                            }
+                        ],
+                    },
+                },
                 "metrics": {},
             },
             {
@@ -222,6 +239,7 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
             (persistence_id, "persistence", "completed"),
         ]
         assert stages[0].inputs == {"request_id": "request-1"}
+        assert stages[0].outputs["refinement"]["steps"][0]["name"] == "Claim inventory"
         assert stages[1].end_time is not None
         assert TraceEvidence.query.filter_by(run_id=run_id).one().source_id == "source-1"
         assert TraceClaim.query.filter_by(run_id=run_id).one().evidence_ids == [str(evidence_id)]

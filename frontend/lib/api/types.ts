@@ -431,6 +431,35 @@ export interface TraceStage {
   started_at?: string | null;     // Legacy support
 }
 
+export interface TraceRefinementStep {
+  step: number;
+  step_id: string;
+  name: string;
+  status: string;
+  reason?: string | null;
+  candidate_ka_ids?: string[];
+  selected_ka_ids?: string[];
+  executed_ka_ids?: string[];
+  reused_ka_ids?: string[];
+  findings?: Record<string, unknown>[];
+  constraints?: string[];
+  effects?: Record<string, unknown>[];
+}
+
+export interface TraceRefinementReceipt {
+  schema_version: 'dle.canonical-refinement-result.v1';
+  registry_version: string;
+  status: string;
+  steps: TraceRefinementStep[];
+  step_count: number;
+  step_status_counts?: Record<string, number>;
+  rewrite_authorized: boolean;
+  rewrite_constraints?: string[];
+  provider_subcalls_used?: number;
+  max_provider_rewrites?: number;
+  blocked_by_step?: string | null;
+}
+
 export interface IngestionRejectedFile {
   path: string;
   reason: string;

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.71.1 |
+| Document version | v1.73.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -104,6 +104,30 @@ artifact is unsigned and not clean-commit-bound; live-provider, installed,
 signing, accessibility, recovery, independent, pilot, and soak evidence remain
 open. Production/public release remains **NO-GO**.
 
+On 2026-08-18, CU-2 ran exactly two source-level provider-refresh availability
+calls from dirty source HEAD `254be21f`. Google `gemini-3.7-flash` passed in
+2,552.15 ms. OpenAI `gpt-5.6-sol` used the required `high` reasoning contract
+but returned `quota_exhausted` before a completed response. The runner recorded
+neither credentials nor response bodies. This is a partial source-provider
+result only: OpenAI quota must be restored and the bounded check rerun before
+the reviewed exact-source commit/rebuild sequence may advance. It does not
+close any installed, signed-artifact, corpus, human, accessibility, lifecycle,
+recovery, pilot, or soak gate. Evidence is under
+`reports/production-readiness/2026/phase-19/cu-2-provider-acceptance/`.
+An owner-requested second Google call passed again in 1,021.73 ms.
+A fresh OpenAI retry reached the live API and returned the same
+`quota_exhausted` result in 2,224.49 ms; the runner again recorded no credential
+or response content. CU-3 structural decision support and the CU-4 terminology
+evidence inventory are complete without reopening compatibility identifiers or
+the candidate source line. CU-5 now renders the one persisted canonical nested
+refinement receipt as named 12-step detail in the source Trace Explorer.
+The reviewed 213-row KA registry and axes 14-17 replacement were published to
+the connected Google Drive project-knowledge root and verified by name, MIME
+type, and byte count. Archive/de-rank of the three stale external analyses is
+still open because Google returned `403 appNotAuthorizedToFile` for those exact
+files. None of these source/external-document results closes signed packaged or
+installed acceptance.
+
 The clean split-language coverage qualification now clears the 80% engineering
 floor independently in every maintained application scope: Python `backend/`
 is 80.30%, `backend/security/` is 80.67%, and `core/` is 80.89%; frontend V8
@@ -123,11 +147,14 @@ packaging smoke, and Docker image builds. These are source and CI qualification
 results only; they do not close CP19-M or alter production/public release
 **NO-GO**.
 
-Scheduled Security run 31561547302 failed its full-history secret scan on
-Lob-detector matches in generated KA evidence/test identifiers. The current
-tree contains no Lob integration and the push-triggered security run passed,
-but formal finding disposition plus a clean full-history rerun is required
-before release evidence may call secret scanning clean.
+The scheduled full-history secret-scan finding from run `31561547302` is
+formally closed. Three later scheduled Security runs passed, and scheduled run
+`32093054806` job `95578937904` scanned 1,298 commits and 2,632,118,047 bytes
+with TruffleHog 3.97.0, returning zero verified and zero unverified secrets.
+Push Security run `32102824942` also passed at HEAD `254be21f`. This closes the
+recorded Lob-detector finding without waiving future secret-scan failures. The
+receipt is
+`reports/production-readiness/2026/phase-19/cu-2-provider-acceptance/full-history-secret-scan-closure.json`.
 
 Phase 13 reached its engineering checkpoint on 2026-07-14. Phase 11 selected MCP
 `2025-11-25` over local stdio as the only external connector transport candidate.
@@ -6375,11 +6402,19 @@ production acceptance.
 The August 12 documentation-reconciliation installer and both earlier post-QC
 rebuilds are superseded engineering diagnostics. Do not transfer their Program
 Files, retained-data, five-service, or provider evidence. Use the current
-provider-refresh portable evidence only as a bridge: complete its bounded live
-provider checks, commit the reviewed source/evidence, rebuild from that clean
-exact commit, and sign/timestamp it before the elevated lifecycle. Close
-the scheduled full-history secret-scan finding and rerun that workflow clean as
-part of the remaining supply-chain evidence.
+provider-refresh portable evidence only as a bridge: Google source-level live
+availability passes, but OpenAI remains blocked on `quota_exhausted`. Restore
+quota and rerun the bounded OpenAI check, then commit the reviewed
+source/evidence, rebuild from that clean exact commit, and sign/timestamp it
+before the elevated lifecycle. The scheduled full-history secret-scan finding
+is closed by run `32093054806`; continue to require clean scans for the exact
+committed candidate.
+
+The source Trace Explorer now exposes named canonical nested-refinement receipt
+details, and the two current external spec exports are published. Retain the
+installed visual/accessibility trace-detail gate, and grant file write access or
+manually archive the three stale external gap analyses before calling CU-5 fully
+closed.
 
 Preserve automatic-update disablement, production signing/distribution NO-GO,
 all independent-review requirements, and object-store production-approval false

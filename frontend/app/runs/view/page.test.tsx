@@ -118,4 +118,72 @@ describe('TraceDetailPage', () => {
     expect(await screen.findByText('missing bundle')).toBeInTheDocument();
     expect(screen.queryByText('Trace not found')).not.toBeInTheDocument();
   });
+
+  it('renders named nested canonical refinement receipt details from the trace stage', async () => {
+    searchParamGetMock.mockImplementation((key: string) => (key === 'id' ? 'trace-refinement' : null));
+    getBundleMock.mockResolvedValueOnce({
+      run_id: 'trace-refinement',
+      status: 'completed',
+      run: { run_id: 'trace-refinement', status: 'completed', created_at: '2026-08-18T10:00:00Z' },
+      stages: [
+        {
+          stage_id: 'refinement-stage',
+          run_id: 'trace-refinement',
+          name: 'refinement_1',
+          stage_type: 'step',
+          step_index: 1,
+          status: 'completed',
+          outputs: {
+            refinement: {
+              schema_version: 'dle.canonical-refinement-result.v1',
+              registry_version: '2026.08.08-rw12.1',
+              status: 'completed',
+              step_count: 12,
+              step_status_counts: { executed: 1, skipped: 11 },
+              rewrite_authorized: true,
+              provider_subcalls_used: 0,
+              max_provider_rewrites: 1,
+              blocked_by_step: null,
+              rewrite_constraints: ['retain citations'],
+              steps: [
+                {
+                  step: 1,
+                  step_id: 'claim_inventory',
+                  name: 'Claim inventory',
+                  status: 'executed',
+                  reason: 'Claims were inventoried.',
+                  selected_ka_ids: ['KA-018'],
+                  executed_ka_ids: ['KA-018'],
+                  reused_ka_ids: [],
+                  findings: [{ kind: 'claim' }],
+                  constraints: ['retain citations'],
+                  effects: [],
+                },
+              ],
+            },
+          },
+        },
+      ],
+      personas: [],
+      axes: null,
+      evidence_sources: [],
+      evidence: [],
+      ka_invocations: [],
+      kas: [],
+      policy_decisions: [],
+      memory_events: [],
+      metrics: { stage_count: 1 },
+    });
+
+    render(<TraceDetailPage />);
+
+    expect(await screen.findByText('12-Step Refinement Receipt')).toBeInTheDocument();
+    expect(screen.getByText(/2026\.08\.08-rw12\.1; 12 recorded steps/)).toBeInTheDocument();
+    expect(screen.getByText('Claim inventory')).toBeInTheDocument();
+    expect(screen.getByText('claim_inventory')).toBeInTheDocument();
+    expect(screen.getByText('Claims were inventoried.')).toBeInTheDocument();
+    expect(screen.getByText(/Selected KAs: KA-018/)).toBeInTheDocument();
+    expect(screen.getByText(/Executed KAs: KA-018/)).toBeInTheDocument();
+    expect(screen.getByText('Authorized')).toBeInTheDocument();
+  });
 });

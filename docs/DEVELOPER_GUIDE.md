@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.6.0 |
+| Document version | v3.6.1 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-16 |
+| Last reviewed | 2026-08-18 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -37,7 +37,7 @@ tree. Default boot is **legacy API mirrors off** (`DLE_LEGACY_API_PREFIXES`);
 prefer `/api/v1/*` in tests and clients. Generative locality is **cloud BYOK**
 only. CI hard-fails on orphan `.pyc` and route uniqueness collisions; a11y is
 soft. See `docs/CI_QUALITY_POLICY.md`, `docs/AUTH_SURFACE_MATRIX.md`, and
-`docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md`. Phase 8
+`docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md`. Phase 8
 signing remains owner-gated; production release is still **NO-GO**.
 
 ## Audience
@@ -169,6 +169,12 @@ consumer, stage, selector, effect-port, workflow-disposition, or evidence
 metadata. The generated 213-row JSON/CSV authority under
 `reports/production-readiness/2026/phase-19/` is planning and verification
 metadata carried by the one runtime manifest, not another executable registry.
+The Trace Explorer likewise treats `TraceStage.outputs.refinement` with schema
+`dle.canonical-refinement-result.v1` as the sole nested refinement receipt. UI
+work may render selected governance fields from that object, but must not create
+a second persistence model or competing trace route. Run the Trace Detail page,
+trace persistence, aggregate bundle, TypeScript, and lint gates after changing
+this presentation path.
 The CP19-A checkpoint baseline was 726 passing KA tests. CP19-B then migrated
 all existing production callers to the typed result boundary: 621 production
 Python files scanned, 18 caller/API/SDK surfaces verified, 32 typed call sites,

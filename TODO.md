@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.6.1 |
+| Document version | v1.8.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-17 |
+| Last reviewed | 2026-08-18 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.71.1 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.73.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; provider-refresh replacement passes portable engineering qualification; installed/provider CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; Google source-level live availability passes, OpenAI is quota-blocked, and installed/signed CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -392,14 +392,19 @@ Phase 18 source baseline while completing the whole-application wiring.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
       owner-authorized Google/OpenAI tests, bind a clean committed rebuild,
       sign/timestamp it, and complete the remaining CP19-M installed rows.
+  - [x] Google `gemini-3.7-flash` source-level availability passed in 2,552.15
+        ms without persisting credentials or response content; an
+        owner-requested retest passed again in 1,021.73 ms.
+  - [ ] OpenAI `gpt-5.6-sol` used the required High reasoning contract but is
+        blocked on `quota_exhausted`; a fresh retry reached the API and failed
+        the same way in 2,224.49 ms. Restore quota and rerun the bounded call.
 
 ## Slow-audit remediation (engineering) — 2026-08-12
 
-Plan authority:
-`docs/audits/DataLogicEngine_Phased_Implementation_Plan_2026-08-12.md`.
-Active QC plan:
-`docs/audits/DataLogicEngine_Grok_QC_Remediation_Plan_2026-08-15.md`.
-Findings / recommendations / orphan worksheet live under `docs/audits/`.
+Supporting update plan:
+`docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md`.
+The completed audit, QC, coverage, orphan, and Phase 5 source plans are retained
+under `docs/archive/audits/` and are not active work queues.
 Does **not** authorize production/public release (G-SIGN deferred).
 
 - [x] **Phase 0 — owner gates locked:** G-GEN=B0, G-API=hard-off default,
@@ -420,8 +425,11 @@ Does **not** authorize production/public release (G-SIGN deferred).
       truth UI honesty; runtime package deps corrected.
 - [ ] **Phase 5 — structural (partial/deferred):** startup/layer contracts and
       Electron path helpers landed; the original major package-split goal was
-      attempted then restored and remains open unless formally waived (see
-      `docs/audits/PHASE5_GODFILE_SPLIT_NOTES.md`).
+      attempted then restored and remains open unless formally waived (see CU-3
+      in the consolidated update plan and the archived split notes). The CU-3
+      residual assessment is complete and recommends a named post-release
+      maintenance phase; owner deferral/waiver/source-reopen disposition remains
+      required.
 - [x] **Phase 6 — polish / SDK implementation:** server, Python catalog, and
       TypeScript SDK KA manifest version/count/SHA-256 parity; Python SDK 0.7.0;
       provider orphan residue removed. Full post-QC qualification passed.
@@ -449,8 +457,9 @@ Does **not** authorize production/public release (G-SIGN deferred).
       mutations; route collisions 0; orphan/blocked counts 0; lock clean-install
       dry runs and packaging-resource verification passed. Initial reviewed
       commits are `3054d5de` (source), `6e2fdd5b` (governance), and `cbfacbdb`
-      (documentation/evidence); later local checkpoints are `2d166456`,
-      `16faaeb4`, `e893d424`, and `56bc4aa7`. None have been pushed.
+      (documentation/evidence); later checkpoints are `2d166456`, `16faaeb4`,
+      `e893d424`, and `56bc4aa7`. These source/evidence checkpoints were later
+      pushed to `origin/main`; installer distribution remains blocked.
 
 ### Integrator notes (open until docs/SDK consumers migrate)
 
@@ -1191,11 +1200,12 @@ Details: `reports/production-readiness/2026/phase-15/deferred-gates.md`.
 - [ ] Independent architecture, security, API, usability/accessibility, and operations reviews completed.
 - [ ] Signed, timestamped, reproducible Windows artifacts and verified updates.
 - [ ] Installed-system accessibility, security, failure, recovery, performance, soak, and human-acceptance evidence.
-- [ ] Disposition the verified Lob-detector findings from scheduled Security run
-      31561547302 and obtain a clean full-history secret-scan rerun. The
-      current tree has no Lob integration and the flagged values are generated
-      KA evidence/test identifiers, but release evidence must not call the
-      scheduled full-history scan clean until the finding is formally closed.
+- [x] **Scheduled full-history secret-scan finding closed:** run `32093054806`
+      job `95578937904` scanned 1,298 commits and 2,632,118,047 bytes with zero
+      verified and zero unverified secrets after the historical Lob-detector
+      failure in run `31561547302`; three intervening scheduled runs and push
+      Security run `32102824942` also pass. Future candidate scans remain
+      mandatory.
 - [x] GitHub closed alert 389 after the vulnerable SDK disappeared from `main`;
       retain the adversarial replacement evidence with the release record.
 
@@ -1294,15 +1304,22 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
       purpose, category, risk, subsystem, and layer/stage metadata. The 99-row
       finding and reserved `KA-033` layer gap are closed in
       `2026.08.11-al10.2`.
-- [ ] **Publish the reviewed spec exports to external project knowledge.** Use
-      `docs/spec-exports/ka_registry_213.yaml` and
-      `17_axis_coordinate_schema_axes14-17.yaml`, then archive or de-rank the
-      two superseded external gap analyses. These sources are not stored in this
-      repository, so repo generation does not complete the external action.
-- [ ] **Expose nested refinement detail in the installed trace UI.** Persona
-      Analysis and consensus are rendered, but the persisted 12-step refinement
-      receipt is not expanded as named step detail. Complete this with CP19-M
-      packaged visual/accessibility acceptance.
+- [x] **Publish the reviewed spec exports to external project knowledge.** The
+      validated 213-row registry and axes 14-17 replacement were uploaded to the
+      connected Google Drive root as files `1mlD37Pmj-Xj08VB_pq7ppSARkt-cAXTC`
+      and `1MP_D9IbYZLFXsbX1Ebq3R2nWAB81SnIG`; readback names, MIME types, and
+      byte counts match the local exports.
+- [ ] **Archive or de-rank the superseded external gap analyses.** An archive
+      folder was created, but Google rejected move/rename of the three exact old
+      Docs with `403 appNotAuthorizedToFile`. Grant the connected app write
+      access or move them manually; no stale file was changed.
+- [x] **Expose nested refinement detail in the source trace UI.** The Trace
+      Explorer now expands the existing persisted canonical receipt into named
+      12-step details without a second trace authority; focused backend/frontend,
+      type, and lint checks pass.
+- [ ] **Validate nested refinement detail in the installed trace UI.** Complete
+      packaged visual, keyboard, scaling, contrast, and NVDA acceptance against
+      the later exact signed CP19-M candidate.
 
 ### Notes for the next session
 
@@ -1312,7 +1329,7 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
   supporting-review prefix.
 - `docs/DOCUMENTATION_BOM.md`, `docs/DOCUMENTATION_CROSSWALK.md`, and
   `docs/README.md` were regenerated from that authority and pass the 157-file
-  classification plus 72-route replacement-closure gates.
+  174-file classification plus 72-route replacement-closure gates.
 - The Phase 18 capability inventory, runtime manifest, SDK catalogs, and
   integration authority were regenerated in dependency order. Both prior
   catalog-staleness failures are resolved.
@@ -1323,10 +1340,12 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 The local provider-refresh replacement now passes portable engineering
 qualification at SHA-256 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`.
-The retained rows are migrated and all work remains local and unpushed. Next,
-run the bounded owner-authorized Google and OpenAI model tests without exposing
-or re-entering stored keys. Then commit the reviewed source/evidence, rebuild
-from that clean exact commit, and sign/timestamp the resulting CP19-M candidate.
+The retained rows are migrated and Google `gemini-3.7-flash` passes its bounded
+source-level call. Next, restore or replenish OpenAI quota and rerun
+`gpt-5.6-sol` with High reasoning without exposing or re-entering stored keys.
+After both source checks pass, bind a reviewed source/evidence commit, rebuild
+from that clean exact commit, and obtain owner-authorized production signing
+material before signing/timestamping the resulting CP19-M candidate.
 
 Only after that replacement hash exists, resume elevated per-machine install/
 upgrade/repair/uninstall, retained-data, Diagnostics service-role, installed

@@ -1,0 +1,36 @@
+{
+  "cases": [
+    {
+      "credential_or_response_content_recorded": false,
+      "credential_present": true,
+      "credential_source": "existing_local_environment",
+      "latency_ms": 1021.73,
+      "provider": "google",
+      "reasoning_effort": null,
+      "requested_model": "gemini-3.7-flash",
+      "response_model": "gemini-3.7-flash",
+      "response_text_length": 6,
+      "response_text_sha256": "ac7e24813998d31d5e116002bcd241061b59884f2db9167c1b976e9c151b8e1e",
+      "status": "pass",
+      "usage": {
+        "completion_tokens": 1,
+        "prompt_tokens": 10,
+        "total_tokens": 84
+      }
+    }
+  ],
+  "generated_at": "2026-08-19T01:58:32.972987+00:00",
+  "limitations": [
+    "Source-level availability only; no installed or signed-artifact acceptance is claimed.",
+    "No corpus, blinded-human, accessibility, lifecycle, recovery, pilot, or soak gate is closed."
+  ],
+  "prompt_sha256": "c58e77fff875d6fe593009aa98b87a05f534850441d5814e04b05465ce9610b4",
+  "provider_calls_bounded_to": 1,
+  "schema_version": "dle.cp19m-provider-refresh-live-acceptance.v1",
+  "secrets_or_response_content_recorded": false,
+  "source_binding": {
+    "head_commit": "254be21ffe4b8b0ff9233e975530ee12c7ac7c8d",
+    "working_tree_clean": false
+  },
+  "status": "source_live_provider_pass"
+}
