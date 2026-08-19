@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.73.0 |
+| Document version | v1.74.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -110,7 +110,7 @@ calls from dirty source HEAD `254be21f`. Google `gemini-3.7-flash` passed in
 but returned `quota_exhausted` before a completed response. The runner recorded
 neither credentials nor response bodies. This is a partial source-provider
 result only: OpenAI quota must be restored and the bounded check rerun before
-the reviewed exact-source commit/rebuild sequence may advance. It does not
+the provider/signing/installed acceptance sequence may close. It does not
 close any installed, signed-artifact, corpus, human, accessibility, lifecycle,
 recovery, pilot, or soak gate. Evidence is under
 `reports/production-readiness/2026/phase-19/cu-2-provider-acceptance/`.
@@ -127,6 +127,21 @@ type, and byte count. Archive/de-rank of the three stale external analyses is
 still open because Google returned `403 appNotAuthorizedToFile` for those exact
 files. None of these source/external-document results closes signed packaged or
 installed acceptance.
+
+At the owner's direction, CU-2 then advanced the independently safe
+exact-source engineering work without waiving the OpenAI gate. Reviewed source
+and evidence were committed as
+`c765ba03257e58e69a4cd4b80f92390c71346801`, and that clean commit produced
+`DataLogicEngine Setup 4.4.0.exe` (358,848,516 bytes; SHA-256
+`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`).
+Installer integrity, NSIS governance, the 6,096-file payload, required
+packaging resources, and strict package-owned portable `/ready` pass. Readiness
+completed in 30,701 ms with the listener proven to belong to the launched
+package process tree, and shutdown left no package process or port-5000
+listener. The artifact is unsigned and installer mode was not run. This closes
+only the exact-source portable engineering row; OpenAI quota, production
+signing, installed lifecycle, provider corpus/human review, accessibility,
+recovery, independent review, pilot, and soak remain release blockers.
 
 The clean split-language coverage qualification now clears the 80% engineering
 floor independently in every maintained application scope: Python `backend/`
@@ -6402,13 +6417,16 @@ production acceptance.
 The August 12 documentation-reconciliation installer and both earlier post-QC
 rebuilds are superseded engineering diagnostics. Do not transfer their Program
 Files, retained-data, five-service, or provider evidence. Use the current
-provider-refresh portable evidence only as a bridge: Google source-level live
-availability passes, but OpenAI remains blocked on `quota_exhausted`. Restore
-quota and rerun the bounded OpenAI check, then commit the reviewed
-source/evidence, rebuild from that clean exact commit, and sign/timestamp it
-before the elevated lifecycle. The scheduled full-history secret-scan finding
-is closed by run `32093054806`; continue to require clean scans for the exact
-committed candidate.
+provider-refresh exact-source portable evidence only as a bridge: the current
+unsigned artifact is
+`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`,
+bound to commit `c765ba03257e58e69a4cd4b80f92390c71346801`. Google
+source-level live availability passes, but OpenAI remains blocked on
+`quota_exhausted`. Restore quota and rerun the bounded OpenAI check, then obtain
+owner-authorized signing material and rebuild/sign/timestamp from the
+then-current exact commit before the elevated lifecycle. The scheduled
+full-history secret-scan finding is closed by run `32093054806`; continue to
+require clean scans for the exact committed candidate.
 
 The source Trace Explorer now exposes named canonical nested-refinement receipt
 details, and the two current external spec exports are published. Retain the

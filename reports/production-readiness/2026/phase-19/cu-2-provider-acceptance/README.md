@@ -5,15 +5,17 @@
 **Partial pass; CP19-M remains open and production/public release remains
 NO-GO.** The bounded source-level Google call passed. The bounded OpenAI call
 used the required `high` reasoning contract but was rejected because the owner
-account has no available quota.
+account has no available quota. The later exact-source unsigned engineering
+rebuild and strict portable checks pass; signing and installed acceptance do
+not.
 
 ## Source binding
 
 | Field | Result |
 |---|---|
-| Source HEAD | `254be21ffe4b8b0ff9233e975530ee12c7ac7c8d` |
-| Working tree | Dirty; documentation consolidation and this acceptance work are not committed |
-| Exact artifact binding | Not established |
+| Live-call source HEAD | `254be21ffe4b8b0ff9233e975530ee12c7ac7c8d` with the reviewed worktree then dirty |
+| Exact rebuild source | Clean commit `c765ba03257e58e69a4cd4b80f92390c71346801` |
+| Exact artifact binding | `DataLogicEngine Setup 4.4.0.exe`, 358,848,516 bytes, SHA-256 `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591` |
 | Signed artifact | Not established |
 
 ## Focused contract validation
@@ -62,8 +64,11 @@ folder; they are not acceptance evidence.
   credential boundary pending a hardware or managed signing-service decision.
 
 Because the first CU-2 provider gate is incomplete and production signing is
-not authorized, this checkpoint does not commit/rebuild/sign a candidate or
-start elevated installed acceptance.
+not authorized, no artifact is signed and elevated installed acceptance does
+not start. At the owner's direction, the independently safe source checkpoint
+and unsigned exact-source rebuild did proceed. See
+`exact-source-rebuild-engineering-acceptance.md`; this is portable engineering
+evidence, not a production candidate.
 
 ## Full-history secret-scan closure
 
@@ -90,7 +95,8 @@ Restore or replenish the OpenAI account quota, then rerun:
 python scripts/validate_provider_refresh_acceptance.py --provider openai
 ```
 
-After OpenAI passes, rerun both providers for one complete receipt, review and
-commit the source/evidence, start the retained data plane, rebuild from that
-exact clean commit, and obtain owner-authorized production signing material
-before signing/timestamping or installed CP19-M acceptance.
+After OpenAI passes, rerun both providers for one complete receipt and obtain
+owner-authorized production signing material. Rebuild/sign/timestamp from the
+then-current exact commit before starting installed CP19-M acceptance; rebuild
+again if packaged source or packaged documentation changed after
+`c765ba03257e58e69a4cd4b80f92390c71346801`.

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.10.0 |
+| Document version | v1.11.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,10 +17,10 @@
 | Last reviewed | 2026-08-18 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.73.0 (release program) |
-| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 active; CU-3/CU-4 decision-gated; CU-5 source/publication partial) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.74.0 (release program) |
+| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 exact-source engineering rebuild complete; OpenAI/signing/installed rows open; CU-3/CU-4 decision-gated; CU-5 source/publication partial) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; Google source-level live availability passes, OpenAI is quota-blocked, and installed/signed CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; exact-source portable rebuild passes, Google live availability passes, OpenAI is quota-blocked, and signed/installed CP19-M acceptance remains open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -735,7 +735,7 @@ On 2026-08-16, the owner requested and source implemented a provider refresh:
 OpenAI `gpt-5.6-sol` with explicit High reasoning and Google
 `gemini-3.7-flash`. The manifest, adapters, settings/dashboard, evaluation
 matrix, active documentation, and a forward migration for only the two retired
-stored defaults are synchronized. The final local replacement engineering
+stored defaults are synchronized. The then-current local replacement engineering
 artifact is `DataLogicEngine Setup 4.4.0.exe` (358,859,969 bytes; SHA-256
 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
 It is unsigned and was built immediately before the complete source checkpoint
@@ -782,6 +782,21 @@ An owner-requested second Google call passed again in 1,021.73 ms.
 A fresh OpenAI retry reached the live API with the same required High reasoning
 contract and returned `quota_exhausted` in 2,224.49 ms; its sanitized receipt is
 `openai-live-retry.json` in the same evidence directory.
+
+The owner then directed the work to proceed as far as safely possible despite
+the retained OpenAI quota blocker. Reviewed source and evidence were committed
+as `c765ba03257e58e69a4cd4b80f92390c71346801`, and the application was rebuilt
+from that clean exact commit as `DataLogicEngine Setup 4.4.0.exe` (358,848,516
+bytes; SHA-256
+`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`).
+Integrity, NSIS governance, the 6,096-file payload, required packaging
+resources, and package-owned portable `/ready` pass. Readiness completed in
+30,701 ms with the listener verified as a descendant of the launched package;
+shutdown left no package process or port-5000 listener. The artifact is
+`NotSigned`, installer mode was not run, and no prior installed/provider result
+transfers to this hash. This advances exact-source engineering binding only;
+OpenAI quota, signing, installed lifecycle, accessibility, recovery,
+independent-review, pilot, and soak gates remain open.
 
 Independent work that does not bypass the CU-2 artifact order also advanced on
 2026-08-18. CU-3 measured the four retained monoliths and recommends a named
@@ -1428,21 +1443,22 @@ Evidence:
 6. Claim production GO or flip signing / auto-update without owner + evidence.
 7. Treat gitignored `API KEY/` or `certs/` as product defects.
 
-The provider-refresh replacement now has portable engineering evidence only.
-It does not inherit prior installed-hash acceptance, and its dirty local source
-binding, missing signature, live-provider rows, and installed lifecycle keep
-CP19-M open.
+The provider-refresh replacement now has exact-clean-source portable
+engineering evidence only. It does not inherit prior installed-hash acceptance,
+and its missing signature, OpenAI live-provider row, and installed lifecycle
+keep CP19-M open.
 
 ## Exact next action
 
 1. Restore or replenish OpenAI quota, then rerun the bounded `gpt-5.6-sol`
    source-level check with High reasoning. Google `gemini-3.7-flash` already
    passes. Do not expose, print, or require re-entry of stored keys.
-2. After both source-level checks pass, commit the reviewed source/evidence and
-   rebuild from that clean exact commit. Obtain owner-authorized production
-   signing material, then sign and timestamp the artifact before treating it as
-   the CP19-M release candidate. The current `1da8b8d6...` artifact is portable
-   engineering evidence, not the signed exact-source candidate.
+2. Retain the exact-source engineering artifact
+   `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
+   After the OpenAI source gate passes, obtain owner-authorized production
+   signing material and rebuild/sign/timestamp from the then-current exact
+   commit before treating an artifact as the CP19-M release candidate. Rebuild
+   again if any packaged source or packaged documentation changes.
 3. Run the elevated per-machine install/upgrade/repair/uninstall and retained-
    data lifecycle on that exact replacement, including Program Files launch and
    post-uninstall cleanup. Treat UAC cancellation as no result, not a pass.

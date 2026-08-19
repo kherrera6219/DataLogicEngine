@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.8.0 |
+| Document version | v1.9.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-16 |
+| Last reviewed | 2026-08-18 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -48,13 +48,15 @@ policy.
 > pilot, and soak acceptance remain release gates.
 
 The current local provider-refresh engineering build is
-`DataLogicEngine Setup 4.4.0.exe` (358,859,969 bytes; SHA-256
-`1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`).
-It passes integrity, payload, and package-owned portable readiness, including
-the retained migration to Alembic `b2c3d4e5f6a7`. It is unsigned and was built
-immediately before source checkpoint `5e8733b3` was committed to `main`; it was
-not rebuilt from that clean commit and is therefore not the signed CP19-M
-candidate.
+`DataLogicEngine Setup 4.4.0.exe` (358,848,516 bytes; SHA-256
+`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`).
+It was rebuilt from exact source commit
+`c765ba03257e58e69a4cd4b80f92390c71346801` and passes integrity, NSIS,
+6,096-file payload, packaging-resource, and package-owned portable readiness
+checks; `/ready` completed in 30,701 ms and was owned by the launched package
+process tree. The artifact is unsigned and has not passed elevated installed,
+provider, accessibility, recovery, independent-review, pilot, or soak
+acceptance, so it is not a production release candidate.
 
 ## Repository guide
 

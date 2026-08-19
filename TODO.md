@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.8.0 |
+| Document version | v1.9.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,9 +17,9 @@
 | Last reviewed | 2026-08-18 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.73.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.74.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; Google source-level live availability passes, OpenAI is quota-blocked, and installed/signed CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; exact-source portable rebuild passes, Google live availability passes, OpenAI is quota-blocked, and signed/installed CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -389,9 +389,19 @@ Phase 18 source baseline while completing the whole-application wiring.
       `5e8733b3` was committed to `main` (based on `b3132966`). It was not rebuilt
       from that clean commit, so exact clean-source/signing/installed acceptance
       is open.
+- [x] **Exact-source provider-refresh engineering rebuild:** reviewed source and
+      evidence checkpoint
+      `c765ba03257e58e69a4cd4b80f92390c71346801` produced
+      `DataLogicEngine Setup 4.4.0.exe` at 358,848,516 bytes and SHA-256
+      `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
+      Integrity, NSIS governance, the 6,096-file payload, required packaging
+      resources, and package-owned `/ready` pass. Readiness completed in 30,701
+      ms with verified launched-process ownership; shutdown was clean. The
+      artifact is unsigned and was not installed, so this closes only the clean
+      source binding/portable engineering row.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
-      owner-authorized Google/OpenAI tests, bind a clean committed rebuild,
-      sign/timestamp it, and complete the remaining CP19-M installed rows.
+      owner-authorized Google/OpenAI tests, sign/timestamp the then-current
+      exact-source rebuild, and complete the remaining CP19-M installed rows.
   - [x] Google `gemini-3.7-flash` source-level availability passed in 2,552.15
         ms without persisting credentials or response content; an
         owner-requested retest passed again in 1,021.73 ms.
@@ -1338,14 +1348,16 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-The local provider-refresh replacement now passes portable engineering
-qualification at SHA-256 `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`.
+The local provider-refresh replacement now passes exact-source portable
+engineering qualification at SHA-256
+`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`,
+bound to source commit `c765ba03257e58e69a4cd4b80f92390c71346801`.
 The retained rows are migrated and Google `gemini-3.7-flash` passes its bounded
 source-level call. Next, restore or replenish OpenAI quota and rerun
 `gpt-5.6-sol` with High reasoning without exposing or re-entering stored keys.
-After both source checks pass, bind a reviewed source/evidence commit, rebuild
-from that clean exact commit, and obtain owner-authorized production signing
-material before signing/timestamping the resulting CP19-M candidate.
+After both source checks pass, obtain owner-authorized production signing
+material and rebuild/sign/timestamp from the then-current exact commit before
+treating the result as a CP19-M candidate.
 
 Only after that replacement hash exists, resume elevated per-machine install/
 upgrade/repair/uninstall, retained-data, Diagnostics service-role, installed

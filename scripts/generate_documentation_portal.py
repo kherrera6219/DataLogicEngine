@@ -114,8 +114,8 @@ def render(
             f"The current local engineering build recorded against source base `{build_commit}` "
             f"is `{installer_name}` ({installer_size} bytes; SHA-256 `{installer_hash}`); "
             f"it is unsigned, its integrity/checksum/block-map gate passes, and "
-            f"portable smoke {smoke_state}. This report does not establish a clean-commit "
-            "source binding."
+            f"portable smoke {smoke_state}. The build report records the exact source "
+            "commit; signed installed release binding remains open."
         )
     ka_evidence = (
         "- Current evidence: all 213/213 KAs are individually qualified and the "

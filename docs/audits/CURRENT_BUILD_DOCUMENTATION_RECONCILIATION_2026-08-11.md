@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-AUDIT-012 |
 | Title | Current-build documentation reconciliation |
-| Document version | v1.2.0 |
+| Document version | v1.3.0 |
 | Product version | 4.4.0 |
 | Status | active supporting review |
 | Audience | Product owner, engineering, quality, release reviewers, and documentation maintainers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Current source, generated contracts, build reports, GitHub workflows, canonical documents, and retained installed evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-12 |
+| Last reviewed | 2026-08-18 |
 | Next-review trigger | Runtime code, build artifact, installed result, documentation authority, security result, or release decision change |
 | Requirements and evidence | `config/product-versions.json`, `reports/installer_integrity_report.json`, `reports/packaging_smoke_report.json`, canonical docs, and documentation gates |
 
@@ -36,13 +36,13 @@ product authority.
 | Subject | Current evidence |
 |---|---|
 | Product | DataLogicEngine Desktop 4.4.0; Windows file version 4.4.0.0; pre-production channel |
-| Source used for latest local build | `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` |
+| Source used for latest local build | Exact clean commit `c765ba03257e58e69a4cd4b80f92390c71346801` |
 | Current local installer | `DataLogicEngine Setup 4.4.0.exe` |
-| Size | 283,876,702 bytes |
-| SHA-256 | `b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438` |
-| Integrity | Pass; checksum, block map, 6,095-file payload, version, and dependency audits pass |
+| Size | 358,848,516 bytes |
+| SHA-256 | `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591` |
+| Integrity | Pass; zero errors/warnings; checksum, block map, NSIS governance, 6,096-file payload, and required packaging resources pass |
 | Signature | Not signed |
-| Portable smoke | Not run by owner direction |
+| Portable smoke | Pass; package-owned `/ready` in 30,701 ms with verified launched-process ownership and clean shutdown |
 | Installed-mode smoke | Not run; no install/uninstall success evidence |
 | Last installed qualification artifact | Separate August 10 artifact: 283,890,413 bytes; SHA-256 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e` |
 | Installed evidence | Bound only to the August 10 hash: per-machine Program Files launch, `/ready`, five app-owned services, retained-data adoption, authentication, Diagnostics, and representative KA smoke |
@@ -64,11 +64,11 @@ The latest pushed runtime-equivalent CI records:
 - lint, typecheck, frontend build, Windows packaging smoke, governance, Docker
   build, deployment, and the push-triggered security workflow passed.
 
-A later scheduled full-history TruffleHog scan failed on Lob-shaped identifiers
-in historical/generated KA evidence and a test identifier. Repository search
-found no current Lob integration or explicitly named Lob credential. This is not
-treated as proof of exposure or as a clean result: detector disposition and a
-successful scheduled rerun remain required.
+The later scheduled full-history TruffleHog finding is closed by scheduled run
+`32093054806`, job `95578937904`: 1,298 commits and 2,632,118,047 bytes scanned
+with zero verified and zero unverified secrets. Three intervening scheduled
+runs and push Security run `32102824942` also pass. Future candidate scans
+remain required.
 
 ## Findings corrected
 
@@ -86,8 +86,11 @@ successful scheduled rerun remain required.
    It now carries a prominent historical-baseline notice.
 7. The architecture overview omitted ChromaDB and described a generic browser
    client. It now shows the approved-client and five-service boundary.
-8. Current security and release records did not include the later scheduled
-   secret-scan failure. It is now retained as an open gate.
+8. Current security and release records now include the later scheduled
+   secret-scan closure without waiving future exact-candidate scans.
+9. The exact-source 2026-08-18 engineering rebuild supersedes the earlier
+   current-local artifact while retaining the separate August 10 installed
+   qualification subject and every signed/installed gate.
 
 ## Current document disposition
 

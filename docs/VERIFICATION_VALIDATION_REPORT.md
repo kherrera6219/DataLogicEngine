@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.6.0 |
+| Document version | v1.7.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -112,15 +112,19 @@ That installed candidate is unsigned. Prior frozen candidate hashes and the earl
 the current installed result. Reproducibility, signing, exact-artifact binding,
 and the retained CP19-M/system/manual/external acceptance rows remain open.
 
-The current local engineering artifact was built on 2026-08-12 from source
-commit `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c`. It is 283,876,702
-bytes with SHA-256
-`b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438`.
-Its checksum, block map, installer-integrity report, 6,095-file payload, and
-version and dependency audits pass. Per owner direction neither the application nor installer
-was run. It is unsigned and is not the installed qualification subject above.
-No installed, provider, accessibility, recovery, or soak evidence transfers
-between these artifact hashes.
+The current local engineering artifact was rebuilt on 2026-08-18 from exact
+clean source commit `c765ba03257e58e69a4cd4b80f92390c71346801`. It is
+358,848,516 bytes with SHA-256
+`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
+Its checksum, block map, installer-integrity report, NSIS governance,
+6,096-file payload, and required packaging-resource checks pass. Strict
+portable smoke reached package-owned `/ready` in 30,701 ms, verified the
+listener belonged to the launched package process tree, and left no package
+process or port-5000 listener after shutdown. It is unsigned, installer mode
+was not run, and it is not the installed qualification subject above. Google
+source-level availability passes; OpenAI remains `quota_exhausted`. No
+installed, provider-corpus/human, accessibility, recovery, independent-review,
+pilot, or soak evidence transfers between these artifact hashes.
 
 ## Phase evidence disposition
 

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.6.1 |
+| Document version | v3.7.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -25,10 +25,11 @@ Provide the developer onboarding path and daily engineering workflow for DataLog
 The current provider-refresh source baseline passes 3,115 backend tests with 18
 skipped, 435 frontend tests, 36 Python SDK tests, and eight TypeScript SDK tests.
 It selects OpenAI `gpt-5.6-sol` with High reasoning and Google
-`gemini-3.7-flash`. The provider-refresh replacement passes static packaging,
-retained migration, and package-owned portable `/ready`; it is unsigned and
-was built from an uncommitted local tree. CP19-M remains the clean exact signed
-installed acceptance boundary.
+`gemini-3.7-flash`. The current provider-refresh replacement was rebuilt from
+exact source commit `c765ba03257e58e69a4cd4b80f92390c71346801`; static
+packaging, the 6,096-file payload, and package-owned portable `/ready` pass.
+It remains unsigned and CP19-M remains the exact signed installed acceptance
+boundary.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
 
@@ -144,12 +145,17 @@ frontend prompt
 ### Current build identity
 
 The latest local engineering installer was built from source commit
-`e0ebb6e137ff267567b31faf933291b356a275d0`. The artifact is unsigned and was
-intentionally not launched or installed; only its static build, payload,
-integrity, checksum, block-map, and version gates have passed.
-Use `docs/RELEASE_READINESS_RECORD.md` for its exact size/hash and the separate
-last-installed qualification identity. Never transfer installed results between
-artifact hashes.
+`c765ba03257e58e69a4cd4b80f92390c71346801`. The 358,848,516-byte artifact
+has SHA-256
+`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
+It is unsigned. Integrity, NSIS, 6,096-file payload, packaging-resource, and
+package-owned portable `/ready` checks pass; readiness completed in 30,701 ms
+with the listener verified as a descendant of the launched app, and shutdown
+left no package process or port-5000 listener. Elevated installer-mode and all
+retained CP19-M acceptance remain open. Use
+`docs/RELEASE_READINESS_RECORD.md` for the separate last-installed
+qualification identity. Never transfer installed results between artifact
+hashes.
 
 ### Phase 19 KA integration boundary
 

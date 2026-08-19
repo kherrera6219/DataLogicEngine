@@ -51,7 +51,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.5.0 |
+| Document version | v1.6.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -71,6 +71,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Exact-source 4.4.0 engineering rebuild:** source checkpoint
+  `c765ba03257e58e69a4cd4b80f92390c71346801` produced the unsigned
+  `DataLogicEngine Setup 4.4.0.exe` at 358,848,516 bytes and SHA-256
+  `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
+  Installer integrity, NSIS governance, the 6,096-file release payload,
+  required packaging resources, and package-owned `/ready` pass; readiness
+  completed in 30,701 ms with verified process ownership and clean shutdown.
+  OpenAI quota, signing, elevated installed lifecycle, accessibility, provider
+  corpus/human review, recovery, independent review, pilot, and soak gates
+  remain open, so production/public release stays **NO-GO**.
 - **Trace refinement visibility and external spec publication:** the Trace
   Explorer now expands the existing persisted canonical refinement receipt into
   named 12-step governance detail without introducing another trace authority.
@@ -87,8 +97,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Static package validation and package-owned portable readiness pass in
   30,790 ms. The
   retained PostgreSQL store advanced to Alembic `b2c3d4e5f6a7`, and the known
-  saved Google/OpenAI rows migrated without exposing keys. Clean exact-source
-  binding, signing, live-provider, and installed acceptance remain open.
+  saved Google/OpenAI rows migrated without exposing keys. That artifact is
+  superseded by the exact-source engineering rebuild recorded above; signing,
+  OpenAI live-provider, and installed acceptance remain open.
   The complete source checkpoint was committed to `main` as `5e8733b3`; the
   installer predates that commit and was not rebuilt from a clean checkout.
 - **80% coverage qualification:** raised and independently gated Python

@@ -6,10 +6,10 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.4.0 |
 | Date | 2026-08-18 |
-| Status | Active supporting review input; CU-2 remains quota/signing-blocked, CU-3/CU-4 decision-gated, and CU-5 source/publication partial |
+| Status | Active supporting review input; CU-2 exact-source engineering rebuild passes while OpenAI/signing/installed rows remain blocked, CU-3/CU-4 are decision-gated, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -51,9 +51,12 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
   `backend/security/`, 80.89% for `core/`, and 89.54% statements, 80.69%
   branches, 86.11% functions, and 91.36% lines for the frontend.
 - The provider-refresh portable artifact recorded by current authority is
-  `DataLogicEngine Setup 4.4.0.exe`, 358,859,969 bytes, SHA-256
-  `1da8b8d6a10b1ce72993448baf0c18d2eb41749f7aa7d76b43d4d085983be521`.
-  It passes static package and package-owned portable readiness checks.
+  `DataLogicEngine Setup 4.4.0.exe`, 358,848,516 bytes, SHA-256
+  `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`,
+  built from exact clean source commit
+  `c765ba03257e58e69a4cd4b80f92390c71346801`. It passes integrity, NSIS,
+  6,096-file payload, required-resource, and package-owned portable readiness
+  checks; `/ready` completed in 30,701 ms with verified process ownership.
 - The scheduled full-history secret-scan finding is closed by scheduled run
   `32093054806`: 1,298 commits and 2,632,118,047 bytes scanned with zero
   verified and zero unverified secrets. Future candidate scans remain required.
@@ -134,15 +137,16 @@ Specifically:
 
 1. Remove stale statements that the already-pushed August source checkpoints
    are wholly local and unpushed.
-2. Mark the `5ec7af72...` provider-refresh acceptance record as superseded by
-   the later `1da8b8d6...` portable artifact for current planning.
+2. Mark the `5ec7af72...` and `1da8b8d6...` provider-refresh artifacts as
+   superseded for current planning by the exact-source `650034ee...` rebuild.
 3. Keep historical source/artifact statements in the archive or evidence tree,
    but prevent them from acting as the current handoff.
 4. Keep the release decision **NO-GO**.
 
 ### CU-2 — CP19-M exact-artifact acceptance
 
-**Status:** active; this is the next execution phase.
+**Status:** active; exact-source portable engineering rebuild is complete while
+OpenAI, signing, installed, manual, and external acceptance remain open.
 
 **2026-08-18 checkpoint:** focused provider/evidence contracts pass 26/26.
 Google `gemini-3.7-flash` passes one bounded live call; OpenAI `gpt-5.6-sol`
@@ -155,10 +159,21 @@ A fresh OpenAI retry reached the API with High reasoning and returned the same
 `quota_exhausted` result in 2,224.49 ms without recording credentials or response
 content.
 
+**2026-08-18 exact-source checkpoint:** at the owner's direction, the work
+advanced through independently safe packaging without waiving the failed
+OpenAI row. Reviewed source/evidence commit
+`c765ba03257e58e69a4cd4b80f92390c71346801` produced the unsigned
+358,848,516-byte installer with SHA-256
+`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
+Integrity, NSIS governance, the 6,096-file payload, required resources, and
+strict package-owned portable `/ready` pass. Installed mode and signing were
+not attempted; production/public release remains **NO-GO**.
+
 1. Run the bounded owner-authorized Google and OpenAI model tests without
    exposing or requiring re-entry of stored keys.
-2. Commit the reviewed source and evidence.
-3. Rebuild from that exact clean commit.
+2. Commit the reviewed source and evidence. **Complete:** `c765ba03...`.
+3. Rebuild from that exact clean commit. **Complete for unsigned portable
+   engineering acceptance:** `650034ee...`.
 4. Sign and timestamp the resulting candidate.
 5. Complete elevated installed lifecycle, retained-data, service-role,
    provider/corpus/human, accessibility, recovery, independent-review, pilot,
@@ -285,8 +300,9 @@ These remain under `reports/production-readiness/2026/phase-19/`:
 - `provider-refresh-rebuild/provider-refresh-rebuild-acceptance.md`.
 
 They are evidence snapshots, not current execution plans. The provider-refresh
-record's `5ec7af72...` artifact is superseded for current planning by the later
-`1da8b8d6...` portable artifact recorded in root authority.
+record's `5ec7af72...` and later `1da8b8d6...` artifacts are superseded for
+current planning by the exact-source `650034ee...` portable artifact recorded
+in root authority.
 
 ## 6. Validation and stop conditions
 
@@ -314,10 +330,11 @@ a new exact rebuild and evidence binding.
 ## 7. Exact next action
 
 Proceed with CU-2: restore or replenish OpenAI quota and rerun the bounded
-`gpt-5.6-sol` High-reasoning check without exposing stored keys. After both
-source-level provider checks pass, commit the reviewed source/evidence, rebuild
-from that exact clean commit, obtain owner-authorized production signing
-material, sign/timestamp it, and continue CP19-M installed acceptance against
-only that new artifact hash.
+`gpt-5.6-sol` High-reasoning check without exposing stored keys. Retain the
+exact-source `650034ee...` artifact as unsigned engineering evidence. After
+both source-level provider checks pass, obtain owner-authorized production
+signing material and rebuild/sign/timestamp from the then-current exact commit,
+then continue CP19-M installed acceptance against only that signed artifact
+hash.
 In parallel, grant the connected Google Drive app write access to the three
 stale gap-analysis Docs or move them manually into the created archive folder.

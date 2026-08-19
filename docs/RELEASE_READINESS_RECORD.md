@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.6.0 |
+| Document version | v1.7.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -94,20 +94,23 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 
 | Item | Current local build record |
 |---|---|
-| Runtime source input | Commit `55e1497cf2aa53e04a0faa91f9a16759d09ffa7c` |
+| Runtime source input | Exact clean commit `c765ba03257e58e69a4cd4b80f92390c71346801` |
 | Artifact | `DataLogicEngine Setup 4.4.0.exe` |
-| Size | 283,876,702 bytes |
-| SHA-256 | `b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438` |
-| Integrity | Pass; checksum and block map present; 6,095-file release payload and dependency audits have zero issues |
-| Signature | Unsigned |
-| Portable smoke | Not run by owner direction |
+| Size | 358,848,516 bytes |
+| SHA-256 | `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591` |
+| Integrity | Pass; zero errors/warnings; checksum and block map present; 6,096-file release payload has zero issues |
+| Packaging governance | NSIS governance and required resource checks pass; one Rego policy present |
+| Signature | `NotSigned`; production signing remains unauthorized |
+| Portable smoke | Pass; package-owned `/ready` in 30,701 ms with verified launched-process ownership and clean shutdown |
 | Installed-mode smoke | Not run; no install/uninstall success evidence |
 | Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
 
-The current local build contains the runtime fixes completed after commit
-`40e2592f` and the 4.4.0 version/dependency promotion, but installed evidence from that earlier artifact cannot be
-attributed to it. The next CP19-M run must bind every result to one exact signed
-artifact.
+The current local build is exact-source-bound but unsigned. The Google
+source-level availability row passes; OpenAI remains blocked on
+`quota_exhausted`. No installed, provider-corpus/human, accessibility, recovery,
+independent-review, pilot, or soak result from an earlier hash is attributed to
+this artifact. The next CP19-M release-candidate run must bind every result to
+one exact signed artifact.
 
 ## Gate summary
 
@@ -116,7 +119,7 @@ artifact.
 | Requirements/scope | Approved product boundary and trace matrix exist | Final change freeze and zero undocumented shipped behavior |
 | Runtime/trust/data plane | Source/engineering checkpoints pass | Signed installed five-service identity/readiness/failure/Windows matrix |
 | Migration/backup/restore/deletion | Populated engineering drills pass | 0.1.1 retained-data upgrade, signed clean restore, ACL/remnant/independent review |
-| Governed path/evidence/KA | Retained Phase 18 authority/runtime plus CP19-A through CP19-J owner/contract/selector, typed L1-L10/L9-L10/persona/refinement, Truth/data/knowledge, simulation/MCP/provider/security/operations/effect, and principal-owned API/SDK/desktop product-workflow evidence | CP19-K/L per-KA/accessibility/security/clean-source qualification, then CP19-M installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
+| Governed path/evidence/KA | CP19-A through CP19-L pass; 213/213 KAs are individually qualified, the source Trace Explorer exposes canonical nested refinement detail, and the exact-source portable rebuild passes | CP19-M signed installed KA selection/effect/trace acceptance, provider causal traces, corpus rows, and blinded-human acceptance |
 | Provider/privacy/offline | Adapters/budgets/ledger/replay controls pass | Installed OpenAI/Google, egress/canary, cancellation/spend/recovery matrix |
 | Gateway/SDK | Native/SSE/async/cancel/scopes/SDK contracts pass | Signed same-host/private TLS/firewall/two-machine/load/soak acceptance |
 | Knowledge/memory/simulation/MCP | Engineering checkpoints pass | Installed populated, restart/recovery, OS containment, UI/artifact acceptance |
