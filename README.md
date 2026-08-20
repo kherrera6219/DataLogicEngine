@@ -47,21 +47,18 @@ policy.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The last local engineering build is `DataLogicEngine Setup 4.4.1.exe`
-(358,849,159 bytes; SHA-256
-`a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`).
+The current local engineering build is `DataLogicEngine Setup 4.4.2.exe`
+(358,849,388 bytes; SHA-256
+`ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`).
 It was rebuilt from exact source commit
-`ab7b1b181d65d0fc10c1a88706258710b2b34807` and passes installer integrity,
+`103f52e5f9b51f937ac2da8adc17523ec98affdb` and passes installer integrity,
 NSIS governance, the 6,096-file release-payload check, and package-owned
-portable readiness; `/ready` completed in 28,447 ms and was owned by the
-launched package process tree. Fresh-installed Google execution proved its
-routing and Layer 4 corrections, then exposed a PyInstaller-only Layer 10
-dependency-injection failure. Product 4.4.2 contains the source correction;
-the full Windows source suite passes 3,297 tests with 18 skipped and zero
-failures or setup errors, while its exact replacement build is pending. The
-4.4.1 artifact is therefore
-superseded for continued chat acceptance. Signing, provider, accessibility,
-recovery, independent-review, pilot, and soak acceptance remain open.
+portable readiness; `/ready` completed in 38,848 ms and was owned by the
+launched package process tree. The artifact contains the packaged Layer 9/10
+dependency-injection correction and the full Windows source suite passes 3,297
+tests with 18 skipped and zero failures or setup errors. It is unsigned and
+still requires fresh-installed Google chat, provider, accessibility, recovery,
+independent-review, pilot, and soak acceptance.
 
 ## Repository guide
 

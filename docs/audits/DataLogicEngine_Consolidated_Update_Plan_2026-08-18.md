@@ -9,7 +9,7 @@
 | Document version | v1.9.0 |
 | Product version | 4.4.2 |
 | Date | 2026-08-20 |
-| Status | Active supporting review input; CU-2 installed 4.4.1 proved Google execution but exposed packaged Layer 10 dependency omission, the 4.4.2 source correction passes behavior regression while exact rebuild/installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
+| Status | Active supporting review input; CU-2 exact-source 4.4.2 portable rebuild passes while fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -50,16 +50,14 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 - Independent coverage gates pass at 80.30% for `backend/`, 80.67% for
   `backend/security/`, 80.89% for `core/`, and 89.54% statements, 80.69%
   branches, 86.11% functions, and 91.36% lines for the frontend.
-- The last portable engineering artifact is
-  `DataLogicEngine Setup 4.4.1.exe`, 358,849,159 bytes, SHA-256
-  `a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`,
-  built from exact clean Layer 4/snapshot fix commit
-  `ab7b1b181d65d0fc10c1a88706258710b2b34807`. It passes integrity, NSIS,
-  the 6,096-file payload, and package-owned portable readiness checks;
-  `/ready` completed in 28,447 ms with verified process ownership and clean
-  shutdown. Installed Google execution later exposed a PyInstaller-only Layer
-  10 dependency omission, so this 4.4.1 artifact is superseded for continued
-  chat acceptance.
+- The current portable engineering artifact is
+  `DataLogicEngine Setup 4.4.2.exe`, 358,849,388 bytes, SHA-256
+  `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`,
+  built from exact clean packaged dependency-injection fix commit
+  `103f52e5f9b51f937ac2da8adc17523ec98affdb`. It passes version parity,
+  integrity, NSIS, the 6,096-file payload, and strict package-owned portable
+  readiness; `/ready` completed in 38,848 ms with verified process ownership
+  and clean shutdown.
 - The scheduled full-history secret-scan finding is closed by scheduled run
   `32093054806`: 1,298 commits and 2,632,118,047 bytes scanned with zero
   verified and zero unverified secrets. Future candidate scans remain required.
@@ -67,9 +65,8 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 ### 2.2 Open and release-blocking
 
 - CP19-M exact clean-source, signed, installed acceptance remains open.
-- The 4.4.2 packaged dependency-injection source correction is validated, but
-  its exact portable engineering rebuild and fresh-installed Google chat proof
-  remain open.
+- Fresh-installed Google chat proof against the exact 4.4.2 artifact remains
+  open.
 - Google `gemini-3.7-flash` source-level live availability passes. OpenAI
   `gpt-5.6-sol` used High reasoning but is blocked on `quota_exhausted`; the
   two-provider source gate remains open.
@@ -151,9 +148,8 @@ Specifically:
 
 ### CU-2 — CP19-M exact-artifact acceptance
 
-**Status:** active; the installed 4.4.1 diagnostic is superseded by a validated
-4.4.2 source correction while exact rebuild, OpenAI, signing, installed, manual,
-and external acceptance remain open.
+**Status:** active; exact-source 4.4.2 portable engineering rebuild is complete
+while OpenAI, signing, installed, manual, and external acceptance remain open.
 
 **2026-08-18 checkpoint:** focused provider/evidence contracts pass 26/26.
 Google `gemini-3.7-flash` passes one bounded live call; OpenAI `gpt-5.6-sol`
@@ -212,15 +208,19 @@ flow through all five consumers, and release the same no-evidence/not-measured
 governed chat shape. The focused runtime/version set passes 49/49, and the full
 Windows source suite passes 3,297 with 18 skipped and zero failures or setup
 errors. The substantial-update rule advances the replacement to
-4.4.2/4.4.2.0 and retains 4.4.1 as an upgrade source. Exact rebuild and installed
-proof remain open.
+4.4.2/4.4.2.0 and retains 4.4.1 as an upgrade source. Exact source commit
+`103f52e5...` produced the unsigned 358,849,388-byte 4.4.2 installer with
+SHA-256 `ece59ad3...031f8a`. Version parity, installer integrity, NSIS
+governance, the 6,096-file release payload, and strict package-owned `/ready`
+pass with zero issues in 38,848 ms. Installed proof remains open.
 
 1. Run the bounded owner-authorized Google and OpenAI model tests without
    exposing or requiring re-entry of stored keys.
-2. Commit the reviewed 4.4.2 source and evidence. **Pending.** The 4.4.1
-   `ab7b1b18...` source/build is retained as superseded diagnostic evidence.
+2. Commit the reviewed 4.4.2 source and evidence. **Complete.** Source commit
+   `103f52e5...` is the exact build input; 4.4.1 is superseded diagnostic
+   evidence.
 3. Rebuild from that exact clean commit and pass integrity plus strict
-   package-owned portable readiness. **Pending for 4.4.2.**
+   package-owned portable readiness. **Complete for 4.4.2.**
 4. Sign and timestamp the resulting candidate.
 5. Complete elevated installed lifecycle, retained-data, service-role,
    provider/corpus/human, accessibility, recovery, independent-review, pilot,
@@ -403,10 +403,10 @@ a new exact rebuild and evidence binding.
 
 ## 7. Exact next action
 
-Proceed with CU-2: commit and rebuild the exact-source 4.4.2 packaged
-dependency-injection correction, pass the static and strict portable gates,
-then install that exact artifact and repeat a normal Google chat to confirm one
-provider execution, Layer 10 release, and persisted validation telemetry.
+Proceed with CU-2: install exact-source `DataLogicEngine Setup 4.4.2.exe` bound
+to commit `103f52e5...` and SHA-256 `ece59ad3...031f8a`, then repeat a normal
+Google chat to confirm one provider execution, Layer 10 release, and persisted
+validation telemetry.
 Restore or replenish OpenAI quota and rerun
 the bounded `gpt-5.6-sol` High-reasoning check without exposing stored keys.
 After both provider checks pass, obtain owner-authorized production signing

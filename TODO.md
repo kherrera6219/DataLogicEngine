@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; installed 4.4.1 proved Google/provider execution but exposed packaged Layer 10 dependency omission, the 4.4.2 source correction passes behavior regression, and exact rebuild/fresh-installed/provider/signing CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; exact-source 4.4.2 integrity, payload, governance, and package-owned portable readiness pass while fresh-installed/provider/signing CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -442,10 +442,14 @@ Phase 18 source baseline while completing the whole-application wiring.
       Windows source suite passes 3,297 with 18 skipped and zero failures or
       setup errors. The standing version rule advances the replacement to
       4.4.2/4.4.2.0 and retains 4.4.1 as an allowed upgrade source.
-- [ ] **Exact-source 4.4.2 portable engineering rebuild:** commit the validated
-      source checkpoint, rebuild the unsigned qualification artifact, and pass
-      version parity, integrity, NSIS governance, release-payload, and strict
-      package-owned portable readiness gates.
+- [x] **Exact-source 4.4.2 portable engineering rebuild:** source commit
+      `103f52e5f9b51f937ac2da8adc17523ec98affdb` produced the unsigned
+      358,849,388-byte `DataLogicEngine Setup 4.4.2.exe` with SHA-256
+      `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`.
+      Version parity, installer integrity, NSIS governance, the 6,096-file
+      release payload, and strict package-owned portable `/ready` pass with zero
+      issues. Readiness completed in 38,848 ms with verified package-process
+      ownership and clean shutdown.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
       owner-authorized Google/OpenAI tests, sign/timestamp the then-current
       exact-source rebuild, and complete the remaining CP19-M installed rows.
@@ -455,7 +459,7 @@ Phase 18 source baseline while completing the whole-application wiring.
   - [ ] OpenAI `gpt-5.6-sol` used the required High reasoning contract but is
         blocked on `quota_exhausted`; a fresh retry reached the API and failed
         the same way in 2,224.49 ms. Restore quota and rerun the bounded call.
-  - [ ] Build and validate the exact-source 4.4.2 replacement with integrity,
+  - [x] Build and validate the exact-source 4.4.2 replacement with integrity,
         payload, governance, and package-owned portable readiness evidence.
   - [ ] Install that exact artifact and confirm a normal Google chat invokes
         the configured provider once, releases through Layer 10, and exposes
@@ -1555,12 +1559,11 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-Commit the validated 4.4.2 packaged dependency-injection correction, rebuild
-from that exact clean commit, and pass version parity, installer integrity,
-NSIS governance, release-payload, and strict package-owned portable readiness
-gates. Install that exact artifact and prove a normal Google chat invokes the
-configured provider once, releases through Layer 10, and exposes persisted
-validation telemetry. Restore or
+Install exact-source `DataLogicEngine Setup 4.4.2.exe` bound to commit
+`103f52e5f9b51f937ac2da8adc17523ec98affdb` and SHA-256
+`ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`,
+then prove a normal Google chat invokes the configured provider once, releases
+through Layer 10, and exposes persisted validation telemetry. Restore or
 replenish OpenAI quota and rerun `gpt-5.6-sol` with High reasoning without
 exposing or re-entering stored keys. After both provider checks pass, obtain
 owner-authorized production signing material and rebuild/sign/timestamp from

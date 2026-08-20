@@ -85,6 +85,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dependency consumers are covered. The focused runtime/version set passes 49
   tests, and the full Windows source suite passes 3,297 with 18 skipped and zero
   failures or setup errors.
+- **Exact-source 4.4.2 engineering rebuild:** source commit
+  `103f52e5f9b51f937ac2da8adc17523ec98affdb` produced the unsigned
+  358,849,388-byte `DataLogicEngine Setup 4.4.2.exe` with SHA-256
+  `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`.
+  Installer integrity, NSIS governance, the 6,096-file release payload, and
+  strict package-owned portable `/ready` pass with zero issues; readiness
+  completed in 38,848 ms with verified process ownership and clean shutdown.
+  Fresh-installed Google chat, OpenAI quota, signing, and retained CP19-M
+  acceptance remain open.
 
 ### Changed
 - Advanced the substantial runtime-correction batch to product 4.4.2 and

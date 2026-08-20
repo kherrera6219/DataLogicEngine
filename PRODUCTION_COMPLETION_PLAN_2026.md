@@ -200,7 +200,13 @@ of the installed failure shape. The focused runtime/version set passes 49/49,
 and the full Windows source suite passes 3,297 with 18 skipped and zero failures
 or setup errors. The standing substantial-update rule advances
 the replacement target to 4.4.2/4.4.2.0 and retains 4.4.1 as an allowed upgrade
-source. Exact rebuild and fresh-installed Google chat proof remain open;
+source. Exact source commit `103f52e5f9b51f937ac2da8adc17523ec98affdb`
+produced the unsigned 358,849,388-byte `DataLogicEngine Setup 4.4.2.exe` with
+SHA-256 `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`.
+Version parity, installer integrity, NSIS governance, the 6,096-file release
+payload, and strict package-owned `/ready` pass with zero issues; readiness
+completed in 38,848 ms with verified process ownership and clean shutdown.
+Fresh-installed Google chat proof remains open;
 production/public release remains **NO-GO**.
 
 The clean split-language coverage qualification now clears the 80% engineering
@@ -6467,13 +6473,14 @@ exit gate.
 
 ## 34. Immediate next action
 
-The current overriding CU-2 action is to commit the validated 4.4.2 packaged
-dependency-injection correction, rebuild from that exact clean commit, and pass
-version parity, integrity, NSIS governance, release-payload, and strict
-package-owned portable readiness. Install only that exact replacement and prove
-a normal Google chat invokes the configured provider once, releases through
-Layer 10, and exposes persisted validation telemetry. The 4.4.1 artifact is
-superseded diagnostic evidence and must not continue installed acceptance.
+The current overriding CU-2 action is to install exact-source
+`DataLogicEngine Setup 4.4.2.exe` bound to commit
+`103f52e5f9b51f937ac2da8adc17523ec98affdb` and SHA-256
+`ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`, then
+prove a normal Google chat invokes the configured provider once, releases
+through Layer 10, and exposes persisted validation telemetry. The 4.4.1
+artifact is superseded diagnostic evidence and must not continue installed
+acceptance.
 
 CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-43 now truthfully
 qualify all 213 rows, including the causal simulation core, MCP admission/result

@@ -1,10 +1,10 @@
 {
   "schema_version": "dle.release-payload-verification.v1",
-  "generated_at": "2026-08-20T07:28:55.635771+00:00",
+  "generated_at": "2026-08-20T08:13:36.831702+00:00",
   "status": "pass",
   "summary": {
     "backend_file_count": 6096,
-    "backend_size_bytes": 458115113,
+    "backend_size_bytes": 458115404,
     "electron_compiled_file_count": 7,
     "issue_count": 0
   },

@@ -19,9 +19,9 @@
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
-| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 installed 4.4.1 proved Google execution but exposed packaged Layer 10 dependency omission; 4.4.2 source correction passes behavior regression while exact rebuild/installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
+| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 exact-source 4.4.2 portable rebuild passes while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; installed 4.4.1 proved Google/provider execution but exposed packaged Layer 10 dependency omission, the 4.4.2 source correction passes behavior regression, and exact rebuild/fresh-installed Google chat, OpenAI quota, signing, and retained CP19-M acceptance remain open |
+| Current phase | Phase 19 CU-2; exact-source 4.4.2 integrity, payload, governance, and package-owned portable readiness pass while fresh-installed Google chat, OpenAI quota, signing, and retained CP19-M acceptance remain open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -871,7 +871,14 @@ flow through all five affected KAs, and release the no-evidence/not-measured
 chat shape. The focused runtime/version set passes 49/49, and the full Windows
 source suite passes 3,297 with 18 skipped and zero failures or setup errors.
 The replacement is 4.4.2/4.4.2.0 with 4.4.1 retained as an allowed
-upgrade source. Exact build and installed proof remain open.
+upgrade source. Exact commit
+`103f52e5f9b51f937ac2da8adc17523ec98affdb` produced the unsigned
+358,849,388-byte `DataLogicEngine Setup 4.4.2.exe` with SHA-256
+`ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`.
+Version parity, installer integrity, NSIS governance, the 6,096-file release
+payload, and strict package-owned `/ready` pass with zero issues; readiness
+completed in 38,848 ms with verified process ownership and clean shutdown.
+Fresh-installed Google chat proof remains open.
 
 Independent work that does not bypass the CU-2 artifact order also advanced on
 2026-08-18. CU-3 measured the four retained monoliths and recommends a named
@@ -1655,12 +1662,11 @@ the compliance-remediation workstream begins at human-gated CR-A0
 must first confirm the disposition of this in-flight 4.4.2 repair/documentation
 batch. Do not introduce a broad line-ending rewrite as part of this runtime fix.
 
-1. Commit the validated 4.4.2 packaged dependency-injection correction, rebuild
-   from that exact clean commit, and pass version parity, installer integrity,
-   NSIS governance, release-payload, and strict package-owned portable
-   readiness gates. Then install that exact artifact and prove a normal Google
-   chat invokes the configured provider once, releases through Layer 10, and
-   exposes the persisted validation telemetry.
+1. Install exact-source `DataLogicEngine Setup 4.4.2.exe` bound to commit
+   `103f52e5f9b51f937ac2da8adc17523ec98affdb` and SHA-256
+   `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`,
+   then prove a normal Google chat invokes the configured provider once,
+   releases through Layer 10, and exposes the persisted validation telemetry.
    Restore or replenish OpenAI quota and rerun the bounded `gpt-5.6-sol`
    source-level check with High reasoning. Do not expose, print, or require
    re-entry of stored keys.

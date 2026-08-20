@@ -14,8 +14,8 @@ not.
 | Field | Result |
 |---|---|
 | Live-call source HEAD | `254be21ffe4b8b0ff9233e975530ee12c7ac7c8d` with the reviewed worktree then dirty |
-| Exact rebuild source | Clean commit `ab7b1b181d65d0fc10c1a88706258710b2b34807` |
-| Exact artifact binding | `DataLogicEngine Setup 4.4.1.exe`, 358,849,159 bytes, SHA-256 `a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156` |
+| Exact rebuild source | Clean commit `103f52e5f9b51f937ac2da8adc17523ec98affdb` |
+| Exact artifact binding | `DataLogicEngine Setup 4.4.2.exe`, 358,849,388 bytes, SHA-256 `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a` |
 | Signed artifact | Not established |
 
 ## Focused contract validation
@@ -66,11 +66,10 @@ folder; they are not acceptance evidence.
 Because the first CU-2 provider gate is incomplete and production signing is
 not authorized, no artifact is signed. At the owner's direction, independently
 safe source correction and unsigned exact-source portable acceptance proceeded
-through 4.4.1. See
-`exact-source-4.4.1-rebuild-engineering-acceptance.md`; this is portable
-engineering evidence, not a production candidate. The older
-`exact-source-rebuild-engineering-acceptance.md` remains superseded 4.4.0
-history.
+through 4.4.2. See
+`exact-source-4.4.2-rebuild-engineering-acceptance.md`; this is portable
+engineering evidence, not a production candidate. The older 4.4.1 and 4.4.0
+reports remain superseded diagnostic history.
 
 ## Full-history secret-scan closure
 
@@ -91,9 +90,10 @@ secret-scan failures. The machine-readable receipt is
 
 ## Exact next action
 
-Install the exact 4.4.1 artifact hash recorded above and prove a normal Google
-chat passes Layer 4, calls the configured provider once, and produces validation
-telemetry. Restore or replenish the OpenAI account quota, then rerun:
+Install the exact 4.4.2 artifact hash recorded above and prove a normal Google
+chat calls the configured provider once, releases through Layer 10, and exposes
+persisted validation telemetry. Restore or replenish the OpenAI account quota,
+then rerun:
 
 ```powershell
 python scripts/validate_provider_refresh_acceptance.py --provider openai
@@ -103,4 +103,4 @@ After OpenAI passes, rerun both providers for one complete receipt and obtain
 owner-authorized production signing material. Rebuild/sign/timestamp from the
 then-current exact commit before treating any artifact as the final CP19-M
 candidate; rebuild again if packaged source or packaged documentation changed
-after `ab7b1b181d65d0fc10c1a88706258710b2b34807`.
+after `103f52e5f9b51f937ac2da8adc17523ec98affdb`.
