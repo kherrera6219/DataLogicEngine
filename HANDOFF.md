@@ -687,6 +687,17 @@ release approval are pending. The provider rows remain quarantined and
 
 ## Current checkpoint
 
+**Standing product-version rule (effective after 2026-08-19):** every completed
+major update batch must advance the patch component by one before the next
+exact-source rebuild (`4.4.0` to `4.4.1`, for example). Major update batches
+include user-visible feature sets, architectural/runtime changes,
+provider/model contract changes, data migrations, installer behavior changes,
+or consolidated substantial-fix batches. Documentation-only, test-only, and
+minor corrective commits do not each trigger a bump. Apply any approved bump
+through the canonical version authority and all package, contract,
+documentation, validation, and installer surfaces. This note is prospective
+and does not change the current `4.4.0` version or artifact.
+
 **Post-QC state (2026-08-15):** slow-audit remediation Phases 1–7 are
 implemented and documented (see “Audit remediation checkpoint” below). The full
 source re-baseline passes and the reviewed source, governance, and documentation

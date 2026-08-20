@@ -155,6 +155,24 @@ cd frontend && npm run dev
 10. Maintainer merges after approval
 ```
 
+### Product Version Advancement Rule
+
+Effective for future work after 2026-08-19, every completed major update batch
+must advance the product patch version by one before its exact-source rebuild.
+For example, the next qualifying update after `4.4.0` becomes `4.4.1`.
+
+A major update batch includes a user-visible feature set, architectural or
+runtime change, provider/model contract change, data migration, installer
+behavior change, or a consolidated group of substantial fixes. Ordinary
+documentation-only edits, test-only changes, and minor corrective commits do
+not each require a separate product bump. The approved bump must be applied
+through the canonical product-version authority and carried through package
+metadata, generated contracts, active documentation, validation evidence, and
+the replacement installer.
+
+This rule is prospective. Recording it does not retroactively change the
+current `4.4.0` product or the already-built `4.4.0` engineering artifact.
+
 ### Sync with Upstream
 
 ```bash
