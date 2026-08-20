@@ -194,11 +194,16 @@ def test_gateway_chat_endpoint(app_client):
 
     resp = app_client.post('/api/v1/gateway/chat',
                            headers={'X-API-Key': 'ukg_valid'},
-                           json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'Hi'}]})
+                           json={
+                               'model': 'gpt-4',
+                               'mode': 'chat',
+                               'messages': [{'role': 'user', 'content': 'Hi'}],
+                           })
     
     assert resp.status_code == 200
     assert resp.json['response'] == "Response"
     assert resp.json['audit_trail']['decision_path'] == "/api/v1/trace/runs/run1"
+    assert mock_gw_instance.process.await_args.args[0].mode.value == "standard"
 
 def test_gateway_chat_no_messages(app_client):
     mocks = app_client.application.mocks

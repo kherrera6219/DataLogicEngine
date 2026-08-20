@@ -56,6 +56,35 @@ def test_virtual_models_map_to_server_owned_modes_without_provider_override() ->
         apply_virtual_model({"virtual_model": "dle-enhanced", "mode": "standard"})
 
 
+@pytest.mark.parametrize(
+    ("frontend_mode", "expected_virtual_model", "expected_mode"),
+    [
+        ("chat", "dle-standard", "standard"),
+        ("trace", "dle-standard", "standard"),
+        ("explain", "dle-standard", "standard"),
+        ("quad", "dle-enhanced", "enhanced"),
+    ],
+)
+def test_virtual_models_normalize_desktop_mode_aliases(
+    frontend_mode: str,
+    expected_virtual_model: str,
+    expected_mode: str,
+) -> None:
+    payload = GatewayChatRequest.model_validate({
+        "messages": [{"role": "user", "content": "Desktop chat request"}],
+        "request_id": "12345678-1234-1234-1234-123456789abc",
+        "mode": frontend_mode,
+        "run_ukg_pipeline": True,
+        "meta": {"budget_warning_confirmed": False},
+    }).model_dump()
+
+    policy = apply_virtual_model(payload)
+
+    assert policy.id == expected_virtual_model
+    assert payload["virtual_model"] == expected_virtual_model
+    assert payload["mode"] == expected_mode
+
+
 def test_virtual_model_catalog_uses_postgresql_authority_in_app_context(app) -> None:
     from extensions import db
     from models import GatewayVirtualModel

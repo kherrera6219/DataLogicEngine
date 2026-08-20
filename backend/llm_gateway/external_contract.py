@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Any
 
+from backend.governed_execution.contracts import GovernedMode
 from backend.product_version import CONTRACT_VERSIONS
 
 GATEWAY_CONTRACT_VERSION = CONTRACT_VERSIONS["gateway"]
@@ -178,16 +179,21 @@ def apply_virtual_model(payload: dict[str, Any]) -> VirtualModelPolicy:
     """Apply one server-owned virtual model to a validated request payload."""
 
     requested = str(payload.get("virtual_model") or "").strip().lower()
-    requested_mode = str(payload.get("mode") or "").strip().lower()
+    requested_mode_alias = str(payload.get("mode") or "").strip().lower()
     # Simulation is a separate product path (bounded multi-agent). Never admit
     # it through the chat gateway virtual-model contract.
-    if requested_mode == "simulation" or requested in {
+    if requested_mode_alias == "simulation" or requested in {
         "simulation",
         "dle-simulation",
         "dle-simulation.v1",
         "sim",
     }:
         raise ValueError("Unsupported governed virtual model")
+    requested_mode = (
+        GovernedMode.normalize(requested_mode_alias).value
+        if requested_mode_alias
+        else ""
+    )
     if not requested:
         requested = {
             "enhanced": "dle-enhanced",
