@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.77.0 |
+| Document version | v1.78.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -173,8 +173,17 @@ the four durable saves on the originating request thread and classifies the
 checkpoints as `frost_snapshot`. Production-mode, governed-pipeline, and
 related regressions pass 80/80. Under the standing substantial-update rule,
 the replacement product target is 4.4.1/4.4.1.0 and admits retained 4.4.0 as a
-supported upgrade source. The exact 4.4.1 rebuild and installed Google chat
-proof remain open; production/public release remains **NO-GO**.
+supported upgrade source. The expanded focused set passes 89/89 and the full
+Windows source suite passes 3,295 with 18 skipped and zero failures or setup
+errors. Exact source commit
+`ab7b1b181d65d0fc10c1a88706258710b2b34807` produced the unsigned
+358,849,159-byte `DataLogicEngine Setup 4.4.1.exe` with SHA-256
+`a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`.
+Installer integrity, NSIS governance, the 6,096-file release payload, and
+strict package-owned portable `/ready` pass with zero issues; readiness
+completed in 28,447 ms with verified process ownership and clean shutdown.
+Fresh-installed Google chat proof remains open; production/public release
+remains **NO-GO**.
 
 The clean split-language coverage qualification now clears the 80% engineering
 floor independently in every maintained application scope: Python `backend/`

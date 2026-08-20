@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.12.0 |
+| Document version | v1.13.0 |
 | Product version | 4.4.1 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,13 +14,13 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-19 |
+| Last reviewed | 2026-08-20 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.77.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.78.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; installed 4.4.0 proved the chat-alias fix but exposed a Layer 4 persistence race, the 4.4.1 source correction passes focused validation, and exact rebuild/fresh-installed CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; exact-source 4.4.1 integrity, payload, governance, and package-owned portable readiness pass while fresh-installed/provider/signing CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -421,8 +421,16 @@ Phase 18 source baseline while completing the whole-application wiring.
       required saves now run serially on the originating request thread; FROST
       checkpoints use the distinct `frost_snapshot` entity type. Production-
       mode, DSQP/FROST, governed-orchestrator, and gateway regressions pass
-      80/80. The standing version rule advances this rebuild to 4.4.1/4.4.1.0
-      and retains 4.4.0 as an allowed upgrade source.
+      89/89; the full Windows source suite passes 3,295 with 18 skipped and zero
+      failures or setup errors. The standing version rule advances this rebuild
+      to 4.4.1/4.4.1.0 and retains 4.4.0 as an allowed upgrade source.
+- [x] **Exact-source 4.4.1 portable engineering rebuild:** source commit
+      `ab7b1b181d65d0fc10c1a88706258710b2b34807` produced the unsigned
+      358,849,159-byte `DataLogicEngine Setup 4.4.1.exe` with SHA-256
+      `a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`.
+      Installer integrity, NSIS governance, the 6,096-file release payload, and
+      package-owned portable `/ready` pass with zero issues. Readiness completed
+      in 28,447 ms with verified package-process ownership and clean shutdown.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
       owner-authorized Google/OpenAI tests, sign/timestamp the then-current
       exact-source rebuild, and complete the remaining CP19-M installed rows.
@@ -432,9 +440,11 @@ Phase 18 source baseline while completing the whole-application wiring.
   - [ ] OpenAI `gpt-5.6-sol` used the required High reasoning contract but is
         blocked on `quota_exhausted`; a fresh retry reached the API and failed
         the same way in 2,224.49 ms. Restore quota and rerun the bounded call.
-  - [ ] Build and validate the exact-source 4.4.1 replacement, install that
-        artifact, and confirm a normal Google chat passes Layer 4, invokes the
-        configured provider once, and creates validation telemetry.
+  - [x] Build and validate the exact-source 4.4.1 replacement with integrity,
+        payload, governance, and package-owned portable readiness evidence.
+  - [ ] Install that exact artifact and confirm a normal Google chat passes
+        Layer 4, invokes the configured provider once, and creates validation
+        telemetry.
 - [x] **CU-4 terminology evidence inventory:** classified the archived rename
       proposals against current code, UI, APIs, SDKs, schemas, active docs, and
       tests; rejected unsupported mathematical, standards, deployment,
@@ -1530,10 +1540,11 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-Commit the validated 4.4.1 Layer 4/snapshot correction, rebuild from that exact
-clean source, pass installer integrity and package-owned portable readiness,
-then install it and prove a normal Google chat passes Layer 4, invokes the
-configured provider once, and creates validation telemetry. Restore or
+Install the exact-source `DataLogicEngine Setup 4.4.1.exe` bound to commit
+`ab7b1b181d65d0fc10c1a88706258710b2b34807` and SHA-256
+`a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`,
+then prove a normal Google chat passes Layer 4, invokes the configured provider
+once, and creates validation telemetry. Restore or
 replenish OpenAI quota and rerun `gpt-5.6-sol` with High reasoning without
 exposing or re-entering stored keys. After both provider checks pass, obtain
 owner-authorized production signing material and rebuild/sign/timestamp from

@@ -81,6 +81,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `frost_snapshot` objects instead of database-authoritative simulation
   artifacts, allowing the durable materialization worker to deliver them
   without a nonexistent simulation row.
+- **Exact-source 4.4.1 engineering rebuild:** source commit
+  `ab7b1b181d65d0fc10c1a88706258710b2b34807` produced the unsigned
+  358,849,159-byte `DataLogicEngine Setup 4.4.1.exe` with SHA-256
+  `a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`.
+  Installer integrity, NSIS governance, the 6,096-file release payload, and
+  strict package-owned portable `/ready` pass with zero issues; readiness
+  completed in 28,447 ms with verified process ownership and clean shutdown.
+  The focused runtime set passes 89 tests and the full Windows source suite
+  passes 3,295 with 18 skipped and zero failures or setup errors. Fresh
+  installed Google chat, OpenAI quota, signing, and retained CP19-M acceptance
+  remain open.
 - **Desktop chat compatibility aliases:** corrected the gateway virtual-model
   resolver so desktop request modes such as `chat`, `trace`, `explain`, and
   `quad` are normalized through the canonical governed-mode contract before

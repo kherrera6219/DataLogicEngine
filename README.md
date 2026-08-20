@@ -47,19 +47,18 @@ policy.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The superseded local provider-refresh engineering build is
-`DataLogicEngine Setup 4.4.0.exe` (358,848,516 bytes; SHA-256
-`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`).
+The current local engineering build is `DataLogicEngine Setup 4.4.1.exe`
+(358,849,159 bytes; SHA-256
+`a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`).
 It was rebuilt from exact source commit
-`c765ba03257e58e69a4cd4b80f92390c71346801` and passes integrity, NSIS,
-6,096-file payload, packaging-resource, and package-owned portable readiness
-checks; `/ready` completed in 30,701 ms and was owned by the launched package
-process tree. The artifact is unsigned and has not passed elevated installed,
-provider, accessibility, recovery, independent-review, pilot, or soak
-acceptance, so it is not a production release candidate. Product 4.4.1 corrects
-the installed desktop-chat routing and Layer 4 persistence failures; its exact
-replacement artifact is being rebuilt and must receive fresh artifact-bound
-acceptance.
+`ab7b1b181d65d0fc10c1a88706258710b2b34807` and passes installer integrity,
+NSIS governance, the 6,096-file release-payload check, and package-owned
+portable readiness; `/ready` completed in 28,447 ms and was owned by the
+launched package process tree. The artifact corrects the installed desktop-chat
+routing and Layer 4 persistence failures, but it is unsigned and still requires
+fresh installed Google chat, provider, accessibility, recovery,
+independent-review, pilot, and soak acceptance. It is not a production release
+candidate.
 
 ## Repository guide
 

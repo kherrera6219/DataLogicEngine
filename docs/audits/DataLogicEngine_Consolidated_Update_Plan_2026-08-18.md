@@ -6,10 +6,10 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.7.0 |
+| Document version | v1.8.0 |
 | Product version | 4.4.1 |
-| Date | 2026-08-19 |
-| Status | Active supporting review input; CU-2 installed 4.4.0 proved the alias fix but exposed a Layer 4 save race, the 4.4.1 source correction is validated while rebuild/installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
+| Date | 2026-08-20 |
+| Status | Active supporting review input; CU-2 exact-source 4.4.1 portable rebuild passes while fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -51,13 +51,13 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
   `backend/security/`, 80.89% for `core/`, and 89.54% statements, 80.69%
   branches, 86.11% functions, and 91.36% lines for the frontend.
 - The current portable engineering artifact is
-  `DataLogicEngine Setup 4.4.0.exe`, 358,849,321 bytes, SHA-256
-  `78800b84a670f6c5828894a26b6fc76d664fdf3f9e98876cb7d6fa11b15f49e3`,
-  built from exact clean desktop-chat fix commit
-  `e99119e222227eaf98940a9e34f0f587550ce2ca`. It passes integrity, NSIS,
-  the 6,095-file payload, required-resource, and package-owned portable
-  readiness checks; `/ready` completed in 25,138 ms with verified process
-  ownership and clean shutdown.
+  `DataLogicEngine Setup 4.4.1.exe`, 358,849,159 bytes, SHA-256
+  `a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`,
+  built from exact clean Layer 4/snapshot fix commit
+  `ab7b1b181d65d0fc10c1a88706258710b2b34807`. It passes integrity, NSIS,
+  the 6,096-file payload, and package-owned portable readiness checks;
+  `/ready` completed in 28,447 ms with verified process ownership and clean
+  shutdown.
 - The scheduled full-history secret-scan finding is closed by scheduled run
   `32093054806`: 1,298 commits and 2,632,118,047 bytes scanned with zero
   verified and zero unverified secrets. Future candidate scans remain required.
@@ -146,8 +146,8 @@ Specifically:
 
 ### CU-2 — CP19-M exact-artifact acceptance
 
-**Status:** active; exact-source portable engineering rebuild is complete while
-OpenAI, signing, installed, manual, and external acceptance remain open.
+**Status:** active; exact-source 4.4.1 portable engineering rebuild is complete
+while OpenAI, signing, installed, manual, and external acceptance remain open.
 
 **2026-08-18 checkpoint:** focused provider/evidence contracts pass 26/26.
 Google `gemini-3.7-flash` passes one bounded live call; OpenAI `gpt-5.6-sol`
@@ -188,14 +188,19 @@ artifacts without authority rows. Source now serializes required DSQP saves on
 the originating request thread, uses `frost_snapshot` for reasoning checkpoints,
 and passes 80/80 focused production-mode and governed-pipeline regressions. The
 standing substantial-update rule advances the replacement to 4.4.1/4.4.1.0.
-Exact rebuild and fresh-installed Google chat acceptance remain open.
+The expanded focused runtime set passes 89/89 and the full Windows source suite
+passes 3,295 with 18 skipped and zero failures or setup errors. Exact commit
+`ab7b1b18...` produced the unsigned 358,849,159-byte 4.4.1 installer with
+SHA-256 `a92b8361...b05156`. Integrity, NSIS governance, the 6,096-file payload,
+and strict package-owned `/ready` pass in 28,447 ms. Fresh-installed Google chat
+acceptance remains open.
 
 1. Run the bounded owner-authorized Google and OpenAI model tests without
    exposing or requiring re-entry of stored keys.
-2. Commit the reviewed 4.4.1 source and evidence. **Pending.** The prior
-   desktop-chat checkpoints are historical inputs only.
+2. Commit the reviewed 4.4.1 source and evidence. **Complete.** Source commit
+   `ab7b1b18...` is the exact build input.
 3. Rebuild from that exact clean commit and pass integrity plus strict
-   package-owned portable readiness. **Pending for 4.4.1.**
+   package-owned portable readiness. **Complete for 4.4.1.**
 4. Sign and timestamp the resulting candidate.
 5. Complete elevated installed lifecycle, retained-data, service-role,
    provider/corpus/human, accessibility, recovery, independent-review, pilot,
@@ -378,9 +383,9 @@ a new exact rebuild and evidence binding.
 
 ## 7. Exact next action
 
-Proceed with CU-2: commit and rebuild the exact-source 4.4.1 Layer 4/snapshot
-correction, pass installer integrity and package-owned portable readiness, then
-install that artifact and repeat a normal Google chat to confirm provider
+Proceed with CU-2: install the exact-source `DataLogicEngine Setup 4.4.1.exe`
+bound to commit `ab7b1b18...` and SHA-256 `a92b8361...b05156`, then repeat a
+normal Google chat to confirm provider
 execution and validation telemetry. Restore or replenish OpenAI quota and rerun
 the bounded `gpt-5.6-sol` High-reasoning check without exposing stored keys.
 After both provider checks pass, obtain owner-authorized production signing
