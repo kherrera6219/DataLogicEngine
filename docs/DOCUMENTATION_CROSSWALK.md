@@ -8,6 +8,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 
 | Existing path | Class | Disposition | Target | Basis |
 |---|---|---|---|---|
+| `AGENTS.md` | `engineering_maintenance` | authoritative input | `AGENTS.md` | normative legal or temporary program authority outside the final canonical cap |
 | `CHANGELOG.md` | `product_public` | authoritative input | `CHANGELOG.md` | selected canonical document |
 | `CODE_OF_CONDUCT.md` | `product_public` | authoritative input | `CODE_OF_CONDUCT.md` | normative legal or temporary program authority outside the final canonical cap |
 | `CODEX_WORK_QUEUE_2026-08-10.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
@@ -146,6 +147,10 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/AUTH_SURFACE_MATRIX.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/CI_QUALITY_POLICY.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/compliance/EXTERNAL_REVIEW_2026-08-16.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/compliance/README.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/compliance/REMEDIATION_PLAN.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
+| `docs/compliance/STANDARDS_BLUEPRINT.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/DATA_ARCHITECTURE.md` | `engineering_maintenance` | authoritative input | `docs/DATA_ARCHITECTURE.md` | selected canonical document |
 | `docs/DATASET_EXPORT_HANDOFF.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/DESKTOP_CSP.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |

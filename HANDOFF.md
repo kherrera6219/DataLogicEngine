@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.12.0 |
-| Product version | 4.4.0 |
+| Document version | v1.14.0 |
+| Product version | 4.4.1 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
@@ -17,10 +17,11 @@
 | Last reviewed | 2026-08-19 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.75.0 (release program) |
-| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 desktop-chat hotfix has an exact-source portable rebuild; OpenAI/signing/fresh-installed rows open; CU-3/CU-4 decision-gated; CU-5 source/publication partial) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.77.0 (release program) |
+| Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
+| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 installed 4.4.0 proved the alias fix but exposed a Layer 4 save race; 4.4.1 source correction is validated and rebuild/installed proof is open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; the desktop-chat hotfix has an exact-source portable rebuild, Google source-level availability passes, OpenAI is quota-blocked, and signed/fresh-installed CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; the 4.4.1 Layer 4 and snapshot source correction passes focused validation while exact rebuild, Google installed chat, OpenAI quota, signing, and retained CP19-M acceptance remain open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -34,11 +35,13 @@ Read these documents in order before changing code or making a readiness claim:
 4. `docs/README.md` — active documentation portal.
 5. `README.md` — public product and repository entry point.
 6. `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` — current supporting work sequence and archived-source disposition.
-7. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
-8. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
-9. `docs/SECURITY_ARCHITECTURE.md`.
-10. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
-11. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
+7. `AGENTS.md` — agent operating rules and forbidden patterns; **read before changing any code**.
+8. `docs/compliance/REMEDIATION_PLAN.md` — compliance-remediation work orders (CR-A0 … CR-G12) with deterministic exit gates.
+9. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
+10. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
+11. `docs/SECURITY_ARCHITECTURE.md`.
+12. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
+13. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
 
 Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
@@ -695,8 +698,10 @@ provider/model contract changes, data migrations, installer behavior changes,
 or consolidated substantial-fix batches. Documentation-only, test-only, and
 minor corrective commits do not each trigger a bump. Apply any approved bump
 through the canonical version authority and all package, contract,
-documentation, validation, and installer surfaces. This note is prospective
-and does not change the current `4.4.0` version or artifact.
+documentation, validation, and installer surfaces. The first qualifying
+application is the 2026-08-20 desktop-chat/runtime repair batch, which advances
+the replacement target to `4.4.1`; prior 4.4.0 artifacts remain historical
+evidence only.
 
 **Post-QC state (2026-08-15):** slow-audit remediation Phases 1–7 are
 implemented and documented (see “Audit remediation checkpoint” below). The full
@@ -829,12 +834,30 @@ modified; replace it with this exact installer, then repeat the Google chat
 through the fresh installed application. Signing and every other retained
 CP19-M gate remain open, so production/public release stays **NO-GO**.
 
+The fresh installed retest then proved the alias correction: run
+`90320fdf-b622-4eab-9e34-bfcf108dc450` created a governed session and advanced
+through retrieval. It failed at `layer_4_persona_context` before any provider
+attempt because all four parallel persona workers inherited the same
+Flask-SQLAlchemy request session and concurrently queued required deliverable
+writes. Seven ordinary FROST checkpoints also exhausted delivery retries because
+they were mislabeled as simulation artifacts without `SimulationArtifact`
+authority rows. Source now constructs personas in parallel but persists the four
+deliverables serially on the request thread, and FROST uses the distinct
+`frost_snapshot` entity type. Production-mode and focused pipeline validation
+passes 80/80. The replacement target is 4.4.1/4.4.1.0; an exact rebuild and
+fresh installed Google chat proof are the next artifact-bound steps.
+
 Independent work that does not bypass the CU-2 artifact order also advanced on
 2026-08-18. CU-3 measured the four retained monoliths and recommends a named
 post-release maintenance deferral; that recommendation is not an owner waiver,
 so the durable disposition remains open. CU-4 completed the terminology
 evidence inventory, rejected unsupported conformal/EAL/air-gap/provider/training
-claims, and preserved all compatibility identifiers pending owner approval.
+claims, and preserved all compatibility identifiers. On 2026-08-19 the owner
+approved a later copy-only terminology hardening pass after the CU-2 installed
+desktop-chat proof and before the final signed CP19-M candidate freeze. The pass
+uses plain evidence-compatible display descriptions, retains all technical and
+historical identifiers, keeps surfaced legacy simulation engines reference-only,
+and requires focused copy regressions plus a new exact-source artifact binding.
 CU-5 now exposes the existing canonical nested refinement receipt as named
 12-step detail in the source Trace Explorer; focused persistence/bundle tests
 pass 4/4, the page passes 3/3 tests, the complete frontend suite passes 483
@@ -1479,35 +1502,172 @@ engineering evidence only. It does not inherit prior installed-hash acceptance,
 and its missing signature, OpenAI live-provider row, and installed lifecycle
 keep CP19-M open.
 
+## Compliance remediation program (CR) — 2026-08-17 — for Codex
+
+> **Codex / next session:** this is a live, *unstarted* workstream. Verified
+> against the working tree on 2026-08-20 at `fd24536d`: none of the three
+> findings that motivate it has moved. It runs in parallel with Phase 19 CU-2
+> and does not gate on OpenAI quota or signing authority. It does **not**
+> authorize production/public release.
+
+### Why this exists
+
+An independent code review on 2026-08-16 (`docs/compliance/EXTERNAL_REVIEW_2026-08-16.md`)
+found three defects that invalidate evidence the release program depends on:
+
+1. **The external review reported forty Windows setup errors.** The current
+   2026-08-20 4.4.1 repair run no longer reproduces them: 3,295 tests passed,
+   18 skipped, and zero errors occurred on Windows. CR-A0 still must capture a
+   fresh commit-bound baseline, and Windows CI parity remains open; the
+   historical count must not be represented as current.
+2. **The 0.995 high-stakes gate rests on an uncalibrated quantity.**
+   `confidence_calculator.py` returns `0.5` on every failure path behind a
+   blanket `except Exception`, so a run in which four subsystems silently
+   failed is numerically indistinguishable from a genuine moderate-confidence
+   run. No code computes ECE, Brier, or hallucination rate.
+3. **`core/simulation/` presents as live and is not.** Its constructor imports
+   `backend.knowledge_algorithm` (singular), a package that does not exist, so
+   `axis_mapper`, `truth_engine`, and `workflow_loader` are permanently `None`
+   and workflow-step loading and 17-axis computation are silent no-ops.
+
+A compliance blueprint (`docs/compliance/STANDARDS_BLUEPRINT.md`) then
+established the product's actual regulatory position, which removes more
+obligation than it adds.
+
+### Authority and location
+
+| Role | Path | Notes |
+|---|---|---|
+| **Agent entry point** | `AGENTS.md` | Loaded automatically by Codex. Operating rules, forbidden patterns, stop conditions. A nested `tests/AGENTS.override.md` applies inside the test tree. |
+| **Work orders** | `docs/compliance/REMEDIATION_PLAN.md` | 44 tasks, `CR-A0` … `CR-G12`, each with a shell-command exit gate, allowed paths, and premise-verification step. |
+| **Machine-readable tasks** | `docs/compliance/remediation_tasks.json` | Dependencies, gates, `allowed_paths`, human-gate flags. Use to select the next unblocked task. |
+| **Standards rationale** | `docs/compliance/STANDARDS_BLUEPRINT.md` | Why each task exists and which framework or buyer requirement it serves. |
+| **Source findings** | `docs/compliance/EXTERNAL_REVIEW_2026-08-16.md` | Evidence behind each finding. |
+| **Generated evidence** | `reports/remediation/` | Written by task steps. Never hand-edited. |
+| Open work ledger | `TODO.md` → "Compliance remediation (CR) — 2026-08-17" | Checkbox state of record. |
+| Release program plan | `PRODUCTION_COMPLETION_PLAN_2026.md` | Unchanged; still sole release authority; NO-GO retained. |
+
+### Product facts that scope every CR task
+
+DataLogicEngine is **installed software, not SaaS** — it runs inside the
+customer's boundary and exposes a local API to client software. The approved
+boundary permits provider egress only to owner-configured model endpoints, but
+CR-B must still prove enforcement and air-gap operation. There is no approved
+license check-in, telemetry, or phone-home.
+**Never add an outbound network destination, telemetry hook, update check, or
+crash reporter**; each silently falsifies the product's central compliance
+claim.
+
+Market is **United States only** (recorded 2026-08-18). EU CRA, EU AI Act,
+GDPR, NIS2, and DORA are out of scope. FedRAMP and SOC 2 do not apply to
+installed software. What does apply: NIST SSDF 800-218 and 800-218A, NIST
+800-53 Rev 5 for customer ATOs, 800-171 r3 / CMMC if CUI, FIPS 140-3, Section
+508, ISO 27001 at narrow scope, ISO 42001, OWASP GenAI and Agentic Top 10
+(2026), HIPAA as a deployable product, SR 11-7, and the Colorado ADMTA from
+2027-01-01.
+
+### Phase order — not negotiable
+
+```
+Phase A  Trustworthy test harness      <- BLOCKS EVERYTHING
+   +-> Phase B  Egress proof            (highest product value)
+   +-> Phase C  Local API hardening
+   +-> Phase D  Truth in claims
+   +-> Phase E  Supply chain            (CR-E1, CR-E4 already satisfied)
+        +-> Phase F  Measurement
+             +-> Phase G  Documentation artifacts
+```
+
+Phase A blocks the rest until its fresh baseline and dispositions are recorded.
+The current full Windows pass removes the review's setup-error count as a live
+fact but does not itself complete CR-A0 or Windows CI parity.
+
+### Verified status as of 2026-08-20 at `fd24536d`
+
+| Area | State |
+|---|---|
+| Phase A | Rebaseline required. The shared repo-root test database premise remains inspectable, but the current Windows run passed 3,295 with 18 skipped and zero errors; CR-A1 must reproduce its premise before any fixture change. |
+| Phase B | Nothing implemented. `core/security/` contains only `__init__.py` and `integrity.py`. |
+| Phase C | Not started as scoped. |
+| Phase D | Untouched. Confirmed at `confidence_calculator.py:83-85` and `simulation_engine.py:45,48,51`. |
+| Phase E | **CR-E1 and CR-E4 already satisfied** (implemented 2026-02-16). CR-E2/E3/E5/E6 open. |
+| Phase F | Nothing. No `evals/` directory; zero hits for `brier`/`ECE`/`calibration_error`. |
+| Phase G | Not started; depends on B-F. |
+
+### Owner decisions blocking work
+
+| # | Decision | Blocks |
+|---|---|---|
+| 1 | Replacement name for the confidence score | CR-D1 |
+| 2 | Disposition of the ~1,090 uncommitted changes (mostly CRLF churn) | CR-A0 |
+| 3 | FIPS module choice — OpenSSL FIPS / Windows CNG / validated HSM | CR-E6 |
+| 4 | Evaluation-set content and ground truth | CR-F2 |
+| 5 | Retire vs. re-header the January standards assessment | CR-D6 |
+| 6 | Approval before any test is retired | CR-A3, CR-D3 |
+
+### Codex operating rules for this workstream
+
+One task = one commit prefixed with the task ID
+(`fix(test): [CR-A1] dispose engine in conftest teardown`). One phase = one
+branch (`remediation/phase-a` …). Verify each finding still exists before
+acting on it; if the premise no longer holds, record that and close the task
+rather than substituting adjacent work. If a gate fails three times, revert to
+the last green commit and report. Never widen scope beyond the task's allowed
+paths.
+
+Forbidden throughout, because they are this codebase's existing failure mode:
+a bare `except Exception` returning a default value; setting an attribute to
+`None` on import failure; any suppression comment without a task-ID reference
+and a proving test; deleting or weakening a test to green a gate; documenting
+a capability as implemented without executing it.
+
 ## Exact next action
 
-1. Restore or replenish OpenAI quota, then rerun the bounded `gpt-5.6-sol`
-   source-level check with High reasoning. Google `gemini-3.7-flash` already
-   passes. Do not expose, print, or require re-entry of stored keys.
-2. Retain the exact-source engineering artifact
-   `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
-   After the OpenAI source gate passes, obtain owner-authorized production
-   signing material and rebuild/sign/timestamp from the then-current exact
-   commit before treating an artifact as the CP19-M release candidate. Rebuild
-   again if any packaged source or packaged documentation changes.
-3. Run the elevated per-machine install/upgrade/repair/uninstall and retained-
+A second, independent action does not wait on OpenAI quota or signing authority:
+the compliance-remediation workstream begins at human-gated CR-A0
+(`docs/compliance/REMEDIATION_PLAN.md`). Its corpus is present, but the owner
+must first confirm the disposition of this in-flight 4.4.1 repair/documentation
+batch. Do not introduce a broad line-ending rewrite as part of this runtime fix.
+
+1. Commit the validated 4.4.1 Layer 4/snapshot correction, rebuild from that
+   exact clean source, pass installer integrity and package-owned portable
+   readiness, then install it and prove a normal Google chat passes Layer 4,
+   invokes the configured provider once, and creates validation telemetry.
+   Restore or replenish OpenAI quota and rerun the bounded `gpt-5.6-sol`
+   source-level check with High reasoning. Do not expose, print, or require
+   re-entry of stored keys.
+2. After the CU-2 installed desktop-chat proof passes, execute the owner-approved
+   CU-4 copy-only terminology hardening before the final signed candidate freeze.
+   Preserve source/API/schema/SDK/database/trace/history identifiers; retain the
+   prohibited Bayesian, conformal, EAL, factuality, air-gap, certification,
+   complete-DPO/training, GDCH, and local-open-weight claim boundary. Rebuild
+   from the exact clean post-CU-4 commit before continuing artifact-bound
+   acceptance.
+3. Retain SHA-256
+   `78800b84a670f6c5828894a26b6fc76d664fdf3f9e98876cb7d6fa11b15f49e3`
+   as pre-CU-4 exact-source engineering evidence only. After the OpenAI source
+   gate and CU-4 copy-only pass, obtain owner-authorized production signing
+   material and rebuild/sign/timestamp from the then-current exact commit before
+   treating an artifact as the CP19-M release candidate. Rebuild again if any
+   packaged source or packaged documentation changes.
+4. Run the elevated per-machine install/upgrade/repair/uninstall and retained-
    data lifecycle on that exact replacement, including Program Files launch and
    post-uninstall cleanup. Treat UAC cancellation as no result, not a pass.
-4. Classify and exercise the Diagnostics `Api_gateway` and `Workers` stopped
+5. Classify and exercise the Diagnostics `Api_gateway` and `Workers` stopped
    states under the installed service-role matrix; do not waive them from the
    portable observation alone.
-5. Complete signing/timestamp, installed Phase 9–13, provider/corpus/blinded-human,
+6. Complete signing/timestamp, installed Phase 9–13, provider/corpus/blinded-human,
    visual/scaling/high-contrast/NVDA, and 24/72-hour soak acceptance.
-6. Complete retained clean-machine object-store, protected-volume,
+7. Complete retained clean-machine object-store, protected-volume,
    backup/restore, security/license, accessibility, provider, gateway, pilot,
    and soak acceptance.
-7. Retain CP16-G/CP17-E, CP15-A–H, production signing/distribution NO-GO,
+8. Retain CP16-G/CP17-E, CP15-A–H, production signing/distribution NO-GO,
    automatic-update disablement, and object-store production-approval false
    until exact installed and independent evidence exists.
-8. Grant the connected Google Drive app write access to the three exact stale
+9. Grant the connected Google Drive app write access to the three exact stale
    gap-analysis Docs, or manually move them to the created archive folder; the
    current replacement exports are already published.
-9. Before changing API surface or reopening Phase 8: re-read the consolidated
+10. Before changing API surface or reopening Phase 8: re-read the consolidated
    update plan and this checkpoint. `CODEX_WORK_QUEUE_2026-08-10.md` is
    supporting history only.
 

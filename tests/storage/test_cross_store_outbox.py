@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import UTC, datetime, timedelta
 
 from flask import Flask
 
 from extensions import db
 from models import CrossStoreMaterializationState, CrossStoreOutboxEvent
+from backend.dsqp import DSQPOrchestrator
 from backend.storage.artifact_materialization import persist_object_artifact
 from backend.storage.outbox import CrossStoreOutbox
 from backend.storage.materialization_dispatcher import CrossStoreMaterializationDispatcher
@@ -208,7 +210,7 @@ def test_dispatcher_commits_success_and_safe_failure_per_event():
         assert failed.safe_reason == "neo4j_delivery_failed"
 
 
-def test_required_object_artifact_is_queued_without_direct_cross_store_write(monkeypatch):
+def test_required_frost_snapshot_is_queued_without_direct_cross_store_write(monkeypatch):
     app = _app()
     app.config["DLE_DATA_PLANE_DRIVER"] = "podman"
     with app.app_context():
@@ -221,7 +223,7 @@ def test_required_object_artifact_is_queued_without_direct_cross_store_write(mon
             lambda: (_ for _ in ()).throw(AssertionError("direct object write")),
         )
         reference = persist_object_artifact(
-            entity_type="simulation_artifact",
+            entity_type="frost_snapshot",
             entity_id="snapshot-1",
             bucket="simulation-artifacts",
             key="snapshot-1.json",
@@ -237,6 +239,74 @@ def test_required_object_artifact_is_queued_without_direct_cross_store_write(mon
         assert event.operation == "put_object"
         assert event.payload["bucket"] == "simulation-artifacts"
         assert event.payload["metadata"]["run_id"] == "run-1"
+
+
+def test_frost_snapshot_materializes_without_simulation_authority_row(monkeypatch):
+    app = _app()
+    app.config["DLE_DATA_PLANE_DRIVER"] = "podman"
+
+    class _ObjectStore:
+        def __init__(self):
+            self.objects = {}
+
+        def create_bucket(self, _bucket):
+            return True
+
+        def put(self, bucket, key, body, **_kwargs):
+            self.objects[(bucket, key)] = body
+            return key
+
+        def exists(self, bucket, key):
+            return (bucket, key) in self.objects
+
+        def get(self, bucket, key):
+            return self.objects[(bucket, key)]
+
+    store = _ObjectStore()
+    with app.app_context():
+        db.create_all()
+        import backend.storage as storage_package
+
+        monkeypatch.setattr(storage_package, "get_object_store", lambda: store)
+        persist_object_artifact(
+            entity_type="frost_snapshot",
+            entity_id="snapshot-1",
+            bucket="simulation-artifacts",
+            key="snapshot-1.json",
+            body={"snapshot_id": "snapshot-1", "state": {"step": 4}},
+            schema_version="frost-snapshot.v1",
+            content_type="application/json",
+        )
+
+        result = CrossStoreMaterializationDispatcher(db.session).run_once()
+        event = CrossStoreOutboxEvent.query.one()
+
+        assert result == {"claimed": 1, "succeeded": 1, "failed": 0}
+        assert event.status == "succeeded"
+        assert ("simulation-artifacts", "snapshot-1.json") in store.objects
+
+
+def test_parallel_dsqp_construction_queues_four_deliverables_without_session_race():
+    app = _app()
+    app.config["DLE_DATA_PLANE_DRIVER"] = "podman"
+    with app.app_context():
+        db.create_all()
+
+        result = asyncio.run(
+            DSQPOrchestrator(timeout_seconds=5).construct_all(
+                "Review a regulated AI workflow",
+                {"active_axes": [8, 9, 10, 11]},
+                active_axes=[8, 9, 10, 11],
+                context={"risk_domain": "finance"},
+            )
+        )
+
+        assert result["failures"] == {}
+        assert set(result["profiles"]) == {"8", "9", "10", "11"}
+        events = CrossStoreOutboxEvent.query.order_by(CrossStoreOutboxEvent.entity_id).all()
+        assert len(events) == 4
+        assert {event.entity_type for event in events} == {"dsqp_deliverable"}
+        assert {event.status for event in events} == {"pending"}
 
 
 def test_simulation_artifact_hash_mismatch_cannot_complete_session(monkeypatch):

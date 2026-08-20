@@ -1,8 +1,8 @@
 {
   "schema_version": "dle.document-authority-verification.v1",
-  "generated_at": "2026-08-20T06:27:11.946403+00:00",
+  "generated_at": "2026-08-20T07:13:00.777691+00:00",
   "authority_version": "2026.08.10-cp19l-installed-evidence",
-  "product_version": "4.4.0",
+  "product_version": "4.4.1",
   "status": "pass",
   "existing_canonical_count": 30,
   "planned_canonical_count": 0,

@@ -6,10 +6,10 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.5.0 |
-| Product version | 4.4.0 |
+| Document version | v1.7.0 |
+| Product version | 4.4.1 |
 | Date | 2026-08-19 |
-| Status | Active supporting review input; CU-2 desktop-chat hotfix has an exact-source portable rebuild while OpenAI/signing/fresh-installed rows remain blocked, CU-3/CU-4 are decision-gated, and CU-5 source/publication is partial |
+| Status | Active supporting review input; CU-2 installed 4.4.0 proved the alias fix but exposed a Layer 4 save race, the 4.4.1 source correction is validated while rebuild/installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -179,12 +179,23 @@ Its exact-source `78800b84...` installer passes all static/package checks and
 strict portable readiness described in Section 2.1. The stopped installed copy
 was not modified; fresh installed Google chat acceptance remains open.
 
+**2026-08-20 Layer 4 checkpoint:** the fresh installed 4.4.0 retest created a
+governed run and advanced through retrieval, proving the alias correction, but
+failed before provider execution when four parallel persona workers shared one
+request-scoped database session for required deliverable saves. The durable
+ledger also showed ordinary FROST checkpoints mislabeled as simulation
+artifacts without authority rows. Source now serializes required DSQP saves on
+the originating request thread, uses `frost_snapshot` for reasoning checkpoints,
+and passes 80/80 focused production-mode and governed-pipeline regressions. The
+standing substantial-update rule advances the replacement to 4.4.1/4.4.1.0.
+Exact rebuild and fresh-installed Google chat acceptance remain open.
+
 1. Run the bounded owner-authorized Google and OpenAI model tests without
    exposing or requiring re-entry of stored keys.
-2. Commit the reviewed source and evidence. **Complete:** `c765ba03...`; latest
-   desktop-chat fix checkpoint `e99119e2...`.
-3. Rebuild from that exact clean commit. **Complete for current unsigned
-   portable engineering acceptance:** `78800b84...`.
+2. Commit the reviewed 4.4.1 source and evidence. **Pending.** The prior
+   desktop-chat checkpoints are historical inputs only.
+3. Rebuild from that exact clean commit and pass integrity plus strict
+   package-owned portable readiness. **Pending for 4.4.1.**
 4. Sign and timestamp the resulting candidate.
 5. Complete elevated installed lifecycle, retained-data, service-role,
    provider/corpus/human, accessibility, recovery, independent-review, pilot,
@@ -220,8 +231,10 @@ quota/signing blockers. This recommendation is not a waiver.
 
 ### CU-4 — Evidence-based terminology modernization
 
-**Status:** evidence inventory complete; adoption remains blocked on owner
-approval after CU-2 unless explicitly reprioritized.
+**Status:** evidence inventory complete; bounded copy-only adoption is
+owner-approved for later execution after the CU-2 installed desktop-chat proof
+and before the final signed CP19-M candidate freeze. It is queued work, not the
+current next action.
 
 1. Inventory every candidate term across live code, UI, APIs, SDKs, active docs,
    generated contracts, tests, and archived history.
@@ -252,6 +265,31 @@ pass with zero errors or warnings.
 The inventory rejects unsupported conformal-prediction, Common Criteria EAL,
 air-gap, GDCH/local-open-weight, and complete DPO-training equivalences. It
 records safe plain-language candidates but changes no compatibility identifier.
+
+The approved deferred adoption scope is:
+
+| Retained identifier or current public term | Approved display description |
+|---|---|
+| Simulated Quantum Computer / SQC | Uncertainty sampling |
+| Schrodinger Confidence | Sampled confidence |
+| Superposition Logic | Multi-hypothesis analysis |
+| Quantum Entanglement | Cross-domain relationship mapping |
+| AGI Planner | Bounded hierarchical planner |
+| FROST mode/depth | Tiered reasoning depth (FROST) |
+| TruthCore | Evidence and policy validation (TruthCore) |
+| Quad Persona / DSQP | Multi-perspective review (DSQP) |
+| SEKRE | Post-run knowledge refinement (SEKRE) |
+| DMRF | Bounded 12-step refinement workflow (DMRF) |
+
+Execution is limited to public/operator copy and description-only SDK text.
+Source modules/classes, APIs, OpenAPI schemas, SDK types, database columns,
+migrations, traces, result keys, stored values, and historical evidence IDs must
+remain unchanged. Surfaced `core/simulation` FROST/quantum/AGI implementations
+must remain explicitly reference-only. The copy pass must add focused frontend,
+documentation, SDK-description, and prohibited-public-claim regressions and
+must pass the applicable documentation, frontend, lint, typecheck, and SDK
+gates. Any packaged copy change requires a new exact-source rebuild and moves
+all later artifact-bound acceptance to the replacement hash.
 
 ### CU-5 — External knowledge and installed trace-detail closure
 
@@ -340,13 +378,13 @@ a new exact rebuild and evidence binding.
 
 ## 7. Exact next action
 
-Proceed with CU-2: install the exact-source `78800b84...` desktop-chat fix
-artifact and repeat a normal Google chat to confirm governed session and
-validation telemetry creation. Restore or replenish OpenAI quota and rerun the
-bounded `gpt-5.6-sol` High-reasoning check without exposing stored keys. After
-both source-level provider checks pass, obtain owner-authorized production
-signing material and rebuild/sign/timestamp from the then-current exact commit,
-then continue CP19-M installed acceptance against only that signed artifact
-hash.
+Proceed with CU-2: commit and rebuild the exact-source 4.4.1 Layer 4/snapshot
+correction, pass installer integrity and package-owned portable readiness, then
+install that artifact and repeat a normal Google chat to confirm provider
+execution and validation telemetry. Restore or replenish OpenAI quota and rerun
+the bounded `gpt-5.6-sol` High-reasoning check without exposing stored keys.
+After both provider checks pass, obtain owner-authorized production signing
+material and rebuild/sign/timestamp from the then-current exact commit, then
+continue CP19-M installed acceptance against only that signed artifact hash.
 In parallel, grant the connected Google Drive app write access to the three
 stale gap-analysis Docs or move them manually into the created archive folder.

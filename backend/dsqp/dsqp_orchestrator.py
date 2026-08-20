@@ -6,7 +6,7 @@ import asyncio
 import os
 from typing import Any
 
-from backend.dsqp.dsqp_chain import AXIS_PERSONA_TYPES, DSQPChain
+from backend.dsqp.dsqp_chain import AXIS_PERSONA_TYPES, DSQPChain, ExpandedPersona
 from backend.dsqp.dsqp_validator import DSQPValidator
 
 
@@ -50,7 +50,15 @@ class DSQPOrchestrator:
             if isinstance(result, Exception):
                 failures[key] = str(result)
             else:
-                profiles[key] = result
+                persona, validation = result
+                try:
+                    # Flask-SQLAlchemy scopes the production session to the
+                    # request context. Persist on this originating thread so
+                    # parallel persona workers never share that session.
+                    self.chain.persist_deliverable(persona)
+                    profiles[key] = self._payload(persona, validation)
+                except Exception as exc:
+                    failures[key] = str(exc)
         return {
             "profiles": profiles,
             "failures": failures,
@@ -98,9 +106,16 @@ class DSQPOrchestrator:
         axis_vector: dict[str, Any],
         axis_number: int,
         context: dict[str, Any],
-    ) -> dict[str, Any]:
+    ) -> tuple[ExpandedPersona, dict[str, Any]]:
         return await asyncio.wait_for(
-            asyncio.to_thread(self._construct_sync, query, axis_vector, axis_number, context),
+            asyncio.to_thread(
+                self._construct_persona,
+                query,
+                axis_vector,
+                axis_number,
+                context,
+                False,
+            ),
             timeout=self.timeout_seconds,
         )
 
@@ -111,6 +126,23 @@ class DSQPOrchestrator:
         axis_number: int,
         context: dict[str, Any],
     ) -> dict[str, Any]:
+        persona, validation = self._construct_persona(
+            query,
+            axis_vector,
+            axis_number,
+            context,
+            True,
+        )
+        return self._payload(persona, validation)
+
+    def _construct_persona(
+        self,
+        query: str,
+        axis_vector: dict[str, Any],
+        axis_number: int,
+        context: dict[str, Any],
+        persist_deliverable: bool,
+    ) -> tuple[ExpandedPersona, dict[str, Any]]:
         coordinate_path = str(
             context.get("coordinate_path")
             or context.get(f"axis_{axis_number}")
@@ -123,10 +155,15 @@ class DSQPOrchestrator:
             axis_number=axis_number,
             coordinate_path=coordinate_path,
             context=context,
+            persist_deliverable=persist_deliverable,
         )
         validation = self.validator.validate(persona)
-        payload = persona.to_dict()
-        payload["validation"] = validation
         if not validation["valid"]:
             raise ValueError(f"DSQP coverage below threshold: {validation}")
+        return persona, validation
+
+    @staticmethod
+    def _payload(persona: ExpandedPersona, validation: dict[str, Any]) -> dict[str, Any]:
+        payload = persona.to_dict()
+        payload["validation"] = validation
         return payload

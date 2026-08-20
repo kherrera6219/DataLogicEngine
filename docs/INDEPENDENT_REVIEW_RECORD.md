@@ -7,7 +7,7 @@
 | Document ID | DLE-EXT-003 |
 | Title | Independent review record |
 | Document version | v1.1.1 |
-| Product version | 4.4.0 |
+| Product version | 4.4.1 |
 | Status | not_evaluated |
 | Audience | Independent reviewers, product/release authority, engineering, procurement/evaluation teams, and auditors |
 | Owner | External Review Coordinator |
@@ -23,7 +23,7 @@
 No independent reviewer is assigned and no independent architecture, security,
 privacy, API, accessibility, usability, operations/recovery, AI assurance,
 licensing/supply-chain, or documentation review has been completed for the exact
-signed DataLogicEngine 4.4.0 release candidate. This record is `not_evaluated`.
+signed DataLogicEngine 4.4.1 release candidate. This record is `not_evaluated`.
 It does not claim endorsement, certification, audit opinion, or approval.
 
 The unsigned 2026-08-10 installed engineering candidate is available as
@@ -38,7 +38,7 @@ Populate only after the review coordinator verifies:
 
 | Field | Required value | Current value |
 |---|---|---|
-| Product/version | DataLogicEngine Desktop 4.4.0 / Windows 4.4.0.0 | Engineering target only |
+| Product/version | DataLogicEngine Desktop 4.4.1 / Windows 4.4.1.0 | Engineering target only |
 | Source commit/tag | Clean immutable release source | Not established |
 | Installer | Filename, size, SHA-256 | Unsigned qualification candidate is not final subject |
 | Signature | Publisher, chain, timestamp, revocation result | Not established |

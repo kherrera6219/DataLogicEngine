@@ -3,8 +3,8 @@
   "authority": "config/product-versions.json",
   "product": {
     "name": "DataLogicEngine Desktop",
-    "version": "4.4.0",
-    "windows_file_version": "4.4.0.0",
+    "version": "4.4.1",
+    "windows_file_version": "4.4.1.0",
     "release_channel": "pre-production"
   },
   "contracts": {
@@ -22,7 +22,8 @@
   "upgrade": {
     "supported_product_sources": [
       "0.1.1",
-      "4.3.0"
+      "4.3.0",
+      "4.4.0"
     ]
   }
 }

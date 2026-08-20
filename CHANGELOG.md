@@ -51,8 +51,8 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.7.0 |
-| Product version | 4.4.0 |
+| Document version | v1.8.0 |
+| Product version | 4.4.1 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
 | Owner | Release Engineering |
@@ -70,7 +70,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.1] - 2026-08-20
+
 ### Fixed
+- **Layer 4 desktop-chat persistence:** retained concurrent deterministic persona
+  construction while serializing required DSQP deliverable saves on the
+  originating request thread. This removes the shared Flask-SQLAlchemy session
+  race that failed all four persona axes before Google could be called.
+- **FROST snapshot delivery:** classified ordinary reasoning checkpoints as
+  `frost_snapshot` objects instead of database-authoritative simulation
+  artifacts, allowing the durable materialization worker to deliver them
+  without a nonexistent simulation row.
 - **Desktop chat compatibility aliases:** corrected the gateway virtual-model
   resolver so desktop request modes such as `chat`, `trace`, `explain`, and
   `quad` are normalized through the canonical governed-mode contract before

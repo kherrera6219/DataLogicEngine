@@ -4,10 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.75.0 |
+| Document version | v1.77.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
+| Product version | 4.4.1 |
 | Runtime model | Electron control/validation shell plus a Flask backend that is loopback-only by default and may expose an explicitly enabled private gateway mode |
 | Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store services |
 | External runtime dependency | Optional OpenAI or Google model access and explicitly enabled MCP connectors only |
@@ -160,6 +161,20 @@ verified process ownership and clean shutdown. This supersedes the prior
 unsigned portable artifact for continued engineering acceptance. Fresh
 installed Google chat, signing, and every other retained CP19-M row remain open;
 production/public release remains **NO-GO**.
+
+The fresh installed 4.4.0 desktop-chat retest on 2026-08-20 proved the alias
+correction by creating governed run `90320fdf-b622-4eab-9e34-bfcf108dc450`
+and advancing through retrieval, but it then failed at Layer 4 before any
+provider call. The stored trace identified four concurrent required DSQP
+deliverable-save failures, and the materialization ledger identified ordinary
+FROST checkpoints incorrectly classified as database-authoritative simulation
+artifacts. Source now retains parallel persona construction while serializing
+the four durable saves on the originating request thread and classifies the
+checkpoints as `frost_snapshot`. Production-mode, governed-pipeline, and
+related regressions pass 80/80. Under the standing substantial-update rule,
+the replacement product target is 4.4.1/4.4.1.0 and admits retained 4.4.0 as a
+supported upgrade source. The exact 4.4.1 rebuild and installed Google chat
+proof remain open; production/public release remains **NO-GO**.
 
 The clean split-language coverage qualification now clears the 80% engineering
 floor independently in every maintained application scope: Python `backend/`
@@ -4814,8 +4829,57 @@ contracts:
 10. CP19-J complete API, SDK, desktop, and accessibility workflows.
 11. CP19-K close the 213-row semantic/selector/call-path/effect/trace matrix.
 12. CP19-L pass clean source qualification and authorize one rebuild.
-13. CP19-M qualify the exact rebuilt signed installed artifact and bind retained
+13. Before the final CP19-M artifact freeze, complete the current CU-2 installed
+    desktop-chat proof and provider gates, then execute the owner-approved CU-4
+    copy-only terminology hardening defined below.
+14. CP19-M qualify the exact rebuilt signed installed artifact and bind retained
     Phase 15/16/17 evidence.
+
+#### Deferred CU-4 copy-only terminology hardening
+
+The product owner approved this bounded work for later execution after the CU-2
+installed desktop-chat proof and before the final signed CP19-M candidate
+freeze. It is queued work, not the current next action, and it does not authorize
+release or reopen the archived terminology plan as written.
+
+Scope:
+
+1. Change only public-facing and operator-visible copy in the public entry
+   point, active product/user documentation, frontend labels/help text, and SDK
+   descriptions or docstrings where the change is description-only.
+2. Preserve every source module, class, API field, OpenAPI schema, SDK type,
+   database column, migration, trace, result key, stored value, and historical
+   evidence identifier. Use a dual label when operator recognition is useful.
+3. Use these evidence-compatible descriptions:
+
+   | Retained identifier or current public term | Approved display description |
+   |---|---|
+   | Simulated Quantum Computer / SQC | Uncertainty sampling |
+   | Schrodinger Confidence | Sampled confidence |
+   | Superposition Logic | Multi-hypothesis analysis |
+   | Quantum Entanglement | Cross-domain relationship mapping |
+   | AGI Planner | Bounded hierarchical planner |
+   | FROST mode/depth | Tiered reasoning depth (FROST) |
+   | TruthCore | Evidence and policy validation (TruthCore) |
+   | Quad Persona / DSQP | Multi-perspective review (DSQP) |
+   | SEKRE | Post-run knowledge refinement (SEKRE) |
+   | DMRF | Bounded 12-step refinement workflow (DMRF) |
+
+4. Do not introduce Bayesian-model, conformal-prediction, Common Criteria EAL,
+   deterministic-factuality, air-gap, certification, complete DPO/training,
+   GDCH, Gemma/Med-Gemma, or local-open-weight claims without separately
+   approved implementation and reviewed evidence.
+5. Keep `core/simulation` FROST/quantum/AGI implementations explicitly
+   reference-only where surfaced; do not rename or reactivate them through this
+   copy pass.
+6. Add focused frontend/documentation tests plus a public-copy regression that
+   prevents the prohibited claims above. Run documentation reference/truth
+   gates, focused frontend tests, lint, typecheck, and any affected SDK
+   documentation checks.
+7. Because frontend and packaged documentation changes alter the candidate,
+   rebuild from the exact clean post-CU-4 commit and bind all later portable,
+   signed, installed, accessibility, and release evidence to the replacement
+   hash.
 
 ### Checkpoints
 

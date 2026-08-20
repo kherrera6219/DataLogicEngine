@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-08-20T05:31:20.655444+00:00",
+  "generated_at": "2026-08-20T07:12:56.033270+00:00",
   "authority_version": "2026.08.10-cp19l-installed-evidence",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 174,
+    "markdown_file_count": 179,
     "canonical_document_count": 30,
     "canonical_limit": 30,
     "existing_canonical_count": 30,
@@ -14,15 +14,23 @@
     "unclassified_count": 0,
     "duplicate_route_count": 0,
     "disposition_prefix_counts": {
-      "authoritative": 35,
+      "authoritative": 36,
       "generated": 6,
       "historical": 122,
-      "supporting": 11
+      "supporting": 15
     }
   },
   "unclassified": [],
   "duplicate_routes": [],
   "documents": [
+    {
+      "path": "AGENTS.md",
+      "document_class": "engineering_maintenance",
+      "disposition": "authoritative input",
+      "target": "AGENTS.md",
+      "cap_counted": false,
+      "basis": "normative legal or temporary program authority outside the final canonical cap"
+    },
     {
       "path": "CHANGELOG.md",
       "document_class": "product_public",
@@ -1121,6 +1129,38 @@
     },
     {
       "path": "docs/CI_QUALITY_POLICY.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/compliance/EXTERNAL_REVIEW_2026-08-16.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/compliance/README.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/compliance/REMEDIATION_PLAN.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
+      "path": "docs/compliance/STANDARDS_BLUEPRINT.md",
       "document_class": "supporting_review",
       "disposition": "supporting review input",
       "target": "PRODUCTION_COMPLETION_PLAN_2026.md",

@@ -150,7 +150,7 @@ class FROSTService:
                 from backend.storage.artifact_materialization import persist_object_artifact
 
                 reference = persist_object_artifact(
-                    entity_type="simulation_artifact",
+                    entity_type="frost_snapshot",
                     entity_id=snapshot_id,
                     bucket="simulation-artifacts",
                     key=key,

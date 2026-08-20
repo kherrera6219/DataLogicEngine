@@ -95,6 +95,7 @@ class DSQPChain:
         axis_number: int = 8,
         coordinate_path: str = "default",
         context: dict[str, Any] | None = None,
+        persist_deliverable: bool = True,
     ) -> ExpandedPersona:
         if axis_number not in AXIS_PERSONA_TYPES:
             raise ValueError(f"DSQP supports persona axes 8-11, got {axis_number}")
@@ -198,11 +199,12 @@ class DSQPChain:
                 },
             },
         )
-        self._persist_deliverable(persona)
+        if persist_deliverable:
+            self.persist_deliverable(persona)
         return persona
 
     @staticmethod
-    def _persist_deliverable(persona: ExpandedPersona) -> None:
+    def persist_deliverable(persona: ExpandedPersona) -> None:
         """Persist DSQP output through the durable object materialization boundary."""
         try:
             from backend.storage.artifact_materialization import persist_object_artifact

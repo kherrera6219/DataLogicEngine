@@ -242,6 +242,7 @@
     "docs/generated/PRODUCTION_CONTRACT_INDEX.md"
   ],
   "cap_exempt_authoritative_inputs": [
+    "AGENTS.md",
     "CODE_OF_CONDUCT.md",
     "COMMERCIAL_LICENSE.md",
     "PRODUCTION_COMPLETION_PLAN_2026.md",
@@ -265,6 +266,7 @@
   ],
   "supporting_review_prefixes": [
     "docs/audits/",
+    "docs/compliance/",
     "docs/spec-exports/"
   ],
   "historical_prefixes": [

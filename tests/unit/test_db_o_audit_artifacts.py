@@ -109,7 +109,7 @@ def test_commit_queues_then_materializes_audit_bundle_and_anchor_metadata(app, m
         assert event.event_data["blockchain_anchor"]["transaction_hash"] == "0xabc123"
 
 
-def test_frost_snapshot_writes_simulation_artifact(monkeypatch):
+def test_frost_snapshot_writes_snapshot_object(monkeypatch):
     import backend.storage as storage_module
 
     fake_store = FakeObjectStore()

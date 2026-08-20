@@ -1,0 +1,1158 @@
+{
+  "$schema": "https://ukg.local/schemas/remediation-tasks-1.0.json",
+  "plan": {
+    "name": "DataLogicEngine Compliance Remediation",
+    "version": "1.1",
+    "date": "2026-08-17",
+    "target_repo": "C:\\software\\DataLogicEngine",
+    "target_version": "4.4.0",
+    "executor": "codex",
+    "reviewer": "kevin",
+    "source_findings": [
+      "DataLogicEngine_External_Review_2026-08-16.md",
+      "UKG_Standards_Compliance_Blueprint_2026-08-17.md"
+    ],
+    "revision_note": "US-only market decision applied 2026-08-18. On 2026-08-20 the 4.4.1 repair run completed 3,295 Windows tests, 18 skipped, zero errors; CR-A0 must refresh the baseline before CR-A1 disposition. HD-3 resolved.",
+    "market": "United States only. Product is NOT placed on the EU market (decision 2026-08-18)."
+  },
+  "out_of_scope": {
+    "decision_date": "2026-08-18",
+    "decision": "Product is not placed on the EU market",
+    "frameworks_removed": [
+      "EU Cyber Resilience Act",
+      "EU AI Act",
+      "GDPR",
+      "NIS2",
+      "DORA",
+      "CE marking"
+    ],
+    "consequence": "No hard external regulatory deadline remains for this program. Every task is now justified commercially -- a buyer asks and the answer must be true."
+  },
+  "global_rules": [
+    "One task = one commit. Conventional commit prefixed with the task ID, e.g. 'fix(test): [CR-A1] dispose engine in conftest teardown'.",
+    "One phase = one branch: remediation/phase-<letter>.",
+    "Never add a bare 'except Exception' that returns a default value. Failures propagate or return an explicit typed error.",
+    "Never add a suppression comment (# inversion:ok, # type: ignore, # noqa) without a same-line task-ID reference AND a test proving the suppressed condition is safe.",
+    "Never set an attribute to None on import failure. Either the import succeeds or construction fails loudly.",
+    "Never delete or weaken a test to make a gate pass. That is a HUMAN-GATE.",
+    "Never modify files outside the task's allowed_paths. Stop and report instead of widening scope.",
+    "No behavior changes in refactor tasks. If a fix requires changing business logic, stop and flag it.",
+    "Every task begins by verifying its premise still holds. If it does not, record that and close the task without inventing adjacent work.",
+    "If a gate fails after three attempts, revert to the last green commit and report. Do not keep trying variations.",
+    "Never force-push. Never rebase a pushed branch."
+  ],
+  "human_decisions": [
+    {
+      "id": "HD-1",
+      "decision": "Name for the renamed confidence score",
+      "blocks": [
+        "CR-D1"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "HD-2",
+      "decision": "Disposition of the 91 uncommitted working-tree changes",
+      "blocks": [
+        "CR-A0"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "HD-3",
+      "decision": "RESOLVED 2026-08-18: the product is NOT placed on the EU market. EU CRA, EU AI Act, GDPR, NIS2, DORA all out of scope.",
+      "blocks": [],
+      "status": "resolved",
+      "resolution": "US market only"
+    },
+    {
+      "id": "HD-4",
+      "decision": "FIPS crypto module choice: OpenSSL FIPS / Windows CNG FIPS mode / validated HSM",
+      "blocks": [
+        "CR-E6"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "HD-5",
+      "decision": "EV code-signing certificate procurement",
+      "blocks": [
+        "CR-E4"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "HD-6",
+      "decision": "Labeled evaluation set content and ground truth",
+      "blocks": [
+        "CR-F2"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "HD-7",
+      "decision": "Retire vs. re-header the January standards assessment",
+      "blocks": [
+        "CR-D6"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "HD-8",
+      "decision": "Approval to retire any test",
+      "blocks": [
+        "CR-A3",
+        "CR-D3"
+      ],
+      "status": "open"
+    },
+    {
+      "id": "HD-9",
+      "decision": "Does this supersede Phase 19 or run as a parallel Phase 20 track?",
+      "blocks": [],
+      "status": "open"
+    }
+  ],
+  "phases": [
+    {
+      "id": "A",
+      "name": "Trustworthy test harness",
+      "branch": "remediation/phase-a",
+      "depends_on": [],
+      "blocking": true,
+      "exit_gate": "Full suite green on Windows CI, zero collection errors, collected count >= baseline (3126), A3_TRIAGE.md written."
+    },
+    {
+      "id": "B",
+      "name": "Egress proof",
+      "branch": "remediation/phase-b",
+      "depends_on": [
+        "A"
+      ],
+      "blocking": false,
+      "exit_gate": "CI egress job green producing dated attestation; air-gap proven end-to-end; egress events in audit chain; zero unguarded HTTP clients."
+    },
+    {
+      "id": "C",
+      "name": "Local API hardening",
+      "branch": "remediation/phase-c",
+      "depends_on": [
+        "A"
+      ],
+      "blocking": false,
+      "exit_gate": "All local-API security tests green on Windows CI; loopback default proven; audit chain verified on read."
+    },
+    {
+      "id": "D",
+      "name": "Truth in claims",
+      "branch": "remediation/phase-d",
+      "depends_on": [
+        "A"
+      ],
+      "blocking": false,
+      "exit_gate": "No default-on-failure returns in score path; core/simulation archived with zero dead imports; all suppressions evidenced or removed; manifest generated from code."
+    },
+    {
+      "id": "E",
+      "name": "Supply chain and manufacturer obligations",
+      "branch": "remediation/phase-e",
+      "depends_on": [
+        "A"
+      ],
+      "blocking": false,
+      "exit_gate": "SBOM, SAST, SCA, secret scanning, license checks gating PRs; hermetic build; signing pipeline; crypto provider pluggable."
+    },
+    {
+      "id": "F",
+      "name": "Measurement",
+      "branch": "remediation/phase-f",
+      "depends_on": [
+        "A"
+      ],
+      "blocking": false,
+      "exit_gate": "Measured ECE, Brier, hallucination rate published; system card generated from code."
+    },
+    {
+      "id": "G",
+      "name": "Documentation artifacts",
+      "branch": "remediation/phase-g",
+      "depends_on": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "blocking": false,
+      "exit_gate": "Every documented claim traces to an artifact produced by Phases A-F. A claim with no artifact is deleted, not softened."
+    }
+  ],
+  "phase_a_independent": {
+    "note": "These tasks deliberately do NOT depend on Phase A because they touch no code and gate on no test. With HD-3 resolved (US market only) the September 11 CRA urgency is gone; CR-G1 drops to routine priority. This program now has NO external regulatory deadline -- sequence by which deal you are chasing.",
+    "tasks": [
+      "CR-D6",
+      "CR-G1",
+      "CR-G12"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "CR-A0",
+      "phase": "A",
+      "title": "Capture the verified baseline",
+      "depends_on": [],
+      "sessions": 1,
+      "human_gate": true,
+      "human_gate_reason": "HD-2: disposition of 91 uncommitted changes",
+      "allowed_paths": [
+        "reports/remediation/"
+      ],
+      "premise": "Tree had 91 uncommitted changes and 40 setup-error tests as of commit d24273ff on 2026-08-16.",
+      "verify_first": [
+        "git status --porcelain",
+        "git rev-parse HEAD"
+      ],
+      "steps": [
+        "Record working tree state; do NOT commit or discard uncommitted changes.",
+        "python -m pytest tests/ --no-cov -q --tb=no -rEf > reports/remediation/baseline_pytest.txt 2>&1",
+        "Enumerate ERROR (setup failures) separately from FAILED.",
+        "Capture ruff check . --statistics, mypy backend/ sdk/, first-party line counts.",
+        "Write reports/remediation/BASELINE.md with all of the above plus commit SHA and timestamp."
+      ],
+      "exit_gate": "test -f reports/remediation/BASELINE.md && test -f reports/remediation/baseline_pytest.txt && grep -qE '(error|passed)' reports/remediation/baseline_pytest.txt",
+      "non_goals": [
+        "Fixing anything. This task only observes."
+      ]
+    },
+    {
+      "id": "CR-A1",
+      "phase": "A",
+      "title": "Fix the conftest database lock",
+      "depends_on": [
+        "CR-A0"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "tests/conftest.py",
+        "tests/**/conftest.py"
+      ],
+      "premise": "tests/conftest.py:150 calls TEST_DB_PATH.unlink() on shared repo-root test_suite.sqlite3; an undisposed SQLAlchemy engine holds it; Windows raises PermissionError WinError 32; 40 tests error at setup. Linux permits unlinking open files so CI is green on the non-shipping platform.",
+      "verify_first": [
+        "python -m pytest tests/ --no-cov -q --tb=line 2>&1 | grep -c 'WinError 32'"
+      ],
+      "steps": [
+        "Dispose the SQLAlchemy engine/session in fixture teardown, including on the exception path (try/finally or yield-fixture teardown).",
+        "Give each test a unique DB path under pytest tmp_path/tmp_path_factory instead of the shared repo-root file."
+      ],
+      "forbidden": [
+        "Retry loops around unlink()",
+        "ignore_errors=True",
+        "try/except PermissionError: pass",
+        "os.remove with a sleep"
+      ],
+      "exit_gate": "python -m pytest tests/ --no-cov -q --tb=short -rE 2>&1 | tee reports/remediation/a1_pytest.txt; ! grep -qE '^ERROR' reports/remediation/a1_pytest.txt && ! grep -q 'WinError 32' reports/remediation/a1_pytest.txt",
+      "additional_gate": "Collected test count >= CR-A0 baseline (3126). A gate that passes by collecting fewer tests is a failed gate."
+    },
+    {
+      "id": "CR-A2",
+      "phase": "A",
+      "title": "Windows CI that fails the build on errors",
+      "depends_on": [
+        "CR-A1"
+      ],
+      "sessions": 1,
+      "human_gate": true,
+      "human_gate_reason": "Branch protection settings are repository configuration, not the agent's to change",
+      "allowed_paths": [
+        ".github/workflows/",
+        "pyproject.toml"
+      ],
+      "premise": "Security suite is green on Linux and unexecuted on Windows, the shipping target.",
+      "steps": [
+        "Add a workflow running the full suite on windows-latest across supported Python versions.",
+        "Job must fail on collection errors, not only test failures. Add -rEf and assert on the summary.",
+        "Add --strict-markers and filterwarnings error::pytest.PytestUnraisableExceptionWarning so undisposed resources surface as failures.",
+        "Keep the Linux job. The goal is parity, not replacement.",
+        "Document the required-status-check for Kevin to enable in branch protection."
+      ],
+      "exit_gate": "python -c \"import yaml,glob; [yaml.safe_load(open(f)) for f in glob.glob('.github/workflows/*.yml')]\" && grep -rq 'windows-latest' .github/workflows/ && grep -rq -- '-rE' .github/workflows/"
+    },
+    {
+      "id": "CR-A3",
+      "phase": "A",
+      "title": "Triage and green the 40 previously-unexecuted tests",
+      "depends_on": [
+        "CR-A1",
+        "CR-A2"
+      ],
+      "sessions": 2,
+      "human_gate": true,
+      "human_gate_reason": "HD-8: modifying or retiring any test",
+      "allowed_paths": [
+        "tests/",
+        "source files proven broken by a genuine test failure (separate commit + explicit note)"
+      ],
+      "premise": "40 tests never executed on Windows: anonymous mutation denial across 18 endpoints, CSRF/origin/desktop-auth, DPAPI secret boundaries, error sentinels, GDPR export, fuzz series.",
+      "affected_files": [
+        "tests/test_phase1_anonymous_mutations.py",
+        "tests/test_session_security.py",
+        "tests/test_phase1_secret_boundaries.py",
+        "tests/test_phase1_public_error_sentinels.py",
+        "TestGDPRDataExport",
+        "test_fuzz_ukg_knowledge series"
+      ],
+      "steps": [
+        "Run each file individually; record pass/fail.",
+        "For each failure determine whether the TEST is wrong or the CODE is wrong, with evidence.",
+        "Fix code defects. Do not modify a test to make it pass without HUMAN-GATE approval.",
+        "Write reports/remediation/A3_TRIAGE.md with the count of genuine security defects found."
+      ],
+      "exit_gate": "python -m pytest tests/test_phase1_anonymous_mutations.py tests/test_session_security.py tests/test_phase1_secret_boundaries.py tests/test_phase1_public_error_sentinels.py --no-cov -q && test -f reports/remediation/A3_TRIAGE.md"
+    },
+    {
+      "id": "CR-B0",
+      "phase": "B",
+      "title": "Map every outbound call site",
+      "depends_on": [
+        "CR-A3"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "reports/remediation/"
+      ],
+      "premise": "Product claims the only outbound connection is to the LLM provider. Unverified.",
+      "steps": [
+        "Enumerate every network call site: requests/httpx/aiohttp/urllib, LLM SDKs (openai, anthropic, google-generativeai, azure), MCP client transports, telemetry, update checks, runtime model downloads, production scripts/.",
+        "Write reports/remediation/EGRESS_INVENTORY.md: file, line, library, destination, whether it runs on the governed request path."
+      ],
+      "exit_gate": "test -f reports/remediation/EGRESS_INVENTORY.md && [ $(grep -c '|' reports/remediation/EGRESS_INVENTORY.md) -ge $(grep -rEn 'requests\\.|httpx\\.|aiohttp|urllib\\.request|socket\\.(create_connection|connect)' backend/ core/ sdk/ --include='*.py' | wc -l) ]",
+      "escalate_if": "Any call site targets a destination other than a configured model endpoint or MCP server. This contradicts the product's central compliance claim.",
+      "non_goals": [
+        "Any code change. Discovery only."
+      ]
+    },
+    {
+      "id": "CR-B1",
+      "phase": "B",
+      "title": "Single egress chokepoint with default-deny allowlist",
+      "depends_on": [
+        "CR-B0"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        "core/security/egress_guard.py",
+        "tests/security/",
+        "call sites from EGRESS_INVENTORY.md"
+      ],
+      "design_requirements": [
+        "One module all outbound HTTP passes through. Default deny.",
+        "An empty allowlist means ZERO egress, not unrestricted egress.",
+        "Host-based entries; wildcards only at the leftmost label, and logged as such.",
+        "A denied connection raises a typed explicit exception. It does NOT return None, an empty response, or a degraded result.",
+        "Enforced at the lowest practical layer (custom transport / session factory) so new call sites are denied by default.",
+        "Add a lint rule or import hook so direct requests/httpx imports fail. A guard that can be bypassed by importing directly is decorative.",
+        "Effective configuration inspectable at runtime without reading source."
+      ],
+      "non_goals": [
+        "Proxy support",
+        "TLS interception",
+        "Per-request policy engines"
+      ],
+      "exit_gate": "python -m pytest tests/security/test_egress_guard.py --no-cov -q && python -m pytest tests/ --no-cov -q",
+      "required_test_cases": [
+        "Allowed host succeeds",
+        "Denied host raises the typed exception",
+        "Empty allowlist denies everything",
+        "The exception is not swallowed anywhere on the governed path"
+      ]
+    },
+    {
+      "id": "CR-B2",
+      "phase": "B",
+      "title": "Route every call site through the guard",
+      "depends_on": [
+        "CR-B1"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        "call sites from EGRESS_INVENTORY.md"
+      ],
+      "steps": [
+        "Migrate each inventoried call site to the guarded transport, including MCP client transports. Each MCP server is a second egress path that silently falsifies the one-outbound-flow claim if unguarded."
+      ],
+      "exit_gate": "! grep -rEn '^\\s*(import requests|import httpx|from requests|from httpx|import aiohttp)' backend/ core/ sdk/ --include='*.py' | grep -v egress_guard.py && python -m pytest tests/ --no-cov -q"
+    },
+    {
+      "id": "CR-B3",
+      "phase": "B",
+      "title": "Egress events into the hash-chained audit log",
+      "depends_on": [
+        "CR-B2"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "core/security/egress_guard.py",
+        "backend/security/audit_logger.py",
+        "tests/security/"
+      ],
+      "steps": [
+        "Every outbound attempt (allowed or denied) becomes an audit event: timestamp, destination host, bytes out, bytes in, allow/deny, correlation ID of the causing governed request. Content is NEVER logged."
+      ],
+      "exit_gate": "python -m pytest tests/security/test_egress_audit.py --no-cov -q",
+      "required_test_cases": [
+        "An allowed call produces exactly one audit event",
+        "A denied call produces exactly one audit event with result=deny",
+        "No prompt or response body appears in any audit record"
+      ]
+    },
+    {
+      "id": "CR-B4",
+      "phase": "B",
+      "title": "Air-gap mode",
+      "depends_on": [
+        "CR-B1"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "config module",
+        "core/security/egress_guard.py",
+        "docs/",
+        "tests/security/"
+      ],
+      "steps": [
+        "Single explicit setting disabling all egress, requiring a locally-reachable model endpoint (Ollama, vLLM, LM Studio, customer-hosted OpenAI-compatible). Fully functional in this mode. Any path requiring a remote call fails with a clear actionable error rather than degrading."
+      ],
+      "rationale": "Removes the HIPAA Business Associate question, the EU transfer question, and the federal data-egress objection in one move.",
+      "exit_gate": "python -m pytest tests/security/test_airgap_mode.py --no-cov -q",
+      "required_test_cases": [
+        "A full governed request completes end-to-end with air-gap enabled and a local mock model, allowlist empty for all non-loopback hosts"
+      ]
+    },
+    {
+      "id": "CR-B5",
+      "phase": "B",
+      "title": "CI egress test producing a dated attestation artifact",
+      "depends_on": [
+        "CR-B2",
+        "CR-B4"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        ".github/workflows/",
+        "tests/security/",
+        "reports/egress/"
+      ],
+      "steps": [
+        "CI job running the full governed path under network observation (deny-all environment with a single logging proxy, or socket-level recorder).",
+        "Assert contacted hosts == exactly the configured model endpoint. No telemetry, analytics, package registries, crash reporters, or CDN fetches.",
+        "Emit observed host list as reports/egress/egress-attestation-<sha>.json.",
+        "Fail the build on any unexpected host."
+      ],
+      "value": "This is the artifact you hand a customer's security team. Dated, renewable, reproducible.",
+      "exit_gate": "grep -rq egress .github/workflows/ && python -m pytest tests/security/test_egress_ci_harness.py --no-cov -q && test -f reports/egress/README.md"
+    },
+    {
+      "id": "CR-B6",
+      "phase": "B",
+      "title": "Publish the effective egress configuration",
+      "depends_on": [
+        "CR-B3"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "API layer",
+        "CLI",
+        "docs/",
+        "tests/"
+      ],
+      "steps": [
+        "Read-only endpoint and CLI command printing the effective allowlist, air-gap state, and configured model endpoint, so an assessor can verify the boundary claim on a running instance."
+      ],
+      "exit_gate": "Endpoint returns effective configuration; test asserts it reflects a runtime config change; no secrets appear in the output."
+    },
+    {
+      "id": "CR-C1",
+      "phase": "C",
+      "title": "Verify and enforce loopback-default binding",
+      "depends_on": [
+        "CR-A3"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "server startup/config modules",
+        "docs/",
+        "tests/security/"
+      ],
+      "premise": "The local API is the entire remotely-reachable attack surface. Default bind address unverified.",
+      "requirements": [
+        "Loopback by default.",
+        "Binding to 0.0.0.0 or a routable interface requires an explicit config value, logs a prominent startup warning, and is documented in the hardening guide."
+      ],
+      "exit_gate": "python -m pytest tests/security/test_bind_address.py --no-cov -q",
+      "required_test_cases": [
+        "Default config binds loopback only",
+        "Non-loopback path requires the explicit flag",
+        "The warning is emitted"
+      ]
+    },
+    {
+      "id": "CR-C2",
+      "phase": "C",
+      "title": "Authenticate every request, including from localhost",
+      "depends_on": [
+        "CR-C1",
+        "CR-A3"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        "API middleware/auth modules",
+        "tests/"
+      ],
+      "premise": "Localhost is not a trust boundary on a multi-user server, RDS host, or shared VM. Tests exist; Phase A made them run.",
+      "steps": [
+        "Verify and fix: every endpoint requires authentication.",
+        "CSRF and origin checks enforced on anything browser-reachable.",
+        "No endpoint permits anonymous mutation.",
+        "Errors normalized so internal state does not leak."
+      ],
+      "exit_gate": "python -m pytest tests/test_phase1_anonymous_mutations.py tests/test_session_security.py tests/test_phase1_public_error_sentinels.py --no-cov -q"
+    },
+    {
+      "id": "CR-C3",
+      "phase": "C",
+      "title": "Verify the audit chain on read, not just on write",
+      "depends_on": [
+        "CR-A1"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "backend/security/audit_logger.py",
+        "backend/truth_engine/truth_memory/",
+        "tests/security/"
+      ],
+      "premise": "SHA-512 hash chain is written. Whether production code verifies it on read is unconfirmed. An unverified chain is a data structure, not a control.",
+      "carries_controls": [
+        "EU AI Act Art. 12",
+        "NIST 800-53 AU-9",
+        "HIPAA 164.312(b)",
+        "SEC 17a-4 WORM-equivalence"
+      ],
+      "steps": [
+        "Confirm/implement verification on the production read path; failure surfaces as a loud explicit error. Add a verification API/CLI so a customer can validate their own log."
+      ],
+      "exit_gate": "python -m pytest tests/security/test_audit_chain_verification.py --no-cov -q",
+      "required_test_cases": [
+        "A valid chain verifies",
+        "A chain with an altered entry fails with a specific error naming the broken link",
+        "A chain with a removed entry fails",
+        "Verification runs on the production read path"
+      ]
+    },
+    {
+      "id": "CR-C4",
+      "phase": "C",
+      "title": "Least-privilege runtime check",
+      "depends_on": [
+        "CR-C1"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "startup checks",
+        "docs/DEPLOYMENT_HARDENING.md"
+      ],
+      "steps": [
+        "Confirm no local administrator required at runtime. Document exact service account rights. Add a startup check warning when running with more privilege than required."
+      ],
+      "exit_gate": "test -f docs/DEPLOYMENT_HARDENING.md && startup privilege check has a passing test"
+    },
+    {
+      "id": "CR-D1",
+      "phase": "D",
+      "title": "Rename the confidence score and stop swallowing exceptions",
+      "depends_on": [
+        "CR-A3"
+      ],
+      "sessions": 2,
+      "human_gate": true,
+      "human_gate_reason": "HD-1: Kevin picks the new name before the agent proceeds",
+      "allowed_paths": [
+        "backend/truth_engine/confidence_calculator.py",
+        "referencing sites"
+      ],
+      "premise": "147 lines computing C = 0.35*evidence_quality + 0.30*ka_consensus + 0.20*persona_agreement + 0.15*gate_factor. Missing evidence/KA/personas each return 0.5; missing gate decision returns 0.8; whole calculate() body wrapped in except Exception: return 0.5. 0.995 is hard-wired as the healthcare/finance/legal/safety threshold across trust_validation_gateway.py, opa_policy.py, and ~a dozen sites. A run where four subsystems silently failed is numerically indistinguishable from a genuine moderate-confidence run.",
+      "steps": [
+        "Rename to a non-probabilistic name (governance_score / check_pass_ratio / Kevin's choice).",
+        "Update the docstring to describe what is actually computed; remove the 'spec Section 13' citation, which describes C = sigma(alpha*sum(w_i*e_i) - beta*conflicts - gamma*H) -- a sigmoid with conflict and entropy terms, none of which are implemented.",
+        "Remove every default-on-failure return. A missing component yields an explicit typed incomplete result naming which inputs were unavailable.",
+        "Remove the blanket except Exception."
+      ],
+      "forbidden": [
+        "Implementing the sigmoid formula in this task. Changing the math before it can be measured swaps one unvalidated number for another. That is Phase F, after CR-F2 exists."
+      ],
+      "exit_gate": "! grep -rn 'except Exception' backend/truth_engine/confidence_calculator.py && ! grep -rn 'return 0\\.5\\|return 0\\.8' backend/truth_engine/confidence_calculator.py && python -m pytest tests/ --no-cov -q"
+    },
+    {
+      "id": "CR-D2",
+      "phase": "D",
+      "title": "Propagate the rename across all threshold sites",
+      "depends_on": [
+        "CR-D1"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "all referencing files",
+        "docs/",
+        "CHANGELOG.md"
+      ],
+      "steps": [
+        "Update trust_validation_gateway.py, opa_policy.py, policy files, API response schemas, docs. Any external-facing schema change is a breaking API change: changelog entry + SDK version bump."
+      ],
+      "exit_gate": "! grep -rn 'confidence.*0\\.995' --include='*.py' --include='*.yaml' --include='*.md' . | grep -v CHANGELOG && python -m pytest tests/ --no-cov -q"
+    },
+    {
+      "id": "CR-D3",
+      "phase": "D",
+      "title": "Archive core/simulation/",
+      "depends_on": [
+        "CR-A1"
+      ],
+      "sessions": 2,
+      "human_gate": true,
+      "human_gate_reason": "HD-8: retiring any test",
+      "allowed_paths": [
+        "core/simulation/",
+        "archive/",
+        "tests/test_phase19_cp19b_contract_parity.py",
+        "tests/test_sekre_wiring.py",
+        "tests/test_phase10_simulation_authority.py",
+        "docs/"
+      ],
+      "premise": "core/simulation/simulation_engine.py is 1444 lines described as 'the live pipeline engine'. Its constructor imports backend.knowledge_algorithm (SINGULAR) which does not exist -- only backend.knowledge_algorithms (plural, 227 files). Imports always fail, except always fires, axis_mapper/truth_engine/workflow_loader are always None. Line 629 makes workflow step loading a permanent no-op; line 1341 means the 17-axis vector is never computed. core/simulation/refinement_workflow.py has the same defect at lines 31-35. Three active test files still import it.",
+      "verify_first": [
+        "python -c \"import backend.knowledge_algorithm\"",
+        "python -c \"import backend.knowledge_algorithms; print('ok')\""
+      ],
+      "steps": [
+        "Confirm Phase 19's position that GovernedExecutionOrchestrator is the only product path.",
+        "Move core/simulation/ to archive/core_simulation/ with a README stating date, reason, and the commit it was live at.",
+        "Delete the dead import blocks rather than carrying them into the archive.",
+        "Repoint tests covering current behavior at the governed path; retiring a test requires HUMAN-GATE.",
+        "Note the knowledge_algorithm / knowledge_algorithms near-collision in the developer guide."
+      ],
+      "exit_gate": "test ! -d core/simulation && test -d archive/core_simulation && ! grep -rn 'backend\\.knowledge_algorithm\\b' --include='*.py' . && python -m pytest tests/ --no-cov -q"
+    },
+    {
+      "id": "CR-D4",
+      "phase": "D",
+      "title": "Audit every suppression comment",
+      "depends_on": [
+        "CR-D3"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "the 8 files carrying suppressions",
+        "reports/remediation/",
+        "tests/"
+      ],
+      "premise": "19 '# inversion:ok' suppressions across 8 files assert a layering violation is intentional and safe. At least three documented a permanently broken import as design intent. To an assessor an inline safety annotation is a compensating-control claim, and those require evidence.",
+      "steps": [
+        "For each of the 19: either produce a test proving the suppressed condition is safe and reference it on the same line, or remove the suppression and fix the underlying inversion. There is no third option. Record verdicts in reports/remediation/D4_SUPPRESSIONS.md."
+      ],
+      "exit_gate": "[ $(grep -rn 'inversion:ok' --include='*.py' . | grep -vE 'inversion:ok \\(see tests?/' | wc -l) -eq 0 ] && test -f reports/remediation/D4_SUPPRESSIONS.md"
+    },
+    {
+      "id": "CR-D5",
+      "phase": "D",
+      "title": "Reconcile the capability manifest",
+      "depends_on": [
+        "CR-A1"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "KA registry/manifest files",
+        "scripts/",
+        "docs/"
+      ],
+      "premise": "Manifest marks ~211 of 213 canonical capabilities 'production-enabled'; the live L1-L10 default path touches ~20 (KA-001-007, 010, 012, 013, 018, 022, 024, 027, 028, 030, 038, 061, 062, 1074, 1107). The rest are selector-reachable, but 'production-enabled' as a product claim means more than 'importable'.",
+      "steps": [
+        "Introduce honest state values (live-default / selector-reachable / implemented-untested). Reclassify every capability against evidence. GENERATE the classification from code so it cannot drift again."
+      ],
+      "exit_gate": "python scripts/generate_ka_manifest.py --check"
+    },
+    {
+      "id": "CR-D6",
+      "phase": "D",
+      "title": "Retire or supersede the January standards assessment",
+      "depends_on": [],
+      "sessions": 1,
+      "human_gate": true,
+      "human_gate_reason": "HD-7: do not silently delete a document",
+      "allowed_paths": [
+        "docs/"
+      ],
+      "premise": "UKG_Enterprise_Standards_Assessment.docx scores 86% enterprise-ready and marks 'Confidence calibration (Brier)' as COVERED. No code computes it. As an internal design doc that is a gap; as a claim shown to a buyer it is a representation.",
+      "exit_gate": "Document carries a prominent target-state header, or is superseded by the blueprint. Kevin decides which."
+    },
+    {
+      "id": "CR-E1",
+      "phase": "E",
+      "title": "SBOM generation per build",
+      "depends_on": [
+        "CR-A2"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        ".github/workflows/",
+        "scripts/build/",
+        "reports/sbom/"
+      ],
+      "steps": [
+        "CycloneDX 1.6 via cdxgen or syft on every build, attached to every release artifact, covering Python and any bundled JS/native dependencies. Store under reports/sbom/ with the commit SHA in the filename."
+      ],
+      "drivers": [
+        "Requested at agency discretion under OMB M-26-05 risk-based regime",
+        "Enterprise security diligence"
+      ],
+      "exit_gate": "python -c \"import json,glob; d=json.load(open(glob.glob('reports/sbom/*.cdx.json')[0])); assert d['bomFormat']=='CycloneDX'; assert len(d['components'])>0\""
+    },
+    {
+      "id": "CR-E2",
+      "phase": "E",
+      "title": "Security scanning gates in CI",
+      "depends_on": [
+        "CR-A2"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        ".github/workflows/",
+        ".semgrep.yml",
+        ".gitleaks.toml",
+        "pyproject.toml",
+        "docs/VULNERABILITY_MANAGEMENT.md"
+      ],
+      "steps": [
+        "Four required PR checks: SAST (Semgrep or CodeQL), dependency CVE scanning (pip-audit / Trivy / Grype), secret scanning (gitleaks), license compliance. Each needs a documented severity policy: what fails the build vs. what files an issue."
+      ],
+      "rationale": "A scanner whose findings are all ignored is worse than no scanner -- it produces evidence of known-and-unaddressed defects.",
+      "exit_gate": "grep -rq 'semgrep\\|codeql' .github/workflows/ && grep -rq 'pip-audit\\|trivy\\|grype' .github/workflows/ && grep -rq gitleaks .github/workflows/ && test -f docs/VULNERABILITY_MANAGEMENT.md"
+    },
+    {
+      "id": "CR-E3",
+      "phase": "E",
+      "title": "Hermetic, reproducible build",
+      "depends_on": [
+        "CR-E1"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        "build config",
+        "pyproject.toml",
+        "lockfiles"
+      ],
+      "steps": [
+        "Pinned toolchain, committed lockfile, no network during build, deterministic outputs where achievable. Document any non-determinism that cannot be removed."
+      ],
+      "exit_gate": "Two consecutive clean builds produce byte-identical artifacts, or every difference is documented with an explanation."
+    },
+    {
+      "id": "CR-E4",
+      "phase": "E",
+      "title": "Signed installer and signed updates",
+      "depends_on": [
+        "CR-E3"
+      ],
+      "sessions": 2,
+      "human_gate": true,
+      "human_gate_reason": "HD-5: EV certificate procurement",
+      "allowed_paths": [
+        "scripts/build/",
+        ".github/workflows/",
+        "docs/RELEASE_SIGNING.md"
+      ],
+      "steps": [
+        "Authenticode signing on the Windows installer with an EV certificate. SmartScreen will flag an unsigned installer and most enterprise environments refuse it -- this is a distribution blocker before it is a compliance one.",
+        "Because there is no auto-update phone-home (a genuine privacy advantage), update distribution integrity matters more: signed update packages, signature verification before applying, rollback protection.",
+        "Implement the pipeline and stub the signing step. Certificate procurement is Kevin's."
+      ],
+      "exit_gate": "Signing step present and parameterized; verification logic tested against a self-signed test certificate; docs/RELEASE_SIGNING.md written."
+    },
+    {
+      "id": "CR-E5",
+      "phase": "E",
+      "title": "SLSA provenance attestations",
+      "depends_on": [
+        "CR-E3",
+        "CR-E4"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "allowed_paths": [
+        ".github/workflows/"
+      ],
+      "steps": [
+        "Target SLSA Build Level 3. Emit in-toto provenance from the hermetic CI build; sign with Sigstore/cosign; attach to releases."
+      ],
+      "exit_gate": "Provenance attestation generated and verifiable with cosign verify-attestation against a test key."
+    },
+    {
+      "id": "CR-E6",
+      "phase": "E",
+      "title": "FIPS-capable crypto abstraction",
+      "depends_on": [
+        "CR-A3"
+      ],
+      "sessions": 2,
+      "human_gate": true,
+      "human_gate_reason": "HD-4: FIPS module choice is a procurement and platform decision",
+      "allowed_paths": [
+        "backend/security/encryption_manager.py",
+        "config",
+        "docs/CRYPTOGRAPHY.md",
+        "tests/security/"
+      ],
+      "premise": "EncryptionManager implements real AES-256-GCM (AESGCM.generate_key(bit_length=256), 12-byte nonce) with Fernet as the KEK wrapper -- a correct envelope design. But AES-256-GCM is a FIPS-APPROVED ALGORITHM, and the default cryptography build is NOT a FIPS-VALIDATED MODULE. Module validation, not algorithm choice, is the federal question. Same applies to Windows DPAPI as used here.",
+      "steps": [
+        "Abstract the crypto provider behind an interface.",
+        "Add a FIPS-mode configuration flag.",
+        "Add a startup self-check reporting the active provider and its validation status.",
+        "Document precisely what is and is not validated. Do not overclaim."
+      ],
+      "exit_gate": "Provider interface tested with at least two implementations; startup reports active provider; docs/CRYPTOGRAPHY.md states validation status without overclaiming."
+    },
+    {
+      "id": "CR-F1",
+      "phase": "F",
+      "title": "Evaluation harness",
+      "depends_on": [
+        "CR-A3"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        "evals/",
+        "reports/evals/"
+      ],
+      "steps": [
+        "Run a fixed question set through the governed path; record answers with the governance score and full provenance; write results to reports/evals/ with commit SHA, model endpoint, and configuration. Deterministic where possible; seeds recorded where not."
+      ],
+      "exit_gate": "Harness runs end-to-end against a mock model and produces a structured result file."
+    },
+    {
+      "id": "CR-F2",
+      "phase": "F",
+      "title": "Labeled evaluation set",
+      "depends_on": [
+        "CR-F1"
+      ],
+      "sessions": 2,
+      "human_gate": true,
+      "human_gate_reason": "HD-6: domain content and ground truth are Kevin's",
+      "allowed_paths": [
+        "evals/datasets/"
+      ],
+      "steps": [
+        "Build schema, loaders, validation, and a documented provenance record per item, then stop.",
+        "Start small and real: 200 well-labeled items beat 2000 synthetic ones. Synthetic ground truth generated by a model is not ground truth.",
+        "Recover the StrataMind benchmark referenced in the May plan (18 adversarial questions, 95.3/100) if results still exist; the August review could not find them in the tree."
+      ],
+      "exit_gate": "Schema validates; loader tested; provenance documented per item."
+    },
+    {
+      "id": "CR-F3",
+      "phase": "F",
+      "title": "Calibration measurement",
+      "depends_on": [
+        "CR-F1",
+        "CR-F2"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        "evals/",
+        "reports/evals/"
+      ],
+      "premise": "Tree has zero hits for expected_calibration_error, calibration_error, ECE, and brier.",
+      "steps": [
+        "Compute ECE and Brier score against the governance score; generate a reliability diagram."
+      ],
+      "unlocks": "Only after this exists does re-implementing the spec'd sigmoid formula become defensible, because only then can an improvement be demonstrated rather than asserted.",
+      "satisfies": [
+        "EU AI Act Art. 15",
+        "ISO 42001 cl. 9.1",
+        "NIST AI RMF MEASURE 2.x",
+        "SR 11-7"
+      ],
+      "exit_gate": "python -m evals.calibration --dataset evals/datasets/<set> --out reports/evals/calibration.json && python -c \"import json; d=json.load(open('reports/evals/calibration.json')); assert 'ece' in d and 'brier' in d\""
+    },
+    {
+      "id": "CR-F4",
+      "phase": "F",
+      "title": "Implement the hallucination-rate metric",
+      "depends_on": [
+        "CR-F1",
+        "CR-F2"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        "backend/truth_engine/truth_memory/metrics.py",
+        "evals/",
+        "reports/evals/"
+      ],
+      "premise": "hallucination_rate exists as a key in a METRIC_DEFINITIONS dict -- a slot to record a number into, with no code computing it.",
+      "steps": [
+        "Implement computation against the labeled set. Document the methodology explicitly enough that a third party could reproduce it."
+      ],
+      "maps_to": "OWASP GenAI 2026 LLM08 Misinformation -- moved up the list because confidently-wrong output now drives automated business workflows, the pattern this product enables.",
+      "exit_gate": "Metric computed from the eval set; methodology documented; result written to reports/evals/."
+    },
+    {
+      "id": "CR-F5",
+      "phase": "F",
+      "title": "Generate the system card from code",
+      "depends_on": [
+        "CR-F3",
+        "CR-F4",
+        "CR-D5"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "allowed_paths": [
+        "docs/",
+        "scripts/"
+      ],
+      "premise": "The KA limitations pattern -- capabilities returning explicit statements of what they did NOT establish -- is the best idea in this codebase and a code-level implementation of EU AI Act Art. 13 and ISO 42001 A.8.2. Most vendors write this in a PDF nobody reads; this computes it per invocation.",
+      "steps": [
+        "Aggregate upward into a generated system card: intended use, out-of-scope uses, capability inventory with honest state values from CR-D5, measured accuracy and calibration from F3/F4, known limitations, measurement methodology. GENERATE from code, not by hand -- a hand-written card drifts, and drift is what created this plan."
+      ],
+      "exit_gate": "python scripts/generate_system_card.py --check",
+      "also_satisfies": {
+        "law": "Colorado Automated Decision-Making Technology Act (ADMTA)",
+        "history": "Colorado repealed and replaced the Colorado AI Act on 2026-05-14 with the ADMTA.",
+        "effective": "2027-01-01, contingent on Colorado AG rulemaking",
+        "scope": "Developers of automated decision-making technology materially influencing consequential decisions in education, employment, housing, lending, insurance, healthcare, government benefits.",
+        "developer_duties": [
+          "Documentation of intended use, known risks and limitations",
+          "Categories of personal data used in training",
+          "Instructions for meaningful human oversight",
+          "Notice of material system updates",
+          "Record retention minimum three years"
+        ],
+        "note": "The generated system card covers five of six. Build once; it satisfies ISO 42001 and NIST AI RMF simultaneously. Do not build three documents."
+      }
+    },
+    {
+      "id": "CR-G1",
+      "phase": "G",
+      "title": "Coordinated Vulnerability Disclosure policy + security.txt",
+      "depends_on": [],
+      "sessions": 1,
+      "human_gate": false,
+      "standards": [
+        "ISO/IEC 29147",
+        "ISO/IEC 30111"
+      ],
+      "urgency": "No longer CRA-driven (HD-3 resolved: US market only). Still expected in federal procurement; costs two pages plus a security.txt.",
+      "exit_gate": "Policy present; security.txt served at the well-known path; named security contact.",
+      "priority": "routine"
+    },
+    {
+      "id": "CR-G2",
+      "phase": "G",
+      "title": "US incident reporting runbook (replaces the withdrawn CRA/ENISA runbook)",
+      "depends_on": [],
+      "sessions": 1,
+      "human_gate": false,
+      "exit_gate": "Runbook with named roles, destinations, and per-obligation clocks. Records the US-only market determination as the closing note on withdrawn CRA scope.",
+      "supersedes": "CR-G2 v1.0 (EU CRA 24h/72h ENISA notification) -- withdrawn, HD-3 resolved US-only",
+      "obligations": [
+        "DFARS 252.204-7012: 72-hour reporting to DoD if handling covered defense information as a contractor. Applies to Kevin's company, and given the DoD background is the likeliest to bite first.",
+        "CIRCIA: 72h covered cyber incident / 24h ransom payment, 16 critical infrastructure sectors. CISA final rule slipped from Oct 2025 to an expected May 2026 and as of mid-2026 remains pending. Mostly lands on customers.",
+        "Customer contractual notification windows -- usually tighter than statute, and the ones that will actually govern.",
+        "State breach notification law -- largely moot, no customer data is held."
+      ]
+    },
+    {
+      "id": "CR-G3",
+      "phase": "G",
+      "title": "Data flow diagram + egress attestation",
+      "depends_on": [
+        "CR-B5"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "exit_gate": "Diagram matches EGRESS_INVENTORY.md; attestation cites the CI artifact from CR-B5."
+    },
+    {
+      "id": "CR-G4",
+      "phase": "G",
+      "title": "DEPLOYMENT_HARDENING.md (CIS/STIG-aligned)",
+      "depends_on": [
+        "CR-C4"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "contents": [
+        "CIS/STIG-aligned configuration",
+        "Firewall rules including the outbound allowlist",
+        "Least-privilege service account rights",
+        "Uninstall/decommission procedure with artifact and log disposition"
+      ],
+      "exit_gate": "Every setting referenced exists in the config schema (verified programmatically)."
+    },
+    {
+      "id": "CR-G5",
+      "phase": "G",
+      "title": "NIST SSDF (SP 800-218 v1.1) mapping",
+      "depends_on": [
+        "CR-A2",
+        "CR-E2",
+        "CR-E5"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "note": "OMB M-26-05 (2026-01-23) rescinded M-22-18 and M-23-16, ending the government-wide CISA Common Form self-attestation. Agencies now validate on their own risk-based terms and retain discretion to require attestations and SBOMs. Have the artifact ready on request rather than a form on file.",
+      "exit_gate": "Every practice cites a file, workflow, or report path that exists."
+    },
+    {
+      "id": "CR-G6",
+      "phase": "G",
+      "title": "NIST SP 800-218A (GenAI SSDF profile) mapping",
+      "depends_on": [
+        "CR-D1",
+        "CR-F5"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "exit_gate": "Every claim cites an artifact that exists."
+    },
+    {
+      "id": "CR-G7",
+      "phase": "G",
+      "title": "Customer Responsibility Matrix vs NIST 800-53 Rev 5",
+      "depends_on": [
+        "CR-B5",
+        "CR-C4",
+        "CR-E6"
+      ],
+      "sessions": 2,
+      "human_gate": false,
+      "value": "The single most valuable federal document available -- it makes an agency's ATO cheap. FedRAMP does not apply to installed software; the agency owns the ATO and you supply the inheritance map.",
+      "exit_gate": "For each relevant control: product-provided / customer-provided / shared."
+    },
+    {
+      "id": "CR-G8",
+      "phase": "G",
+      "title": "HIPAA Deployment Guide",
+      "depends_on": [
+        "CR-B4",
+        "CR-G9"
+      ],
+      "sessions": 2,
+      "human_gate": true,
+      "human_gate_reason": "Counsel must review the Business Associate determination before it goes to any customer",
+      "contents": [
+        "Business Associate analysis",
+        "Model-endpoint decision tree (customer BAA with provider vs. air-gap)",
+        "PHI-safe diagnostics policy",
+        "164.312 technical safeguard mapping: product-supported vs customer-supplied"
+      ],
+      "exit_gate": "Guide present and counsel-reviewed."
+    },
+    {
+      "id": "CR-G9",
+      "phase": "G",
+      "title": "PHI-safe support diagnostics",
+      "depends_on": [
+        "CR-B3"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "premise": "The moment a support engineer receives a diagnostic bundle containing PHI, the Business Associate position is destroyed.",
+      "steps": [
+        "Diagnostic bundles scrub content by default via the existing Presidio path."
+      ],
+      "exit_gate": "Test proves no PHI-shaped content appears in a generated bundle."
+    },
+    {
+      "id": "CR-G10",
+      "phase": "G",
+      "title": "Security update support period declaration",
+      "depends_on": [
+        "CR-E4"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "driver": "No longer an EU CRA duty. Buyers ask, and a federal ATO needs a stated end-of-support date.",
+      "exit_gate": "Stated in docs and surfaced in the installer."
+    },
+    {
+      "id": "CR-G11",
+      "phase": "G",
+      "title": "Incident response plan with AI-specific playbooks",
+      "depends_on": [
+        "CR-B3",
+        "CR-D1"
+      ],
+      "sessions": 1,
+      "human_gate": false,
+      "playbooks": [
+        "Prompt injection incident",
+        "Model provider outage",
+        "Confabulated-output-caused harm",
+        "Context/data leak"
+      ],
+      "exit_gate": "Plan present with named roles and triggers."
+    },
+    {
+      "id": "CR-G12",
+      "phase": "G",
+      "title": "Section 508 / WCAG 2.2 AA conformance report (ACR/VPAT)",
+      "depends_on": [],
+      "sessions": 2,
+      "human_gate": false,
+      "applies_if": "Federal is in scope. Routinely forgotten until it blocks a deal at signature.",
+      "exit_gate": "ACR/VPAT produced against the shipping UI."
+    }
+  ],
+  "anti_goals": [
+    "A fourteenth Phase 19 checkpoint. Integration correctness is established.",
+    "More evidence JSON. Already 340,934 lines against 160,000 lines of source.",
+    "Certification prep before Phase F. A certificate describing a system that does not exist is worse than no certificate.",
+    "Re-implementing the sigmoid confidence formula before CR-F3 exists.",
+    "Rewriting the January assessment to be more accurate. Supersede it; do not maintain two.",
+    "Broadening any task's scope because something adjacent was noticed. File it as a finding."
+  ],
+  "program_exit_criteria": [
+    "Full test suite green on Windows CI with zero collection errors; collected count >= 3126",
+    "Dated CI egress attestation showing exactly one contacted host class, reproducible on demand",
+    "Air-gap mode proven end-to-end against a local model",
+    "Every local-API security test executing and passing on the shipping platform",
+    "No default-on-failure return anywhere in the governance score path",
+    "core/simulation archived; zero references to the nonexistent backend.knowledge_algorithm",
+    "Every suppression comment backed by a test or removed",
+    "SBOM, SAST, SCA, secret scanning, and license checks gating every PR",
+    "Signed installer and signed update path",
+    "Published ECE, Brier, and hallucination rate against a real labeled set",
+    "System card generated from code and consistent with it, and sufficient as the Colorado ADMTA developer-documentation package (effective 2027-01-01)",
+    "Product Security Package complete, every claim tracing to an artifact"
+  ]
+}

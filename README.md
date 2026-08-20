@@ -6,15 +6,15 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.9.0 |
-| Product version | 4.4.0 |
+| Document version | v1.10.0 |
+| Product version | 4.4.1 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
 | Owner | Product Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-18 |
+| Last reviewed | 2026-08-20 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -42,12 +42,12 @@ accounts, connector credentials, local data, retention, backups, and operating
 policy.
 
 > [!WARNING]
-> **Engineering evaluation only. DataLogicEngine 4.4.0 is not approved for a
+> **Engineering evaluation only. DataLogicEngine 4.4.1 is not approved for a
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The current local provider-refresh engineering build is
+The superseded local provider-refresh engineering build is
 `DataLogicEngine Setup 4.4.0.exe` (358,848,516 bytes; SHA-256
 `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`).
 It was rebuilt from exact source commit
@@ -56,7 +56,10 @@ It was rebuilt from exact source commit
 checks; `/ready` completed in 30,701 ms and was owned by the launched package
 process tree. The artifact is unsigned and has not passed elevated installed,
 provider, accessibility, recovery, independent-review, pilot, or soak
-acceptance, so it is not a production release candidate.
+acceptance, so it is not a production release candidate. Product 4.4.1 corrects
+the installed desktop-chat routing and Layer 4 persistence failures; its exact
+replacement artifact is being rebuilt and must receive fresh artifact-bound
+acceptance.
 
 ## Repository guide
 
@@ -88,7 +91,7 @@ control plane.
 | Software developers and integrators | A versioned API, generated Python and TypeScript SDKs, asynchronous jobs, streaming responses, and provider-key separation |
 | Operators, reviewers, and pilot users | A desktop experience for configuration, governed chat, monitoring, trace review, privacy, diagnostics, and support |
 
-The current 4.4.0 product boundary is a single owner/operator on Windows 11 or
+The current 4.4.1 product boundary is a single owner/operator on Windows 11 or
 an owner-controlled Windows VM. It is not a public web service or a multi-tenant
 identity platform.
 
@@ -178,7 +181,7 @@ certifications.
 - Providers: owner-configured OpenAI or Google credentials and approved models
 - Connectors: owner-approved local MCP processes with recorded scope and consent
 - Data: app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible storage
-- Excluded from 4.4.0: public-internet exposure, public self-registration,
+- Excluded from 4.4.1: public-internet exposure, public self-registration,
   multi-tenancy, vendor-hosted customer data or API spend, Kubernetes, managed
   cloud databases as production authorities, mobile clients, and macOS/Linux
   packaging
@@ -383,7 +386,7 @@ npm --prefix frontend run electron:dist
 
 `CSC_SKIP=true` produces an unsigned local engineering build. It is not a
 public release artifact. Installer output is generated as
-`DataLogicEngine Setup 4.4.0.exe` with its checksum and block map.
+`DataLogicEngine Setup 4.4.1.exe` with its checksum and block map.
 
 Verify the package before installing it:
 
