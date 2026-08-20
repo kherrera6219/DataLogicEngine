@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.9.0 |
+| Document version | v1.10.0 |
 | Product version | 4.4.0 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,12 +14,12 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-18 |
+| Last reviewed | 2026-08-19 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.74.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.75.0 |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; exact-source portable rebuild passes, Google live availability passes, OpenAI is quota-blocked, and signed/installed CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; the desktop-chat hotfix has an exact-source portable rebuild, Google source-level availability passes, OpenAI is quota-blocked, and signed/fresh-installed CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -399,6 +399,18 @@ Phase 18 source baseline while completing the whole-application wiring.
       ms with verified launched-process ownership; shutdown was clean. The
       artifact is unsigned and was not installed, so this closes only the clean
       source binding/portable engineering row.
+- [x] **Desktop chat compatibility hotfix and exact-source rebuild:** field
+      evidence showed the saved Google provider test returning successfully
+      while desktop chat returned HTTP 422 before orchestration. Canonicalizing
+      desktop modes (`chat`, `trace`, `explain`, and `quad`) in the virtual-model
+      resolver corrects the alias/policy mismatch. Commit
+      `e99119e222227eaf98940a9e34f0f587550ce2ca` passes 14 focused contract and
+      route tests and produced the unsigned 358,849,321-byte installer with
+      SHA-256
+      `78800b84a670f6c5828894a26b6fc76d664fdf3f9e98876cb7d6fa11b15f49e3`.
+      Integrity, NSIS governance, the 6,095-file payload, packaging resources,
+      and strict portable `/ready` pass in 25,138 ms with verified process
+      ownership and clean shutdown.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
       owner-authorized Google/OpenAI tests, sign/timestamp the then-current
       exact-source rebuild, and complete the remaining CP19-M installed rows.
@@ -408,6 +420,9 @@ Phase 18 source baseline while completing the whole-application wiring.
   - [ ] OpenAI `gpt-5.6-sol` used the required High reasoning contract but is
         blocked on `quota_exhausted`; a fresh retry reached the API and failed
         the same way in 2,224.49 ms. Restore quota and rerun the bounded call.
+  - [ ] Uninstall the superseded Program Files copy, install the exact
+        `78800b84...` replacement, and confirm a normal Google chat creates a
+        governed session and validation telemetry without HTTP 422.
 
 ## Slow-audit remediation (engineering) — 2026-08-12
 

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.11.0 |
+| Document version | v1.12.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,13 +14,13 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-18 |
+| Last reviewed | 2026-08-19 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.74.0 (release program) |
-| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 exact-source engineering rebuild complete; OpenAI/signing/installed rows open; CU-3/CU-4 decision-gated; CU-5 source/publication partial) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.75.0 (release program) |
+| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 desktop-chat hotfix has an exact-source portable rebuild; OpenAI/signing/fresh-installed rows open; CU-3/CU-4 decision-gated; CU-5 source/publication partial) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; exact-source portable rebuild passes, Google live availability passes, OpenAI is quota-blocked, and signed/installed CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; the desktop-chat hotfix has an exact-source portable rebuild, Google source-level availability passes, OpenAI is quota-blocked, and signed/fresh-installed CP19-M acceptance remains open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -797,6 +797,26 @@ shutdown left no package process or port-5000 listener. The artifact is
 transfers to this hash. This advances exact-source engineering binding only;
 OpenAI quota, signing, installed lifecycle, accessibility, recovery,
 independent-review, pilot, and soak gates remain open.
+
+On 2026-08-19, the installed desktop demonstrated that its Google provider
+configuration test was healthy while an ordinary chat request returned HTTP
+422 before the governed orchestrator ran. The desktop sends compatibility mode
+`chat`; request validation accepts it, but the virtual-model resolver compared
+that raw alias with canonical policy mode `standard` and rejected the request.
+That explains the absence of a session and validation telemetry and confirms
+that the failure was not a Google response failure. Commit
+`e99119e222227eaf98940a9e34f0f587550ce2ca` now normalizes all supported
+desktop aliases through the canonical governed-mode contract and adds
+desktop-shaped contract and route regressions. Fourteen focused tests pass.
+The exact clean commit produced the unsigned `DataLogicEngine Setup 4.4.0.exe`
+(358,849,321 bytes; SHA-256
+`78800b84a670f6c5828894a26b6fc76d664fdf3f9e98876cb7d6fa11b15f49e3`).
+Installer integrity, NSIS governance, the 6,095-file payload, required
+resources, and package-owned portable `/ready` pass in 25,138 ms with verified
+process ownership and clean shutdown. The stopped Program Files copy was not
+modified; replace it with this exact installer, then repeat the Google chat
+through the fresh installed application. Signing and every other retained
+CP19-M gate remain open, so production/public release stays **NO-GO**.
 
 Independent work that does not bypass the CU-2 artifact order also advanced on
 2026-08-18. CU-3 measured the four retained monoliths and recommends a named

@@ -6,10 +6,10 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.4.0 |
+| Document version | v1.5.0 |
 | Product version | 4.4.0 |
-| Date | 2026-08-18 |
-| Status | Active supporting review input; CU-2 exact-source engineering rebuild passes while OpenAI/signing/installed rows remain blocked, CU-3/CU-4 are decision-gated, and CU-5 source/publication is partial |
+| Date | 2026-08-19 |
+| Status | Active supporting review input; CU-2 desktop-chat hotfix has an exact-source portable rebuild while OpenAI/signing/fresh-installed rows remain blocked, CU-3/CU-4 are decision-gated, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -50,13 +50,14 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 - Independent coverage gates pass at 80.30% for `backend/`, 80.67% for
   `backend/security/`, 80.89% for `core/`, and 89.54% statements, 80.69%
   branches, 86.11% functions, and 91.36% lines for the frontend.
-- The provider-refresh portable artifact recorded by current authority is
-  `DataLogicEngine Setup 4.4.0.exe`, 358,848,516 bytes, SHA-256
-  `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`,
-  built from exact clean source commit
-  `c765ba03257e58e69a4cd4b80f92390c71346801`. It passes integrity, NSIS,
-  6,096-file payload, required-resource, and package-owned portable readiness
-  checks; `/ready` completed in 30,701 ms with verified process ownership.
+- The current portable engineering artifact is
+  `DataLogicEngine Setup 4.4.0.exe`, 358,849,321 bytes, SHA-256
+  `78800b84a670f6c5828894a26b6fc76d664fdf3f9e98876cb7d6fa11b15f49e3`,
+  built from exact clean desktop-chat fix commit
+  `e99119e222227eaf98940a9e34f0f587550ce2ca`. It passes integrity, NSIS,
+  the 6,095-file payload, required-resource, and package-owned portable
+  readiness checks; `/ready` completed in 25,138 ms with verified process
+  ownership and clean shutdown.
 - The scheduled full-history secret-scan finding is closed by scheduled run
   `32093054806`: 1,298 commits and 2,632,118,047 bytes scanned with zero
   verified and zero unverified secrets. Future candidate scans remain required.
@@ -169,11 +170,21 @@ Integrity, NSIS governance, the 6,096-file payload, required resources, and
 strict package-owned portable `/ready` pass. Installed mode and signing were
 not attempted; production/public release remains **NO-GO**.
 
+**2026-08-19 desktop-chat checkpoint:** the installed app's Google provider
+test succeeded, but desktop chat returned HTTP 422 before orchestration because
+compatibility mode `chat` was compared directly with canonical virtual-model
+mode `standard`. Commit `e99119e2...` normalizes supported desktop aliases
+through the governed-mode contract and passes 14 focused contract/route tests.
+Its exact-source `78800b84...` installer passes all static/package checks and
+strict portable readiness described in Section 2.1. The stopped installed copy
+was not modified; fresh installed Google chat acceptance remains open.
+
 1. Run the bounded owner-authorized Google and OpenAI model tests without
    exposing or requiring re-entry of stored keys.
-2. Commit the reviewed source and evidence. **Complete:** `c765ba03...`.
-3. Rebuild from that exact clean commit. **Complete for unsigned portable
-   engineering acceptance:** `650034ee...`.
+2. Commit the reviewed source and evidence. **Complete:** `c765ba03...`; latest
+   desktop-chat fix checkpoint `e99119e2...`.
+3. Rebuild from that exact clean commit. **Complete for current unsigned
+   portable engineering acceptance:** `78800b84...`.
 4. Sign and timestamp the resulting candidate.
 5. Complete elevated installed lifecycle, retained-data, service-role,
    provider/corpus/human, accessibility, recovery, independent-review, pilot,
@@ -300,9 +311,9 @@ These remain under `reports/production-readiness/2026/phase-19/`:
 - `provider-refresh-rebuild/provider-refresh-rebuild-acceptance.md`.
 
 They are evidence snapshots, not current execution plans. The provider-refresh
-record's `5ec7af72...` and later `1da8b8d6...` artifacts are superseded for
-current planning by the exact-source `650034ee...` portable artifact recorded
-in root authority.
+record's `5ec7af72...`, later `1da8b8d6...`, and prior exact-source
+`650034ee...` artifacts are superseded for current planning by the desktop-chat
+fix artifact `78800b84...` recorded in root authority.
 
 ## 6. Validation and stop conditions
 
@@ -329,9 +340,10 @@ a new exact rebuild and evidence binding.
 
 ## 7. Exact next action
 
-Proceed with CU-2: restore or replenish OpenAI quota and rerun the bounded
-`gpt-5.6-sol` High-reasoning check without exposing stored keys. Retain the
-exact-source `650034ee...` artifact as unsigned engineering evidence. After
+Proceed with CU-2: install the exact-source `78800b84...` desktop-chat fix
+artifact and repeat a normal Google chat to confirm governed session and
+validation telemetry creation. Restore or replenish OpenAI quota and rerun the
+bounded `gpt-5.6-sol` High-reasoning check without exposing stored keys. After
 both source-level provider checks pass, obtain owner-authorized production
 signing material and rebuild/sign/timestamp from the then-current exact commit,
 then continue CP19-M installed acceptance against only that signed artifact

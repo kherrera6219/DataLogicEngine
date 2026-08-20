@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.74.0 |
+| Document version | v1.75.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -142,6 +142,24 @@ listener. The artifact is unsigned and installer mode was not run. This closes
 only the exact-source portable engineering row; OpenAI quota, production
 signing, installed lifecycle, provider corpus/human review, accessibility,
 recovery, independent review, pilot, and soak remain release blockers.
+
+On 2026-08-19, field use of the installed desktop isolated a compatibility
+failure after its Google provider configuration test had passed: the UI sent
+mode `chat`, request validation accepted it, and the virtual-model resolver then
+compared the raw alias with canonical policy mode `standard`, returning HTTP
+422 before orchestration, session creation, or validation telemetry. Source
+commit `e99119e222227eaf98940a9e34f0f587550ce2ca` normalizes every supported
+desktop alias through the canonical governed-mode contract and adds both
+desktop-shaped contract coverage and a route-level regression. Fourteen focused
+tests pass. The exact clean commit produced the unsigned 358,849,321-byte
+`DataLogicEngine Setup 4.4.0.exe` with SHA-256
+`78800b84a670f6c5828894a26b6fc76d664fdf3f9e98876cb7d6fa11b15f49e3`.
+Integrity, NSIS governance, the 6,095-file release payload, required packaging
+resources, and strict package-owned portable `/ready` pass in 25,138 ms with
+verified process ownership and clean shutdown. This supersedes the prior
+unsigned portable artifact for continued engineering acceptance. Fresh
+installed Google chat, signing, and every other retained CP19-M row remain open;
+production/public release remains **NO-GO**.
 
 The clean split-language coverage qualification now clears the 80% engineering
 floor independently in every maintained application scope: Python `backend/`

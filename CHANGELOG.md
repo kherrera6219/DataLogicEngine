@@ -51,7 +51,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.6.0 |
+| Document version | v1.7.0 |
 | Product version | 4.4.0 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -59,7 +59,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-18 |
+| Last reviewed | 2026-08-19 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -69,6 +69,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Fixed
+- **Desktop chat compatibility aliases:** corrected the gateway virtual-model
+  resolver so desktop request modes such as `chat`, `trace`, `explain`, and
+  `quad` are normalized through the canonical governed-mode contract before
+  policy comparison. The installed field failure had a healthy Google provider
+  test but returned HTTP 422 for `/api/v1/gateway/chat` before orchestration,
+  session creation, or validation telemetry. Desktop-shaped route and contract
+  regressions now pass. Clean source commit
+  `e99119e222227eaf98940a9e34f0f587550ce2ca` produced the unsigned
+  358,849,321-byte replacement installer with SHA-256
+  `78800b84a670f6c5828894a26b6fc76d664fdf3f9e98876cb7d6fa11b15f49e3`.
+  Integrity, NSIS governance, the 6,095-file payload, required resources, and
+  strict package-owned portable `/ready` pass in 25,138 ms with verified
+  process ownership and clean shutdown. Fresh installed Google chat acceptance
+  remains required; production/public release stays **NO-GO**.
 
 ### Changed
 - **Exact-source 4.4.0 engineering rebuild:** source checkpoint
