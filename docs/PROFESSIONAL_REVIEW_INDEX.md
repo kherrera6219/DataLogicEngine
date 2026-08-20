@@ -7,7 +7,7 @@
 | Document ID | DLE-EXT-001 |
 | Title | Professional review index |
 | Document version | v1.1.1 |
-| Product version | 4.4.1 |
+| Product version | 4.4.2 |
 | Status | release_blocked |
 | Audience | Independent reviewers, procurement/evaluation teams, product owner, engineering, and release authority |
 | Owner | External Review Coordinator |
@@ -35,7 +35,7 @@ The separate August 11 local build is not an installed or signed review subject.
 
 The final review subject must bind:
 
-- DataLogicEngine Desktop 4.4.1 / Windows file version 4.4.1.0;
+- DataLogicEngine Desktop 4.4.2 / Windows file version 4.4.2.0;
 - one source commit/tag and clean build inputs;
 - canonical signed/timestamped installer filename, size, SHA-256, publisher, and
   timestamp chain;

@@ -7,7 +7,7 @@
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
 | Document version | v1.3.0 |
-| Product version | 4.4.1 |
+| Product version | 4.4.2 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
 | Owner | Platform Operations |
@@ -20,7 +20,7 @@
 
 ## Current distribution status
 
-DataLogicEngine 4.4.1 is not approved for production or public installation.
+DataLogicEngine 4.4.2 is not approved for production or public installation.
 The 2026-08-10 installed engineering candidate is unsigned and is for
 controlled qualification only. It passed payload/integrity checks, installed
 per-machine, launched from Program Files, reached readiness, and supervised all
@@ -61,7 +61,7 @@ yet ratified and must not be guessed from development machines.
 
 1. Obtain the installer only from the release location named in the approved
    release-readiness record.
-2. Confirm the filename is `DataLogicEngine Setup 4.4.1.exe`.
+2. Confirm the filename is `DataLogicEngine Setup 4.4.2.exe`.
 3. Confirm the published SHA-256 matches the installer.
 4. Open Windows file properties and verify a valid signature from the approved
    publisher, a trusted chain, a valid timestamp, and no revocation failure.
@@ -77,7 +77,7 @@ follow the troubleshooting guide. Do not bypass readiness or trust controls.
 
 ## Clean installation
 
-1. Run `DataLogicEngine Setup 4.4.1.exe` as the Windows user who will own the
+1. Run `DataLogicEngine Setup 4.4.2.exe` as the Windows user who will own the
    installation.
 2. Review the publisher and version displayed by Windows before continuing.
 3. Select only an approved protected local data location when prompted.
@@ -87,7 +87,7 @@ follow the troubleshooting guide. Do not bypass readiness or trust controls.
 6. Wait for readiness. A live backend is not necessarily ready; the desktop must
    show a safe blocker if required services, identities, migrations, storage
    protection, or policies do not pass.
-7. Open Settings and Diagnostics and confirm product 4.4.1, runtime identity,
+7. Open Settings and Diagnostics and confirm product 4.4.2, runtime identity,
    required service state, external telemetry state, and update state.
 8. Configure one supported provider only after reviewing the privacy/AI notice.
    A stored key is not `available` until its bounded live test passes.
@@ -120,7 +120,7 @@ otherwise, restore only approved binaries/configuration, rerun readiness and
 migrations, and leave unrelated applications and ports untouched. Record the
 repair log and rerun the first-use acceptance steps.
 
-Repair behavior remains an open installed qualification gate for 4.4.1.
+Repair behavior remains an open installed qualification gate for 4.4.2.
 
 ## Upgrade
 

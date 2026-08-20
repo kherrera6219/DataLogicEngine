@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.13.0 |
-| Product version | 4.4.1 |
+| Document version | v1.14.0 |
+| Product version | 4.4.2 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
 | Owner | Production Program Owner |
@@ -17,10 +17,10 @@
 | Last reviewed | 2026-08-20 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.78.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; exact-source 4.4.1 integrity, payload, governance, and package-owned portable readiness pass while fresh-installed/provider/signing CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; installed 4.4.1 proved Google/provider execution but exposed packaged Layer 10 dependency omission, the 4.4.2 source correction passes behavior regression, and exact rebuild/fresh-installed/provider/signing CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -431,6 +431,21 @@ Phase 18 source baseline while completing the whole-application wiring.
       Installer integrity, NSIS governance, the 6,096-file release payload, and
       package-owned portable `/ready` pass with zero issues. Readiness completed
       in 28,447 ms with verified package-process ownership and clean shutdown.
+- [x] **Installed 4.4.1 Layer 10 diagnosis and 4.4.2 source correction:**
+      installed run `101494a0-f0b0-4f71-b5ed-f13410b965d9` invoked Google once
+      and received a safe Paris answer, then failed closed at final containment.
+      PyInstaller had removed readable source, so selector source inspection
+      omitted manifest dependency results from five mapping-based Layer 9/10
+      KAs. The selector now uses deterministic schema/signature contracts, and
+      behavior regressions prove all five consumers with source inspection
+      disabled. The focused runtime/version set passes 49/49, and the full
+      Windows source suite passes 3,297 with 18 skipped and zero failures or
+      setup errors. The standing version rule advances the replacement to
+      4.4.2/4.4.2.0 and retains 4.4.1 as an allowed upgrade source.
+- [ ] **Exact-source 4.4.2 portable engineering rebuild:** commit the validated
+      source checkpoint, rebuild the unsigned qualification artifact, and pass
+      version parity, integrity, NSIS governance, release-payload, and strict
+      package-owned portable readiness gates.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
       owner-authorized Google/OpenAI tests, sign/timestamp the then-current
       exact-source rebuild, and complete the remaining CP19-M installed rows.
@@ -440,11 +455,11 @@ Phase 18 source baseline while completing the whole-application wiring.
   - [ ] OpenAI `gpt-5.6-sol` used the required High reasoning contract but is
         blocked on `quota_exhausted`; a fresh retry reached the API and failed
         the same way in 2,224.49 ms. Restore quota and rerun the bounded call.
-  - [x] Build and validate the exact-source 4.4.1 replacement with integrity,
+  - [ ] Build and validate the exact-source 4.4.2 replacement with integrity,
         payload, governance, and package-owned portable readiness evidence.
-  - [ ] Install that exact artifact and confirm a normal Google chat passes
-        Layer 4, invokes the configured provider once, and creates validation
-        telemetry.
+  - [ ] Install that exact artifact and confirm a normal Google chat invokes
+        the configured provider once, releases through Layer 10, and exposes
+        the persisted validation telemetry.
 - [x] **CU-4 terminology evidence inventory:** classified the archived rename
       proposals against current code, UI, APIs, SDKs, schemas, active docs, and
       tests; rejected unsupported mathematical, standards, deployment,
@@ -1540,11 +1555,12 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-Install the exact-source `DataLogicEngine Setup 4.4.1.exe` bound to commit
-`ab7b1b181d65d0fc10c1a88706258710b2b34807` and SHA-256
-`a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`,
-then prove a normal Google chat passes Layer 4, invokes the configured provider
-once, and creates validation telemetry. Restore or
+Commit the validated 4.4.2 packaged dependency-injection correction, rebuild
+from that exact clean commit, and pass version parity, installer integrity,
+NSIS governance, release-payload, and strict package-owned portable readiness
+gates. Install that exact artifact and prove a normal Google chat invokes the
+configured provider once, releases through Layer 10, and exposes persisted
+validation telemetry. Restore or
 replenish OpenAI quota and rerun `gpt-5.6-sol` with High reasoning without
 exposing or re-entering stored keys. After both provider checks pass, obtain
 owner-authorized production signing material and rebuild/sign/timestamp from
@@ -1566,7 +1582,7 @@ The CR workstream above runs alongside the CU-2 sequence and does not gate on
 it. Its agent entry point and corpus are now present. CR-A0 remains a human gate
 until the owner confirms the disposition of the current in-flight repair and
 documentation batch; do not introduce a broad line-ending rewrite as part of
-the 4.4.1 runtime fix. After that disposition, execute CR-A0 and then CR-A1 on
+the 4.4.2 runtime fix. After that disposition, execute CR-A0 and then CR-A1 on
 the remediation branch defined by the plan.
 
 Owner decisions outstanding and blocking: the replacement name for the

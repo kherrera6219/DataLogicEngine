@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "4.4.1",
+  "version": "4.4.2",
   "description": "Local-first AI orchestration and knowledge-graph workspace for desktop and web",
   "author": "Kevin Herrera",
   "private": true,

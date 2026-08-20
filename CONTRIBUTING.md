@@ -7,7 +7,7 @@
 | Document ID | DLE-ROOT-004 |
 | Title | Contribution controls |
 | Document version | v1.2.0 |
-| Product version | 4.4.1 |
+| Product version | 4.4.2 |
 | Status | active |
 | Audience | Contributors, maintainers, and reviewers |
 | Owner | Platform Engineering |
@@ -173,7 +173,8 @@ the replacement installer.
 This rule is prospective. Recording it does not retroactively change the
 then-current product or any already-built engineering artifact. The first
 qualifying application of this rule advanced the desktop-chat/runtime repair
-batch to `4.4.1`.
+batch to `4.4.1`; the subsequent packaged dependency-injection correction
+advances the replacement batch to `4.4.2`.
 
 ### Sync with Upstream
 

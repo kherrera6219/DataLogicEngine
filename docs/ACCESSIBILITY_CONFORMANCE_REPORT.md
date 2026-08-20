@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-006 |
 | Title | Accessibility conformance report |
 | Document version | v1.1.1 |
-| Product version | 4.4.1 |
+| Product version | 4.4.2 |
 | Status | not_evaluated |
 | Audience | Users, accessibility specialists, product/quality engineering, procurement, and release authority |
 | Owner | Accessibility Review |
@@ -21,7 +21,7 @@
 ## Report status
 
 This is not a VPAT, ACR certification, WCAG conformance claim, or procurement
-attestation. Product 4.4.1 remains `not_evaluated` for final accessibility
+attestation. Product 4.4.2 remains `not_evaluated` for final accessibility
 conformance because the exact signed installed candidate has not completed
 packaged visual/scaling/high-contrast checks, manual keyboard and NVDA testing,
 unfamiliar-user documentation walkthrough, or independent accessibility review.
@@ -41,7 +41,7 @@ blocked, failed, validation, confirmation, progress, success, and recovery state
 
 The backend/API and generated/exported documents are assessed where their output
 is presented to a user or accessibility professional. Unsupported public web,
-mobile, macOS, and Linux surfaces are outside the 4.4.1 product scope.
+mobile, macOS, and Linux surfaces are outside the 4.4.2 product scope.
 
 ## Current automated evidence
 

@@ -515,6 +515,42 @@ async def test_l10_redacts_pii_without_returning_sensitive_trace_data(
 
 
 @pytest.mark.asyncio
+async def test_packaged_runtime_releases_when_python_source_is_unavailable(
+    monkeypatch,
+):
+    import backend.governed_execution.orchestrator as module
+    import backend.knowledge_algorithms.selection as selection_module
+
+    def source_unavailable(*args, **kwargs):
+        raise OSError("source unavailable in packaged runtime")
+
+    monkeypatch.setattr(selection_module.inspect, "getsource", source_unavailable)
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: ([], []),
+    )
+
+    result = await _orchestrator(_PIIGateway()).execute(
+        _request(mode=GovernedMode.STANDARD)
+    )
+
+    assert result.ok is True
+    assert result.status == "completed"
+    layers = {
+        layer["layer_id"]: layer
+        for layer in result.metadata["reasoning_state"]["layers"]
+    }
+    l9_results = layers["L9"]["ka_results"]
+    l10_results = layers["L10"]["ka_results"]
+    assert l9_results["L9-KA-006"]["output"]["measurement_coverage"] > 0.30
+    assert l9_results["L9-KA-007"]["output"]["exhausted"] is False
+    assert l10_results["L10-KA-007"]["output"]["escalation_required"] is False
+    assert l10_results["L10-KA-005"]["output"]["decision"] == "MODIFY"
+    assert layers["L10"]["outputs"]["release"]["decision"] == "release"
+
+
+@pytest.mark.asyncio
 async def test_l9_blocks_forged_uncommitted_ka_trace(monkeypatch):
     import backend.governed_execution.orchestrator as module
 

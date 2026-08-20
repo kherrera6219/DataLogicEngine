@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.15.0 |
-| Product version | 4.4.1 |
+| Document version | v1.16.0 |
+| Product version | 4.4.2 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
@@ -17,11 +17,11 @@
 | Last reviewed | 2026-08-20 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.78.0 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
-| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 exact-source 4.4.1 portable rebuild passes while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
+| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 installed 4.4.1 proved Google execution but exposed packaged Layer 10 dependency omission; 4.4.2 source correction passes behavior regression while exact rebuild/installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; exact-source 4.4.1 integrity, payload, governance, and package-owned portable readiness pass while fresh-installed Google chat, OpenAI quota, signing, and retained CP19-M acceptance remain open |
+| Current phase | Phase 19 CU-2; installed 4.4.1 proved Google/provider execution but exposed packaged Layer 10 dependency omission, the 4.4.2 source correction passes behavior regression, and exact rebuild/fresh-installed Google chat, OpenAI quota, signing, and retained CP19-M acceptance remain open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -857,6 +857,22 @@ not run, and fresh-installed Google chat proof is the next artifact-bound step.
 Canonical evidence is
 `reports/production-readiness/2026/phase-19/cu-2-provider-acceptance/exact-source-4.4.1-rebuild-engineering-acceptance.md`.
 
+Fresh-installed 4.4.1 run `101494a0-f0b0-4f71-b5ed-f13410b965d9` then
+advanced through Google exactly once and stored the provider candidate that
+Paris was the capital of the Kingdom of France in 1244. All required
+materializations and fourteen trace stages persisted, proving the prior routing,
+Layer 4, and FROST corrections. Layer 10 nevertheless blocked release because
+PyInstaller could not supply source text to the selector's dependency-field
+inspection. Five mapping-based Layer 9/10 KAs therefore lost manifest-declared
+dependency results; containment could not see the passed trust gate and failed
+closed. Source now uses deterministic Pydantic schema or callable-signature
+contracts. Behavior regressions disable source inspection, prove dependency
+flow through all five affected KAs, and release the no-evidence/not-measured
+chat shape. The focused runtime/version set passes 49/49, and the full Windows
+source suite passes 3,297 with 18 skipped and zero failures or setup errors.
+The replacement is 4.4.2/4.4.2.0 with 4.4.1 retained as an allowed
+upgrade source. Exact build and installed proof remain open.
+
 Independent work that does not bypass the CU-2 artifact order also advanced on
 2026-08-18. CU-3 measured the four retained monoliths and recommends a named
 post-release maintenance deferral; that recommendation is not an owner waiver,
@@ -1636,14 +1652,15 @@ a capability as implemented without executing it.
 A second, independent action does not wait on OpenAI quota or signing authority:
 the compliance-remediation workstream begins at human-gated CR-A0
 (`docs/compliance/REMEDIATION_PLAN.md`). Its corpus is present, but the owner
-must first confirm the disposition of this in-flight 4.4.1 repair/documentation
+must first confirm the disposition of this in-flight 4.4.2 repair/documentation
 batch. Do not introduce a broad line-ending rewrite as part of this runtime fix.
 
-1. Install the exact-source `DataLogicEngine Setup 4.4.1.exe` bound to
-   `ab7b1b181d65d0fc10c1a88706258710b2b34807` and SHA-256
-   `a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`,
-   then prove a normal Google chat passes Layer 4, invokes the configured
-   provider once, and creates validation telemetry.
+1. Commit the validated 4.4.2 packaged dependency-injection correction, rebuild
+   from that exact clean commit, and pass version parity, installer integrity,
+   NSIS governance, release-payload, and strict package-owned portable
+   readiness gates. Then install that exact artifact and prove a normal Google
+   chat invokes the configured provider once, releases through Layer 10, and
+   exposes the persisted validation telemetry.
    Restore or replenish OpenAI quota and rerun the bounded `gpt-5.6-sol`
    source-level check with High reasoning. Do not expose, print, or require
    re-entry of stored keys.
@@ -1656,7 +1673,7 @@ batch. Do not introduce a broad line-ending rewrite as part of this runtime fix.
    acceptance.
 3. Retain SHA-256
    `a92b836145bb23eccc2f89c33a005a6ec66683fae28e13824cd988ec18b05156`
-   as the current pre-CU-4 exact-source engineering evidence and
+   as superseded 4.4.1 engineering evidence and
    `78800b84a670f6c5828894a26b6fc76d664fdf3f9e98876cb7d6fa11b15f49e3`
    as superseded alias-fix evidence only. After the OpenAI source
    gate and CU-4 copy-only pass, obtain owner-authorized production signing

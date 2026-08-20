@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
 | Document version | v5.2.0 |
-| Product version | 4.4.1 |
+| Product version | 4.4.2 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
 | Owner | Architecture |

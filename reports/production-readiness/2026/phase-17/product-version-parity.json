@@ -1,30 +1,30 @@
 {
   "schema_version": "dle.product-version-parity.v1",
-  "generated_at": "2026-08-20T07:36:10.611948+00:00",
+  "generated_at": "2026-08-20T08:06:02.378298+00:00",
   "authority": "config/product-versions.json",
   "checks": [
     {
       "surface": "pyproject",
-      "expected": "4.4.1",
-      "actual": "4.4.1",
+      "expected": "4.4.2",
+      "actual": "4.4.2",
       "passed": true
     },
     {
       "surface": "frontend-package",
-      "expected": "4.4.1",
-      "actual": "4.4.1",
+      "expected": "4.4.2",
+      "actual": "4.4.2",
       "passed": true
     },
     {
       "surface": "frontend-lock",
-      "expected": "4.4.1",
-      "actual": "4.4.1",
+      "expected": "4.4.2",
+      "actual": "4.4.2",
       "passed": true
     },
     {
       "surface": "frontend-lock-root",
-      "expected": "4.4.1",
-      "actual": "4.4.1",
+      "expected": "4.4.2",
+      "actual": "4.4.2",
       "passed": true
     },
     {
@@ -65,8 +65,8 @@
     },
     {
       "surface": "changelog-lineage",
-      "expected": ">=4.4.1",
-      "actual": "4.4.1",
+      "expected": ">=4.4.2",
+      "actual": "4.4.2",
       "passed": true
     },
     {

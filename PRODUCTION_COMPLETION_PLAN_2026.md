@@ -4,11 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.78.0 |
+| Document version | v1.79.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
-| Product version | 4.4.1 |
+| Product version | 4.4.2 |
 | Runtime model | Electron control/validation shell plus a Flask backend that is loopback-only by default and may expose an explicitly enabled private gateway mode |
 | Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store services |
 | External runtime dependency | Optional OpenAI or Google model access and explicitly enabled MCP connectors only |
@@ -184,6 +184,24 @@ strict package-owned portable `/ready` pass with zero issues; readiness
 completed in 28,447 ms with verified process ownership and clean shutdown.
 Fresh-installed Google chat proof remains open; production/public release
 remains **NO-GO**.
+
+Fresh-installed 4.4.1 run `101494a0-f0b0-4f71-b5ed-f13410b965d9` then
+proved the Google path executed once and returned the safe candidate that Paris
+was the capital of the Kingdom of France in 1244. The governed run completed
+all required materializations and all fourteen stages, but Layer 10 blocked the
+candidate because PyInstaller could not provide source text to the selector's
+dependency-field detector. The manifest therefore omitted dependency results
+from five mapping-based KAs; final containment could not see the passed trust
+gate and failed closed to `ESCALATE`. Source now uses deterministic Pydantic
+schema or callable-signature contracts rather than `inspect.getsource`.
+Behavior tests disable source inspection and prove dependency flow through
+`L9-KA-005`/`006`/`007` and `L10-KA-005`/`007`, including successful release
+of the installed failure shape. The focused runtime/version set passes 49/49,
+and the full Windows source suite passes 3,297 with 18 skipped and zero failures
+or setup errors. The standing substantial-update rule advances
+the replacement target to 4.4.2/4.4.2.0 and retains 4.4.1 as an allowed upgrade
+source. Exact rebuild and fresh-installed Google chat proof remain open;
+production/public release remains **NO-GO**.
 
 The clean split-language coverage qualification now clears the 80% engineering
 floor independently in every maintained application scope: Python `backend/`
@@ -6448,6 +6466,14 @@ installed-app tests can change them. No schedule pressure changes a production
 exit gate.
 
 ## 34. Immediate next action
+
+The current overriding CU-2 action is to commit the validated 4.4.2 packaged
+dependency-injection correction, rebuild from that exact clean commit, and pass
+version parity, integrity, NSIS governance, release-payload, and strict
+package-owned portable readiness. Install only that exact replacement and prove
+a normal Google chat invokes the configured provider once, releases through
+Layer 10, and exposes persisted validation telemetry. The 4.4.1 artifact is
+superseded diagnostic evidence and must not continue installed acceptance.
 
 CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-43 now truthfully
 qualify all 213 rows, including the causal simulation core, MCP admission/result

@@ -322,6 +322,69 @@ async def test_cp19c_executor_injects_dependencies_and_records_real_trace():
 
 
 @pytest.mark.asyncio
+async def test_cp19c_packaged_mapping_kas_receive_dependency_results(monkeypatch):
+    import backend.knowledge_algorithms.selection as selection_module
+
+    def source_unavailable(*args, **kwargs):
+        raise OSError("source unavailable in packaged runtime")
+
+    monkeypatch.setattr(selection_module.inspect, "getsource", source_unavailable)
+    trace = {
+        f"layer{number}": {
+            "output": {"ok": True},
+            "selected_ka_ids": [],
+            "ka_results": {},
+        }
+        for number in range(1, 9)
+    }
+    ka_inputs = {
+        "L9-KA-001": {"trace": trace, "layers": list(range(1, 9))},
+        "L9-KA-002": {
+            "original_query": "capital in 1244",
+            "final_solution": "capital in 1244 was Paris",
+        },
+        "L9-KA-003": {
+            "domain_confidences": [
+                {"domain": "knowledge", "confidence": 1.0}
+            ]
+        },
+        "L9-KA-004": {
+            "solution": {"overall_confidence": 0.90},
+            "trace": trace,
+        },
+        "L9-KA-005": {
+            "readiness_threshold": 0.95,
+            "issues": [],
+            "convergence_action": "finalize",
+        },
+        "L9-KA-006": {"l8_confidence": 0.90},
+        "L9-KA-007": {
+            "iteration": 0,
+            "max_iterations": 2,
+            "previous_scores": [],
+            "prior_fixes": [],
+        },
+    }
+    request = KASelectionRequest.model_validate(
+        {
+            "mode": "evaluation",
+            "requested_ids": list(ka_inputs),
+            "ka_inputs": ka_inputs,
+            "context": _wide_budget_context(),
+        }
+    )
+    plan = ManifestKASelector().plan(request)
+
+    report = await KAPlanExecutor(CanonicalKAController()).execute(plan, request)
+
+    assert report.status == KAPlanExecutionStatus.SUCCEEDED
+    assert report.results["L9-KA-006"].output["measurement_coverage"] == 1.0
+    assert report.results["L9-KA-005"].output["readiness_measured"] is True
+    assert report.results["L9-KA-005"].output["trigger_refinement"] is True
+    assert report.results["L9-KA-007"].output["continue"] is True
+
+
+@pytest.mark.asyncio
 async def test_cp19c_required_failure_cancels_siblings_and_blocks_dependents():
     request = KASelectionRequest.model_validate(
         {

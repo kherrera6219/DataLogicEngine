@@ -51,15 +51,15 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.8.0 |
-| Product version | 4.4.1 |
+| Document version | v1.9.0 |
+| Product version | 4.4.2 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
 | Owner | Release Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-19 |
+| Last reviewed | 2026-08-20 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -69,6 +69,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [4.4.2] - 2026-08-20
+
+### Fixed
+- **Packaged Layer 9/10 dependency injection:** replaced Python source-text
+  inspection with deterministic schema and callable-signature checks when the
+  manifest injects dependency results. PyInstaller builds no longer omit the
+  trust and escalation results required by final containment merely because
+  readable `.py` source is absent.
+- **Packaged governed-chat regression:** added behavior coverage that disables
+  source inspection, executes the real mapping-based Layer 9 dependency chain,
+  and proves a no-evidence/not-measured governed chat still reaches the Layer
+  10 release decision after one provider response. All five mapping-based
+  dependency consumers are covered. The focused runtime/version set passes 49
+  tests, and the full Windows source suite passes 3,297 with 18 skipped and zero
+  failures or setup errors.
+
+### Changed
+- Advanced the substantial runtime-correction batch to product 4.4.2 and
+  Windows file version 4.4.2.0. Retained 4.4.1 as an allowed upgrade source;
+  public API and governed contract versions are unchanged.
 
 ## [4.4.1] - 2026-08-20
 

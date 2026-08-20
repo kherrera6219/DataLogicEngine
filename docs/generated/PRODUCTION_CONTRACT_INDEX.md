@@ -8,8 +8,8 @@
 | Field | Authority value |
 |---|---|
 | Product | `DataLogicEngine Desktop` |
-| Product version | `4.4.1` |
-| Windows file version | `4.4.1.0` |
+| Product version | `4.4.2` |
+| Windows file version | `4.4.2.0` |
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
 | Current local artifact | `DataLogicEngine Setup 4.4.1.exe` |
@@ -46,7 +46,7 @@ Status: `engineering_candidates_not_production_approved`. Runtime: `podman 6.0.1
 |---|---|
 | OpenAPI format | `3.0.3` |
 | OpenAPI title | `DataLogicEngine API` |
-| OpenAPI document version | `4.4.1` |
+| OpenAPI document version | `4.4.2` |
 | OpenAPI path count | `67` |
 | Live Flask route count | `350` |
 | Unclassified live routes | `0` |

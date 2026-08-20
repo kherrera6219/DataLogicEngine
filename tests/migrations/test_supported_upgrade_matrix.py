@@ -177,3 +177,4 @@ def test_inventory_reports_real_blockers_instead_of_authorizing_migration():
     assert inventory["release_constraints"]["coordinated_backup_available"] is True
     assert inventory["release_constraints"]["coordinated_restore_available"] is True
     assert "4.4.0" in SUPPORTED_UPGRADE_SOURCES
+    assert "4.4.1" in SUPPORTED_UPGRADE_SOURCES

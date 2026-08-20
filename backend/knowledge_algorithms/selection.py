@@ -1184,7 +1184,7 @@ class KAPlanExecutor:
         canonical_id: str,
         field_name: str,
     ) -> bool:
-        """Inject dependency payloads only into schemas that declare the field."""
+        """Confirm a schema or mapping callable accepts the dependency field."""
         manifest = getattr(self.controller, "manifest", None)
         definition = (
             manifest.entries.get(canonical_id)
@@ -1212,11 +1212,20 @@ class KAPlanExecutor:
                 if entrypoint.class_name
                 else module
             )
-            return field_name in inspect.getsource(
-                getattr(callable_owner, entrypoint.callable)
-            )
-        except (OSError, TypeError):
+            implementation = getattr(callable_owner, entrypoint.callable)
+            parameters = inspect.signature(implementation).parameters.values()
+        except (AttributeError, TypeError, ValueError):
             return False
+        return any(
+            parameter.name == "inputs"
+            and parameter.kind
+            in {
+                inspect.Parameter.POSITIONAL_ONLY,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                inspect.Parameter.KEYWORD_ONLY,
+            }
+            for parameter in parameters
+        )
 
     @staticmethod
     def _dependencies_succeeded(

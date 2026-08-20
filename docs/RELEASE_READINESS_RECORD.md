@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
 | Document version | v1.7.0 |
-| Product version | 4.4.1 |
+| Product version | 4.4.2 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
 | Owner | Release Authority |
