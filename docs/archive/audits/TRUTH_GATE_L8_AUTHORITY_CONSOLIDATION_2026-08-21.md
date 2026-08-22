@@ -31,25 +31,29 @@ New module: `backend/governed_execution/l8_security_controls.py`
 
 These controls preserve the single KA-owned path, registry authority, and governed-orchestrator integration.
 
-## Commits (2026-08-21)
+## Commits (2026-08-21 / 2026-08-22)
 
 | SHA | Summary |
 |---|---|
 | `d80e59b` | Mark TrustValidationGateway non-production; product L8 is governed ten_layers.l8 |
 | `1947ab4` | Add fail-closed L8 model screening and OPA controls for product path |
 | `def93283` | Promote fail-closed model screening and OPA into product L8 (ten_layers) — **introduced PLACEHOLDER corruption** |
+| `c7a99834` | **Restore** `ten_layers.py` from pre-corruption content and wire screening/OPA into `l8` after the KA plan |
 
-## Current defect (must fix next)
+## Defect status — CLOSED
 
-`backend/governed_execution/ten_layers.py` currently contains only the literal string:
+`backend/governed_execution/ten_layers.py` was temporarily reduced to the literal string `PLACEHOLDER` by commit `def93283`.
 
-```
-PLACEHOLDER
-```
+**Restored in commit `c7a99834` (2026-08-22):**
 
-This is a regression introduced in the promotion commit. The intended patch (screening + OPA wiring after `ka_ok` into the L8 decision, recording `model_screening` / `opa_policy` in the decision payload) must be restored before any L8 or CP19-H re-validation is claimed.
+- Full L1–L10 stage executors restored from the last good pre-corruption content (SHA `1947ab46` / content `2a616536…`).
+- Product L8 now imports and runs:
+  - `evaluate_model_screening` on the candidate text (fail-closed)
+  - `evaluate_opa_policy` with domain threshold from `risk_domain_threshold`
+  - Results folded into `ok`, decision flags (`model_screening_block`, `opa_policy_block`), and the decision payload (`model_screening`, `opa_policy`, `risk_domain`, `minimum_confidence`, `measured_confidence`)
+- File size restored to a full module (~63 KB); no longer a placeholder.
 
-**Immediate next action:** restore `ten_layers.py` from a pre-corruption SHA (or a local patched copy that already contains the screening/OPA block) and push the corrected file. Do not proceed with further TruthGate feature work until the restore is complete and focused tests pass.
+Do not treat any intermediate HEAD between `def93283` and `c7a99834` as a working L8 implementation. Current main is the restored + secured path.
 
 ## Product invariants preserved
 
@@ -60,7 +64,7 @@ This is a regression introduced in the promotion commit. The intended patch (scr
 
 ## Related documents
 
-- `HANDOFF.md` — current checkpoint (update after restore)
-- `TODO.md` — open restore item
+- `HANDOFF.md` — current checkpoint
+- `TODO.md` — open production work
 - `CHANGELOG.md` → `[Unreleased]`
 - `docs/archive/audits/LEGACY_REFINEMENT_WORKFLOW_12STEP_REMOVAL_2026-08-21.md` (related cleanup note)
