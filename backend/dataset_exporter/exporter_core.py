@@ -220,3 +220,32 @@ class DatasetExporter:
         except Exception as exc:
             logger.error("Failed to query database for dataset export: %s", exc)
             raise OSError("Database query export failed.") from exc
+
+    @classmethod
+    def export_from_capture(
+        cls,
+        *,
+        export_type: str = "sft",
+        output_path: str | Path = "dataset.parquet",
+        min_confidence: float = 0.98,
+        format_type: str = "parquet",
+        limit: int = 1000,
+        base_dir: str | Path = "./datasets",
+    ) -> dict[str, Any]:
+        """Export previously staged runtime-capture rows through the same gates."""
+
+        if export_type == "dpo":
+            raise ValueError(
+                "Database DPO export is unavailable until governed traces persist real rejected candidates."
+            )
+        from .runtime_capture import load_staged_capture_traces
+
+        traces = load_staged_capture_traces(base_dir=base_dir, limit=limit)
+        return cls.export_dataset(
+            traces=traces,
+            export_type=export_type,
+            output_path=output_path,
+            min_confidence=min_confidence,
+            format_type=format_type,
+            base_dir=base_dir,
+        )
