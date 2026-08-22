@@ -1,18 +1,30 @@
 """
-Layer 8: Trust Validation Gateway
+Layer 8: Trust Validation Gateway (legacy / compatibility reference)
 
-The TrustValidationGateway is the global trust gate of the UKG system.
-It acts as a hard gate (PASS/WARN/FAIL) between Layer 7 and Layer 9,
-ensuring cross-domain consistency, calibrated confidence, and enterprise trust.
+Disposition
+-----------
+PRODUCTION_ENTRYPOINT = False
+WORKFLOW_DISPOSITION = "legacy_truthcore_compatibility_reference_only"
 
-Key Responsibilities:
+Product Layer 8 for governed requests is owned exclusively by:
+  backend.governed_execution.ten_layers.GovernedTenLayerStages.l8
+
+That path uses the canonical truthgate KA plan (KA-010, KA-024, KA-027,
+KA-1074, plus admitted dependencies) plus fail-closed model screening and
+OPA policy evaluation absorbed from this module's security controls.
+
+This class remains available for TruthCore private historical workflow
+compatibility and unit tests. It must not be treated as a second product
+L8 authority on the governed chat path.
+
+Historical responsibilities (reference):
 1. Cross-domain consistency validation (Axes 6, 7)
 2. Contradiction detection and conflict reporting
 3. Trust calibration and threshold enforcement
 4. Structured gate decisions with fix directives
 5. 17-axis governance support
 
-Required KAs:
+Required KAs (reference set):
 - KA-003: Gap Analysis
 - KA-008: Self-Critique & Reflection
 - KA-014: Confidence Scoring
@@ -50,6 +62,11 @@ from .l8_schemas import (
 
 logger = logging.getLogger(__name__)
 
+# Product L8 is GovernedTenLayerStages.l8 — not this class.
+PRODUCTION_ENTRYPOINT = False
+WORKFLOW_DISPOSITION = "legacy_truthcore_compatibility_reference_only"
+PRODUCT_L8_OWNER = "governed_execution.ten_layers.GovernedTenLayerStages.l8"
+
 
 # Risk-domain confidence thresholds
 RISK_THRESHOLDS = {
@@ -78,18 +95,17 @@ def _jsonish(value: Any) -> str:
 
 
 class TrustValidationGateway:
-    """
-    Layer 8: Trust Validation Gateway
-    
+    """Legacy Layer 8 trust validation (non-production product entrypoint).
+
     Global trust gate ensuring cross-domain consistency and calibrated confidence
-    before forwarding to Layer 9 governance.
-    
+    before forwarding to Layer 9 governance in TruthCore compatibility workflows.
+
     Gate Decisions:
     - PASS: Confidence ≥ threshold, no contradictions
     - WARN: Acceptable but flagged (disclosures required)
     - FAIL: Halt finalization, emit fix directives
     """
-    
+
     # KAs used by Layer 8
     REQUIRED_KAS = [
         "KA-003",  # Gap Analysis
@@ -105,33 +121,36 @@ class TrustValidationGateway:
         "KA-030",  # Conflict Resolution
         "KA-034",  # Adversarial Reasoning
     ]
-    
+
     def __init__(self, ka_controller=None, config: dict | None = None):
         """
         Initialize the Trust Validation Gateway.
-        
+
         Args:
             ka_controller: KA Master Controller for algorithm execution
             config: Optional configuration overrides
         """
         self.ka_controller = ka_controller
         self.config = config or {}
-        
+
         # Thresholds
         self.risk_thresholds = self.config.get("risk_thresholds", RISK_THRESHOLDS)
         self.db_session = self.config.get("db_session")
         self.max_processing_time = self.config.get("max_processing_time_ms", MAX_PROCESSING_TIME_MS)
-        
+
         # 17-axis mode
         self.enable_17_axis = self.config.get("enable_17_axis", True)
-        
+
         # Stats
         self.total_processed = 0
         self.pass_count = 0
         self.warn_count = 0
         self.fail_count = 0
-        
-        logger.info("TrustValidationGateway initialized with 12 KAs")
+
+        logger.info(
+            "TrustValidationGateway initialized (non-production; product L8=%s)",
+            PRODUCT_L8_OWNER,
+        )
 
     def _execute_ka(
         self,
@@ -142,44 +161,44 @@ class TrustValidationGateway:
         result = execute_required_ka(self.ka_controller, ka_id, payload)
         kas_invoked.append(result.canonical_id)
         return result
-    
+
     def validate(self, input_data: L8Input) -> L8GateResult:
         """
-        Execute Layer 8 trust validation.
-        
+        Execute Layer 8 trust validation (legacy path).
+
         Args:
             input_data: L8Input with claims, evidence, and layer artifacts
-            
+
         Returns:
             L8GateResult with gate decision and audit artifacts
         """
         start_time = time.perf_counter()
         kas_invoked = []
-        
+
         try:
             # Determine threshold based on risk domain
             threshold = self._get_threshold(input_data)
-            
+
             # Phase 1: Consistency Scan (Contradictions)
             contradictions = self._run_consistency_scan(input_data, kas_invoked)
-            
+
             # Phase 2: Cross-Domain Validation (Axes 6, 7)
             domain_confidences = self._run_cross_domain_validation(input_data, kas_invoked)
-            
+
             # Phase 3: Trust Computation
             overall_confidence = self._compute_trust_score(input_data, domain_confidences, kas_invoked)
-            
+
             # Phase 4: Self-Critique (Attack the solution)
             warnings = self._run_self_critique(input_data, kas_invoked)
-            
+
             # Phase 5: Gate Decision
             status, fix_directives = self._make_gate_decision(
                 overall_confidence, threshold, contradictions, warnings
             )
-            
+
             # Calculate processing time
             processing_time_ms = _elapsed_ms(start_time)
-            
+
             # Check timeout (fail-closed)
             if processing_time_ms > self.max_processing_time:
                 logger.error(f"L8 timeout: {processing_time_ms:.0f}ms > {self.max_processing_time}ms")
@@ -189,7 +208,7 @@ class TrustValidationGateway:
                     reason="Processing timeout - fail-closed",
                     priority="critical"
                 ))
-            
+
             # Build result
             result = L8GateResult(
                 simulation_id=input_data.simulation_id,
@@ -236,19 +255,19 @@ class TrustValidationGateway:
                         )
                     )
                 result.disclosure_required = True
-            
+
             # Update stats
             self._update_stats(status)
-            
+
             logger.info(f"L8 gate decision: {status.value} (confidence={overall_confidence:.3f}, threshold={threshold:.3f})")
-            
+
             return result
-            
+
         except Exception as e:
             # Fail-closed on any error
             logger.error(f"L8 critical error, fail-closed: {e}")
             processing_time_ms = _elapsed_ms(start_time)
-            
+
             return L8GateResult(
                 simulation_id=input_data.simulation_id,
                 status=GateDecision.FAIL,
@@ -263,7 +282,7 @@ class TrustValidationGateway:
                 kas_invoked=kas_invoked,
                 processing_time_ms=processing_time_ms
             )
-    
+
     def _get_threshold(self, input_data: L8Input) -> float:
         """Get confidence threshold based on risk domain."""
         # Axis 14 override takes precedence
@@ -343,11 +362,11 @@ class TrustValidationGateway:
             return db.session
         except Exception:
             return None
-    
+
     def _run_consistency_scan(self, input_data: L8Input, kas_invoked: list[str]) -> list[ContradictionItem]:
         """Run contradiction detection on claims."""
         contradictions = []
-        
+
         # KA-026: Contradiction Detection
         if self.ka_controller:
             try:
@@ -365,7 +384,7 @@ class TrustValidationGateway:
                     {"findings": findings},
                     kas_invoked,
                 )
-                
+
                 for c in require_output_field(result, "conflicts"):
                     if "severity" not in c:
                         raise RuntimeError(
@@ -380,7 +399,7 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-026 contradiction scan failed"
                 ) from exc
-        
+
         # KA-030: Attempt resolution if permitted
         if contradictions and self.ka_controller:
             try:
@@ -397,7 +416,7 @@ class TrustValidationGateway:
                     result,
                     "resolved_findings",
                 )
-                
+
                 for i, c in enumerate(contradictions):
                     if (
                         i < len(resolved_findings)
@@ -410,13 +429,13 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-030 conflict resolution failed"
                 ) from exc
-        
+
         return contradictions
-    
+
     def _run_cross_domain_validation(self, input_data: L8Input, kas_invoked: list[str]) -> list[DomainConfidence]:
         """Validate consistency across domains (Axis 6/7 crosswalks)."""
         domain_confidences = []
-        
+
         # Base confidence from persona results
         persona_confidences = {}
         for domain in ("knowledge", "sector", "regulatory", "compliance"):
@@ -428,9 +447,9 @@ class TrustValidationGateway:
                 if isinstance(raw_confidence, (int, float))
                 else 0.0
             )
-        
+
         threshold = self._get_threshold(input_data)
-        
+
         for domain, conf in persona_confidences.items():
             axis_id = {"knowledge": 8, "sector": 9, "regulatory": 10, "compliance": 11}.get(domain, 8)
             domain_confidences.append(DomainConfidence(
@@ -440,7 +459,7 @@ class TrustValidationGateway:
                 threshold=threshold,
                 passes=conf >= threshold
             ))
-        
+
         # KA-016: Regulatory Mapping (Axis 6)
         if self.ka_controller and input_data.constraints:
             try:
@@ -456,7 +475,7 @@ class TrustValidationGateway:
                     },
                     kas_invoked,
                 )
-                
+
                 reg_conf = 1.0 - float(
                     require_output_field(result, "highest_risk")
                 )
@@ -471,7 +490,7 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-016 regulatory mapping failed"
                 ) from exc
-        
+
         # KA-025: Dependency Mapping (Axis 7)
         if self.ka_controller:
             try:
@@ -494,7 +513,7 @@ class TrustValidationGateway:
                     },
                     kas_invoked,
                 )
-                
+
                 dependency_meta = require_output_field(result, "meta")
                 if "is_dag" not in dependency_meta:
                     raise RuntimeError(
@@ -512,9 +531,9 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-025 dependency mapping failed"
                 ) from exc
-        
+
         return domain_confidences
-    
+
     def _compute_trust_score(self, input_data: L8Input, domain_confidences: list[DomainConfidence], kas_invoked: list[str]) -> float:
         """Compute calibrated trust score."""
         # Start with average of domain confidences
@@ -527,7 +546,7 @@ class TrustValidationGateway:
         if citation_hits:
             kas_invoked.append("RAG-CITATION-CACHE")
             base_confidence = min(1.0, base_confidence + min(0.05, len(citation_hits) * 0.01))
-        
+
         # KA-014: Confidence Scoring
         if self.ka_controller:
             try:
@@ -571,7 +590,7 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-014 confidence calibration failed"
                 ) from exc
-        
+
         # KA-023: Belief Decay (overconfidence protection)
         if self.ka_controller:
             try:
@@ -610,7 +629,7 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-023 belief-decay calculation failed"
                 ) from exc
-        
+
         # KA-022: Risk Assessment
         if self.ka_controller:
             try:
@@ -634,7 +653,7 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-022 risk assessment failed"
                 ) from exc
-        
+
         # KA-024: Trust Gate (final policy enforcement)
         if self.ka_controller:
             try:
@@ -657,7 +676,7 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-024 trust gate failed"
                 ) from exc
-        
+
         return min(max(base_confidence, 0.0), 1.0)
 
     @staticmethod
@@ -678,11 +697,11 @@ class TrustValidationGateway:
             )
         except Exception:
             return []
-    
+
     def _run_self_critique(self, input_data: L8Input, kas_invoked: list[str]) -> list[str]:
         """Attack the solution for flaws."""
         warnings = []
-        
+
         # KA-008: Self-Critique & Reflection
         if self.ka_controller:
             try:
@@ -714,7 +733,7 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-008 self-critique failed"
                 ) from exc
-        
+
         # KA-034: Adversarial Reasoning
         if self.ka_controller:
             try:
@@ -745,7 +764,7 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-034 adversarial reasoning failed"
                 ) from exc
-        
+
         # KA-003: Gap Analysis
         if self.ka_controller:
             try:
@@ -772,9 +791,9 @@ class TrustValidationGateway:
                 raise RuntimeError(
                     "Required KA-003 gap analysis failed"
                 ) from exc
-        
+
         return warnings
-    
+
     def _make_gate_decision(
         self,
         confidence: float,
@@ -784,10 +803,10 @@ class TrustValidationGateway:
     ) -> tuple:
         """Make PASS/WARN/FAIL decision."""
         fix_directives = []
-        
+
         # Check for critical contradictions
         critical_contradictions = [c for c in contradictions if c.severity >= 0.8 and not c.resolution_attempted]
-        
+
         # FAIL conditions
         if critical_contradictions:
             for c in critical_contradictions:
@@ -798,7 +817,7 @@ class TrustValidationGateway:
                     suggested_action="Re-run persona debate with forced reconciliation"
                 ))
             return GateDecision.FAIL, fix_directives
-        
+
         if confidence < threshold * 0.9:  # Significantly below threshold
             fix_directives.append(FixDirective(
                 target_layer=6,
@@ -807,7 +826,7 @@ class TrustValidationGateway:
                 suggested_action="Re-run quant validation with expanded evidence"
             ))
             return GateDecision.FAIL, fix_directives
-        
+
         # WARN conditions
         if confidence < threshold:
             fix_directives.append(FixDirective(
@@ -816,13 +835,13 @@ class TrustValidationGateway:
                 priority="medium"
             ))
             return GateDecision.WARN, fix_directives
-        
+
         if contradictions:  # Non-critical contradictions
             return GateDecision.WARN, fix_directives
-        
+
         if len(warnings) > 3:  # Many warnings
             return GateDecision.WARN, fix_directives
-        
+
         # PASS
         return GateDecision.PASS, fix_directives
 
@@ -882,24 +901,24 @@ class TrustValidationGateway:
                 "backend": "error",
                 "error": str(exc),
             }
-    
+
     def _get_escalation_target(self, fix_directives: list[FixDirective]) -> int | None:
         """Determine which layer to escalate to."""
         if not fix_directives:
             return None
-        
+
         # Return highest priority directive's target
         priority_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
         sorted_directives = sorted(fix_directives, key=lambda d: priority_order.get(d.priority, 99))
         return sorted_directives[0].target_layer if sorted_directives else None
-    
+
     def _get_axes_evaluated(self, input_data: L8Input) -> list[int]:
         """Return list of axes evaluated."""
         axes = [6, 7, 8, 9, 10, 11, 14]  # Core axes
         if self.enable_17_axis:
             axes.extend([15, 16, 17])
         return axes
-    
+
     def _update_stats(self, status: GateDecision):
         """Update internal stats."""
         self.total_processed += 1
@@ -909,7 +928,7 @@ class TrustValidationGateway:
             self.warn_count += 1
         else:
             self.fail_count += 1
-    
+
     def get_stats(self) -> dict[str, Any]:
         """Get gateway statistics."""
         return {
@@ -918,11 +937,14 @@ class TrustValidationGateway:
             "warn_count": self.warn_count,
             "fail_count": self.fail_count,
             "pass_rate": self.pass_count / max(1, self.total_processed),
-            "fail_rate": self.fail_count / max(1, self.total_processed)
+            "fail_rate": self.fail_count / max(1, self.total_processed),
+            "production_entrypoint": PRODUCTION_ENTRYPOINT,
+            "workflow_disposition": WORKFLOW_DISPOSITION,
+            "product_l8_owner": PRODUCT_L8_OWNER,
         }
 
 
 # Factory function for backward compatibility
 def create_trust_gateway(ka_controller=None) -> TrustValidationGateway:
-    """Create a configured TrustValidationGateway instance."""
+    """Create a configured TrustValidationGateway instance (non-production)."""
     return TrustValidationGateway(ka_controller=ka_controller)
