@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -17,6 +17,17 @@ interface ExporterStats {
   supported_formats: string[];
   pyarrow_available: boolean;
   redaction_enforced: boolean;
+  capture_enabled?: boolean;
+  capture_default?: boolean;
+  staged_capture_rows?: number;
+  last_capture_at?: string | null;
+}
+
+interface CaptureSettings {
+  enabled: boolean;
+  default: boolean;
+  policy: string;
+  redaction_enforced: boolean;
 }
 
 type ExportType = 'sft' | 'prm';
@@ -24,6 +35,8 @@ type FormatType = 'parquet' | 'jsonl';
 
 export default function DatasetExporterSettings() {
   const [enabled, setEnabled] = useState(false);
+  const [captureEnabled, setCaptureEnabled] = useState(false);
+  const [captureSaving, setCaptureSaving] = useState(false);
   const [exportType, setExportType] = useState<ExportType>('sft');
   const [formatType, setFormatType] = useState<FormatType>('parquet');
   const [minConfidence, setMinConfidence] = useState('0.98');
@@ -38,6 +51,9 @@ export default function DatasetExporterSettings() {
     try {
       const data = await request<ExporterStats>('/dataset/stats');
       setStats(data);
+      if (typeof data.capture_enabled === 'boolean') {
+        setCaptureEnabled(data.capture_enabled);
+      }
     } catch {
       setStats(null);
       setMessage({ type: 'error', text: 'Dataset statistics are unavailable.' });
@@ -46,9 +62,51 @@ export default function DatasetExporterSettings() {
     }
   };
 
+  const fetchCaptureSettings = async () => {
+    try {
+      const settings = await request<CaptureSettings>('/dataset/capture-settings');
+      setCaptureEnabled(Boolean(settings.enabled));
+    } catch {
+      setCaptureEnabled(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchCaptureSettings();
+  }, []);
+
   const handleEnabledChange = (value: boolean) => {
     setEnabled(value);
     if (value) void fetchStats();
+  };
+
+  const handleCaptureChange = async (value: boolean) => {
+    setCaptureSaving(true);
+    setMessage(null);
+    try {
+      const settings = await request<CaptureSettings>('/dataset/capture-settings', {
+        method: 'PUT',
+        body: JSON.stringify({
+          enabled: value,
+          reason: value ? 'owner_enable_runtime_capture' : 'owner_disable_runtime_capture',
+        }),
+      });
+      setCaptureEnabled(Boolean(settings.enabled));
+      setMessage({
+        type: 'success',
+        text: value
+          ? 'Runtime usage capture is on. Released answers will be redacted and staged for later export.'
+          : 'Runtime usage capture is off. New governed runs will not be staged.',
+      });
+      if (enabled) void fetchStats();
+    } catch (err) {
+      setMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Capture settings could not be updated.',
+      });
+    } finally {
+      setCaptureSaving(false);
+    }
   };
 
   const handleRunExport = async () => {
@@ -91,10 +149,26 @@ export default function DatasetExporterSettings() {
           </CardTitle>
           <CardDescription>
             Manually create candidate SFT or status-labelled PRM records from explicitly released traces.
+            Optional runtime usage capture stages only released, redacted answers for later export.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Master Enable Toggle */}
+          <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
+            <div className="space-y-0.5">
+              <Label className="text-base font-medium">Runtime usage capture</Label>
+              <p className="text-sm text-muted-foreground">
+                Owner-only, default off. When on, post-release traces are redacted and staged under the
+                app-owned datasets/capture path. Capture never blocks governed runs.
+              </p>
+            </div>
+            <Switch
+              checked={captureEnabled}
+              onCheckedChange={(v) => void handleCaptureChange(v)}
+              disabled={captureSaving}
+              aria-label="Toggle runtime usage capture"
+            />
+          </div>
+
           <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
             <div className="space-y-0.5">
               <Label className="text-base font-medium">Enable manual export controls</Label>
@@ -111,7 +185,6 @@ export default function DatasetExporterSettings() {
 
           {enabled && (
             <>
-              {/* Configuration Controls */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="export-type-select">Default Dataset Format</Label>
@@ -162,7 +235,6 @@ export default function DatasetExporterSettings() {
                 </div>
               </div>
 
-              {/* Status Summary Card */}
               <div className="p-4 rounded-lg border bg-muted/40 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">System Status</span>
@@ -170,7 +242,7 @@ export default function DatasetExporterSettings() {
                     <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                   </Button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
                   <div>
                     <span className="text-muted-foreground block text-xs">Total Traces</span>
                     <span className="font-semibold">{loading ? '…' : (stats?.total_trace_runs ?? 'Unavailable')}</span>
@@ -180,13 +252,16 @@ export default function DatasetExporterSettings() {
                     <span className="font-semibold text-emerald-600">{loading ? '…' : (stats?.release_candidate_runs ?? 'Unavailable')}</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-xs">PyArrow Status</span>
-                    <span className="font-semibold">{stats?.pyarrow_available ? 'Available' : 'JSONL Fallback'}</span>
+                    <span className="text-muted-foreground block text-xs">Staged capture rows</span>
+                    <span className="font-semibold">{loading ? '…' : (stats?.staged_capture_rows ?? 0)}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs">Runtime capture</span>
+                    <span className="font-semibold">{captureEnabled || stats?.capture_enabled ? 'On' : 'Off'}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Banner Message */}
               {message && (
                 <div
                   className={`p-3 rounded-lg border flex items-center gap-2 text-sm ${
@@ -202,7 +277,6 @@ export default function DatasetExporterSettings() {
                 </div>
               )}
 
-              {/* Run Export Trigger Button */}
               <div className="flex justify-end pt-2">
                 <Button onClick={handleRunExport} disabled={exporting}>
                   <Download className="h-4 w-4 mr-2" />
