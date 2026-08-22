@@ -1,4 +1,9 @@
-"""Integration layer for the Quad Persona mathematical framework."""
+"""Integration layer for the Quad Persona mathematical framework.
+
+Note: The former demo ``RefinementWorkflow12Step`` was removed 2026-08-21.
+Product 12-step refinement is only
+``backend.governed_execution.refinement.CanonicalRefinementWorkflow``.
+"""
 
 import hashlib
 from datetime import UTC, datetime
@@ -9,7 +14,6 @@ import numpy as np
 from core.persona.quad.mathematical_framework.memory_graph import StructuredMemoryGraph
 from core.persona.quad.mathematical_framework.refinement import (
     DeepRecursiveLearning,
-    RefinementWorkflow12Step,
 )
 from core.persona.quad.mathematical_framework.weights import (
     DynamicWeightFunctions,
@@ -59,13 +63,18 @@ class IntegrationFunction:
             if persona_type in persona_outputs and weight > 0.1:
                 output = persona_outputs[persona_type]
                 if output:
-                    combined_parts.append(f"[{persona_type.title()} Expert ({weight:.1%})]: {output}")
+                    combined_parts.append(
+                        f"[{persona_type.title()} Expert ({weight:.1%})]: {output}"
+                    )
 
         return "\n\n".join(combined_parts), weights
 
 
 class QuadPersonaMathematicalSystem:
-    """Complete Quad Persona System with dynamic knowledge mapping."""
+    """Complete Quad Persona System with dynamic knowledge mapping.
+
+    Demonstration / library math only. Does not own product refinement.
+    """
 
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or {}
@@ -82,7 +91,6 @@ class QuadPersonaMathematicalSystem:
             epsilon=self.config.get("epsilon", 0.001),
         )
         self.integration = IntegrationFunction(self.weight_functions)
-        self.refinement_workflow = RefinementWorkflow12Step()
 
         self.processing_history = []
 
@@ -92,7 +100,11 @@ class QuadPersonaMathematicalSystem:
         context: Dict[str, Any] = None,
         t: float = None,
     ) -> Dict[str, Any]:
-        """Complete system function QPS_full(q, c, t)."""
+        """Library math path QPS_full(q, c, t).
+
+        Does not run a product 12-step refinement workflow. That authority is
+        ``CanonicalRefinementWorkflow`` in governed execution.
+        """
         context = context or {}
 
         query_embedding = self._embed_query(query)
@@ -104,38 +116,34 @@ class QuadPersonaMathematicalSystem:
         initial_output = self.integration.integrate_text(persona_outputs, context, t)
 
         output_embedding = self._embed_query(initial_output[0])
-        refined_output, iterations, drl_confidence = self.recursive_learner.deep_recursive_learning(
-            output_embedding, context
+        refined_output, iterations, drl_confidence = (
+            self.recursive_learner.deep_recursive_learning(output_embedding, context)
         )
-
-        workflow_input = {
-            "query": query,
-            "context": context,
-            "persona_outputs": persona_outputs,
-            "initial_output": initial_output[0],
-            "weights": initial_output[1],
-            "drl_iterations": iterations,
-            "drl_confidence": drl_confidence,
-        }
-
-        final_output, final_confidence = self.refinement_workflow.apply_workflow(workflow_input)
-
-        if not self.refinement_workflow.confidence_threshold_met(final_confidence):
-            refined_output, iterations, drl_confidence = self.recursive_learner.deep_recursive_learning(
-                refined_output, context
-            )
-            final_output["retry_drl"] = True
-            final_output["final_drl_confidence"] = drl_confidence
 
         result = {
             "query": query,
-            "final_output": final_output,
-            "confidence": final_confidence,
-            "threshold_met": self.refinement_workflow.confidence_threshold_met(final_confidence),
+            "final_output": {
+                "query": query,
+                "context": context,
+                "persona_outputs": persona_outputs,
+                "initial_output": initial_output[0],
+                "weights": initial_output[1],
+                "drl_iterations": iterations,
+                "drl_confidence": drl_confidence,
+                "drl_embedding_norm": float(np.linalg.norm(refined_output))
+                if isinstance(refined_output, np.ndarray)
+                else None,
+            },
+            "confidence": drl_confidence,
+            "threshold_met": None,
             "weights_used": initial_output[1],
             "relevant_points_count": len(relevant_points),
             "drl_iterations": iterations,
-            "refinement_steps": self.refinement_workflow.step_results,
+            "refinement_steps": [],
+            "refinement_authority": (
+                "backend.governed_execution.refinement.CanonicalRefinementWorkflow"
+            ),
+            "legacy_12_step_removed": True,
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
@@ -167,8 +175,11 @@ class QuadPersonaMathematicalSystem:
         """Get system optimization metrics."""
         return {
             "total_queries": len(self.processing_history),
-            "avg_confidence": np.mean([h["confidence"] for h in self.processing_history]) if self.processing_history else 0,
-            "threshold_met_rate": sum(1 for h in self.processing_history if h["threshold_met"]) / len(self.processing_history) if self.processing_history else 0,
+            "avg_confidence": np.mean(
+                [h["confidence"] for h in self.processing_history]
+            )
+            if self.processing_history
+            else 0,
             "base_weights": self.weight_functions.base_weights,
             "knowledge_points_count": len(self.knowledge_mapper.knowledge_points),
             "memory_vertices_count": len(self.memory_graph.vertices),

@@ -4,6 +4,9 @@ This package replaces the former ``mathematical_framework.py`` module while
 preserving imports such as::
 
     from core.persona.quad.mathematical_framework import QuadPersonaMathematicalSystem
+
+``RefinementWorkflow12Step`` was removed 2026-08-21 (legacy demo stubs).
+Canonical 12-step refinement: ``backend.governed_execution.refinement``.
 """
 
 from core.persona.quad.mathematical_framework.integration import (
@@ -18,7 +21,6 @@ from core.persona.quad.mathematical_framework.memory_graph import (
 )
 from core.persona.quad.mathematical_framework.refinement import (
     DeepRecursiveLearning,
-    RefinementWorkflow12Step,
 )
 from core.persona.quad.mathematical_framework.weights import (
     DynamicWeightFunctions,
@@ -34,6 +36,5 @@ __all__ = [
     "StructuredMemoryGraph",
     "DeepRecursiveLearning",
     "IntegrationFunction",
-    "RefinementWorkflow12Step",
     "QuadPersonaMathematicalSystem",
 ]

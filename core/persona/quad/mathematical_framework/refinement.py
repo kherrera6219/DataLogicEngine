@@ -1,16 +1,28 @@
-"""Recursive learning and 12-step refinement workflow for Quad Persona math."""
+"""Recursive learning helpers for Quad Persona math (no product workflow).
+
+REMOVED (2026-08-21): ``RefinementWorkflow12Step`` (legacy 12-step demo stubs).
+
+Canonical product 12-step refinement is exclusively:
+  ``backend.governed_execution.refinement.CanonicalRefinementWorkflow``
+registered in the KA manifest under ``authority.refinement_workflow``.
+
+Restore notes: ``docs/archive/audits/LEGACY_REFINEMENT_WORKFLOW_12STEP_REMOVAL_2026-08-21.md``
+"""
+
+from __future__ import annotations
 
 import logging
 import math
-from datetime import UTC, datetime
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
+# Module remains importable for CP19-G legacy non-entrypoint proofs and for
+# DeepRecursiveLearning consumers. It is not a product refinement entrypoint.
 PRODUCTION_ENTRYPOINT = False
-WORKFLOW_DISPOSITION = "quad_mathematical_demonstration_reference"
+WORKFLOW_DISPOSITION = "removed_legacy_demonstration_reference"
 
 
 class DeepRecursiveLearning:
@@ -91,145 +103,3 @@ class DeepRecursiveLearning:
             f"DRL completed max depth {self.max_depth} with confidence {confidence:.4f}"
         )
         return current, self.max_depth, confidence
-
-
-class RefinementWorkflow12Step:
-    """Implements 12-Step Refinement Workflow RW_12."""
-
-    STEPS = [
-        ("tot", "Tree of Thought"),
-        ("aot", "Algorithm of Thought"),
-        ("gap", "Gap Analysis"),
-        ("verify", "Knowledge Verification"),
-        ("nlp", "NLP Enhancement"),
-        ("consistency", "Data Consistency Validation"),
-        ("ethical", "Ethical Analysis"),
-        ("bias", "Bias Audit"),
-        ("security", "Security Check"),
-        ("logic", "Logic Verification"),
-        ("compliance", "Compliance Check"),
-        ("optimize", "Final Optimization"),
-    ]
-
-    DEFAULT_CONFIDENCE_THRESHOLD = 0.95
-
-    def __init__(self, confidence_threshold: float | None = None):
-        self.step_results = []
-        self.confidence_threshold = (
-            self.DEFAULT_CONFIDENCE_THRESHOLD
-            if confidence_threshold is None
-            else confidence_threshold
-        )
-        self.step_functions = {
-            "tot": self._tree_of_thought,
-            "aot": self._algorithm_of_thought,
-            "gap": self._gap_analysis,
-            "verify": self._knowledge_verification,
-            "nlp": self._nlp_enhancement,
-            "consistency": self._data_consistency,
-            "ethical": self._ethical_analysis,
-            "bias": self._bias_audit,
-            "security": self._security_check,
-            "logic": self._logic_verification,
-            "compliance": self._compliance_check,
-            "optimize": self._final_optimization,
-        }
-
-    def apply_workflow(
-        self, input_data: Dict[str, Any]
-    ) -> Tuple[Dict[str, Any], float]:
-        """Apply the complete 12-step refinement workflow."""
-        self.step_results = []
-        current = input_data.copy()
-
-        for step_id, step_name in self.STEPS:
-            step_fn = self.step_functions.get(step_id)
-            if step_fn:
-                current, step_confidence = step_fn(current)
-                self.step_results.append(
-                    {
-                        "step_id": step_id,
-                        "step_name": step_name,
-                        "confidence": step_confidence,
-                        "timestamp": datetime.now(UTC).isoformat(),
-                    }
-                )
-
-        final_confidence = self._compute_final_confidence()
-        return current, final_confidence
-
-    def _compute_final_confidence(self) -> float:
-        """Compute overall confidence from all steps."""
-        if not self.step_results:
-            return 0.0
-
-        confidences = [r["confidence"] for r in self.step_results]
-        return np.prod(confidences) ** (1 / len(confidences))
-
-    def confidence_threshold_met(self, confidence: float) -> bool:
-        """Confidence Threshold Function CT(x)."""
-        return bool(confidence >= self.confidence_threshold)
-
-    def _tree_of_thought(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_1: Tree of Thought expansion."""
-        data["tot_branches"] = data.get("tot_branches", []) + ["main_branch"]
-        return data, 0.95
-
-    def _algorithm_of_thought(
-        self, data: Dict[str, Any]
-    ) -> Tuple[Dict[str, Any], float]:
-        """f_2: Algorithm of Thought structuring."""
-        data["aot_structure"] = "structured"
-        return data, 0.96
-
-    def _gap_analysis(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_3: Gap Analysis."""
-        data["gaps_identified"] = data.get("gaps_identified", [])
-        return data, 0.97
-
-    def _knowledge_verification(
-        self, data: Dict[str, Any]
-    ) -> Tuple[Dict[str, Any], float]:
-        """f_4: Knowledge Verification."""
-        data["knowledge_verified"] = True
-        return data, 0.98
-
-    def _nlp_enhancement(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_5: NLP Enhancement."""
-        data["nlp_enhanced"] = True
-        return data, 0.99
-
-    def _data_consistency(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_6: Data Consistency Validation."""
-        data["data_consistent"] = True
-        return data, 0.99
-
-    def _ethical_analysis(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_7: Ethical Analysis."""
-        data["ethical_score"] = 1.0
-        return data, 0.99
-
-    def _bias_audit(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_8: Bias Audit."""
-        data["bias_score"] = 0.0
-        return data, 0.99
-
-    def _security_check(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_9: Security Check."""
-        data["security_passed"] = True
-        return data, 0.99
-
-    def _logic_verification(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_10: Logic Verification."""
-        data["logic_verified"] = True
-        return data, 0.99
-
-    def _compliance_check(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_11: Compliance Check."""
-        data["compliance_passed"] = True
-        return data, 0.99
-
-    def _final_optimization(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
-        """f_12: Final Optimization."""
-        data["optimized"] = True
-        return data, 0.995
