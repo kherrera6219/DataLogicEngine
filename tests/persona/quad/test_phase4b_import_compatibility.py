@@ -14,7 +14,6 @@ def test_mathematical_framework_compat_exports():
         MemoryEdge,
         MemoryVertex,
         QuadPersonaMathematicalSystem,
-        RefinementWorkflow12Step,
         StructuredMemoryGraph,
     )
 
@@ -26,7 +25,6 @@ def test_mathematical_framework_compat_exports():
     assert StructuredMemoryGraph is not None
     assert DeepRecursiveLearning is not None
     assert IntegrationFunction is not None
-    assert RefinementWorkflow12Step is not None
     assert QuadPersonaMathematicalSystem is not None
 
 
@@ -112,7 +110,10 @@ def test_phase4b_public_exports_point_to_new_locations():
 
     assert DynamicWeightFunctions.__module__ == "core.persona.quad.mathematical_framework.weights"
     assert StructuredMemoryGraph.__module__ == "core.persona.quad.mathematical_framework.memory_graph"
-    assert QuadPersonaMathematicalSystem.__module__ == "core.persona.quad.mathematical_framework.integration"
+    assert (
+        QuadPersonaMathematicalSystem.__module__
+        == "core.persona.quad.mathematical_framework.integration"
+    )
     assert PersonaSufficiencyTool.__module__ == "core.persona.quad.persona_scaling.sufficiency"
     assert PersonaBuilder.__module__ == "core.persona.quad.pod_orchestrator.builder"
     assert PodOrchestrator.__module__ == "core.persona.quad.pod_orchestrator.orchestrator"

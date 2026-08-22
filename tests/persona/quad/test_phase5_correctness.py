@@ -7,8 +7,11 @@ import numpy as np
 from core.persona.quad.mathematical_framework import (
     MemoryVertex,
     QuadPersonaMathematicalSystem,
-    RefinementWorkflow12Step,
     StructuredMemoryGraph,
+)
+from core.persona.quad.mathematical_framework.refinement import (
+    PRODUCTION_ENTRYPOINT,
+    WORKFLOW_DISPOSITION,
 )
 from core.persona.quad.persona_scaling import PersonaSufficiencyTool
 from core.persona.quad.pod_models import ExpandedPersona, PodType
@@ -58,15 +61,16 @@ def test_persona_confidence_is_deterministic_for_same_inputs():
     assert first == second
 
 
-def test_refinement_threshold_is_reachable_and_configurable():
-    workflow = RefinementWorkflow12Step()
-    _, confidence = workflow.apply_workflow({"query": "phase 5"})
-
-    assert confidence >= workflow.confidence_threshold
-    assert workflow.confidence_threshold_met(confidence) is True
-
-    strict_workflow = RefinementWorkflow12Step(confidence_threshold=0.995)
-    assert strict_workflow.confidence_threshold_met(confidence) is False
+def test_legacy_math_refinement_workflow_is_not_a_product_entrypoint():
+    """Legacy 12-step demo class was removed; module remains non-product."""
+    assert PRODUCTION_ENTRYPOINT is False
+    assert WORKFLOW_DISPOSITION.endswith(
+        ("reference", "demonstration_reference")
+    )
+    result = QuadPersonaMathematicalSystem().process_full("phase 5")
+    assert result["legacy_12_step_removed"] is True
+    assert result["refinement_steps"] == []
+    assert "CanonicalRefinementWorkflow" in result["refinement_authority"]
 
 
 def test_sufficiency_config_does_not_mutate_class_level_defaults():
