@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.9.1 |
+| Document version | v1.9.2 |
 | Product version | 4.4.2 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-21 |
+| Last reviewed | 2026-08-22 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -25,11 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`ten_layers.py` PLACEHOLDER corruption (2026-08-22):** Restored `backend/governed_execution/ten_layers.py` from the last good pre-corruption content after commit `def93283` left the file as the literal string `PLACEHOLDER`. Re-applied the more-secure product L8 path: after the TruthGate KA plan, fail-closed model screening and OPA policy evaluation from `l8_security_controls` are folded into the L8 decision (`model_screening_block` / `opa_policy_block` flags and decision payload). Restore commit: `c7a99834`.
+
 ### Changed
 - **TruthGate Layer 8 single-path authority (2026-08-21):** Resolved dual L8 surfaces by selecting the more secure fail-closed path. Absorbed model screening, OPA/Rego policy evaluation, and risk-domain thresholds from the legacy `TrustValidationGateway` into the product L8 authority (`GovernedTenLayerStages.l8` + new `backend/governed_execution/l8_security_controls.py`). Marked `TrustValidationGateway` non-production (`PRODUCTION_ENTRYPOINT=False`, `WORKFLOW_DISPOSITION="legacy_truthcore_compatibility_reference_only"`). Preserves the single KA-owned path (KA-010/024/027/1074 + admitted dependencies), registry authority, and governed-orchestrator integration. Classic TruthGateGateway remains a prefilter shell only.
-
-### Known issue
-- **`ten_layers.py` placeholder corruption:** Commit `def93283` ("Promote fail-closed model screening and OPA into product L8") left `backend/governed_execution/ten_layers.py` containing only the string `PLACEHOLDER`. Immediate next engineering action is to restore the prior implementation (e.g. from SHA before the promotion or a local patched copy that already wired screening/OPA) and re-apply the L8 security block. Do not treat the current HEAD as a working L8 implementation until that restore lands.
+- **Legacy 12-step refinement demo removed (2026-08-21):** Removed non-production `RefinementWorkflow12Step` stubs from the Quad mathematical framework so the product has one 12-step refinement authority (`CanonicalRefinementWorkflow` in `backend/governed_execution/refinement.py`, registry `authority.refinement_workflow`). Restore notes: `docs/archive/audits/LEGACY_REFINEMENT_WORKFLOW_12STEP_REMOVAL_2026-08-21.md`.
 
 ## [4.4.2] - 2026-08-20
 
