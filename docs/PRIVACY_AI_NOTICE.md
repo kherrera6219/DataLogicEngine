@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-005 |
 | Title | Privacy, provider, retention, and AI limitations notice |
-| Document version | v1.1.1 |
+| Document version | v1.1.2 |
 | Product version | 4.4.2 |
 | Status | release_blocked |
 | Audience | Users, evaluators, administrators, privacy/security reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data paths, provider/connector controls, retention/deletion contracts, and AI evaluation records |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-21 |
 | Next-review trigger | Data category, storage, provider, connector, gateway, telemetry, retention, deletion, AI limitation, or legal change |
 | Requirements and evidence | Product requirements, architecture, privacy/security tests, AI system card, and Phase 7/9/11/13 evidence |
 
@@ -64,7 +64,10 @@ Depending on enabled workflows, local app-owned stores may contain:
 - Client Gateway identity, protected key-verification material, scopes, limits,
   jobs, request/result references, usage, and audit state;
 - content-free diagnostics, resource/health state, redacted logs, crash IDs,
-  support-bundle manifests, and update/release state.
+  support-bundle manifests, and update/release state;
+- when the owner explicitly enables runtime training-data capture (default off),
+  redacted released query/answer/confidence/stage-status rows staged under the
+  app-owned datasets capture directory for later export only (no in-app training).
 
 Production responsibilities span PostgreSQL, Redis, Neo4j, ChromaDB, app-owned S3-compatible object store,
 app-owned memory/local records, and approved log/export/backup locations.
