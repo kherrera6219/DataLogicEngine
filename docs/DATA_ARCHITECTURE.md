@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-002 |
 | Title | Data architecture and schema specification |
-| Document version | v1.2.1 |
+| Document version | v1.2.2 |
 | Product version | 4.4.2 |
 | Status | active |
 | Audience | Data, platform, security, privacy, quality, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented store adapters/schemas, migration and lifecycle contracts, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-21 |
 | Next-review trigger | Store, schema, migration, classification, retention, encryption, backup/restore, or object-store decision change |
 | Requirements and evidence | Product requirements, schema/migration tests, lifecycle reports, ADR-0006/0010, and Phase 3/4/9/11 evidence |
 
@@ -149,6 +149,13 @@ API output is confined below the app-owned runtime `datasets` directory and
 uses an application-generated artifact name. JSONL is always available;
 Parquet uses allowlisted compression and falls back to JSONL when PyArrow is
 not installed.
+
+Optional runtime usage capture is a separate owner flag
+(`training_data_capture_enabled`, default off). When enabled, post-release
+governed traces may be redacted and staged under `runtime_root/datasets/capture`
+after `TraceRun` persistence succeeds. Staging is not training, does not enable
+DPO, and cannot bypass quarantine, `never_persist`, or missing release evidence.
+Capture failures never roll back the governed trace.
 
 Deletion reconciles all applicable SQL, Redis, graph, vector, object, memory,
 local, and log surfaces and reports partial failure. Shared chunks remain only
