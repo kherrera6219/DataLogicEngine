@@ -1,7 +1,7 @@
 {
-  "version": "2026.08.11.3",
-  "updated_at": "2026-08-11",
-  "document_version": "v2.17.0",
+  "version": "2026.08.21.1",
+  "updated_at": "2026-08-21",
+  "document_version": "v2.18.0",
   "owner": "Platform Engineering",
   "policy": "docs/SOFTWARE_LIFECYCLE_PLAN.md",
   "coverage_matrix": "docs/REQUIREMENTS_TRACEABILITY.md",
