@@ -13,7 +13,13 @@ from backend.auth.api_decorators import (
     api_admin_required,
     get_authenticated_principal,
 )
-from backend.dataset_exporter import DatasetExporter, ParquetWriter
+from backend.dataset_exporter import (
+    DatasetExporter,
+    ParquetWriter,
+    capture_stats,
+    get_capture_settings_payload,
+    set_training_data_capture_enabled,
+)
 from backend.llm_gateway.model_lifecycle import (
     ProviderModelLifecycleError,
     ProviderModelLifecycleService,
@@ -74,15 +80,29 @@ def export_dataset_endpoint():
         dataset_root = get_application_runtime().runtime_root / "datasets"
         artifact_name = f"{export_type}-{uuid4().hex}.{format_type}"
 
-        result = DatasetExporter.export_from_db(
-            db_session=db.session,
-            export_type=export_type,
-            output_path=artifact_name,
-            min_confidence=min_confidence,
-            format_type=format_type,
-            limit=limit,
-            base_dir=dataset_root,
-        )
+        source = str(body.get("source", "db")).lower()
+        if source not in {"db", "capture"}:
+            raise ValueError("source must be 'db' or 'capture'.")
+
+        if source == "capture":
+            result = DatasetExporter.export_from_capture(
+                export_type=export_type,
+                output_path=artifact_name,
+                min_confidence=min_confidence,
+                format_type=format_type,
+                limit=limit,
+                base_dir=dataset_root,
+            )
+        else:
+            result = DatasetExporter.export_from_db(
+                db_session=db.session,
+                export_type=export_type,
+                output_path=artifact_name,
+                min_confidence=min_confidence,
+                format_type=format_type,
+                limit=limit,
+                base_dir=dataset_root,
+            )
         written_name = Path(result.pop("output_path")).name
         result["artifact_name"] = written_name
 
@@ -115,6 +135,8 @@ def dataset_stats_endpoint():
             .count()
         )
 
+        staged = capture_stats()
+        settings = get_capture_settings_payload()
         return jsonify(
             {
                 "status": "active",
@@ -124,11 +146,88 @@ def dataset_stats_endpoint():
                 "supported_formats": ["parquet", "jsonl"],
                 "pyarrow_available": ParquetWriter.is_pyarrow_available(),
                 "redaction_enforced": True,
+                "capture_enabled": settings["enabled"],
+                "capture_default": False,
+                "staged_capture_rows": staged["staged_capture_rows"],
+                "last_capture_at": staged["last_capture_at"],
+                "policy": settings["policy"],
             }
         ), 200
     except Exception:
         logger.exception("Dataset stats endpoint failed")
         return jsonify({"status": "error", "message": "Dataset statistics are unavailable."}), 500
+
+
+def _actor_fields() -> tuple[int | None, str | None]:
+    principal = get_authenticated_principal()
+    raw_id = getattr(principal, "id", None)
+    actor_id: int | None
+    try:
+        actor_id = int(raw_id) if raw_id is not None else None
+    except (TypeError, ValueError):
+        actor_id = None
+    username = getattr(principal, "username", None)
+    return actor_id, str(username) if username else None
+
+
+@dataset_bp.route("/capture-settings", methods=["GET"])
+@api_admin_required
+def get_capture_settings_endpoint():
+    """Return the owner-only runtime capture flag. Missing flag stays OFF."""
+    try:
+        return jsonify(get_capture_settings_payload()), 200
+    except Exception:
+        logger.exception("Dataset capture settings lookup failed")
+        return jsonify(
+            {
+                "enabled": False,
+                "default": False,
+                "policy": "export-only",
+                "redaction_enforced": True,
+            }
+        ), 200
+
+
+@dataset_bp.route("/capture-settings", methods=["PUT"])
+@api_admin_required
+def put_capture_settings_endpoint():
+    """Persist the owner-only runtime capture flag with an audit event."""
+    try:
+        body = request.get_json(silent=True)
+        if not isinstance(body, dict):
+            raise TypeError("Request body must be a JSON object.")
+        if "enabled" not in body or isinstance(body.get("enabled"), bool) is False:
+            raise ValueError("enabled must be a boolean.")
+        reason = body.get("reason")
+        if reason is not None and not isinstance(reason, str):
+            raise ValueError("reason must be a string when provided.")
+        actor_id, actor_username = _actor_fields()
+        flag = set_training_data_capture_enabled(
+            bool(body["enabled"]),
+            actor_id=actor_id,
+            actor_username=actor_username,
+            reason=reason,
+        )
+        payload = get_capture_settings_payload()
+        payload["flag"] = flag
+        return jsonify(payload), 200
+    except (TypeError, ValueError):
+        return jsonify(
+            {
+                "status": "error",
+                "error": "invalid_parameter",
+                "message": "Invalid capture settings parameters.",
+            }
+        ), 400
+    except Exception:
+        logger.exception("Dataset capture settings update failed")
+        return jsonify(
+            {
+                "status": "error",
+                "error": "capture_settings_failed",
+                "message": "Capture settings could not be updated.",
+            }
+        ), 500
 
 
 @dataset_bp.route("/training-admissions", methods=["POST"])
