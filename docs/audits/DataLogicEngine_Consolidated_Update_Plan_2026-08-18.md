@@ -6,10 +6,10 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.10.0 |
+| Document version | v1.11.0 |
 | Product version | 4.4.3 |
-| Date | 2026-08-26 |
-| Status | Active supporting review input; CU-2 4.4.3 source closure repairs runtime-capture and Layer-8 qualification gaps while exact rebuild/fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
+| Date | 2026-08-27 |
+| Status | Active supporting review input; CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -148,7 +148,7 @@ Specifically:
 
 ### CU-2 — CP19-M exact-artifact acceptance
 
-**Status:** active; exact-source 4.4.2 portable engineering rebuild is complete
+**Status:** active; exact-source 4.4.3 portable engineering rebuild is complete
 while OpenAI, signing, installed, manual, and external acceptance remain open.
 
 **2026-08-18 checkpoint:** focused provider/evidence contracts pass 26/26.
@@ -214,13 +214,25 @@ SHA-256 `ece59ad3...031f8a`. Version parity, installer integrity, NSIS
 governance, the 6,096-file release payload, and strict package-owned `/ready`
 pass with zero issues in 38,848 ms. Installed proof remains open.
 
+**2026-08-27 4.4.3 closure checkpoint:** runtime-capture and Layer-8/OPA
+failure boundaries now fail explicitly and have direct regressions. The full
+Windows suite passes 3,317 tests with 19 skipped; independent Python coverage,
+all 484 frontend tests, frontend coverage/build, documentation, version, and
+dependency gates pass. Exact source commit `171ba1db...` produced the unsigned
+359,111,112-byte 4.4.3 installer with SHA-256 `a9c80380...d377c5a`.
+Integrity, NSIS governance, packaging resources, the 6,100-file payload, and
+strict package-owned `/ready` pass in 56,001 ms with verified descendant
+ownership. A visible portable launch reached the main workspace and remains
+running. Elevated installer mode and fresh-installed provider proof remain
+open; production/public release remains **NO-GO**.
+
 1. Run the bounded owner-authorized Google and OpenAI model tests without
    exposing or requiring re-entry of stored keys.
-2. Commit the reviewed 4.4.2 source and evidence. **Complete.** Source commit
-   `103f52e5...` is the exact build input; 4.4.1 is superseded diagnostic
+2. Commit the reviewed 4.4.3 source and evidence. **Complete.** Source commit
+   `171ba1db...` is the exact build input; 4.4.2 is superseded diagnostic
    evidence.
 3. Rebuild from that exact clean commit and pass integrity plus strict
-   package-owned portable readiness. **Complete for 4.4.2.**
+   package-owned portable readiness. **Complete for 4.4.3.**
 4. Sign and timestamp the resulting candidate.
 5. Complete elevated installed lifecycle, retained-data, service-role,
    provider/corpus/human, accessibility, recovery, independent-review, pilot,
@@ -410,10 +422,9 @@ and direct regression coverage passes. The standing version rule therefore
 advances the next exact-source engineering artifact to 4.4.3/4.4.3.0. The
 owner-gated confidence-score name/calibration work remains outside this batch.
 
-Proceed with CU-2: qualify and commit the 4.4.3 capture/L8/CI closure, rebuild
-only from that exact clean commit, and pass version parity, package integrity,
-NSIS governance, release-payload, and strict package-owned portable readiness.
-Install only that exact artifact, then repeat a normal Google chat to confirm
+Proceed with CU-2 by installing only the 4.4.3 artifact bound to source commit
+`171ba1db...` and SHA-256 `a9c80380...d377c5a` in an elevated per-machine
+session. Then repeat a normal Google chat to confirm
 one provider execution, Layer 10 release, and persisted validation telemetry.
 Restore or replenish OpenAI quota and rerun
 the bounded `gpt-5.6-sol` High-reasoning check without exposing stored keys.

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.80.0 |
+| Document version | v1.81.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -208,6 +208,24 @@ payload, and strict package-owned `/ready` pass with zero issues; readiness
 completed in 38,848 ms with verified process ownership and clean shutdown.
 Fresh-installed Google chat proof remains open;
 production/public release remains **NO-GO**.
+
+The 2026-08-27 CU-2 loose-end closure hardened runtime capture and Layer-8/OPA
+failure boundaries, advanced the product to 4.4.3/4.4.3.0, and passed the full
+Windows suite with 3,317 tests, 19 skipped, and zero failures or setup errors.
+Independent Python coverage passes at 80.29% `backend/`, 80.67%
+`backend/security/`, and 81.07% `core/`; all 484 frontend tests, frontend
+coverage, lint, typecheck, production build, documentation, version, and
+dependency gates pass. Exact source commit
+`171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` produced the unsigned
+359,111,112-byte `DataLogicEngine Setup 4.4.3.exe` with SHA-256
+`a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`.
+Integrity, NSIS governance, packaging resources, the 6,100-file release
+payload, and strict package-owned portable `/ready` pass; readiness completed
+in 56,001 ms with zero blockers and verified descendant process ownership. A
+second visible portable launch reached the main workspace and remains running.
+The non-elevated session did not run per-machine installer mode, the artifact
+is `NotSigned`, and fresh-installed Google chat remains open. Production/public
+release remains **NO-GO**.
 
 The clean split-language coverage qualification now clears the 80% engineering
 floor independently in every maintained application scope: Python `backend/`
@@ -6473,12 +6491,12 @@ exit gate.
 
 ## 34. Immediate next action
 
-The current overriding CU-2 action is to qualify, commit, and rebuild the
-4.4.3 capture/L8/CI closure from one exact clean source commit. Pass version
-parity, integrity, NSIS governance, release-payload, and strict package-owned
-portable readiness before installing that exact artifact. Then prove a normal
-Google chat invokes the configured provider once, releases through Layer 10,
-and exposes persisted validation telemetry. The 4.4.2 artifact is historical
+The current overriding CU-2 action is to install only the 4.4.3 artifact bound
+to exact source commit `171ba1db...` and SHA-256 `a9c80380...d377c5a` in an
+elevated per-machine session. Then prove a normal Google chat invokes the
+configured provider once, releases through Layer 10, and exposes persisted
+validation telemetry. Restore OpenAI quota and rerun the bounded High-reasoning
+check without exposing stored keys. The 4.4.2 artifact is historical
 engineering evidence and must not continue installed acceptance.
 
 CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-43 now truthfully
@@ -6539,11 +6557,10 @@ production acceptance.
 
 The August 12 documentation-reconciliation installer and both earlier post-QC
 rebuilds are superseded engineering diagnostics. Do not transfer their Program
-Files, retained-data, five-service, or provider evidence. Use the current
-provider-refresh exact-source portable evidence only as a bridge: the current
-unsigned artifact is
-`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`,
-bound to commit `c765ba03257e58e69a4cd4b80f92390c71346801`. Google
+Files, retained-data, five-service, or provider evidence. Use the current CU-2
+exact-source portable evidence only as a bridge: the current unsigned artifact
+is `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`,
+bound to commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. Google
 source-level live availability passes, but OpenAI remains blocked on
 `quota_exhausted`. Restore quota and rerun the bounded OpenAI check, then obtain
 owner-authorized signing material and rebuild/sign/timestamp from the

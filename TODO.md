@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.15.0 |
+| Document version | v1.16.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,13 +14,13 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-26 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.81.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; 4.4.3 source closure and focused regression pass while exact rebuild/fresh-installed/provider/signing CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; 4.4.3 exact-source portable engineering rebuild and visible local launch pass while fresh-installed/provider/signing CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -450,12 +450,17 @@ Phase 18 source baseline while completing the whole-application wiring.
       release payload, and strict package-owned portable `/ready` pass with zero
       issues. Readiness completed in 38,848 ms with verified package-process
       ownership and clean shutdown.
-- [ ] **Exact-source 4.4.3 loose-end closure rebuild:** finish the full source,
-      frontend, documentation, dependency, version, payload, and installer
-      gates; commit one clean source checkpoint; build and verify the unsigned
-      local engineering installer; then install, launch, and prove `/ready`
-      from the packaged process tree. This is engineering evidence only and
-      does not satisfy signing or CP19-M retained acceptance.
+- [x] **Exact-source 4.4.3 loose-end closure rebuild:** clean source commit
+      `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` produced the unsigned
+      359,111,112-byte installer with SHA-256
+      `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`.
+      Full source, frontend, documentation, dependency, version, integrity,
+      NSIS, packaging-resource, and 6,100-file payload gates pass. Strict
+      package-owned portable `/ready` passed in 56,001 ms with zero blockers
+      and verified descendant ownership; the visible local portable launch
+      reached the main workspace and remains running. The non-elevated session
+      did not run per-machine install mode. This is engineering evidence only
+      and does not satisfy signing or retained CP19-M acceptance.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
       owner-authorized Google/OpenAI tests, sign/timestamp the then-current
       exact-source rebuild, and complete the remaining CP19-M installed rows.
@@ -465,9 +470,9 @@ Phase 18 source baseline while completing the whole-application wiring.
   - [ ] OpenAI `gpt-5.6-sol` used the required High reasoning contract but is
         blocked on `quota_exhausted`; a fresh retry reached the API and failed
         the same way in 2,224.49 ms. Restore quota and rerun the bounded call.
-  - [x] Build and validate the exact-source 4.4.2 replacement with integrity,
+  - [x] Build and validate the exact-source 4.4.3 replacement with integrity,
         payload, governance, and package-owned portable readiness evidence.
-  - [ ] Install that exact artifact and confirm a normal Google chat invokes
+  - [ ] Install that exact 4.4.3 artifact and confirm a normal Google chat invokes
         the configured provider once, releases through Layer 10, and exposes
         the persisted validation telemetry.
 - [x] **CU-4 terminology evidence inventory:** classified the archived rename
@@ -698,17 +703,22 @@ commit-bound baseline before CR-A1 is treated as open work.
 
 ## Completed checkpoints
 
-- **2026-08-26 4.4.3 loose-end source closure:** runtime-capture failures no
+- **2026-08-27 4.4.3 loose-end source and portable-build closure:** runtime-capture failures no
   longer masquerade as disabled/empty state, malformed staged rows block
   partial export, matching capture files participate in trace retention, and
   the post-commit hook remains non-blocking. Product Layer 8 now denies
   configured OPA execution failures and returns safe error codes without raw
   exception disclosure. Direct capture, retention, persistence, Layer-8, and
   retained Phase-G coverage passes 71 tests. The canonical version authority
-  advances the next exact-source engineering artifact to 4.4.3/4.4.3.0 with
-  4.4.2 retained as an upgrade source. Full validation, exact rebuild/install,
-  and runtime readiness proof remain open; CR-D1's owner-gated name and the
-  calibration program are unchanged.
+  advances the exact-source engineering artifact to 4.4.3/4.4.3.0 with 4.4.2
+  retained as an upgrade source. The full Windows suite passes 3,317 tests with
+  19 skipped; Python and frontend coverage, all 484 frontend tests, docs,
+  version, environment, CI lint, production build, and dependency audits pass.
+  Commit `171ba1db...` produced the unsigned 359,111,112-byte installer with
+  SHA-256 `a9c80380...d377c5a`; integrity, NSIS, packaging resources, the
+  6,100-file payload, strict package-owned `/ready`, and visible local portable
+  launch pass. Elevated install/provider proof remains open; CR-D1's owner-
+  gated name and calibration program are unchanged.
 
 - **2026-08-26 CI recovery validated locally:** restored the complete Dataset
   Exporter regression suite and Developer Guide after the runtime-capture batch
@@ -1590,12 +1600,12 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-Commit and publish the validated 2026-08-26 CI recovery batch, then confirm the
-five replacement GitHub jobs pass. Rebuild `DataLogicEngine Setup 4.4.3.exe`
-only from the exact clean green closure commit, record its commit binding and SHA-256,
-and install that replacement before further CP19-M acceptance. The artifact
-bound to commit `103f52e5` is superseded source-relative evidence only. Then
-prove a normal Google chat invokes the configured provider once, releases
+Publish the validated local closure commits when authorized, then confirm the
+five replacement GitHub jobs pass. Install only `DataLogicEngine Setup
+4.4.3.exe` bound to commit `171ba1db...` and SHA-256
+`a9c80380...d377c5a` before further CP19-M acceptance. The artifact bound to
+commit `103f52e5` is superseded source-relative evidence only. Then prove a
+normal Google chat invokes the configured provider once, releases
 through Layer 10, and exposes persisted validation telemetry. Restore or
 replenish OpenAI quota and rerun `gpt-5.6-sol` with High reasoning without
 exposing or re-entering stored keys. After both provider checks pass, obtain
@@ -1616,9 +1626,9 @@ production-approval false until their required evidence exists.
 
 The CR workstream above runs alongside the CU-2 sequence and does not gate on
 it. Its agent entry point and corpus are now present. CR-A0 remains a human gate
-until the owner confirms the disposition of the current in-flight repair and
-documentation batch; do not introduce a broad line-ending rewrite as part of
-the 4.4.3 runtime fix. After that disposition, execute CR-A0 and then CR-A1 on
+until the owner explicitly dispositions it; do not introduce a broad line-
+ending rewrite as part of this closure. After that disposition, execute CR-A0
+and then CR-A1 on
 the remediation branch defined by the plan.
 
 Owner decisions outstanding and blocking: the replacement name for the

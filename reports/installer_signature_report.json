@@ -1,12 +1,19 @@
 ﻿{
-    "generated_at":  "2026-07-11T06:02:40.5877909Z",
     "repo_root":  "C:\\software\\DataLogicEngine",
+    "approved_publisher_subjects":  [
+
+                                    ],
+    "generated_at":  "2026-08-27T04:22:44.4938315Z",
+    "expected_installer":  "DataLogicEngine Setup 4.4.3.exe",
+    "production_trust_required":  false,
     "artifacts":  [
                       {
-                          "artifact":  "DataLogicEngine Setup Latest.exe",
+                          "artifact":  "DataLogicEngine Setup 4.4.3.exe",
                           "status":  "NotSigned",
                           "signer":  "",
+                          "timestamp_signer":  "",
                           "thumbprint":  "",
+                          "publisher_match":  null,
                           "revocation_checked":  false,
                           "revocation_valid":  null,
                           "revocation_statuses":  {
@@ -15,6 +22,6 @@
                       }
                   ],
     "failures":  [
-                     "DataLogicEngine Setup Latest.exe: NotSigned"
+                     "DataLogicEngine Setup 4.4.3.exe: NotSigned"
                  ]
 }

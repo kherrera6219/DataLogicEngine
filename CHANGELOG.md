@@ -51,7 +51,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.10.0 |
+| Document version | v1.11.0 |
 | Product version | 4.4.3 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -59,7 +59,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-26 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -85,6 +85,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Made configured OPA execution failures deny at product Layer 8, added safe
   error codes without raw exception disclosure, and added direct fail-closed
   regression coverage for both Layer-8 security controls.
+- **Exact-source 4.4.3 engineering rebuild:** source commit
+  `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` produced the unsigned
+  359,111,112-byte installer with SHA-256
+  `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`.
+  Integrity, NSIS governance, packaging resources, the 6,100-file release
+  payload, and strict package-owned portable `/ready` pass with zero issues;
+  readiness completed in 56,001 ms with verified descendant ownership. A
+  visible portable launch reached the main workspace and remains running.
+  Elevated install, fresh-installed provider proof, OpenAI quota, production
+  signing, and retained CP19-M acceptance remain open.
 
 ### Changed
 

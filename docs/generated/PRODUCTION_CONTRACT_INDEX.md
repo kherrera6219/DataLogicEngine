@@ -12,10 +12,10 @@
 | Windows file version | `4.4.3.0` |
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
-| Current local artifact | `DataLogicEngine Setup 4.4.2.exe` |
-| Current local artifact size | `358849388` bytes |
-| Current local artifact SHA-256 | `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a` |
-| Current build source commit | `103f52e5f9b51f937ac2da8adc17523ec98affdb` |
+| Current local artifact | `DataLogicEngine Setup 4.4.3.exe` |
+| Current local artifact size | `359111112` bytes |
+| Current local artifact SHA-256 | `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a` |
+| Current build source commit | `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` |
 | Current artifact signature | `NotSigned` |
 | Portable backend readiness | `true` |
 | Portable readiness listener owned by package | `true` |
