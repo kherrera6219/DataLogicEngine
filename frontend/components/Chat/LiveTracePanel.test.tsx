@@ -72,7 +72,7 @@ describe('LiveTracePanel', () => {
     render(<LiveTracePanel />);
     await screen.findByText('Active Run');
     expect(screen.getByText(/How do we satisfy HIPAA controls\?/i)).toBeInTheDocument();
-    expect(screen.getByText('Confidence')).toBeInTheDocument();
+    expect(screen.getByText('Evidence support')).toBeInTheDocument();
     expect(screen.getByText('93.0%')).toBeInTheDocument();
   });
 
