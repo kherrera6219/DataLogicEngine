@@ -35,6 +35,7 @@ def test_desktop_session_create_is_idempotent_and_principal_owned(
     assert repeated.get_json()["session"]["id"] == session_id
     assert created.get_json()["created"] is True
     assert repeated.get_json()["created"] is False
+    assert created.get_json()["session"]["mode"] == "standard"
 
     user_id = _authenticated_user_id(app)
     with app.app_context():
@@ -125,3 +126,37 @@ async def test_chat_message_persistence_returns_correlation_receipt(app):
         message = db.session.get(ChatMessage, uuid.UUID(result.message_id))
         assert message is not None
         assert message.run_id == run_id
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("governed_mode", "expected_enhanced"),
+    [("standard", False), ("enhanced", True)],
+)
+async def test_chat_message_legacy_enhanced_flag_uses_governed_mode(
+    app,
+    governed_mode,
+    expected_enhanced,
+):
+    session_id = uuid.uuid4()
+    with app.app_context():
+        user_id = create_test_user(
+            username=f"chat-mode-{governed_mode}",
+            email=f"chat-mode-{governed_mode}@example.com",
+            password="SecureTest789$#@",
+        )
+        db.session.add(ChatSession(id=session_id, user_id=user_id, mode=governed_mode))
+        db.session.commit()
+
+        gateway = LLMGateway(db_session=db.session)
+        result = await gateway._save_chat_message(
+            str(session_id),
+            user_id,
+            "assistant",
+            "Mode-bound response",
+            governed_mode=governed_mode,
+        )
+
+        assert result.ok is True
+        message = db.session.get(ChatMessage, uuid.UUID(result.message_id))
+        assert message.is_enhanced is expected_enhanced

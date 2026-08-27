@@ -168,6 +168,59 @@ describe('ChatInterface', () => {
     expect(api.chat.sendMessage).toHaveBeenCalledTimes(1);
   });
 
+  it('renders measured evidence support and the actual Standard mode', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'Measured response',
+      mode: 'standard',
+      provider_call_budget: { max_calls: 1, calls_used: 1 },
+      confidence_display: {
+        status: 'measured',
+        value: 0.84,
+        formula_version: 'dle-confidence.v1',
+        reason: 'all_required_components_measured',
+        missing_components: [],
+        explanation: 'Evidence-support coverage, not correctness probability.',
+      },
+    });
+
+    renderChatInterface();
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Measured request' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    expect(await screen.findByText('Standard Mode')).toBeInTheDocument();
+    expect(screen.queryByText(/Enhanced Mode Active/i)).not.toBeInTheDocument();
+    expect(screen.getByText('84.0%')).toBeInTheDocument();
+    expect(screen.getByText(/not correctness probability/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 of 1 provider attempts used/i)).toBeInTheDocument();
+  });
+
+  it('renders unmeasured confidence with its reason and Enhanced mode', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'Unmeasured response',
+      mode: 'enhanced',
+      provider_call_budget: { max_calls: 2, calls_used: 1 },
+      confidence_display: {
+        status: 'insufficient_evidence',
+        value: null,
+        formula_version: 'dle-confidence.v1',
+        reason: 'no_governed_evidence_available',
+        missing_components: ['claim_support', 'source_quality'],
+        explanation: 'Evidence support was not measured because no governed evidence was available.',
+      },
+    });
+
+    renderChatInterface();
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Unmeasured request' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    expect(await screen.findByText('Enhanced Mode')).toBeInTheDocument();
+    expect(screen.getByText('Not measured')).toBeInTheDocument();
+    expect(screen.getByText(/no governed evidence was available/i)).toBeInTheDocument();
+    expect(screen.queryByText('100.0%')).not.toBeInTheDocument();
+  });
+
   it('creates a durable session before the first message is sent', async () => {
     const createdSession = {
       id: 'created-session-1',
