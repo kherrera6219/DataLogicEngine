@@ -6,10 +6,10 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.9.0 |
-| Product version | 4.4.2 |
-| Date | 2026-08-20 |
-| Status | Active supporting review input; CU-2 exact-source 4.4.2 portable rebuild passes while fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
+| Document version | v1.10.0 |
+| Product version | 4.4.3 |
+| Date | 2026-08-26 |
+| Status | Active supporting review input; CU-2 4.4.3 source closure repairs runtime-capture and Layer-8 qualification gaps while exact rebuild/fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -403,10 +403,18 @@ a new exact rebuild and evidence binding.
 
 ## 7. Exact next action
 
-Proceed with CU-2: install exact-source `DataLogicEngine Setup 4.4.2.exe` bound
-to commit `103f52e5...` and SHA-256 `ece59ad3...031f8a`, then repeat a normal
-Google chat to confirm one provider execution, Layer 10 release, and persisted
-validation telemetry.
+The 2026-08-26 review closed the source-level runtime-capture and Layer-8 gaps:
+failures are explicit, malformed capture cannot produce a partial export,
+trace retention removes matching staged capture, configured OPA failure denies,
+and direct regression coverage passes. The standing version rule therefore
+advances the next exact-source engineering artifact to 4.4.3/4.4.3.0. The
+owner-gated confidence-score name/calibration work remains outside this batch.
+
+Proceed with CU-2: qualify and commit the 4.4.3 capture/L8/CI closure, rebuild
+only from that exact clean commit, and pass version parity, package integrity,
+NSIS governance, release-payload, and strict package-owned portable readiness.
+Install only that exact artifact, then repeat a normal Google chat to confirm
+one provider execution, Layer 10 release, and persisted validation telemetry.
 Restore or replenish OpenAI quota and rerun
 the bounded `gpt-5.6-sol` High-reasoning check without exposing stored keys.
 After both provider checks pass, obtain owner-authorized production signing

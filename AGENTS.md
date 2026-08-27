@@ -11,7 +11,7 @@ DataLogicEngine is **installed software**, not a SaaS product. It runs on a cust
 
 That deployment model is load-bearing for almost every decision here. **Do not add an outbound network call, a telemetry hook, an update check, or a crash reporter.** Any of those silently falsifies the product's central compliance claim. If a task seems to require one, stop and ask.
 
-Current version 4.4.2, status `release_blocked`. Market: **United States only** — the product is not placed on the EU market, so EU CRA / EU AI Act / GDPR / NIS2 / DORA are out of scope.
+Current version 4.4.3, status `release_blocked`. Market: **United States only** — the product is not placed on the EU market, so EU CRA / EU AI Act / GDPR / NIS2 / DORA are out of scope.
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-08-20T08:17:00.531397+00:00",
+  "generated_at": "2026-08-27T03:47:58.071435+00:00",
   "source": "live Flask app.url_map",
   "allowed_classifications": [
     "authenticated-mutation",
@@ -13,15 +13,15 @@
     "public-health"
   ],
   "summary": {
-    "routes": 350,
+    "routes": 352,
     "classifications": {
       "authenticated-mutation": 88,
-      "authenticated-read": 173,
+      "authenticated-read": 174,
       "desktop-only": 13,
       "external-client-governed-execution": 5,
       "external-client-read": 8,
       "internal-only": 1,
-      "owner-admin-mutation": 58,
+      "owner-admin-mutation": 59,
       "public-health": 4
     },
     "unclassified": 0,
@@ -1060,6 +1060,38 @@
       ],
       "source_module": "app",
       "blueprint": "dle_core",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/dataset/capture-settings",
+      "endpoint": "dataset_api.get_capture_settings_endpoint",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.routes.dataset_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.dataset_routes",
+      "blueprint": "dataset_api",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/dataset/capture-settings",
+      "endpoint": "dataset_api.put_capture_settings_endpoint",
+      "methods": [
+        "PUT"
+      ],
+      "classification": "owner-admin-mutation",
+      "required_principal": "owner-admin-mutation",
+      "auth_evidence": [
+        "backend.routes.dataset_routes:api_session_login_required_wrapper",
+        "owner-admin-session-or-desktop"
+      ],
+      "source_module": "backend.routes.dataset_routes",
+      "blueprint": "dataset_api",
       "mutation_without_auth_evidence": false
     },
     {

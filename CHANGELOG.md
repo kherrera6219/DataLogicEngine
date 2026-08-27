@@ -51,8 +51,8 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.9.3 |
-| Product version | 4.4.2 |
+| Document version | v1.10.0 |
+| Product version | 4.4.3 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
 | Owner | Release Engineering |
@@ -79,6 +79,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   governance checks no longer reject the new capture toggle.
 - Refreshed the generated Python dependency lock to remove the vulnerable
   transitive `pip 26.1.2` package identified by GitHub dependency scanning.
+- Made runtime-capture policy, statistics, and load failures explicit instead
+  of reporting them as disabled or empty; malformed staged data now blocks a
+  partial export, and trace retention removes matching staged capture files.
+- Made configured OPA execution failures deny at product Layer 8, added safe
+  error codes without raw exception disclosure, and added direct fail-closed
+  regression coverage for both Layer-8 security controls.
 
 ### Changed
 
@@ -90,6 +96,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidated product Layer 8 model screening and local OPA policy evaluation
   into `GovernedTenLayerStages.l8`; the former `TrustValidationGateway` is now
   explicitly non-production.
+- Advanced the next exact-source engineering build to product 4.4.3 and Windows
+  file version 4.4.3.0; 4.4.2 remains an allowed upgrade source and historical
+  engineering-evidence artifact.
 
 ## [4.4.2] - 2026-08-20
 

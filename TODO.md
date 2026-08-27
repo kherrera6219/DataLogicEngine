@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.14.1 |
-| Product version | 4.4.2 |
+| Document version | v1.15.0 |
+| Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
 | Owner | Production Program Owner |
@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; exact-source 4.4.2 integrity, payload, governance, and package-owned portable readiness pass while fresh-installed/provider/signing CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; 4.4.3 source closure and focused regression pass while exact rebuild/fresh-installed/provider/signing CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -450,6 +450,12 @@ Phase 18 source baseline while completing the whole-application wiring.
       release payload, and strict package-owned portable `/ready` pass with zero
       issues. Readiness completed in 38,848 ms with verified package-process
       ownership and clean shutdown.
+- [ ] **Exact-source 4.4.3 loose-end closure rebuild:** finish the full source,
+      frontend, documentation, dependency, version, payload, and installer
+      gates; commit one clean source checkpoint; build and verify the unsigned
+      local engineering installer; then install, launch, and prove `/ready`
+      from the packaged process tree. This is engineering evidence only and
+      does not satisfy signing or CP19-M retained acceptance.
 - [ ] **Live-provider and installed replacement acceptance:** run bounded
       owner-authorized Google/OpenAI tests, sign/timestamp the then-current
       exact-source rebuild, and complete the remaining CP19-M installed rows.
@@ -691,6 +697,18 @@ commit-bound baseline before CR-A1 is treated as open work.
       playbooks, Section 508/WCAG 2.2 AA conformance report.
 
 ## Completed checkpoints
+
+- **2026-08-26 4.4.3 loose-end source closure:** runtime-capture failures no
+  longer masquerade as disabled/empty state, malformed staged rows block
+  partial export, matching capture files participate in trace retention, and
+  the post-commit hook remains non-blocking. Product Layer 8 now denies
+  configured OPA execution failures and returns safe error codes without raw
+  exception disclosure. Direct capture, retention, persistence, Layer-8, and
+  retained Phase-G coverage passes 71 tests. The canonical version authority
+  advances the next exact-source engineering artifact to 4.4.3/4.4.3.0 with
+  4.4.2 retained as an upgrade source. Full validation, exact rebuild/install,
+  and runtime readiness proof remain open; CR-D1's owner-gated name and the
+  calibration program are unchanged.
 
 - **2026-08-26 CI recovery validated locally:** restored the complete Dataset
   Exporter regression suite and Developer Guide after the runtime-capture batch
@@ -1573,8 +1591,8 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 ## Exact next action
 
 Commit and publish the validated 2026-08-26 CI recovery batch, then confirm the
-five replacement GitHub jobs pass. Rebuild `DataLogicEngine Setup 4.4.2.exe`
-only from that exact clean green commit, record its commit binding and SHA-256,
+five replacement GitHub jobs pass. Rebuild `DataLogicEngine Setup 4.4.3.exe`
+only from the exact clean green closure commit, record its commit binding and SHA-256,
 and install that replacement before further CP19-M acceptance. The artifact
 bound to commit `103f52e5` is superseded source-relative evidence only. Then
 prove a normal Google chat invokes the configured provider once, releases
@@ -1600,7 +1618,7 @@ The CR workstream above runs alongside the CU-2 sequence and does not gate on
 it. Its agent entry point and corpus are now present. CR-A0 remains a human gate
 until the owner confirms the disposition of the current in-flight repair and
 documentation batch; do not introduce a broad line-ending rewrite as part of
-the 4.4.2 runtime fix. After that disposition, execute CR-A0 and then CR-A1 on
+the 4.4.3 runtime fix. After that disposition, execute CR-A0 and then CR-A1 on
 the remediation branch defined by the plan.
 
 Owner decisions outstanding and blocking: the replacement name for the

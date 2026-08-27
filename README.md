@@ -7,7 +7,7 @@
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
 | Document version | v1.10.0 |
-| Product version | 4.4.2 |
+| Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
 | Owner | Product Engineering |
@@ -42,7 +42,7 @@ accounts, connector credentials, local data, retention, backups, and operating
 policy.
 
 > [!WARNING]
-> **Engineering evaluation only. DataLogicEngine 4.4.2 is not approved for a
+> **Engineering evaluation only. DataLogicEngine 4.4.3 is not approved for a
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
@@ -90,7 +90,7 @@ control plane.
 | Software developers and integrators | A versioned API, generated Python and TypeScript SDKs, asynchronous jobs, streaming responses, and provider-key separation |
 | Operators, reviewers, and pilot users | A desktop experience for configuration, governed chat, monitoring, trace review, privacy, diagnostics, and support |
 
-The current 4.4.2 product boundary is a single owner/operator on Windows 11 or
+The current 4.4.3 product boundary is a single owner/operator on Windows 11 or
 an owner-controlled Windows VM. It is not a public web service or a multi-tenant
 identity platform.
 
@@ -180,7 +180,7 @@ certifications.
 - Providers: owner-configured OpenAI or Google credentials and approved models
 - Connectors: owner-approved local MCP processes with recorded scope and consent
 - Data: app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible storage
-- Excluded from 4.4.2: public-internet exposure, public self-registration,
+- Excluded from 4.4.3: public-internet exposure, public self-registration,
   multi-tenancy, vendor-hosted customer data or API spend, Kubernetes, managed
   cloud databases as production authorities, mobile clients, and macOS/Linux
   packaging
@@ -385,7 +385,7 @@ npm --prefix frontend run electron:dist
 
 `CSC_SKIP=true` produces an unsigned local engineering build. It is not a
 public release artifact. Installer output is generated as
-`DataLogicEngine Setup 4.4.2.exe` with its checksum and block map.
+`DataLogicEngine Setup 4.4.3.exe` with its checksum and block map.
 
 Verify the package before installing it:
 

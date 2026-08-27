@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-08-20T07:35:57.524541+00:00",
+  "generated_at": "2026-08-27T03:47:14.602788+00:00",
   "authority_version": "2026.08.10-cp19l-installed-evidence",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 179,
+    "markdown_file_count": 181,
     "canonical_document_count": 30,
     "canonical_limit": 30,
     "existing_canonical_count": 30,
@@ -16,7 +16,7 @@
     "disposition_prefix_counts": {
       "authoritative": 36,
       "generated": 6,
-      "historical": 122,
+      "historical": 124,
       "supporting": 15
     }
   },
@@ -224,6 +224,14 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
+      "path": "docs/archive/audits/LEGACY_REFINEMENT_WORKFLOW_12STEP_REMOVAL_2026-08-21.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/LEGACY_REFINEMENT_WORKFLOW_12STEP_REMOVAL_2026-08-21.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
       "path": "docs/archive/audits/ORPHAN_MODULE_DISPOSITION_WORKSHEET_2026-08-11.md",
       "document_class": "historical_research",
       "disposition": "historical archive",
@@ -284,6 +292,14 @@
       "document_class": "historical_research",
       "disposition": "historical archive",
       "target": "docs/archive/audits/TOP_LEVEL_MARKDOWN_REVIEW_2026-07-06.md",
+      "cap_counted": false,
+      "basis": "historical audit, research, wireframe, whitepaper, or session material"
+    },
+    {
+      "path": "docs/archive/audits/TRUTH_GATE_L8_AUTHORITY_CONSOLIDATION_2026-08-21.md",
+      "document_class": "historical_research",
+      "disposition": "historical archive",
+      "target": "docs/archive/audits/TRUTH_GATE_L8_AUTHORITY_CONSOLIDATION_2026-08-21.md",
       "cap_counted": false,
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },

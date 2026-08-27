@@ -4,11 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.79.0 |
+| Document version | v1.80.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
-| Product version | 4.4.2 |
+| Product version | 4.4.3 |
 | Runtime model | Electron control/validation shell plus a Flask backend that is loopback-only by default and may expose an explicitly enabled private gateway mode |
 | Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store services |
 | External runtime dependency | Optional OpenAI or Google model access and explicitly enabled MCP connectors only |
@@ -6473,14 +6473,13 @@ exit gate.
 
 ## 34. Immediate next action
 
-The current overriding CU-2 action is to install exact-source
-`DataLogicEngine Setup 4.4.2.exe` bound to commit
-`103f52e5f9b51f937ac2da8adc17523ec98affdb` and SHA-256
-`ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`, then
-prove a normal Google chat invokes the configured provider once, releases
-through Layer 10, and exposes persisted validation telemetry. The 4.4.1
-artifact is superseded diagnostic evidence and must not continue installed
-acceptance.
+The current overriding CU-2 action is to qualify, commit, and rebuild the
+4.4.3 capture/L8/CI closure from one exact clean source commit. Pass version
+parity, integrity, NSIS governance, release-payload, and strict package-owned
+portable readiness before installing that exact artifact. Then prove a normal
+Google chat invokes the configured provider once, releases through Layer 10,
+and exposes persisted validation telemetry. The 4.4.2 artifact is historical
+engineering evidence and must not continue installed acceptance.
 
 CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-43 now truthfully
 qualify all 213 rows, including the causal simulation core, MCP admission/result

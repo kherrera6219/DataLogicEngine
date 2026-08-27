@@ -8,7 +8,7 @@ info:
     sessions, CSRF protection, and copy-once client keys for the explicitly
     versioned gateway surface. Removed web login/register/MFA/SSO routes are intentionally
     not part of this contract.
-  version: 4.4.2
+  version: 4.4.3
   contact:
     name: DataLogicEngine Support
     url: https://github.com/kherrera6219/DataLogicEngine/issues

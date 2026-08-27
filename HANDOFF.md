@@ -6,8 +6,8 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.16.1 |
-| Product version | 4.4.2 |
+| Document version | v1.17.0 |
+| Product version | 4.4.3 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
@@ -19,9 +19,9 @@
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
-| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 exact-source 4.4.2 portable rebuild passes while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
+| Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 source closure repairs the synced runtime-capture and Layer-8 work while exact rebuild/fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; exact-source 4.4.2 integrity, payload, governance, and package-owned portable readiness pass while fresh-installed Google chat, OpenAI quota, signing, and retained CP19-M acceptance remain open |
+| Current phase | Phase 19 CU-2; 4.4.3 source closure and focused regression pass while exact rebuild, fresh-installed Google chat, OpenAI quota, signing, and retained CP19-M acceptance remain open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -689,6 +689,21 @@ release approval are pending. The provider rows remain quarantined and
 `release_ready=false`. Production/public release remains **NO-GO**.
 
 ## Current checkpoint
+
+**4.4.3 loose-end closure checkpoint (2026-08-26):** the owner authorized the
+review findings to be completed before the next local rebuild. Runtime-capture
+policy, statistics, and load failures now remain distinguishable from an
+explicit disabled/empty state; malformed capture blocks partial export; trace
+retention removes its matching staged capture; the post-commit hook remains
+non-blocking with direct proof. Product Layer 8 now denies configured OPA
+execution failures, returns safe error codes instead of raw exception text, and
+has direct failure-path coverage for model screening and OPA. The focused
+capture, retention, persistence, Layer-8, and retained Phase-G set passes 71
+tests with zero failures or setup errors. The standing version rule advances
+the next exact-source engineering artifact to 4.4.3/4.4.3.0. Full validation,
+the exact clean rebuild, install, and runtime readiness proof remain the active
+steps; this does not close the owner-gated confidence-score rename/calibration,
+CP19-M, signing, provider, or production-release gates.
 
 **CI recovery checkpoint (2026-08-26):** the owner-directed repair branch is
 based on current upstream `main` commit `f3f54bc391421b4c7c3d2404dc54314028c5c7de`.
@@ -1675,13 +1690,13 @@ a capability as implemented without executing it.
 A second, independent action does not wait on OpenAI quota or signing authority:
 the compliance-remediation workstream begins at human-gated CR-A0
 (`docs/compliance/REMEDIATION_PLAN.md`). Its corpus is present, but the owner
-must first confirm the disposition of this in-flight 4.4.2 repair/documentation
+must first confirm the disposition of this in-flight 4.4.3 repair/documentation
 batch. Do not introduce a broad line-ending rewrite as part of this runtime fix.
 
 1. Commit and publish the validated 2026-08-26 CI recovery batch, then confirm
    replacement Deploy `Build and Test`, Security `Dependency Security Scan`,
    and CI `backend-test`, `frontend-build`, and `governance` jobs pass. Rebuild
-   `DataLogicEngine Setup 4.4.2.exe` only from that exact clean green commit,
+   `DataLogicEngine Setup 4.4.3.exe` only from the exact clean green closure commit,
    record its commit binding and SHA-256, and install that replacement before
    further CP19-M acceptance. The artifact bound to commit `103f52e5` is
    superseded source-relative evidence only. Prove a normal Google chat invokes

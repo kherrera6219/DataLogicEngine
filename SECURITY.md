@@ -7,7 +7,7 @@
 | Document ID | DLE-ROOT-003 |
 | Title | Vulnerability reporting and disclosure policy |
 | Document version | v2.8.0 |
-| Product version | 4.4.2 |
+| Product version | 4.4.3 |
 | Status | active |
 | Audience | Security researchers, users, maintainers, and release reviewers |
 | Owner | Security Engineering |

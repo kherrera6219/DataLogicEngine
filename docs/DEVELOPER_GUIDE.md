@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
 | Document version | v3.7.1 |
-| Product version | 4.4.2 |
+| Product version | 4.4.3 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
 | Owner | Platform Engineering |
