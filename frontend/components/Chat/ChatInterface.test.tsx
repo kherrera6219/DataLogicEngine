@@ -17,6 +17,7 @@ vi.mock('@/lib/api', () => ({
     chat: {
       listSessions: vi.fn(),
       getSessionMessages: vi.fn(),
+      createSession: vi.fn(),
       sendMessage: vi.fn(),
     },
   },
@@ -96,6 +97,17 @@ describe('ChatInterface', () => {
     (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       messages: [{ id: 'hist-1', role: 'assistant', content: '', finalAnswer: 'Session History' }] 
     });
+    (api.chat.createSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+      created: true,
+      session: {
+        id: 'created-session-1',
+        user_id: 1,
+        title: null,
+        mode: 'chat',
+        created_at: '2026-08-26T00:00:00Z',
+        updated_at: '2026-08-26T00:00:00Z',
+      },
+    });
     (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       response: 'Core Response',
       trace_summary: { steps: [] }
@@ -131,6 +143,66 @@ describe('ChatInterface', () => {
     fireEvent.click(sendBtn);
     
     await waitFor(() => expect(screen.getByText('Core Response')).toBeInTheDocument());
+  });
+
+  it('creates a durable session before the first message is sent', async () => {
+    const createdSession = {
+      id: 'created-session-1',
+      user_id: 1,
+      title: null,
+      mode: 'chat',
+      created_at: '2026-08-26T00:00:00Z',
+      updated_at: '2026-08-26T00:00:00Z',
+    };
+    (api.chat.listSessions as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ sessions: [] })
+      .mockResolvedValue({ sessions: [createdSession] });
+    (api.chat.createSession as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      created: true,
+      session: createdSession,
+    });
+
+    renderChatInterface();
+    expect(await screen.findByText('No recent sessions found')).toBeInTheDocument();
+
+    const textarea = screen.getByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'First durable question' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    await waitFor(() => expect(api.chat.createSession).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      expect(api.chat.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          session_id: 'created-session-1',
+          messages: [{ role: 'user', content: 'First durable question' }],
+        }),
+      );
+    });
+    expect(
+      (api.chat.createSession as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
+    ).toBeLessThan(
+      (api.chat.sendMessage as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
+    );
+    expect(await screen.findByText('Session created-')).toBeInTheDocument();
+  });
+
+  it('new chat stays a draft until send and then uses one persisted session', async () => {
+    renderChatInterface();
+    await screen.findByText('Session 1');
+
+    fireEvent.click(screen.getByTestId('new-chat-button'));
+    expect(screen.getByText('No active session')).toBeInTheDocument();
+
+    const textarea = screen.getByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Start a new persisted chat' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    await waitFor(() => expect(api.chat.createSession).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      expect(api.chat.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ session_id: 'created-session-1' }),
+      );
+    });
   });
 
   it('should display queued gateway trace links when a provider request is saved offline', async () => {
