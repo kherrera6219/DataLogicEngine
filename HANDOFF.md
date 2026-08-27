@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.16.0 |
+| Document version | v1.16.1 |
 | Product version | 4.4.2 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-20 |
+| Last reviewed | 2026-08-26 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 (release program) |
@@ -689,6 +689,22 @@ release approval are pending. The provider rows remain quarantined and
 `release_ready=false`. Production/public release remains **NO-GO**.
 
 ## Current checkpoint
+
+**CI recovery checkpoint (2026-08-26):** the owner-directed repair branch is
+based on current upstream `main` commit `f3f54bc391421b4c7c3d2404dc54314028c5c7de`.
+It restores the complete Dataset Exporter regression suite and Developer Guide
+that the runtime-capture batch accidentally replaced with partial files, fixes
+the capture-settings React hook lint failure and always-visible save feedback,
+and refreshes the reviewed Python lock from vulnerable `pip 26.1.2` to patched
+`pip 26.2`. Validation passes 3,308 Python tests with 18 skipped and zero setup
+errors; the coverage run passes the same tests with `backend/` 80.22%,
+`backend/security/` 80.67%, and `core/` 81.08%. All 484 frontend tests,
+frontend coverage, lint, typecheck, production build, dependency audit,
+documentation, lockfile, environment, workflow-pin, legacy-retirement,
+Phase-3 integrity, and installer-integrity gates pass. These are source and
+local validation results until the repair commit is pushed and replacement
+GitHub runs pass. They do not close CP19-M or change production/public release
+**NO-GO**.
 
 **Standing product-version rule (effective after 2026-08-19):** every completed
 major update batch must advance the patch component by one before the next
@@ -1662,10 +1678,14 @@ the compliance-remediation workstream begins at human-gated CR-A0
 must first confirm the disposition of this in-flight 4.4.2 repair/documentation
 batch. Do not introduce a broad line-ending rewrite as part of this runtime fix.
 
-1. Install exact-source `DataLogicEngine Setup 4.4.2.exe` bound to commit
-   `103f52e5f9b51f937ac2da8adc17523ec98affdb` and SHA-256
-   `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`,
-   then prove a normal Google chat invokes the configured provider once,
+1. Commit and publish the validated 2026-08-26 CI recovery batch, then confirm
+   replacement Deploy `Build and Test`, Security `Dependency Security Scan`,
+   and CI `backend-test`, `frontend-build`, and `governance` jobs pass. Rebuild
+   `DataLogicEngine Setup 4.4.2.exe` only from that exact clean green commit,
+   record its commit binding and SHA-256, and install that replacement before
+   further CP19-M acceptance. The artifact bound to commit `103f52e5` is
+   superseded source-relative evidence only. Prove a normal Google chat invokes
+   the configured provider once,
    releases through Layer 10, and exposes the persisted validation telemetry.
    Restore or replenish OpenAI quota and rerun the bounded `gpt-5.6-sol`
    source-level check with High reasoning. Do not expose, print, or require

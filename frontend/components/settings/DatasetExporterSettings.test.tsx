@@ -12,10 +12,13 @@ vi.mock('@/lib/api', () => ({
 describe('DatasetExporterSettings Component', () => {
   beforeEach(() => {
     mockRequest.mockReset();
-    mockRequest.mockImplementation(async (path: string) => {
+    mockRequest.mockImplementation(async (path: string, options?: RequestInit) => {
       if (path === '/dataset/capture-settings') {
+        const requested = options?.body
+          ? JSON.parse(String(options.body)) as { enabled?: boolean }
+          : null;
         return {
-          enabled: false,
+          enabled: options?.method === 'PUT' ? Boolean(requested?.enabled) : false,
           default: false,
           policy: 'export-only',
           redaction_enforced: true,
@@ -59,13 +62,6 @@ describe('DatasetExporterSettings Component', () => {
     render(<DatasetExporterSettings />);
     await waitFor(() => {
       expect(mockRequest).toHaveBeenCalledWith('/dataset/capture-settings');
-    });
-
-    mockRequest.mockResolvedValueOnce({
-      enabled: true,
-      default: false,
-      policy: 'export-only',
-      redaction_enforced: true,
     });
 
     fireEvent.click(screen.getByLabelText('Toggle runtime usage capture'));

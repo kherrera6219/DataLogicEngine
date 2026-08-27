@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.14.0 |
+| Document version | v1.14.1 |
 | Product version | 4.4.2 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-20 |
+| Last reviewed | 2026-08-26 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.79.0 |
@@ -691,6 +691,19 @@ commit-bound baseline before CR-A1 is treated as open work.
       playbooks, Section 508/WCAG 2.2 AA conformance report.
 
 ## Completed checkpoints
+
+- **2026-08-26 CI recovery validated locally:** restored the complete Dataset
+  Exporter regression suite and Developer Guide after the runtime-capture batch
+  replaced them with partial files; fixed the capture-settings frontend hook
+  lint failure and visible save feedback; and regenerated the Python lock with
+  patched `pip 26.2`. The full Windows suite passes 3,308 tests with 18 skipped
+  and zero setup errors. Python coverage passes independently for `backend/`
+  (80.22%), `backend/security/` (80.67%), and `core/` (81.08%). All 484
+  frontend tests, frontend coverage, lint, typecheck, production build,
+  dependency audit, documentation, lockfile, environment, workflow-pin,
+  legacy-retirement, Phase-3 integrity, and installer-integrity gates pass.
+  GitHub replacement runs remain required after publication; CP19-M and the
+  production/public release NO-GO are unchanged.
 
 - **Phase 19 CP19-J passed 2026-08-01:** the authenticated product API,
   generated SDKs, and desktop Algorithms/History surfaces now share one
@@ -1559,10 +1572,12 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-Install exact-source `DataLogicEngine Setup 4.4.2.exe` bound to commit
-`103f52e5f9b51f937ac2da8adc17523ec98affdb` and SHA-256
-`ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`,
-then prove a normal Google chat invokes the configured provider once, releases
+Commit and publish the validated 2026-08-26 CI recovery batch, then confirm the
+five replacement GitHub jobs pass. Rebuild `DataLogicEngine Setup 4.4.2.exe`
+only from that exact clean green commit, record its commit binding and SHA-256,
+and install that replacement before further CP19-M acceptance. The artifact
+bound to commit `103f52e5` is superseded source-relative evidence only. Then
+prove a normal Google chat invokes the configured provider once, releases
 through Layer 10, and exposes persisted validation telemetry. Restore or
 replenish OpenAI quota and rerun `gpt-5.6-sol` with High reasoning without
 exposing or re-entering stored keys. After both provider checks pass, obtain

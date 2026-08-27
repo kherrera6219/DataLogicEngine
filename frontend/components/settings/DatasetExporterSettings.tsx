@@ -62,17 +62,20 @@ export default function DatasetExporterSettings() {
     }
   };
 
-  const fetchCaptureSettings = async () => {
-    try {
-      const settings = await request<CaptureSettings>('/dataset/capture-settings');
-      setCaptureEnabled(Boolean(settings.enabled));
-    } catch {
-      setCaptureEnabled(false);
-    }
-  };
-
   useEffect(() => {
-    void fetchCaptureSettings();
+    let cancelled = false;
+
+    void request<CaptureSettings>('/dataset/capture-settings')
+      .then((settings) => {
+        if (!cancelled) setCaptureEnabled(Boolean(settings.enabled));
+      })
+      .catch(() => {
+        if (!cancelled) setCaptureEnabled(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleEnabledChange = (value: boolean) => {
@@ -169,6 +172,21 @@ export default function DatasetExporterSettings() {
             />
           </div>
 
+          {message && (
+            <div
+              className={`p-3 rounded-lg border flex items-center gap-2 text-sm ${
+                message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'
+              }`}
+            >
+              {message.type === 'success' ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
+              )}
+              <span>{message.text}</span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between p-4 rounded-lg border bg-card">
             <div className="space-y-0.5">
               <Label className="text-base font-medium">Enable manual export controls</Label>
@@ -261,21 +279,6 @@ export default function DatasetExporterSettings() {
                   </div>
                 </div>
               </div>
-
-              {message && (
-                <div
-                  className={`p-3 rounded-lg border flex items-center gap-2 text-sm ${
-                    message.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'
-                  }`}
-                >
-                  {message.type === 'success' ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
-                  )}
-                  <span>{message.text}</span>
-                </div>
-              )}
 
               <div className="flex justify-end pt-2">
                 <Button onClick={handleRunExport} disabled={exporting}>

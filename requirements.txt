@@ -104,6 +104,7 @@ pytest-cov==7.1.0
 pytest-asyncio==1.4.0
 
 # Deterministic build, audit, and release tooling
+pip==26.2  # direct patched pin for PYSEC-2026-3721
 pyinstaller==6.18.0
 ruff==0.15.0
 pip-audit==2.10.0
