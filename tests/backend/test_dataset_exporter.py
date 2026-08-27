@@ -490,6 +490,29 @@ def test_capture_settings_default_off(dataset_app: Flask):
     assert response.get_json() == payload
 
 
+def test_capture_settings_lookup_failure_is_explicit(dataset_app: Flask):
+    sentinel = "secret-capture-database-path"
+    with (
+        patch(
+            "backend.auth.api_decorators.check_desktop_request_auth",
+            return_value=(True, SimpleNamespace(id=7, username="owner")),
+        ),
+        patch(
+            "backend.routes.dataset_routes.get_capture_settings_payload",
+            side_effect=RuntimeError(sentinel),
+        ),
+    ):
+        response = dataset_app.test_client().get("/api/v1/dataset/capture-settings")
+
+    assert response.status_code == 500
+    assert response.get_json() == {
+        "status": "error",
+        "error": "capture_settings_unavailable",
+        "message": "Capture settings are unavailable.",
+    }
+    assert sentinel not in response.get_data(as_text=True)
+
+
 def test_capture_settings_toggle_is_owner_audited(dataset_app: Flask):
     principal = SimpleNamespace(id=7, username="owner")
     setter = MagicMock(

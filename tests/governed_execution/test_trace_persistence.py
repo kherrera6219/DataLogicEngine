@@ -1,4 +1,5 @@
 import uuid
+from unittest.mock import patch
 
 import pytest
 
@@ -217,7 +218,10 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
         },
     }
 
-    with app.app_context():
+    with app.app_context(), patch(
+        "backend.dataset_exporter.runtime_capture.maybe_stage_training_capture",
+        side_effect=RuntimeError("capture-hook-failure"),
+    ):
         gateway = LLMGateway(db_session=db.session)
         persisted = await gateway._create_trace_run(
             payload,

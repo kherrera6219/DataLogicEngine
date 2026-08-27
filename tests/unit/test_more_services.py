@@ -1,6 +1,7 @@
 
 from unittest.mock import MagicMock, patch
 import sys
+import uuid
 
 # Explicitly import services
 from backend.routes import storage_routes
@@ -100,6 +101,32 @@ def test_retention_cleanup_sessions():
         assert res['status'] == 'success'
         assert res['deleted_count'] == 5
         mock_db.session.commit.assert_called()
+
+
+def test_retention_cleanup_trace_runs_purges_matching_capture():
+    srv = DataRetentionService()
+    run_id = uuid.uuid4()
+    mock_db = MagicMock()
+    mock_model = MagicMock()
+    mock_query = MagicMock()
+    mock_model.created_at.__lt__.return_value = MagicMock()
+    mock_model.query.filter.return_value = mock_query
+    mock_query.with_entities.return_value.all.return_value = [(run_id,)]
+    mock_modules = {
+        'extensions': MagicMock(db=mock_db),
+        'models': MagicMock(TraceRun=mock_model),
+    }
+
+    with patch.dict(sys.modules, mock_modules), patch(
+        'backend.dataset_exporter.runtime_capture.purge_staged_capture_runs'
+    ) as purge:
+        result = srv.cleanup_trace_runs()
+
+    assert result['status'] == 'success'
+    assert result['deleted_count'] == 1
+    purge.assert_called_once_with([str(run_id)])
+    mock_query.delete.assert_called_once_with(synchronize_session=False)
+    mock_db.session.commit.assert_called_once_with()
 
 def test_run_cleanup_all():
     srv = DataRetentionService()

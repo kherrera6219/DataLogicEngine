@@ -7,11 +7,18 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
 from backend.dataset_exporter.exporter_core import DatasetExporter
 from backend.dataset_exporter.runtime_capture import (
+    RuntimeCaptureLoadError,
+    RuntimeCaptureStorageError,
     build_capture_row,
+    capture_stats,
     is_release_authorized_for_capture,
+    load_staged_capture_traces,
     maybe_stage_released_trace,
+    purge_staged_capture_runs,
 )
 
 
@@ -108,8 +115,65 @@ def test_capture_write_failure_is_non_blocking(tmp_path: Path):
     ):
         result = maybe_stage_released_trace(_released_trace(), base_dir=tmp_path)
 
-    assert result["status"] == "skipped"
+    assert result["status"] == "error"
     assert result["reason"] == "capture_failed"
+
+
+def test_capture_stats_failure_is_not_reported_as_zero(tmp_path: Path):
+    capture_dir = tmp_path / "capture"
+    capture_dir.mkdir()
+    with patch.object(Path, "glob", side_effect=OSError("secret-volume-path")):
+        with pytest.raises(
+            RuntimeCaptureStorageError,
+            match="runtime_capture_stats_unavailable",
+        ) as raised:
+            capture_stats(tmp_path)
+
+    assert "secret-volume-path" not in str(raised.value)
+
+
+def test_malformed_capture_blocks_partial_export(tmp_path: Path):
+    capture_dir = tmp_path / "capture"
+    capture_dir.mkdir()
+    (capture_dir / "broken.jsonl").write_text("{not-json", encoding="utf-8")
+
+    with pytest.raises(
+        RuntimeCaptureLoadError,
+        match="runtime_capture_load_failed",
+    ):
+        load_staged_capture_traces(base_dir=tmp_path)
+
+
+def test_retention_purge_removes_only_selected_capture(tmp_path: Path):
+    capture_dir = tmp_path / "capture"
+    capture_dir.mkdir()
+    first_run = "00000000-0000-0000-0000-000000000101"
+    second_run = "00000000-0000-0000-0000-000000000102"
+    first = capture_dir / f"{first_run}.jsonl"
+    second = capture_dir / f"{second_run}.jsonl"
+    first.write_text("{}", encoding="utf-8")
+    second.write_text("{}", encoding="utf-8")
+
+    assert purge_staged_capture_runs([first_run], base_dir=tmp_path, dry_run=True) == 1
+    assert first.exists()
+    assert purge_staged_capture_runs([first_run], base_dir=tmp_path) == 1
+    assert not first.exists()
+    assert second.exists()
+
+
+def test_unexpected_capture_failure_propagates_to_post_commit_boundary(tmp_path: Path):
+    with (
+        patch(
+            "backend.dataset_exporter.runtime_capture.is_training_data_capture_enabled",
+            return_value=True,
+        ),
+        patch(
+            "backend.dataset_exporter.runtime_capture.build_capture_row",
+            side_effect=RuntimeError("unexpected-capture-bug"),
+        ),
+    ):
+        with pytest.raises(RuntimeError, match="unexpected-capture-bug"):
+            maybe_stage_released_trace(_released_trace(), base_dir=tmp_path)
 
 
 def test_export_from_capture_reapplies_gates(tmp_path: Path):
