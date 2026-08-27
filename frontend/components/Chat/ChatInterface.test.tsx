@@ -164,7 +164,7 @@ describe('ChatInterface', () => {
     expect(await screen.findByText(/answer reached the provider output limit/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /prepare continuation/i }));
 
-    expect(textarea).toHaveValue(expect.stringMatching(/continue the prior answer/i));
+    expect((textarea as HTMLTextAreaElement).value).toMatch(/continue the prior answer/i);
     expect(api.chat.sendMessage).toHaveBeenCalledTimes(1);
   });
 

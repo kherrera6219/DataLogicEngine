@@ -117,6 +117,7 @@ class _Gateway:
             "ok": True,
             "answer": f"Answer from {marker} evidence [S1]",
             "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            "completion": {"disposition": "complete", "native_reason": "STOP"},
         }
 
     async def _record_usage(self, *args, **kwargs):
@@ -170,6 +171,7 @@ class _RefinementGateway(_Gateway):
             "ok": True,
             "answer": answer,
             "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            "completion": {"disposition": "complete", "native_reason": "STOP"},
         }
 
 
@@ -179,7 +181,12 @@ class _SlowGateway(_Gateway):
     ):
         self.provider_calls += 1
         await asyncio.sleep(30)
-        return {"ok": True, "answer": "late answer", "usage": {}}
+        return {
+            "ok": True,
+            "answer": "late answer",
+            "usage": {},
+            "completion": {"disposition": "complete", "native_reason": "STOP"},
+        }
 
 
 class _PersistenceFailureGateway(_Gateway):
@@ -202,6 +209,7 @@ class _PIIGateway(_Gateway):
             "ok": True,
             "answer": "Contact admin@example.com for support.",
             "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            "completion": {"disposition": "complete", "native_reason": "STOP"},
         }
 
 
