@@ -4,10 +4,20 @@ import { ChatRequest, ChatResponse } from './types';
 export interface ChatSession {
   id: string;
   user_id: number;
-  title: string;
+  title: string | null;
   mode?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface CreateChatSessionRequest {
+  session_id: string;
+  mode: 'chat' | 'quad';
+}
+
+export interface CreateChatSessionResponse {
+  session: ChatSession;
+  created: boolean;
 }
 
 export interface ApiChatMessage {
@@ -32,6 +42,16 @@ export const chat = {
    */
   getSessionMessages: async (sessionId: string) => {
     return request<{ messages: ApiChatMessage[] }>(`/gateway/sessions/${sessionId}/messages`);
+  },
+
+  /**
+   * Create or idempotently resolve a principal-owned desktop chat session.
+   */
+  createSession: async (payload: CreateChatSessionRequest) => {
+    return request<CreateChatSessionResponse>('/gateway/sessions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   },
 
   /**

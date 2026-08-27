@@ -68,6 +68,15 @@ class GatewayChatRequest(BaseModel):
         return value
 
 
+class GatewaySessionCreateRequest(BaseModel):
+    """Desktop-internal idempotent chat-session create/ensure request."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: Optional[str] = Field(None, min_length=36, max_length=36)
+    mode: Literal["chat", "quad", "standard", "enhanced", "local_review"] = "chat"
+
+
 class GatewayAsyncRunCreate(GatewayChatRequest):
     """A durable job must have an explicit retry identity."""
 

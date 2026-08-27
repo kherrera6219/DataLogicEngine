@@ -69,7 +69,14 @@ from backend.llm_gateway.schemas import (
     APIKeyRotate,
     GatewayAsyncRunCreate,
     GatewayChatRequest,
+    GatewaySessionCreateRequest,
     OpenAIChatCompletionRequest,
+)
+from backend.llm_gateway.chat_sessions import (
+    ChatSessionInvalid,
+    ChatSessionNotFound,
+    ChatSessionPersistenceError,
+    ensure_chat_session,
 )
 from backend.auth.api_decorators import (
     api_session_login_required,
@@ -2125,6 +2132,51 @@ def get_session_messages(session_id):
             for m in messages
         ]
     })
+
+
+@gateway_bp.route('/sessions', methods=['POST'])
+@api_key_required
+def create_user_session():
+    """Create or idempotently resolve a principal-owned desktop chat session."""
+    if getattr(g, 'api_key', None):
+        return _external_control_plane_error()
+
+    validated, validation_error = validate_pydantic_payload(
+        GatewaySessionCreateRequest,
+        request.get_json(silent=True) or {},
+    )
+    if validation_error:
+        return validation_error
+    payload = validated.model_dump() if validated else {}
+
+    try:
+        ensured = ensure_chat_session(
+            db.session,
+            session_id=payload.get('session_id'),
+            user_id=g.user_id,
+            mode=payload.get('mode') or 'chat',
+        )
+    except ChatSessionInvalid:
+        return jsonify({
+            'error': 'Invalid chat session request',
+            'code': 'INVALID_CHAT_SESSION',
+        }), 422
+    except ChatSessionNotFound:
+        return jsonify({
+            'error': 'Chat session not found',
+            'code': 'CHAT_SESSION_NOT_FOUND',
+        }), 404
+    except ChatSessionPersistenceError:
+        logger.exception('Desktop chat-session persistence failed')
+        return jsonify({
+            'error': 'Chat session could not be persisted',
+            'code': 'CHAT_SESSION_PERSISTENCE_FAILED',
+        }), 500
+
+    return jsonify({
+        'session': ensured.session.to_dict(),
+        'created': ensured.created,
+    }), 201 if ensured.created else 200
 
 
 @gateway_bp.route('/sessions', methods=['GET'])

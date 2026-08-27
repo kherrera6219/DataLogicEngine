@@ -131,6 +131,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const composerRef = useRef<HTMLTextAreaElement>(null);
+  const draftSessionIdRef = useRef<string | null>(null);
+  const sessionCreationRef = useRef<Promise<ChatSession> | null>(null);
+  const freshSessionIdsRef = useRef<Set<string>>(new Set());
 
   const strictInputSanitization = isEnabled('strictInputSanitization');
 
@@ -163,7 +166,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     const fetchSessions = async () => {
       try {
         const data = await api.chat.listSessions();
-        setSessions(data.sessions || []);
+        const loadedSessions = data.sessions || [];
+        setSessions(loadedSessions);
+        setCurrentSessionId((selected) => selected ?? loadedSessions[0]?.id ?? null);
       } catch (err) {
         reportClientError(err, {
           module: 'ChatInterface',
@@ -184,11 +189,6 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       .catch(() => setProviderBudget(null));
   }, []);
 
-  // Auto-select first session when sessions are loaded (render-time derivation).
-  if (sessions.length > 0 && !currentSessionId) {
-    setCurrentSessionId(sessions[0].id);
-  }
-
   // Hydrate history when session changes
   useEffect(() => {
     if (!currentSessionId) return;
@@ -196,7 +196,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     // Join WebSocket room for this session
     socketClient.joinRoom(`chat_${currentSessionId}`);
 
+    const isFreshSession = freshSessionIdsRef.current.delete(currentSessionId);
     const fetchHistory = async () => {
+      if (isFreshSession) return;
       try {
         const data = await api.chat.getSessionMessages(currentSessionId);
         if (data.messages?.length) {
@@ -215,6 +217,31 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       socketClient.leaveRoom(`chat_${currentSessionId}`);
     };
   }, [currentSessionId]);
+
+  const ensureCurrentSession = async (): Promise<string> => {
+    if (currentSessionId) return currentSessionId;
+
+    if (!draftSessionIdRef.current) {
+      draftSessionIdRef.current = crypto.randomUUID();
+    }
+    if (!sessionCreationRef.current) {
+      sessionCreationRef.current = api.chat.createSession({
+        session_id: draftSessionIdRef.current,
+        mode,
+      }).then(({ session }) => {
+        freshSessionIdsRef.current.add(session.id);
+        setCurrentSessionId(session.id);
+        setSessions((existing) => [
+          session,
+          ...existing.filter((item) => item.id !== session.id),
+        ]);
+        return session;
+      }).finally(() => {
+        sessionCreationRef.current = null;
+      });
+    }
+    return (await sessionCreationRef.current).id;
+  };
 
   const handleSend = async () => {
     const normalizedInput = strictInputSanitization
@@ -249,14 +276,16 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     setIsLoading(true);
     const requestId = crypto.randomUUID();
     setActiveRequestId(requestId);
+    let sessionId = currentSessionId ?? undefined;
 
     try {
+      sessionId = await ensureCurrentSession();
       // Use the centralized API
       const data = await api.chat.sendMessage({
         messages: [{ role: 'user', content: userMsg.content }],
         request_id: requestId,
         mode: mode,
-        session_id: currentSessionId ?? undefined,
+        session_id: sessionId,
         run_ukg_pipeline: true,
         meta: { budget_warning_confirmed: budgetWarningConfirmed },
       });
@@ -291,8 +320,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       }
       
       // Refresh session list in case a new session was created
-      const sessionData = await api.chat.listSessions().catch(() => ({ sessions: [] }));
-      setSessions(sessionData.sessions || []);
+      const sessionData = await api.chat.listSessions().catch(() => null);
+      if (sessionData) {
+        setSessions(sessionData.sessions || []);
+      }
       setActiveRequestId(null);
 
     } catch (error) {
@@ -331,7 +362,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
               request_id: requestId,
               messages: [{ role: 'user', content: userMsg.content }],
               mode,
-              session_id: currentSessionId ?? undefined,
+              session_id: sessionId,
               run_ukg_pipeline: true,
             },
           }),
@@ -367,7 +398,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   };
 
   const handleNewChat = () => {
-    setCurrentSessionId(crypto.randomUUID());
+    setCurrentSessionId(null);
+    draftSessionIdRef.current = null;
+    sessionCreationRef.current = null;
     setMessages([]);
   };
 

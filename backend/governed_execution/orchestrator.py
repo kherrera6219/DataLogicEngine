@@ -891,14 +891,31 @@ class GovernedExecutionOrchestrator:
         if not await self._persist(context, result):
             self.knowledge_lifecycle.rollback_validated_memory(context.memory_proposal)
             self._apply_persistence_failure(context, result)
-        if request.session_id and result.ok:
-            await self.gateway._save_chat_message(
+        if (
+            request.session_id
+            and result.ok
+            and request.metadata.get("_store_chat_history", True)
+        ):
+            persistence_result = await self.gateway._save_chat_message(
                 request.session_id,
                 request.user_id,
                 "assistant",
                 result.answer,
                 context.trace_id,
             )
+            if getattr(persistence_result, "ok", True) is False:
+                context.warnings.append("assistant_transcript_persistence_failed")
+                self._apply_chat_persistence_failure(
+                    context,
+                    result,
+                    code=str(
+                        getattr(
+                            persistence_result,
+                            "code",
+                            "CHAT_MESSAGE_PERSISTENCE_FAILED",
+                        )
+                    ),
+                )
         return result
 
     async def _evaluate_candidate(
@@ -1740,13 +1757,34 @@ class GovernedExecutionOrchestrator:
         if not providers:
             return {"ok": False, "error": "No active providers found", "attempts": []}
 
+        request.metadata["_store_chat_history"] = store_history
+
         if request.session_id and store_history and save_user_message:
-            await self.gateway._save_chat_message(
+            persistence_result = await self.gateway._save_chat_message(
                 request.session_id,
                 request.user_id,
                 "user",
                 context.query,
+                context.trace_id,
             )
+            if getattr(persistence_result, "ok", True) is False:
+                return {
+                    "ok": False,
+                    "error": "Chat transcript could not be persisted",
+                    "retryable": False,
+                    "attempts": [],
+                    "failure": {
+                        "class": ProviderFailureClass.PERSISTENCE.value,
+                        "code": str(
+                            getattr(
+                                persistence_result,
+                                "code",
+                                "CHAT_MESSAGE_PERSISTENCE_FAILED",
+                            )
+                        ),
+                        "replayable": False,
+                    },
+                }
 
         budget_policy = ProviderBudgetPolicy(getattr(self.gateway, "db", None))
         max_calls = budget_policy.request_call_limit(request.mode, request.constraints)
@@ -2379,6 +2417,26 @@ class GovernedExecutionOrchestrator:
             kind=GovernedFailureKind.INTERNAL_FAILURE,
             code="TRACE_PERSISTENCE_FAILURE",
             message="Provider result was not released because its governed trace did not persist",
+            stage="persistence",
+            retryable=False,
+            details={"provider_succeeded": True},
+        )
+        result.warnings = context.warnings
+
+    @staticmethod
+    def _apply_chat_persistence_failure(
+        context: GovernedContext,
+        result: GovernedResult,
+        *,
+        code: str,
+    ) -> None:
+        result.ok = False
+        result.status = GovernedFailureKind.INTERNAL_FAILURE.value
+        result.answer = ""
+        result.failure = GovernedFailure(
+            kind=GovernedFailureKind.INTERNAL_FAILURE,
+            code=code,
+            message="Provider result was not released because the chat transcript did not persist",
             stage="persistence",
             retryable=False,
             details={"provider_succeeded": True},

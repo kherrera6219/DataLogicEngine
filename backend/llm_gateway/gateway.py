@@ -14,6 +14,7 @@ from datetime import datetime, UTC, timedelta
 from pathlib import Path
 from typing import Any, AsyncIterator, Optional
 from dataclasses import dataclass, field
+from sqlalchemy.exc import SQLAlchemyError
 
 from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage
 from backend.utils.error_normalization import normalize_public_error_message
@@ -77,6 +78,18 @@ class GatewayResponse:
     contract_version: str = "governed.v1"
     status: str = "completed"
     failure: Optional[dict[str, Any]] = None
+
+
+@dataclass(frozen=True)
+class ChatMessagePersistenceResult:
+    """Typed result that distinguishes transcript failure from success."""
+
+    ok: bool
+    code: str
+    session_id: Optional[str] = None
+    message_id: Optional[str] = None
+    run_id: Optional[str] = None
+    rag_status: str = "not_attempted"
 
 
 class CircuitBreaker:
@@ -1060,61 +1073,103 @@ class LLMGateway:
         """Clean up."""
         self._overlays.clear()
 
-    async def _save_chat_message(self, session_id: str, user_id: Optional[int], role: str, content: str, run_id: Optional[str] = None) -> None:
-        """Persist message to SQL database and update session."""
+    async def _save_chat_message(
+        self,
+        session_id: str,
+        user_id: Optional[int],
+        role: str,
+        content: str,
+        run_id: Optional[str] = None,
+    ) -> ChatMessagePersistenceResult:
+        """Persist one principal-owned transcript row and return a receipt."""
+        from extensions import db
+
         try:
-            from extensions import db
-            import uuid
-            
-            # 1. Ensure Session exists
-            session = ChatSession.query.get(uuid.UUID(session_id))
-            if not session:
-                # Fallback: if we don't have a user_id, we can't create a session properly 
-                # but we'll try to find the current user if possible or just skip
-                if not user_id:
-                    return
-                
-                session = ChatSession(
-                    id=uuid.UUID(session_id),
-                    user_id=user_id,
-                    title=content[:50] + "..." if role == "user" else "New Chat"
-                )
-                db.session.add(session)
-            
-            # 2. Add Message
+            parsed_session_id = uuid.UUID(str(session_id))
+            parsed_run_id = uuid.UUID(str(run_id)) if run_id else None
+        except (TypeError, ValueError, AttributeError):
+            return ChatMessagePersistenceResult(
+                ok=False,
+                code="INVALID_CHAT_MESSAGE_CORRELATION",
+                session_id=str(session_id) if session_id else None,
+                run_id=str(run_id) if run_id else None,
+            )
+
+        if user_id is None or role not in {"user", "assistant", "system"}:
+            return ChatMessagePersistenceResult(
+                ok=False,
+                code="INVALID_CHAT_MESSAGE",
+                session_id=str(parsed_session_id),
+                run_id=str(parsed_run_id) if parsed_run_id else None,
+            )
+
+        session = db.session.get(ChatSession, parsed_session_id)
+        if session is None or int(session.user_id) != int(user_id):
+            return ChatMessagePersistenceResult(
+                ok=False,
+                code="CHAT_SESSION_NOT_FOUND",
+                session_id=str(parsed_session_id),
+                run_id=str(parsed_run_id) if parsed_run_id else None,
+            )
+
+        try:
             msg = ChatMessage(
                 session_id=session.id,
                 role=role,
                 content=content,
-                run_id=uuid.UUID(run_id) if run_id else None,
-                is_enhanced=(role == "assistant")
+                run_id=parsed_run_id,
+                is_enhanced=(role == "assistant"),
             )
             db.session.add(msg)
-            
-            # 3. Update session timestamp and title if it's the first message
+
             session.updated_at = datetime.now(UTC)
             if not session.title and role == "user":
-                session.title = content[:50] + "..."
-                
+                bounded_title = content.strip()[:50]
+                session.title = (
+                    f"{bounded_title}..." if len(content.strip()) > 50 else bounded_title
+                )
+
             db.session.commit()
-            
-            # 4. Optional: Sync to RAG for semantic search
-            if role in ["user", "assistant"]:
-                try:
-                    from backend.services.rag_service import get_rag_service
-                    rag = get_rag_service()
-                    rag.store_chat_message(
-                        str(session.id),
-                        str(msg.id),
-                        role,
-                        content,
-                        user_id=str(user_id) if user_id else None,
-                    )
-                except Exception as e:
-                    logger.warning(f"Failed to sync message to RAG: {e}")
-                    
-        except Exception as e:
-            logger.error(f"Failed to save chat message: {e}")
+        except SQLAlchemyError:
+            db.session.rollback()
+            logger.error(
+                "Chat transcript persistence failed for session %s",
+                parsed_session_id,
+                exc_info=True,
+            )
+            return ChatMessagePersistenceResult(
+                ok=False,
+                code="CHAT_MESSAGE_PERSISTENCE_FAILED",
+                session_id=str(parsed_session_id),
+                run_id=str(parsed_run_id) if parsed_run_id else None,
+            )
+
+        rag_status = "not_applicable"
+        if role in {"user", "assistant"}:
+            rag_status = "synced"
+            try:
+                from backend.services.rag_service import get_rag_service
+
+                rag = get_rag_service()
+                rag.store_chat_message(
+                    str(session.id),
+                    str(msg.id),
+                    role,
+                    content,
+                    user_id=str(user_id),
+                )
+            except Exception as exc:
+                rag_status = "failed"
+                logger.warning("Chat message RAG synchronization failed: %s", exc)
+
+        return ChatMessagePersistenceResult(
+            ok=True,
+            code="CHAT_MESSAGE_PERSISTED",
+            session_id=str(session.id),
+            message_id=str(msg.id),
+            run_id=str(parsed_run_id) if parsed_run_id else None,
+            rag_status=rag_status,
+        )
 
 # Singleton instance
 _gateway_instance = None
