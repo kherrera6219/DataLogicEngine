@@ -95,6 +95,7 @@ supersede the root production plan, TODO, or handoff:
 - `docs/DESKTOP_CSP.md`
 - `docs/DMRF_TRUTH_BOUNDARY.md`
 - `docs/MEMORY_AUTHORITY.md`
+- `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md`
 - `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md`
 - `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md`
 - `docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md`

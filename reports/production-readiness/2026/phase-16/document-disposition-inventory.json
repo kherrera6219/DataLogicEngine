@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-08-27T05:21:24.418682+00:00",
+  "generated_at": "2026-08-27T06:09:49.115203+00:00",
   "authority_version": "2026.08.10-cp19l-installed-evidence",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 181,
+    "markdown_file_count": 182,
     "canonical_document_count": 30,
     "canonical_limit": 30,
     "existing_canonical_count": 30,
@@ -17,7 +17,7 @@
       "authoritative": 36,
       "generated": 6,
       "historical": 124,
-      "supporting": 15
+      "supporting": 16
     }
   },
   "unclassified": [],
@@ -1126,6 +1126,14 @@
       "target": "docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md",
       "cap_counted": false,
       "basis": "normative legal or temporary program authority outside the final canonical cap"
+    },
+    {
+      "path": "docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
     },
     {
       "path": "docs/audits/UKG_Spec_vs_App_Findings_2026-08-10.md",

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.19.0 |
+| Document version | v1.20.0 |
 | Product version | 4.4.3 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -20,8 +20,9 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.82.0 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
+| Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (active plan for CHAT-QC-01 through CHAT-QC-06, TRACE-QC-01 through TRACE-QC-06, and DATA-QC-01 through DATA-QC-02; first implementation slice is CHAT-QC-01) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; 4.4.3 exact-source rebuild is installed and healthy with core payload identity matched, while Google chat, OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open |
+| Current phase | Phase 19 CU-2; 4.4.3 exact-source rebuild is installed and healthy with core payload identity matched. Installed Google governed chat reached Layer 10 but exposed open session, completion, confidence/mode, trace/refinement/persona, analytics, and Knowledge Base acceptance findings. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance also remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -35,13 +36,14 @@ Read these documents in order before changing code or making a readiness claim:
 4. `docs/README.md` — active documentation portal.
 5. `README.md` — public product and repository entry point.
 6. `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` — current supporting work sequence and archived-source disposition.
-7. `AGENTS.md` — agent operating rules and forbidden patterns; **read before changing any code**.
-8. `docs/compliance/REMEDIATION_PLAN.md` — compliance-remediation work orders (CR-A0 … CR-G12) with deterministic exit gates.
-9. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
-10. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
-11. `docs/SECURITY_ARCHITECTURE.md`.
-12. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
-13. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
+7. `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` — code-grounded repair order for the installed chat, trace, analytics, and Knowledge Base findings.
+8. `AGENTS.md` — agent operating rules and forbidden patterns; **read before changing any code**.
+9. `docs/compliance/REMEDIATION_PLAN.md` — compliance-remediation work orders (CR-A0 … CR-G12) with deterministic exit gates.
+10. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
+11. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
+12. `docs/SECURITY_ARCHITECTURE.md`.
+13. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
+14. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
 
 Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
@@ -49,6 +51,47 @@ over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
 remaining supporting work. Completed slow-audit, QC, coverage, and rejected
 terminology source plans are historical records under `docs/archive/audits/`.
 Phase 5 remains partial/deferred.
+
+## Installed governed-chat review checkpoint — 2026-08-26
+
+Installed run `0779492c-c054-4630-b321-b2e13be7b4ef` completed the governed
+pipeline with Google `gemini-3.7-flash`, but it does not close the CP19-M chat
+acceptance row. Source reconciliation confirmed that the installed findings
+are caused by product binding and presentation defects around the implemented
+governed path:
+
+- the first send can omit `session_id`, so the transcript does not enter Recent
+  Sessions;
+- provider completion metadata is discarded, so an answer ending mid-sentence
+  can appear successful;
+- confidence is not rendered consistently, profile coverage is presented as
+  persona confidence, and assistant messages are inferred as Enhanced;
+- live trace field names and timing do not match the frontend contract, the run
+  ID arrives too late for Governed Chat to subscribe, and internal trace
+  failures can look like empty success;
+- no persistent refinement disposition explains a non-invoked workflow, and
+  the canonical twelve steps have no live progress callback;
+- actual analyst findings are discarded in favor of generic profile prose;
+- Trace & Review Analytics queries pillar definitions rather than trace runs;
+  and
+- Knowledge Base shows pillar/graph counts but not the existing authoritative
+  ingestion, revision, materialization, retrieval, and reconciliation state.
+
+The active supporting implementation plan is
+`docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md`; the matching
+ledger is the **Installed governed-chat findings — 2026-08-26** section in
+`TODO.md`. The exact next implementation slice is **CHAT-QC-01**: establish a
+principal-owned durable session before the first provider execution, make
+transcript persistence typed rather than silent, and prove navigation,
+relaunch, retry, and replay idempotency. Do not start with visual trace changes;
+session/run identity is their correlation prerequisite.
+
+This plan does not authorize raw chain-of-thought display, extra persona
+provider calls, a new outbound destination, a public metric rename, or an
+external response-schema change. Use deterministic, bounded, redacted public
+execution summaries. The product remains 4.4.3 while planning; after all source
+tasks pass, the standing major-update rule moves the exact-source integrated
+rebuild to 4.4.4.
 
 ## Phase 19 execution authority
 
