@@ -56,7 +56,9 @@ def _int(value: Any) -> int:
         return 0
 
 
-def _prune(model: Any, run_id: uuid.UUID, primary_key: str, active: set[uuid.UUID]) -> None:
+def _prune(
+    model: Any, run_id: uuid.UUID, primary_key: str, active: set[uuid.UUID]
+) -> None:
     for record in model.query.filter_by(run_id=run_id).all():
         if getattr(record, primary_key) not in active:
             db.session.delete(record)
@@ -94,7 +96,8 @@ def extract_release_governance(sdk_result: dict[str, Any]) -> dict[str, Any]:
         containment_class = str(metadata.get("containment_class"))
 
     quarantine = any(
-        item.get("decision") == "quarantine" for item in _objects(ka_1094.get("decisions"))
+        item.get("decision") == "quarantine"
+        for item in _objects(ka_1094.get("decisions"))
     )
     memory = _mapping(metadata.get("memory"))
     if str(memory.get("state") or "").lower() in {"quarantined", "never_persist"}:
@@ -164,7 +167,9 @@ def persist_governed_trace(
             confidence = sdk_result.get("confidence_score")
         total_tokens = usage.get("total_tokens")
         if total_tokens is None:
-            total_tokens = _int(usage.get("prompt_tokens")) + _int(usage.get("completion_tokens"))
+            total_tokens = _int(usage.get("prompt_tokens")) + _int(
+                usage.get("completion_tokens")
+            )
 
         run = db.session.get(TraceRun, trace_run_id)
         if run is None:
@@ -180,7 +185,9 @@ def persist_governed_trace(
         run.completed_at = datetime.now(UTC)
         run.model_name = str(sdk_result.get("model_used") or model or "unknown")
         run.model_version = str(
-            sdk_result.get("model_version") or metadata.get("model_version") or "unknown"
+            sdk_result.get("model_version")
+            or metadata.get("model_version")
+            or "unknown"
         )
         run.input_message = query
         run.final_answer = str(sdk_result.get("answer") or "")
@@ -215,7 +222,8 @@ def persist_governed_trace(
             {
                 "contract_version": sdk_result.get("contract_version", "governed.v1"),
                 "governed_status": governed_status,
-                "provider_used": sdk_result.get("provider_used") or metadata.get("provider_used"),
+                "provider_used": sdk_result.get("provider_used")
+                or metadata.get("provider_used"),
                 "failure": sdk_result.get("failure"),
                 "provider_call_count": metadata.get("provider_call_count", 0),
                 "source_ids": metadata.get("source_ids", []),
@@ -281,7 +289,9 @@ def persist_governed_trace(
             record.inputs = _mapping(item.get("input"))
             record.outputs = _mapping(item.get("output"))
             record.decisions = (
-                [{"error_code": item.get("error_code")}] if item.get("error_code") else []
+                [{"error_code": item.get("error_code")}]
+                if item.get("error_code")
+                else []
             )
             record.metrics = _mapping(item.get("metrics"))
 
@@ -296,7 +306,9 @@ def persist_governed_trace(
         claim_refs: dict[str, list[str]] = {}
         for claim in claims:
             for evidence_id in claim.get("evidence_ids") or []:
-                claim_refs.setdefault(str(evidence_id), []).append(str(claim.get("claim_id") or ""))
+                claim_refs.setdefault(str(evidence_id), []).append(
+                    str(claim.get("claim_id") or "")
+                )
 
         active_evidence: set[uuid.UUID] = set()
         evidence_id_map: dict[str, uuid.UUID] = {}
@@ -305,7 +317,9 @@ def persist_governed_trace(
             source_id = str(item.get("source_id") or f"source_{index}")
             external_evidence_id = str(item.get("evidence_id") or "")
             evidence_id = gateway._parse_uuid_or_none(external_evidence_id) or _stable(
-                run.run_id, "evidence", f"{source_id}:{item.get('content_hash') or index}"
+                run.run_id,
+                "evidence",
+                f"{source_id}:{item.get('content_hash') or index}",
             )
             active_evidence.add(evidence_id)
             evidence_id_map[external_evidence_id or source_id] = evidence_id
@@ -322,9 +336,15 @@ def persist_governed_trace(
             record.authority = str(item_metadata.get("authority", "medium"))
             record.origin = source.get("origin")
             record.author_publisher = source.get("author_publisher")
-            record.captured_at = gateway._parse_trace_datetime(source.get("captured_at"))
-            record.effective_at = gateway._parse_trace_datetime(source.get("effective_at"))
-            record.retrieved_at = gateway._parse_trace_datetime(item.get("retrieved_at"))
+            record.captured_at = gateway._parse_trace_datetime(
+                source.get("captured_at")
+            )
+            record.effective_at = gateway._parse_trace_datetime(
+                source.get("effective_at")
+            )
+            record.retrieved_at = gateway._parse_trace_datetime(
+                item.get("retrieved_at")
+            )
             record.permissions = _mapping(source.get("permissions"))
             record.transformation_chain = _objects(source.get("transformation_chain"))
             record.embedding_revision = source.get("embedding_revision")
@@ -332,18 +352,26 @@ def persist_governed_trace(
             record.snippet = str(item.get("text") or "")
             record.content_hash = str(item.get("content_hash") or "")
             record.retrieval_method = str(
-                item_metadata.get("retrieval_method") or item.get("source_type") or "unknown"
+                item_metadata.get("retrieval_method")
+                or item.get("source_type")
+                or "unknown"
             )
             record.relevance_score = _float_or_none(item.get("score"))
             record.quality_score = _float_or_none(item.get("quality_score"))
             record.freshness_score = _float_or_none(item.get("freshness_score"))
-            record.provenance_completeness = _float_or_none(item.get("provenance_completeness"))
-            record.used_by_claims = claim_refs.get(external_evidence_id or source_id, [])
+            record.provenance_completeness = _float_or_none(
+                item.get("provenance_completeness")
+            )
+            record.used_by_claims = claim_refs.get(
+                external_evidence_id or source_id, []
+            )
             record.used_by_personas = []
             record.used_by_stages = [str(retrieval_stage)] if retrieval_stage else []
             evidence_hashes.append(record.content_hash or "")
         run.evidence_pack_hash = (
-            hashlib.sha256("|".join(sorted(evidence_hashes)).encode("utf-8")).hexdigest()
+            hashlib.sha256(
+                "|".join(sorted(evidence_hashes)).encode("utf-8")
+            ).hexdigest()
             if evidence_hashes
             else None
         )
@@ -368,8 +396,16 @@ def persist_governed_trace(
             start = answer.find(text) if text else -1
             record.run_id = run.run_id
             record.text = text
-            record.answer_span_start = _int(explicit_start) if explicit_start is not None else (start if start >= 0 else None)
-            record.answer_span_end = _int(explicit_end) if explicit_end is not None else (start + len(text) if start >= 0 else None)
+            record.answer_span_start = (
+                _int(explicit_start)
+                if explicit_start is not None
+                else (start if start >= 0 else None)
+            )
+            record.answer_span_end = (
+                _int(explicit_end)
+                if explicit_end is not None
+                else (start + len(text) if start >= 0 else None)
+            )
             record.status = str(item.get("status") or "unsupported")
             record.confidence = _float_or_none(item.get("confidence"))
             record.claim_type = str(item.get("claim_type") or "factual")
@@ -379,9 +415,12 @@ def persist_governed_trace(
                 if str(value) in evidence_id_map
             ]
             record.stage_ids = [str(validation_stage)] if validation_stage else []
-            record.citation_ids = [str(value) for value in item.get("citation_ids") or []]
+            record.citation_ids = [
+                str(value) for value in item.get("citation_ids") or []
+            ]
         existing_claim_ids = {
-            item.claim_id for item in TraceClaim.query.filter_by(run_id=run.run_id).all()
+            item.claim_id
+            for item in TraceClaim.query.filter_by(run_id=run.run_id).all()
         }
         for record in TraceCitation.query.filter_by(run_id=run.run_id).all():
             db.session.delete(record)
@@ -449,7 +488,9 @@ def persist_governed_trace(
             record.status = str(item.get("status") or "not_measured")
             record.inputs = _mapping(item.get("inputs"))
             record.outputs = _mapping(item.get("outputs"))
-            record.missing_inputs = [str(value) for value in item.get("missing_inputs") or []]
+            record.missing_inputs = [
+                str(value) for value in item.get("missing_inputs") or []
+            ]
             record.duration_ms = item.get("duration_ms")
         _prune(TraceValidator, run.run_id, "validator_id", active_validators)
 
@@ -465,12 +506,18 @@ def persist_governed_trace(
             active_quality.add(decision_id)
             record = db.session.get(TraceQualityDecision, decision_id)
             if record is None:
-                record = TraceQualityDecision(decision_id=decision_id, run_id=run.run_id)
+                record = TraceQualityDecision(
+                    decision_id=decision_id, run_id=run.run_id
+                )
                 db.session.add(record)
             record.run_id = run.run_id
             record.decision_type = decision_type
-            record.version = str(item.get("formula_version") or item.get("decision_version") or "unknown")
-            record.status = str(item.get("status") or item.get("action") or "not_measured")
+            record.version = str(
+                item.get("formula_version") or item.get("decision_version") or "unknown"
+            )
+            record.status = str(
+                item.get("status") or item.get("action") or "not_measured"
+            )
             record.value = _float_or_none(item.get("value"))
             record.components = _mapping(item.get("components")) or item
             record.missing_inputs = item.get("missing_components") or []
@@ -547,7 +594,10 @@ def persist_governed_trace(
             record.duration_ms = _int(item.get("duration_ms"))
             record.inputs = _mapping(item.get("input"))
             record.outputs = _mapping(item.get("output"))
-            record.routing = {"workflow_step": item.get("step"), "mode": truthcore.get("mode")}
+            record.routing = {
+                "workflow_step": item.get("step"),
+                "mode": truthcore.get("mode"),
+            }
             record.side_effects = []
         _prune(TraceKAInvocation, run.run_id, "invocation_id", active_kas)
 
@@ -574,7 +624,11 @@ def persist_governed_trace(
             record.decision = str(item.get("decision") or "flag")
             record.rationale = item.get("rationale")
             record.sensitivity_score = _float_or_none(item.get("sensitivity_score"))
-            record.modifications = item.get("modifications") if isinstance(item.get("modifications"), list) else []
+            record.modifications = (
+                item.get("modifications")
+                if isinstance(item.get("modifications"), list)
+                else []
+            )
         _prune(TracePolicyDecision, run.run_id, "decision_id", active_decisions)
 
         _prune(TraceStage, run.run_id, "stage_id", active_stages)
@@ -590,10 +644,12 @@ def persist_governed_trace(
             len(active_decisions),
         )
         try:
-            from backend.dataset_exporter.runtime_capture import maybe_stage_training_capture
+            from backend.dataset_exporter.runtime_capture import (
+                maybe_stage_training_capture,
+            )
 
             maybe_stage_training_capture(str(run.run_id))
-        except Exception:
+        except Exception:  # noqa: BLE001 - CU-2 post-commit boundary; see tests/governed_execution/test_trace_persistence.py
             logger.warning(
                 "Runtime training-data capture failed closed for %s",
                 run.run_id,

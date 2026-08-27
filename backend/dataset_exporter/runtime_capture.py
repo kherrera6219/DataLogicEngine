@@ -11,9 +11,12 @@ import logging
 import math
 import os
 import uuid
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from sqlalchemy.exc import SQLAlchemyError
 
 from .capture_policy import (
     ALLOWED_CAPTURE_FIELDS,
@@ -24,6 +27,18 @@ from .capture_policy import (
 from .privacy_redactor import PrivacyRedactor, SecurityError
 
 logger = logging.getLogger(__name__)
+
+
+class RuntimeCaptureError(RuntimeError):
+    """Base error for an unavailable or invalid runtime-capture operation."""
+
+
+class RuntimeCaptureLoadError(RuntimeCaptureError):
+    """Raised when staged capture content cannot be loaded completely."""
+
+
+class RuntimeCaptureStorageError(RuntimeCaptureError):
+    """Raised when staged capture storage cannot be inspected or changed."""
 
 
 def _capture_root(base_dir: str | Path | None = None) -> Path:
@@ -73,7 +88,9 @@ def compute_release_authorized(record: Any) -> bool:
     """Same completed/released predicate used by DatasetExporter.export_from_db."""
 
     status = str(getattr(record, "status", "") or "").strip().lower()
-    truthgate_decision = str(getattr(record, "truthgate_decision", "") or "").strip().lower()
+    truthgate_decision = (
+        str(getattr(record, "truthgate_decision", "") or "").strip().lower()
+    )
     return (
         status in {"completed", "succeeded", "success"}
         and truthgate_decision in {"allow", "release"}
@@ -84,10 +101,16 @@ def compute_release_authorized(record: Any) -> bool:
     )
 
 
-def capture_payload_from_run(record: Any, stages: list[Any] | None = None) -> dict[str, Any]:
+def capture_payload_from_run(
+    record: Any, stages: list[Any] | None = None
+) -> dict[str, Any]:
     """Allowlisted capture dict from a committed TraceRun."""
 
-    snapshot = record.data_snapshot if isinstance(getattr(record, "data_snapshot", None), dict) else {}
+    snapshot = (
+        record.data_snapshot
+        if isinstance(getattr(record, "data_snapshot", None), dict)
+        else {}
+    )
     stage_list = []
     for item in stages or []:
         if isinstance(item, dict):
@@ -170,11 +193,12 @@ def capture_stats(base_dir: str | Path | None = None) -> dict[str, Any]:
         last_capture_at = None
         if files:
             latest = max(files, key=lambda item: item.stat().st_mtime)
-            last_capture_at = datetime.fromtimestamp(latest.stat().st_mtime, UTC).isoformat()
+            last_capture_at = datetime.fromtimestamp(
+                latest.stat().st_mtime, UTC
+            ).isoformat()
         return {"staged_capture_rows": len(files), "last_capture_at": last_capture_at}
-    except Exception:
-        logger.debug("Capture stats failed closed", exc_info=True)
-        return {"staged_capture_rows": 0, "last_capture_at": None}
+    except OSError as exc:
+        raise RuntimeCaptureStorageError("runtime_capture_stats_unavailable") from exc
 
 
 def count_staged_capture_rows(base_dir: str | Path | None = None) -> int:
@@ -191,19 +215,51 @@ def load_staged_capture_traces(
         root = _capture_root(base_dir)
         if not root.exists():
             return traces
-        paths = sorted(root.glob("*.jsonl"), key=lambda item: item.stat().st_mtime, reverse=True)
+        paths = sorted(
+            root.glob("*.jsonl"), key=lambda item: item.stat().st_mtime, reverse=True
+        )
         for path in paths:
             if len(traces) >= limit:
                 break
-            try:
-                payload = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                continue
+            payload = json.loads(path.read_text(encoding="utf-8"))
             if isinstance(payload, dict):
                 traces.append(payload)
-    except Exception:
-        logger.debug("Capture load failed closed", exc_info=True)
+            else:
+                raise RuntimeCaptureLoadError("runtime_capture_row_invalid")
+    except RuntimeCaptureLoadError:
+        raise
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeCaptureLoadError("runtime_capture_load_failed") from exc
     return traces[:limit]
+
+
+def purge_staged_capture_runs(
+    run_ids: Iterable[str],
+    *,
+    base_dir: str | Path | None = None,
+    dry_run: bool = False,
+) -> int:
+    """Delete staged rows for trace runs selected by the retention authority."""
+
+    try:
+        root = _capture_root(base_dir)
+        if not root.exists():
+            return 0
+        deleted = 0
+        for raw_run_id in run_ids:
+            normalized = str(uuid.UUID(str(raw_run_id)))
+            destination = PrivacyRedactor.validate_safe_path(
+                f"{normalized}.jsonl",
+                base_dir=root,
+            )
+            if not destination.is_file():
+                continue
+            deleted += 1
+            if not dry_run:
+                destination.unlink()
+    except (OSError, TypeError, ValueError, SecurityError) as exc:
+        raise RuntimeCaptureStorageError("runtime_capture_purge_failed") from exc
+    return deleted
 
 
 def maybe_stage_released_trace(
@@ -213,7 +269,9 @@ def maybe_stage_released_trace(
 ) -> dict[str, Any]:
     """Stage one released trace when the owner flag is on.
 
-    Failures are logged and swallowed so the governed run is never blocked.
+    Expected storage failures return an explicit error status. Unexpected
+    failures propagate to the post-commit boundary, which keeps the governed
+    run durable while recording the failure.
     """
 
     result: dict[str, Any] = {"status": "skipped", "reason": "flag_off", "path": None}
@@ -230,23 +288,27 @@ def maybe_stage_released_trace(
             return result
         root = _capture_root(base_dir)
         root.mkdir(parents=True, exist_ok=True)
-        destination = PrivacyRedactor.validate_safe_path(f"{run_id}.jsonl", base_dir=root)
+        destination = PrivacyRedactor.validate_safe_path(
+            f"{run_id}.jsonl", base_dir=root
+        )
         if destination.exists():
             result["reason"] = "already_staged"
             result["path"] = str(destination)
             result["status"] = "idempotent"
             return result
         temporary = destination.with_name(destination.name + ".tmp")
-        temporary.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
-        os.replace(temporary, destination)
+        try:
+            temporary.write_text(
+                json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
+            os.replace(temporary, destination)
+        finally:
+            temporary.unlink(missing_ok=True)
         result.update({"status": "staged", "reason": "ok", "path": str(destination)})
         return result
     except (SecurityError, OSError, ValueError) as exc:
-        logger.warning("Runtime training-data capture skipped: %s", exc)
-        result["reason"] = "capture_failed"
-        return result
-    except Exception:
-        logger.warning("Runtime training-data capture failed closed", exc_info=True)
+        logger.warning("Runtime training-data capture could not be staged: %s", exc)
+        result["status"] = "error"
         result["reason"] = "capture_failed"
         return result
 
@@ -280,8 +342,17 @@ def maybe_stage_training_capture(
             .order_by(TraceStage.step_index.asc())
             .all()
         )
-        return maybe_stage_released_trace(capture_payload_from_run(record, stages), base_dir=base_dir)
-    except Exception:
-        logger.warning("Runtime training-data capture failed closed", exc_info=True)
+        return maybe_stage_released_trace(
+            capture_payload_from_run(record, stages), base_dir=base_dir
+        )
+    except (
+        RuntimeCaptureError,
+        SecurityError,
+        SQLAlchemyError,
+        OSError,
+        ValueError,
+    ) as exc:
+        logger.warning("Runtime training-data capture could not be staged: %s", exc)
+        result["status"] = "error"
         result["reason"] = "capture_failed"
         return result

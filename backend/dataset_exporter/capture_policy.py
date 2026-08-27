@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import logging
 from typing import Any
-
-logger = logging.getLogger(__name__)
 
 CAPTURE_FLAG_KEY = "training_data_capture_enabled"
 CAPTURE_SUBDIR = "capture"
@@ -32,19 +29,16 @@ ALLOWED_CAPTURE_FIELDS = (
 def is_training_data_capture_enabled() -> bool:
     """Return True only when the owner flag exists and is explicitly True.
 
-    Missing rows, locked-off values, and any lookup failure stay OFF.
+    Missing rows and locked-off values stay OFF. Lookup failures propagate so
+    callers can distinguish an unavailable policy store from an explicit OFF.
     """
 
-    try:
-        from models import FeatureFlag
+    from models import FeatureFlag
 
-        flag = FeatureFlag.query.filter_by(flag_key=CAPTURE_FLAG_KEY).first()
-        if flag is None:
-            return False
-        return flag.value is True
-    except Exception:
-        logger.debug("Capture flag lookup failed closed", exc_info=True)
+    flag = FeatureFlag.query.filter_by(flag_key=CAPTURE_FLAG_KEY).first()
+    if flag is None:
         return False
+    return flag.value is True
 
 
 def get_capture_settings_payload() -> dict[str, Any]:

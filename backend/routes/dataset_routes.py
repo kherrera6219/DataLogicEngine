@@ -45,9 +45,7 @@ def _principal_id() -> str:
     principal = get_authenticated_principal()
     value = str(getattr(principal, "id", "") or "").strip()
     if not value:
-        raise ProviderModelLifecycleError(
-            "Authenticated principal is required"
-        )
+        raise ProviderModelLifecycleError("Authenticated principal is required")
     return value
 
 
@@ -62,18 +60,24 @@ def export_dataset_endpoint():
         if not isinstance(body, dict):
             raise TypeError("Request body must be a JSON object.")
         if "output_path" in body:
-            raise ValueError("output_path is managed by the application and cannot be overridden.")
+            raise ValueError(
+                "output_path is managed by the application and cannot be overridden."
+            )
 
         export_type = str(body.get("export_type", "sft")).lower()
         format_type = str(body.get("format_type", "parquet")).lower()
         min_confidence = float(body.get("min_confidence", 0.98))
         limit = int(body.get("limit", 1000))
         if export_type not in {"sft", "prm"}:
-            raise ValueError("export_type must be 'sft' or 'prm'; DPO requires stored preference evidence.")
+            raise ValueError(
+                "export_type must be 'sft' or 'prm'; DPO requires stored preference evidence."
+            )
         if format_type not in {"parquet", "jsonl"}:
             raise ValueError("format_type must be 'parquet' or 'jsonl'.")
         if not math.isfinite(min_confidence) or not 0.0 <= min_confidence <= 1.0:
-            raise ValueError("min_confidence must be a finite number from 0.0 through 1.0.")
+            raise ValueError(
+                "min_confidence must be a finite number from 0.0 through 1.0."
+            )
         if isinstance(body.get("limit", 1000), bool) or not 1 <= limit <= 10_000:
             raise ValueError("limit must be an integer from 1 through 10000.")
 
@@ -109,10 +113,22 @@ def export_dataset_endpoint():
         return jsonify(result), 200
 
     except (TypeError, ValueError):
-        return jsonify({"status": "error", "error": "invalid_parameter", "message": "Invalid export parameters."}), 400
+        return jsonify(
+            {
+                "status": "error",
+                "error": "invalid_parameter",
+                "message": "Invalid export parameters.",
+            }
+        ), 400
     except Exception:
         logger.exception("Dataset export API endpoint failed")
-        return jsonify({"status": "error", "error": "export_failed", "message": "Dataset export failed."}), 500
+        return jsonify(
+            {
+                "status": "error",
+                "error": "export_failed",
+                "message": "Dataset export failed.",
+            }
+        ), 500
 
 
 @dataset_bp.route("/stats", methods=["GET"])
@@ -155,7 +171,9 @@ def dataset_stats_endpoint():
         ), 200
     except Exception:
         logger.exception("Dataset stats endpoint failed")
-        return jsonify({"status": "error", "message": "Dataset statistics are unavailable."}), 500
+        return jsonify(
+            {"status": "error", "message": "Dataset statistics are unavailable."}
+        ), 500
 
 
 def _actor_fields() -> tuple[int | None, str | None]:
@@ -176,16 +194,15 @@ def get_capture_settings_endpoint():
     """Return the owner-only runtime capture flag. Missing flag stays OFF."""
     try:
         return jsonify(get_capture_settings_payload()), 200
-    except Exception:
+    except Exception:  # noqa: BLE001 - CU-2 API boundary; see tests/backend/test_dataset_exporter.py
         logger.exception("Dataset capture settings lookup failed")
         return jsonify(
             {
-                "enabled": False,
-                "default": False,
-                "policy": "export-only",
-                "redaction_enforced": True,
+                "status": "error",
+                "error": "capture_settings_unavailable",
+                "message": "Capture settings are unavailable.",
             }
-        ), 200
+        ), 500
 
 
 @dataset_bp.route("/capture-settings", methods=["PUT"])
@@ -237,15 +254,9 @@ def create_training_admission_endpoint():
     try:
         body = request.get_json(silent=True)
         if not isinstance(body, dict):
-            raise ProviderModelLifecycleError(
-                "Request body must be a JSON object"
-            )
-        idempotency_key = str(
-            request.headers.get("Idempotency-Key") or ""
-        ).strip()
-        request_id = str(
-            request.headers.get("X-Request-ID") or uuid4()
-        ).strip()
+            raise ProviderModelLifecycleError("Request body must be a JSON object")
+        idempotency_key = str(request.headers.get("Idempotency-Key") or "").strip()
+        request_id = str(request.headers.get("X-Request-ID") or uuid4()).strip()
         admission = _model_lifecycle_service().submit_training_admission(
             artifact_name=str(body.get("artifact_name") or ""),
             export_type=str(body.get("export_type") or ""),
@@ -296,12 +307,8 @@ def evaluate_model_endpoint():
     try:
         body = request.get_json(silent=True)
         if not isinstance(body, dict):
-            raise ProviderModelLifecycleError(
-                "Request body must be a JSON object"
-            )
-        request_id = str(
-            request.headers.get("X-Request-ID") or uuid4()
-        ).strip()
+            raise ProviderModelLifecycleError("Request body must be a JSON object")
+        request_id = str(request.headers.get("X-Request-ID") or uuid4()).strip()
         evaluation = _model_lifecycle_service().evaluate_model(
             model_id=str(body.get("model_id") or ""),
             test_set=str(body.get("test_set") or ""),
@@ -349,15 +356,9 @@ def create_release_preparation_endpoint():
     try:
         body = request.get_json(silent=True)
         if not isinstance(body, dict):
-            raise ProviderModelLifecycleError(
-                "Request body must be a JSON object"
-            )
-        idempotency_key = str(
-            request.headers.get("Idempotency-Key") or ""
-        ).strip()
-        request_id = str(
-            request.headers.get("X-Request-ID") or uuid4()
-        ).strip()
+            raise ProviderModelLifecycleError("Request body must be a JSON object")
+        idempotency_key = str(request.headers.get("Idempotency-Key") or "").strip()
+        request_id = str(request.headers.get("X-Request-ID") or uuid4()).strip()
         preparation = _model_lifecycle_service().submit_release_preparation(
             artifact_name=str(body.get("artifact_name") or ""),
             current_version=str(body.get("current_version") or ""),
@@ -371,21 +372,15 @@ def create_release_preparation_endpoint():
             target_environment=str(body.get("target_environment") or ""),
             parameter_count=body.get("parameter_count"),
             target_sparsity=body.get("target_sparsity"),
-            pruning_method=str(
-                body.get("pruning_method") or "magnitude_unstructured"
-            ),
+            pruning_method=str(body.get("pruning_method") or "magnitude_unstructured"),
             importance_profile_sha256=body.get("importance_profile_sha256"),
             source_bit_depth=body.get("source_bit_depth", 32),
             target_bit_depth=body.get("target_bit_depth", 8),
             target_format=str(body.get("target_format") or "onnx"),
-            calibration_profile_sha256=body.get(
-                "calibration_profile_sha256"
-            ),
+            calibration_profile_sha256=body.get("calibration_profile_sha256"),
             experiment_id=str(body.get("experiment_id") or ""),
             traffic_split_percent=body.get("traffic_split_percent") or {},
-            experiment_observations=(
-                body.get("experiment_observations") or {}
-            ),
+            experiment_observations=(body.get("experiment_observations") or {}),
             min_sample_size=body.get("min_sample_size", 1_000),
             health_observation=body.get("health_observation") or {},
             idempotency_key=idempotency_key,

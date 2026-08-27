@@ -11,7 +11,13 @@ Both are fail-closed on evaluation errors.
 
 from __future__ import annotations
 
+import logging
 from typing import Any
+
+from backend.truth_engine.truth_gate.model_screening import TruthGateModelScreening
+from backend.truth_engine.truth_gate.opa_policy import OPAPolicyEvaluator
+
+logger = logging.getLogger(__name__)
 
 
 def evaluate_model_screening(
@@ -21,19 +27,16 @@ def evaluate_model_screening(
 ) -> dict[str, Any]:
     """Screen candidate text; errors block (fail-closed)."""
     try:
-        from backend.truth_engine.truth_gate.model_screening import (
-            TruthGateModelScreening,
-        )
-
         return TruthGateModelScreening().screen(text or "", metadata=metadata or {})
-    except Exception as exc:  # noqa: BLE001 - security boundary
+    except Exception:  # noqa: BLE001 - CU-2 fail-closed boundary; see tests/governed_execution/test_l8_security_controls.py
+        logger.exception("Layer 8 model screening failed closed")
         return {
             "enabled": False,
             "allowed": False,
             "risks": ["model_screening_error"],
             "action": "block",
             "backend": "error",
-            "error": str(exc),
+            "error": "model_screening_failed",
         }
 
 
@@ -48,8 +51,6 @@ def evaluate_opa_policy(
 ) -> dict[str, Any]:
     """Evaluate TruthGate OPA policy; errors deny (fail-closed)."""
     try:
-        from backend.truth_engine.truth_gate.opa_policy import OPAPolicyEvaluator
-
         return OPAPolicyEvaluator().evaluate(
             {
                 "simulation_id": simulation_id or "governed-l8",
@@ -61,13 +62,14 @@ def evaluate_opa_policy(
                 "human_reviewed": bool(human_reviewed),
             }
         )
-    except Exception as exc:  # noqa: BLE001 - security boundary
+    except Exception:  # noqa: BLE001 - CU-2 fail-closed boundary; see tests/governed_execution/test_l8_security_controls.py
+        logger.exception("Layer 8 OPA policy evaluation failed closed")
         return {
             "available": False,
             "backend": "error",
             "allow": False,
             "violations": ["opa_evaluation_error"],
-            "error": str(exc),
+            "error": "opa_evaluation_failed",
         }
 
 
