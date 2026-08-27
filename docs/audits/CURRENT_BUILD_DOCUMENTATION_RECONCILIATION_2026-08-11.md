@@ -6,22 +6,22 @@
 |---|---|
 | Document ID | DLE-AUDIT-012 |
 | Title | Current-build documentation reconciliation |
-| Document version | v1.3.0 |
-| Product version | 4.4.0 |
+| Document version | v1.4.0 |
+| Product version | 4.4.3 |
 | Status | active supporting review |
 | Audience | Product owner, engineering, quality, release reviewers, and documentation maintainers |
 | Owner | Documentation Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Current source, generated contracts, build reports, GitHub workflows, canonical documents, and retained installed evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-18 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Runtime code, build artifact, installed result, documentation authority, security result, or release decision change |
 | Requirements and evidence | `config/product-versions.json`, `reports/installer_integrity_report.json`, `reports/packaging_smoke_report.json`, canonical docs, and documentation gates |
 
 ## Purpose and boundary
 
 This review reconciles every tracked current file under `docs/` with the current
-DataLogicEngine 4.4.0 source and build state. It distinguishes current authority,
+DataLogicEngine 4.4.3 source and build state. It distinguishes current authority,
 generated contracts, immutable evaluation inputs, current supporting reviews,
 and historical records.
 
@@ -35,34 +35,37 @@ product authority.
 
 | Subject | Current evidence |
 |---|---|
-| Product | DataLogicEngine Desktop 4.4.0; Windows file version 4.4.0.0; pre-production channel |
-| Source used for latest local build | Exact clean commit `c765ba03257e58e69a4cd4b80f92390c71346801` |
-| Current local installer | `DataLogicEngine Setup 4.4.0.exe` |
-| Size | 358,848,516 bytes |
-| SHA-256 | `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591` |
-| Integrity | Pass; zero errors/warnings; checksum, block map, NSIS governance, 6,096-file payload, and required packaging resources pass |
+| Product | DataLogicEngine Desktop 4.4.3; Windows file version 4.4.3.0; pre-production channel |
+| Source used for latest build | Exact clean commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` |
+| Current installer | `DataLogicEngine Setup 4.4.3.exe` |
+| Size | 359,111,112 bytes |
+| SHA-256 | `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a` |
+| Integrity | Pass; zero errors/warnings; checksum, block map, NSIS governance, 6,100-file payload, and required packaging resources pass |
 | Signature | Not signed |
-| Portable smoke | Pass; package-owned `/ready` in 30,701 ms with verified launched-process ownership and clean shutdown |
-| Installed-mode smoke | Not run; no install/uninstall success evidence |
+| Portable smoke | Pass; package-owned `/ready` in 56,001 ms with verified descendant ownership and zero blockers |
+| Installed observation | Program Files payload running loopback-only; core file hashes match and health/readiness pass. Install action, lifecycle, retained data, and provider chat remain unaccepted. |
 | Last installed qualification artifact | Separate August 10 artifact: 283,890,413 bytes; SHA-256 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e` |
 | Installed evidence | Bound only to the August 10 hash: per-machine Program Files launch, `/ready`, five app-owned services, retained-data adoption, authentication, Diagnostics, and representative KA smoke |
 | Release decision | **NO-GO**; CP19-M and retained signing, provider, installed, accessibility, recovery, external, pilot, and soak gates remain open |
 
-The current local build and the last installed qualification artifact are
-different evidence subjects. No installed, provider, accessibility, recovery,
-privacy, performance, or soak result transfers between them.
+The current 4.4.3 build and the last completed installed qualification artifact
+are different evidence subjects. The narrow 4.4.3 running-installed observation
+does not transfer retained-data, provider, accessibility, recovery, privacy,
+performance, or soak results between them.
 
 ## Current source and CI truth
 
 The latest pushed runtime-equivalent CI records:
 
-- 3,091 main-suite backend tests passed and 26 skipped;
-- 23 contract tests passed and one skipped;
-- five local-mode parity tests and six focused security tests passed;
-- 435 frontend unit tests passed;
+- 3,317 Python tests passed and 19 skipped with zero failures/setup errors;
+- independent Python coverage passed at 80.29% `backend/`, 80.67%
+  `backend/security/`, and 81.07% `core/`;
+- all 484 frontend tests and retained frontend coverage gates passed;
 - five accessibility, 15 app-readiness, and 31 visual/browser checks passed;
 - lint, typecheck, frontend build, Windows packaging smoke, governance, Docker
-  build, deployment, and the push-triggered security workflow passed.
+  build, deployment, and the push-triggered security workflow passed;
+- Deploy run `33039993475`, Security run `33039993480`, and CI/CD run
+  `33039993472` passed at commit `43fd86df...`.
 
 The later scheduled full-history TruffleHog finding is closed by scheduled run
 `32093054806`, job `95578937904`: 1,298 commits and 2,632,118,047 bytes scanned

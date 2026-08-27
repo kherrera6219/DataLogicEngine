@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PROD-001 |
 | Title | Product requirements and acceptance specification |
-| Document version | v1.4.0 |
+| Document version | v1.5.0 |
 | Product version | 4.4.3 |
 | Status | active |
 | Audience | Product owner, engineering, quality, assurance, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, production completion plan, implemented runtime, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Product scope, supported workflow, architecture, interface, risk, or release-gate change |
 | Requirements and evidence | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, architecture records, tests, and `reports/production-readiness/2026/` |
 
@@ -103,7 +103,7 @@ connectors are also excluded unless a later approved requirement reopens them.
 |---|---|---|
 | DLE-SR-001 | The renderer and approved clients shall never receive provider credentials, internal-service credentials, installation secrets, or unrestricted filesystem authority. | Boundary tests, packaged content review, penetration review |
 | DLE-SR-002 | Production shall fail closed for missing trust, readiness, migration, storage-protection, signature, update, scope, policy, or required evidence gates. | Adversarial tests and installed failure/recovery matrix |
-| DLE-SR-003 | Logs, metrics, errors, support bundles, exports, and diagnostics shall redact secrets and disallowed content and shall identify external telemetry as opt-in. | Canary suites, bundle preview/hash tests, no-egress evidence |
+| DLE-SR-003 | Logs, metrics, errors, support bundles, exports, and diagnostics shall redact secrets and disallowed content. External telemetry, license check-in, update-check egress, crash-reporting egress, and phone-home shall remain disabled and unapproved. | Canary suites, bundle preview/hash tests, no-egress evidence |
 | DLE-PR-001 | Before provider processing, the UI shall disclose that selected prompt, retrieved context, persona/context material, and tool results may leave the device. | Privacy notice/UI review and provider preflight tests |
 | DLE-PR-002 | The owner shall be able to review and control stored sessions, traces, provider usage metadata, ingested data, exports, connectors, and supported deletion actions. | UI/API tests and installed privacy walkthrough |
 | DLE-AI-001 | AI output shall be presented as assistance, not autonomous professional authority, and high-risk use shall require human oversight. | AI system card, user copy review, blinded acceptance |

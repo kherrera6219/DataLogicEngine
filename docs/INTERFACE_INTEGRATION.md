@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
-| Document version | v1.5.0 |
+| Document version | v1.6.0 |
 | Product version | 4.4.3 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Registered routes, OpenAPI/schema contracts, gateway/MCP implementation, ADRs, and contract tests |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-12 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Route, schema, auth, version, streaming, SDK, gateway profile, MCP, or compatibility change |
 | Requirements and evidence | Product requirements, generated contracts, route inventory, SDK tests, and Phase 5/8/11 evidence |
 
@@ -30,12 +30,11 @@ engineering checkpoint. `private_windows_gateway` remains disabled until the
 signed two-machine TLS/firewall qualification passes. Browser/CORS and public-
 internet exposure are outside the 4.4.3 contract.
 
-The 2026-08-10 installed engineering candidate verified loopback readiness,
-desktop authentication, Diagnostics, and representative governed KA API use.
-Signed same-host/private gateway, live-provider, load, and two-machine acceptance
-remain open.
-The newer August 11 local build has not completed installed-mode gateway
-acceptance; these installed results remain bound to the August 10 artifact.
+The current 4.4.3 payload is installed under Program Files and its backend is
+healthy on `127.0.0.1:5000`; core packaged-file hashes match the extracted
+build. Signed same-host/private gateway, provider-chat, authenticated client,
+load, lifecycle, and two-machine acceptance remain open. The narrow loopback
+observation must not be represented as completed installed gateway acceptance.
 
 ## Version and route policy
 

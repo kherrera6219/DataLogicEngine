@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
-| Document version | v1.4.1 |
+| Document version | v1.5.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented trust boundaries, threat controls, security tests, release policy, and evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Trust boundary, identity, network, provider, connector, data protection, dependency, incident, or release-policy change |
 | Requirements and evidence | Product requirements, source controls, threat tests, security workflows, SBOMs, and Phase 1/3/7/8/11/13/14 evidence |
 
@@ -161,8 +161,9 @@ payloads, private keys, and decrypted backups according to their contract.
 CP19-E also requires the complete L10 privacy suite to redact detected PII from
 the released answer and all trace-bearing governed state; findings contain only
 type/count summaries and never the matched clear-text values.
-External telemetry is disabled by default and requires explicit opt-in; a DSN
-alone cannot authorize egress.
+External telemetry, license check-in, update-check egress, crash-reporting
+egress, and phone-home are not approved product behavior and must remain
+disabled. A DSN or other setting cannot authorize egress.
 
 ## Release and update trust
 

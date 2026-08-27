@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-004 |
 | Title | Troubleshooting and support guide |
-| Document version | v1.2.1 |
+| Document version | v1.3.0 |
 | Product version | 4.4.3 |
 | Status | qualification_only |
 | Audience | Users, evaluators, operators, support engineers, and security reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented error taxonomy, diagnostics/support controls, lifecycle runbooks, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | User-visible error, diagnostics, support-bundle, recovery, reporting-channel, or release-status change |
 | Requirements and evidence | Product requirements, runtime/error contracts, support tests, operational procedures, and Phase 13/15 evidence |
 
@@ -183,8 +183,8 @@ retention handling.
 
 ### Support bundle, log, or telemetry concern
 
-Cancel sharing. Confirm external telemetry is explicitly opted in; a configured
-DSN alone must not enable it. Preview the bundle again and verify that prompts,
+Cancel sharing. Confirm external telemetry remains disabled; no DSN or setting
+authorizes telemetry egress. Preview the bundle again and verify that prompts,
 documents, provider payloads, request/response bodies, credentials, authorization
 headers, private keys, and decrypted backups are absent. Treat any exposure as a
 security/privacy incident.

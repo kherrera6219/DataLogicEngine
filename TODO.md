@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.16.0 |
+| Document version | v1.17.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,10 +17,10 @@
 | Last reviewed | 2026-08-27 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.81.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.82.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; 4.4.3 exact-source portable engineering rebuild and visible local launch pass while fresh-installed/provider/signing CP19-M acceptance remains open |
+| Current phase | Phase 19 CU-2; 4.4.3 exact-source rebuild is installed and healthy with core payload identity matched while provider/signing/lifecycle CP19-M acceptance remains open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -472,9 +472,17 @@ Phase 18 source baseline while completing the whole-application wiring.
         the same way in 2,224.49 ms. Restore quota and rerun the bounded call.
   - [x] Build and validate the exact-source 4.4.3 replacement with integrity,
         payload, governance, and package-owned portable readiness evidence.
-  - [ ] Install that exact 4.4.3 artifact and confirm a normal Google chat invokes
-        the configured provider once, releases through Layer 10, and exposes
-        the persisted validation telemetry.
+  - [x] Publish documentation/evidence closure commit `43fd86df...` to `main`;
+        replacement Deploy `33039993475`, Security `33039993480`, and CI/CD
+        `33039993472` workflows all pass.
+  - [x] Observe the exact 4.4.3 payload installed under Program Files and
+        running loopback-only; desktop/backend/`app.asar` hashes match the
+        extracted build and `/health` plus `/ready` pass with no blockers.
+        This is not full installed lifecycle or provider acceptance.
+  - [ ] Confirm a normal Google chat invokes the configured provider once,
+        releases through Layer 10, and exposes persisted validation telemetry.
+  - [ ] Complete elevated install/upgrade/repair/uninstall, retained-data, and
+        post-uninstall cleanup acceptance on the exact replacement artifact.
 - [x] **CU-4 terminology evidence inventory:** classified the archived rename
       proposals against current code, UI, APIs, SDKs, schemas, active docs, and
       tests; rejected unsupported mathematical, standards, deployment,
@@ -1113,7 +1121,7 @@ commit-bound baseline before CR-A1 is treated as open work.
   failure-injection, redaction/no-egress, diagnostics/support, and 24/72-hour
   soak acceptance remain open.
 - Backend/Electron logs share `dle.log.v1`; request/background correlation,
-  explicit external-telemetry opt-in, authenticated Diagnostics, and previewed,
+  external telemetry disabled/unapproved, authenticated Diagnostics, and previewed,
   confirmed, re-redacted, hashed, retained, optionally encrypted support bundles
   are implemented.
 - Typed failures and critical-boundary semantics are enforced. The regression
@@ -1600,11 +1608,12 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 
 ## Exact next action
 
-Publish the validated local closure commits when authorized, then confirm the
-five replacement GitHub jobs pass. Install only `DataLogicEngine Setup
-4.4.3.exe` bound to commit `171ba1db...` and SHA-256
-`a9c80380...d377c5a` before further CP19-M acceptance. The artifact bound to
-commit `103f52e5` is superseded source-relative evidence only. Then prove a
+The documentation/evidence closure is published and its replacement GitHub
+jobs pass. Continue only with `DataLogicEngine Setup 4.4.3.exe` bound to commit
+`171ba1db...` and SHA-256 `a9c80380...d377c5a`; the artifact bound to commit
+`103f52e5` is superseded source-relative evidence only. The installed 4.4.3
+runtime is healthy and its core files match the extracted payload, but that
+narrow observation does not close lifecycle or provider acceptance. Prove a
 normal Google chat invokes the configured provider once, releases
 through Layer 10, and exposes persisted validation telemetry. Restore or
 replenish OpenAI quota and rerun `gpt-5.6-sol` with High reasoning without

@@ -51,7 +51,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.11.0 |
+| Document version | v1.12.0 |
 | Product version | 4.4.3 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -109,6 +109,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Advanced the next exact-source engineering build to product 4.4.3 and Windows
   file version 4.4.3.0; 4.4.2 remains an allowed upgrade source and historical
   engineering-evidence artifact.
+- Synchronized the public, engineering, privacy, assurance, compliance, TODO,
+  and handoff documentation to the exact 4.4.3 artifact, passing GitHub runs,
+  and narrow installed/running payload observation. The release remains
+  blocked; provider chat, full lifecycle, signing, accessibility, recovery,
+  independent review, pilot, and soak evidence are still open.
+- Clarified that external telemetry, license check-in, update-check egress,
+  crash-reporting egress, and phone-home are not approved product behavior;
+  owner-configured provider endpoints and explicitly enabled connectors remain
+  the only approved external runtime destinations.
 
 ## [4.4.2] - 2026-08-20
 

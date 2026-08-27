@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-001 |
 | Title | Requirements traceability matrix |
-| Document version | v1.3.1 |
+| Document version | v1.4.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, quality, assurance, release authority, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Product requirements, implemented architecture/contracts, tests, phase evidence, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Requirement, implementation, test, evidence, finding, risk acceptance, or release-decision change |
 | Requirements and evidence | `docs/PRODUCT_REQUIREMENTS.md`, source/tests, canonical documents, and `reports/production-readiness/2026/` |
 
@@ -66,7 +66,7 @@ pilot, or soak remain `Partial` or `Open`.
 |---|---|---|---|
 | DLE-SR-001 | Preload/API allowlists, opaque picker tokens, backend-owned credentials/services | Boundary/secret/API/packaging tests; Phase 1/7/9/11 | Partial: packaged penetration and leakage review retained |
 | DLE-SR-002 | Fail-closed readiness, policy, migration, storage, release, scope, update gates | Negative/adversarial tests across Phases 1-15 | Partial: full installed failure/recovery matrix retained |
-| DLE-SR-003 | Redacted logs/errors/metrics/diagnostics/support/export and telemetry opt-in | Canary/support/no-egress source tests; Phase 13 | Partial: installed all-output canary/no-egress retained |
+| DLE-SR-003 | Redacted logs/errors/metrics/diagnostics/support/export; external telemetry and phone-home disabled/unapproved | Canary/support/no-egress source tests; Phase 13 and CR-B | Partial: installed all-output canary/no-egress retained |
 | DLE-PR-001 | Provider preflight categories, cloud disclosure, backend egress ledger | Provider privacy/UI/schema tests; Phase 7/12 | Partial: packaged provider disclosure walkthrough retained |
 | DLE-PR-002 | Session/trace/knowledge/memory/connector/client/export/delete owner controls | API/UI/lifecycle tests; Phase 9/11/12/13 | Partial: installed cross-store durable-effect/remnant proof retained |
 | DLE-AI-001 | AI limitation copy, system card, high-risk oversight and release policy | Documentation/UI review and human rubric | Partial: blinded signed-RC human acceptance retained |

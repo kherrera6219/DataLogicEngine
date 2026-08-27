@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.7.0 |
+| Document version | v1.8.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-18 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -37,8 +37,10 @@ backend tests plus lint, type, Bandit, lock, and workflow governance gates pass.
 These maintenance results do not substitute for the signed installed release
 evidence. GitHub reports alert 389 fixed as of 2026-07-15.
 
-The latest push-triggered CI, deploy, and security workflows pass for runtime-
-equivalent source. The 2026-08-12 scheduled Lob-detector finding is formally
+The latest push-triggered CI, deploy, and security workflows pass at
+documentation/evidence commit `43fd86df74f3545b84c0a10702428723611c40d6`:
+Deploy run `33039993475`, Security run `33039993480`, and CI/CD run
+`33039993472`. The 2026-08-12 scheduled Lob-detector finding is formally
 closed by later scheduled full-history evidence. Run `32093054806`, job
 `95578937904`, scanned 1,298 commits and 2,632,118,047 bytes with zero verified
 and zero unverified secrets; three intervening scheduled runs and push Security
@@ -94,23 +96,24 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 
 | Item | Current local build record |
 |---|---|
-| Runtime source input | Exact clean commit `c765ba03257e58e69a4cd4b80f92390c71346801` |
-| Artifact | `DataLogicEngine Setup 4.4.0.exe` |
-| Size | 358,848,516 bytes |
-| SHA-256 | `650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591` |
-| Integrity | Pass; zero errors/warnings; checksum and block map present; 6,096-file release payload has zero issues |
+| Runtime source input | Exact clean commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` |
+| Artifact | `DataLogicEngine Setup 4.4.3.exe` |
+| Size | 359,111,112 bytes |
+| SHA-256 | `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a` |
+| Integrity | Pass; zero errors/warnings; checksum and block map present; 6,100-file release payload has zero issues |
 | Packaging governance | NSIS governance and required resource checks pass; one Rego policy present |
 | Signature | `NotSigned`; production signing remains unauthorized |
-| Portable smoke | Pass; package-owned `/ready` in 30,701 ms with verified launched-process ownership and clean shutdown |
-| Installed-mode smoke | Not run; no install/uninstall success evidence |
+| Portable smoke | Pass; package-owned `/ready` in 56,001 ms with verified descendant-process ownership and zero blockers |
+| Installed-mode observation | Program Files copy is running loopback-only; desktop/backend/`app.asar` hashes match the extracted payload and health/readiness pass. Install action, upgrade, repair, uninstall, retained data, and provider chat are not accepted. |
 | Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
 
-The current local build is exact-source-bound but unsigned. The Google
+The current build is exact-source-bound but unsigned. The Google
 source-level availability row passes; OpenAI remains blocked on
 `quota_exhausted`. No installed, provider-corpus/human, accessibility, recovery,
 independent-review, pilot, or soak result from an earlier hash is attributed to
-this artifact. The next CP19-M release-candidate run must bind every result to
-one exact signed artifact.
+this artifact. The narrow running Program Files observation above does not
+replace those gates. The next CP19-M release-candidate run must bind every
+result to one exact signed artifact.
 
 ## Gate summary
 

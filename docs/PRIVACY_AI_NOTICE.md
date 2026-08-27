@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-005 |
 | Title | Privacy, provider, retention, and AI limitations notice |
-| Document version | v1.1.2 |
+| Document version | v1.2.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Users, evaluators, administrators, privacy/security reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data paths, provider/connector controls, retention/deletion contracts, and AI evaluation records |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-21 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Data category, storage, provider, connector, gateway, telemetry, retention, deletion, AI limitation, or legal change |
 | Requirements and evidence | Product requirements, architecture, privacy/security tests, AI system card, and Phase 7/9/11/13 evidence |
 
@@ -26,12 +26,12 @@ clearly retaining installed, independent, legal, security, provider, deletion,
 backup/restore, and release evidence that remains open. It is not a claim of
 certification, regulatory approval, or legal suitability for a particular use.
 
-The 2026-08-10 engineering installation preserved existing local data in the
-app-owned services and did not create a fallback user database. Installed
-all-output redaction/no-egress, provider, deletion/recovery, independent privacy,
-and exact signed-artifact acceptance remain open.
-The newer August 11 local build has not passed installed-mode validation, so no
-privacy or no-egress result from the earlier artifact is attributed to it.
+The current 4.4.3 payload is installed under Program Files and running
+loopback-only; its core packaged-file hashes match the extracted engineering
+build and health/readiness report no blockers. This is not installed
+all-output redaction/no-egress, provider, deletion/recovery, independent
+privacy, lifecycle, or exact signed-artifact acceptance; those gates remain
+open.
 
 ## Local-first does not mean air-gapped
 
@@ -39,8 +39,9 @@ The approved product runs on a user-controlled Windows 11 system or Windows VM.
 Application databases and services are app-owned and local by default. Selected
 data can leave the device when the owner initiates a request to a configured
 OpenAI or Google provider, starts an approved MCP connector operation, uses an
-approved Client Gateway application, exports/shares data, or explicitly opts in
-to external telemetry.
+approved Client Gateway application, or exports/shares data. External telemetry,
+license check-in, update-check egress, crash-reporting egress, and phone-home are
+not approved product behavior.
 
 The product owner/vendor does not normally host customer data, control customer
 provider accounts, or centrally manage customer API spend. The customer/owner is
@@ -175,11 +176,11 @@ on every SSD, VM snapshot, retained backup, or external system.
 
 ## External telemetry
 
-Backend and renderer external telemetry are disabled by default. A DSN or
-provider object alone cannot enable egress; the owner must make a separate
-explicit opt-in. Local crash identifiers and diagnostics remain available
-without external telemetry. Installed no-egress proof is still required before
-release.
+Backend and renderer external telemetry are not approved product behavior and
+must remain disabled. A DSN, provider object, or configuration toggle does not
+authorize telemetry egress. Local crash identifiers and diagnostics remain
+available without external telemetry. Installed no-egress proof is still
+required before release.
 
 ## AI purpose and limitations
 

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.18.0 |
+| Document version | v1.19.0 |
 | Product version | 4.4.3 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,11 +17,11 @@
 | Last reviewed | 2026-08-27 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.81.0 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.82.0 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; 4.4.3 exact-source portable engineering rebuild and visible local launch pass while fresh-installed Google chat, OpenAI quota, signing, and retained CP19-M acceptance remain open |
+| Current phase | Phase 19 CU-2; 4.4.3 exact-source rebuild is installed and healthy with core payload identity matched, while Google chat, OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -715,6 +715,17 @@ The artifact remains `NotSigned`; this closes only the exact-source portable
 engineering row and does not close the owner-gated confidence-score work,
 CP19-M, provider, signing, installed, or production-release gates.
 
+The documentation/evidence closure is pushed on `main` at
+`43fd86df74f3545b84c0a10702428723611c40d6`. Its replacement Deploy
+`33039993475`, Security `33039993480`, and CI/CD `33039993472` workflows all
+pass. DataLogicEngine 4.4.3 is also currently installed under Program Files and
+running with the backend bound to `127.0.0.1:5000`; `/health` is `ok`, `/ready`
+is `ready`, and the installed desktop executable, backend executable, and
+`app.asar` hashes match the extracted 4.4.3 payload. This is a narrow installed
+runtime observation only. It does not prove installer/upgrade/repair/uninstall,
+retained-data, provider-chat, accessibility, recovery, signing, pilot, or soak
+acceptance and does not change release **NO-GO**.
+
 **CI recovery checkpoint (2026-08-26):** the owner-directed repair branch is
 based on current upstream `main` commit `f3f54bc391421b4c7c3d2404dc54314028c5c7de`.
 It restores the complete Dataset Exporter regression suite and Developer Guide
@@ -1098,7 +1109,8 @@ Validated correlation IDs originate in renderer/Electron requests, bind to
 Flask/background context, echo safely, enrich backend/desktop `dle.log.v1`, and
 persist with governed traces. Electron logs rotate through bounded generations
 and deterministically redact secrets, PII, content, and home paths. Backend and
-renderer external telemetry require explicit opt-in.
+renderer external telemetry controls exist in source, but the approved product
+state is disabled with no telemetry or crash-reporting egress.
 
 Admin -> Diagnostics exposes content-free runtime/service/request/log/privacy
 state and an explicit support preview/confirm/local-export workflow. Preview and
@@ -1703,13 +1715,10 @@ the compliance-remediation workstream begins at human-gated CR-A0
 must explicitly disposition that human gate before it starts. Do not introduce
 a broad line-ending rewrite as part of this runtime fix.
 
-1. Publish the validated local closure commits when authorized, then confirm
-   replacement Deploy `Build and Test`, Security `Dependency Security Scan`,
-   and CI `backend-test`, `frontend-build`, and `governance` jobs pass. Use only
-   the 4.4.3 artifact bound to `171ba1db...` and SHA-256 `a9c80380...d377c5a`
-   for the next elevated per-machine install; the artifact bound to
-   `103f52e5` is superseded source-relative evidence only. Prove a normal
-   Google chat invokes the configured provider once,
+1. Use only the installed 4.4.3 payload bound to `171ba1db...` and SHA-256
+   `a9c80380...d377c5a`; the artifact bound to `103f52e5` is superseded
+   source-relative evidence only. Prove a normal Google chat invokes the
+   configured provider once,
    releases through Layer 10, and exposes the persisted validation telemetry.
    Restore or replenish OpenAI quota and rerun the bounded `gpt-5.6-sol`
    source-level check with High reasoning. Do not expose, print, or require

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.11.0 |
+| Document version | v1.12.0 |
 | Product version | 4.4.3 |
 | Date | 2026-08-27 |
 | Status | Active supporting review input; CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
@@ -47,17 +47,22 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 - Phase 5 delivered startup/layer contracts and Electron path helpers, but the
   major gateway, governed-execution, MCP, and Electron package decompositions
   were restored and remain partial/deferred.
-- Independent coverage gates pass at 80.30% for `backend/`, 80.67% for
-  `backend/security/`, 80.89% for `core/`, and 89.54% statements, 80.69%
+- Independent coverage gates pass at 80.29% for `backend/`, 80.67% for
+  `backend/security/`, 81.07% for `core/`, and 89.54% statements, 80.69%
   branches, 86.11% functions, and 91.36% lines for the frontend.
-- The current portable engineering artifact is
-  `DataLogicEngine Setup 4.4.2.exe`, 358,849,388 bytes, SHA-256
-  `ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`,
-  built from exact clean packaged dependency-injection fix commit
-  `103f52e5f9b51f937ac2da8adc17523ec98affdb`. It passes version parity,
-  integrity, NSIS, the 6,096-file payload, and strict package-owned portable
-  readiness; `/ready` completed in 38,848 ms with verified process ownership
-  and clean shutdown.
+- The current engineering artifact is `DataLogicEngine Setup 4.4.3.exe`,
+  359,111,112 bytes, SHA-256
+  `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`,
+  built from exact clean source commit
+  `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. It passes version parity,
+  integrity, NSIS, the 6,100-file payload, and strict package-owned portable
+  readiness; `/ready` completed in 56,001 ms with verified process ownership.
+- Documentation/evidence commit `43fd86df...` is pushed to `main`; replacement
+  Deploy `33039993475`, Security `33039993480`, and CI/CD `33039993472`
+  workflows pass. The 4.4.3 payload is installed under Program Files and
+  running loopback-only; core packaged-file hashes match and `/health` plus
+  `/ready` pass with no blockers. This narrow observation does not close full
+  installed lifecycle or provider acceptance.
 - The scheduled full-history secret-scan finding is closed by scheduled run
   `32093054806`: 1,298 commits and 2,632,118,047 bytes scanned with zero
   verified and zero unverified secrets. Future candidate scans remain required.
@@ -65,7 +70,7 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 ### 2.2 Open and release-blocking
 
 - CP19-M exact clean-source, signed, installed acceptance remains open.
-- Fresh-installed Google chat proof against the exact 4.4.2 artifact remains
+- Fresh-installed Google chat proof against the exact 4.4.3 artifact remains
   open.
 - Google `gemini-3.7-flash` source-level live availability passes. OpenAI
   `gpt-5.6-sol` used High reasoning but is blocked on `quota_exhausted`; the
@@ -106,7 +111,8 @@ claims by renaming an existing component.
 Specifically:
 
 - do not call the product air-gapped while configured provider, connector,
-  client, export, or telemetry egress exists;
+  client, or owner-initiated export egress exists, or before CR-B proves the
+  enforced no-telemetry/no-phone-home boundary;
 - do not call sampled confidence a conformal prediction score or claim
   finite-sample coverage without a real conformal method, calibration evidence,
   tests, and reviewed documentation;
@@ -140,8 +146,9 @@ Specifically:
 
 1. Remove stale statements that the already-pushed August source checkpoints
    are wholly local and unpushed.
-2. Mark the `5ec7af72...` and `1da8b8d6...` provider-refresh artifacts as
-   superseded for current planning by the exact-source `650034ee...` rebuild.
+2. Mark the `5ec7af72...`, `1da8b8d6...`, and `650034ee...` artifacts as
+   superseded for current planning by the exact-source 4.4.3
+   `a9c80380...d377c5a` rebuild.
 3. Keep historical source/artifact statements in the archive or evidence tree,
    but prevent them from acting as the current handoff.
 4. Keep the release decision **NO-GO**.
@@ -422,9 +429,8 @@ and direct regression coverage passes. The standing version rule therefore
 advances the next exact-source engineering artifact to 4.4.3/4.4.3.0. The
 owner-gated confidence-score name/calibration work remains outside this batch.
 
-Proceed with CU-2 by installing only the 4.4.3 artifact bound to source commit
-`171ba1db...` and SHA-256 `a9c80380...d377c5a` in an elevated per-machine
-session. Then repeat a normal Google chat to confirm
+Proceed with CU-2 using only the installed 4.4.3 payload bound to source commit
+`171ba1db...` and SHA-256 `a9c80380...d377c5a`. Repeat a normal Google chat to confirm
 one provider execution, Layer 10 release, and persisted validation telemetry.
 Restore or replenish OpenAI quota and rerun
 the bounded `gpt-5.6-sol` High-reasoning check without exposing stored keys.

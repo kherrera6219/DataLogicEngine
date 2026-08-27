@@ -2,17 +2,20 @@
 
 **Version:** 1.1 *(rev. — US-only market decision applied, 2026-08-18)*
 **Date:** August 17, 2026
-**Target:** `C:\software\DataLogicEngine` @ main, v4.4.0 (`release_blocked`)
+**Target:** `C:\software\DataLogicEngine` @ main, v4.4.3 (`release_blocked`)
 **Executor:** Codex (autonomous coding agent), reviewed by Kevin Herrera
 **Source findings:** `DataLogicEngine_External_Review_2026-08-16.md`, `UKG_Standards_Compliance_Blueprint_2026-08-17.md`
 **Conventions:** extends `DataLogicEngine_Audit_Sprint_Plan_v2.md` (task IDs, exit gates, one-task-one-commit)
 **Verification update:** the source review was refreshed at `fd24536d`, but the
-2026-08-20 4.4.1 repair run subsequently completed 3,295 Windows tests with 18
-skipped and zero setup errors. CR-A0 must capture a new commit-bound baseline
+2026-08-27 4.4.3 qualification subsequently completed 3,317 Windows tests with
+19 skipped and zero failures or setup errors. CR-A0 must capture a new commit-bound baseline
 before CR-A1 is treated as open work. Other findings retain their task-level
 verify-first requirements; CR-E1 and CR-E4 were found already satisfied.
 
-**Assumption stated in the open:** this supersedes remaining Phase 19 checkpoint work as the gate to unblocking v4.4.0. Phase 19 has established that the pipeline is wired correctly; a fourteenth checkpoint will not establish it further. If you'd rather run this as a parallel Phase 20 track, the task IDs are already namespaced to avoid collision.
+**Assumption stated in the open:** this program remains a separate gate to
+unblocking v4.4.3. Phase 19 established substantial pipeline wiring evidence,
+but CP19-M installed/provider/signing acceptance remains independently open.
+The CR task IDs are namespaced to avoid collision with the release program.
 
 ---
 
@@ -84,7 +87,7 @@ Phase A  Trustworthy test harness      ← BLOCKS EVERYTHING
                      └──▶ Phase G  Documentation artifacts (depends on B, C, D, E, F)
 ```
 
-**Phase A blocks the remediation phases and this is the whole point.** The review baseline reported forty Windows setup errors. The 2026-08-20 4.4.1 repair run later completed 3,295 Windows tests with 18 skipped and zero errors, so the historical count is not a current finding. CR-A0 must capture a fresh commit-bound baseline and CR-A1 must reproduce its premise before modifying fixtures. Running Phases B–G before Phase A is formally dispositioned would still produce evidence without the program's approved baseline.
+**Phase A blocks the remediation phases and this is the whole point.** The review baseline reported forty Windows setup errors. The 2026-08-27 4.4.3 qualification later completed 3,317 Windows tests with 19 skipped and zero failures or setup errors, so the historical count is not a current finding. CR-A0 must capture a fresh commit-bound baseline and CR-A1 must reproduce its premise before modifying fixtures. Running Phases B–G before Phase A is formally dispositioned would still produce evidence without the program's approved baseline.
 
 Phases B, C, D, and E are mutually independent once A is green and may be run concurrently in separate worktrees. Phase G is last because it documents what the others built; writing it earlier guarantees it documents intent rather than fact.
 

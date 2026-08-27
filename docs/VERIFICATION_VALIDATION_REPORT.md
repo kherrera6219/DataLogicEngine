@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.7.0 |
+| Document version | v1.8.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,19 +14,20 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-18 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
 ## Purpose
 
 CP19-K is complete at 213/213 individually qualified KAs and CP19-L passed. The
-latest pushed CI for runtime-equivalent source records 3,091 main-suite backend
-tests passed with 26 skipped, plus 23 contract tests with one skipped, five
-parity tests, six focused security tests, 435 frontend unit tests, and 51
-frontend end-to-end/visual/app-readiness tests. Lint, typecheck, build,
-packaging, governance, deployment, and the push-triggered security workflow
-passed. The later Lob-detector finding is now closed: scheduled full-history
+current 4.4.3 qualification records 3,317 Python tests passed with 19 skipped
+and 484 frontend tests passed. Independent Python coverage passes at 80.29%
+`backend/`, 80.67% `backend/security/`, and 81.07% `core/`; frontend coverage,
+lint, typecheck, build, packaging, governance, deployment, and security gates
+pass. At commit `43fd86df...`, Deploy run `33039993475`, Security run
+`33039993480`, and CI/CD run `33039993472` all pass. The later Lob-detector
+finding is closed: scheduled full-history
 run `32093054806`, job `95578937904`, scanned 1,298 commits and
 2,632,118,047 bytes with zero verified and zero unverified secrets. Future
 exact-candidate secret scans remain required.
@@ -40,11 +41,12 @@ freshness tests 3/3 and were published to connected Google Drive with byte-count
 readback. These results do not replace packaged accessibility validation; stale
 external analysis cleanup remains blocked on Google file-scoped write access.
 
-The August 10 rebuilt unsigned candidate installed, reached readiness,
-preserved retained data across the five managed services, and passed installed
-authentication, Diagnostics, and representative KA smoke. The newer August 12
-4.4.0 build passed integrity but has not passed installed-mode acceptance. CP19-M
-remains partial and release-blocking.
+The current unsigned 4.4.3 payload is installed under Program Files and running
+loopback-only. Its desktop executable, backend executable, and `app.asar`
+hashes match the extracted build; `/health` and `/ready` pass with no blockers.
+That narrow observation does not prove the install/upgrade/repair/uninstall
+actions, retained-data lifecycle, provider chat, or other installed acceptance.
+CP19-M remains partial and release-blocking.
 
 Define how DataLogicEngine 4.4.3 is verified against specifications and validated
 for intended Windows use, summarize current evidence, and keep engineering/source
@@ -96,8 +98,9 @@ acceptance. This report is not a production approval.
 
 ## Current candidate evidence
 
-This checkpoint has two separate artifact subjects: the last installed
-qualification artifact and the newer current local engineering build.
+This checkpoint retains the last completed installed qualification artifact as
+historical evidence and separately records the current 4.4.3 engineering build
+and narrow running-installed observation.
 
 The last installed qualification artifact, built on 2026-08-10, is 283,890,413 bytes with SHA-256
 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
@@ -112,19 +115,19 @@ That installed candidate is unsigned. Prior frozen candidate hashes and the earl
 the current installed result. Reproducibility, signing, exact-artifact binding,
 and the retained CP19-M/system/manual/external acceptance rows remain open.
 
-The current local engineering artifact was rebuilt on 2026-08-18 from exact
-clean source commit `c765ba03257e58e69a4cd4b80f92390c71346801`. It is
-358,848,516 bytes with SHA-256
-`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
+The current engineering artifact was rebuilt from exact clean source commit
+`171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. It is 359,111,112 bytes with
+SHA-256
+`a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`.
 Its checksum, block map, installer-integrity report, NSIS governance,
-6,096-file payload, and required packaging-resource checks pass. Strict
-portable smoke reached package-owned `/ready` in 30,701 ms, verified the
-listener belonged to the launched package process tree, and left no package
-process or port-5000 listener after shutdown. It is unsigned, installer mode
-was not run, and it is not the installed qualification subject above. Google
-source-level availability passes; OpenAI remains `quota_exhausted`. No
-installed, provider-corpus/human, accessibility, recovery, independent-review,
-pilot, or soak evidence transfers between these artifact hashes.
+6,100-file payload, and required packaging-resource checks pass. Strict
+portable smoke reached package-owned `/ready` in 56,001 ms with zero blockers
+and verified descendant ownership. Its core files match the currently running
+Program Files payload, whose loopback `/health` and `/ready` pass. It is
+unsigned; full installer/lifecycle and provider acceptance were not run.
+Google source-level availability passes; OpenAI remains `quota_exhausted`. No
+provider-corpus/human, accessibility, recovery, independent-review, pilot, or
+soak evidence transfers between artifact hashes.
 
 ## Phase evidence disposition
 

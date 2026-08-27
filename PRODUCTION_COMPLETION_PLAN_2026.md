@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.81.0 |
+| Document version | v1.82.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -227,11 +227,21 @@ The non-elevated session did not run per-machine installer mode, the artifact
 is `NotSigned`, and fresh-installed Google chat remains open. Production/public
 release remains **NO-GO**.
 
+The follow-on documentation/evidence closure is pushed on `main` at
+`43fd86df74f3545b84c0a10702428723611c40d6`; Deploy run `33039993475`,
+Security run `33039993480`, and CI/CD run `33039993472` all pass. The same
+4.4.3 payload is currently installed under Program Files and running
+loopback-only. Its desktop executable, backend executable, and `app.asar`
+hashes match the extracted build, while `/health` and `/ready` report no
+blockers. This is a narrow installed runtime observation, not the elevated
+install/upgrade/repair/uninstall, provider-chat, retained-data, accessibility,
+recovery, signing, pilot, or soak acceptance required by CP19-M.
+
 The clean split-language coverage qualification now clears the 80% engineering
 floor independently in every maintained application scope: Python `backend/`
-is 80.30%, `backend/security/` is 80.67%, and `core/` is 80.89%; frontend V8
+is 80.29%, `backend/security/` is 80.67%, and `core/` is 81.07%; frontend V8
 coverage is 89.54% statements, 80.69% branches, 86.11% functions, and 91.36%
-lines. The blocking runs passed 3,287 Python tests with 18 skipped and 482
+lines. The blocking runs passed 3,317 Python tests with 19 skipped and 484
 frontend tests. CI enforces the same independent thresholds; Python and V8 are
 not blended into a misleading whole-application percentage.
 
@@ -282,8 +292,8 @@ readiness workflows passed. Real installed handler-to-durable-effect, packaged
 visual/scaling/high-contrast, and NVDA proof remain open release gates.
 
 Phase 13 adds validated renderer/Electron/Flask/background correlation; shared
-rotated/redacted `dle.log.v1` backend and desktop logs; explicit external-
-telemetry opt-in; authenticated Diagnostics; previewed, confirmed, allowlisted,
+rotated/redacted `dle.log.v1` backend and desktop logs; external telemetry
+disabled and unapproved; authenticated Diagnostics; previewed, confirmed, allowlisted,
 re-redacted, hashed, retained, optionally encrypted support bundles; a complete
 typed error taxonomy and critical fail-semantics map; evidence-backed compliance
 outputs; real exception/import gates; expanded incident response; and stress24/
@@ -3095,8 +3105,9 @@ or presenting heuristic controls as certifications.
 5. Publish local metrics for startup, service health, migrations, queues, provider
    calls, latency, retries, cancellations, errors, ingestion, graph sync, vector
    search, object operations, simulation budgets, MCP, and backup/restore.
-6. Keep external telemetry/crash reporting disabled by default. If later enabled,
-   require explicit opt-in, redaction, endpoint disclosure, and separate review.
+6. Keep external telemetry/crash reporting disabled and unapproved. A future
+   proposal to enable it is outside this plan and requires an explicit product-
+   boundary decision, egress review, implementation task, and new evidence.
 7. Build an authenticated diagnostics page with capability state and safe repair
    actions.
 
@@ -3189,8 +3200,8 @@ documentation.
 ### Engineering checkpoint reached 2026-07-14
 
 The source checkpoint implements the structured/redacted log contract,
-validated correlation ingress and context propagation, explicit telemetry opt-
-in, authenticated diagnostics, preview/confirm/hash/encrypt support bundles,
+validated correlation ingress and context propagation, external telemetry
+disabled/unapproved, authenticated diagnostics, preview/confirm/hash/encrypt support bundles,
 typed failure semantics, truthful compliance evidence, real import/exception
 gates, operational incidents, and stress24/idle72 evaluators.
 
@@ -6491,9 +6502,9 @@ exit gate.
 
 ## 34. Immediate next action
 
-The current overriding CU-2 action is to install only the 4.4.3 artifact bound
-to exact source commit `171ba1db...` and SHA-256 `a9c80380...d377c5a` in an
-elevated per-machine session. Then prove a normal Google chat invokes the
+The current overriding CU-2 action is to use only the installed 4.4.3 payload
+bound to exact source commit `171ba1db...` and SHA-256
+`a9c80380...d377c5a`. Prove a normal Google chat invokes the
 configured provider once, releases through Layer 10, and exposes persisted
 validation telemetry. Restore OpenAI quota and rerun the bounded High-reasoning
 check without exposing stored keys. The 4.4.2 artifact is historical

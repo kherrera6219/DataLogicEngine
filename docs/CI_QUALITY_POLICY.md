@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Date | 2026-08-16 |
+| Date | 2026-08-27 |
 | Applies to | `.github/workflows/ci.yml` |
 
 ## Coverage
@@ -13,13 +13,13 @@
 | **CI** (`frontend-build`) | Complete Vitest V8 coverage run with independent statements, branches, functions, and lines gates |
 | **Threshold enforcement** | Hard minimum of 80.00% for every scope and metric listed below |
 
-Fresh 2026-08-16 coverage measurement:
+Fresh 2026-08-27 4.4.3 coverage measurement:
 
 | Denominator | Result |
 |---|---:|
-| Python `backend/` | 80.30% (37,348 / 46,511) |
-| Python `backend/security/` | 80.67% (1,653 / 2,049) |
-| Python `core/` | 80.89% (12,374 / 15,298) |
+| Python `backend/` | 80.29% |
+| Python `backend/security/` | 80.67% |
+| Python `core/` | 81.07% |
 | Frontend statements | 89.54% (2,474 / 2,763) |
 | Frontend branches | 80.69% (1,902 / 2,357) |
 | Frontend functions | 86.11% (701 / 814) |
@@ -36,8 +36,9 @@ npm --prefix frontend run test:coverage
 There is no truthful single combined application percentage because Python and
 V8 use different coverage models. The gate therefore requires each named Python
 scope and each V8 metric to pass independently; one strong result cannot conceal
-a failing result elsewhere. The clean qualification passed 3,287 Python tests
-with 18 skipped and 482 frontend tests.
+a failing result elsewhere. The clean qualification passed 3,317 Python tests
+with 19 skipped and 484 frontend tests. At commit `43fd86df...`, Deploy run
+`33039993475`, Security run `33039993480`, and CI/CD run `33039993472` pass.
 
 ## Accessibility (a11y)
 

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.7.1 |
+| Document version | v3.8.0 |
 | Product version | 4.4.3 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-26 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -22,14 +22,15 @@
 
 Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
 
-The current provider-refresh source baseline passes 3,115 backend tests with 18
-skipped, 435 frontend tests, 36 Python SDK tests, and eight TypeScript SDK tests.
-It selects OpenAI `gpt-5.6-sol` with High reasoning and Google
-`gemini-3.7-flash`. The current provider-refresh replacement was rebuilt from
-exact source commit `c765ba03257e58e69a4cd4b80f92390c71346801`; static
-packaging, the 6,096-file payload, and package-owned portable `/ready` pass.
-It remains unsigned and CP19-M remains the exact signed installed acceptance
-boundary.
+The current 4.4.3 source baseline passes 3,317 Python tests with 19 skipped and
+484 frontend tests. It selects OpenAI `gpt-5.6-sol` with High reasoning and
+Google `gemini-3.7-flash`. The current replacement was rebuilt from exact
+source commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`; static packaging,
+the 6,100-file payload, and package-owned portable `/ready` pass. Core files in
+the currently installed Program Files copy match the extracted build and its
+loopback health/readiness checks pass. It remains unsigned, provider chat and
+full lifecycle acceptance remain open, and CP19-M remains the exact signed
+installed acceptance boundary.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
 
@@ -144,14 +145,15 @@ frontend prompt
 
 ### Current build identity
 
-The latest local engineering installer was built from source commit
-`c765ba03257e58e69a4cd4b80f92390c71346801`. The 358,848,516-byte artifact
+The latest engineering installer was built from source commit
+`171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. The 359,111,112-byte artifact
 has SHA-256
-`650034eeec76cbfc582ce81551f40d14e527aeea2707682bdf040d808062a591`.
-It is unsigned. Integrity, NSIS, 6,096-file payload, packaging-resource, and
-package-owned portable `/ready` checks pass; readiness completed in 30,701 ms
-with the listener verified as a descendant of the launched app, and shutdown
-left no package process or port-5000 listener. Elevated installer-mode and all
+`a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`.
+It is unsigned. Integrity, NSIS, 6,100-file payload, packaging-resource, and
+package-owned portable `/ready` checks pass; readiness completed in 56,001 ms
+with verified descendant ownership. Core files in the running Program Files
+copy match the extracted payload and loopback health/readiness pass. The
+install action, upgrade, repair, uninstall, provider chat, and all other
 retained CP19-M acceptance remain open. Use
 `docs/RELEASE_READINESS_RECORD.md` for the separate last-installed
 qualification identity. Never transfer installed results between artifact
@@ -430,8 +432,8 @@ python scripts/verify_python_coverage.py --report coverage-python.json --minimum
 npm --prefix frontend run test:coverage
 ```
 
-The clean 2026-08-16 qualification is 80.30% for `backend/`, 80.67% for
-`backend/security/`, and 80.89% for `core/`. Frontend V8 coverage is 89.54%
+The clean 2026-08-27 qualification is 80.29% for `backend/`, 80.67% for
+`backend/security/`, and 81.07% for `core/`. Frontend V8 coverage is 89.54%
 statements, 80.69% branches, 86.11% functions, and 91.36% lines. The Python
 verifier and Vitest thresholds independently require every result to be at
 least 80.00%; these figures are not blended into a whole-app percentage.

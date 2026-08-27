@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v4.1.0 |
+| Document version | v4.2.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-16 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -26,9 +26,11 @@ This guide reflects the current local-first product: dashboard, chat, Session Li
 
 The current source selects OpenAI `gpt-5.6-sol` with High reasoning and Google
 `gemini-3.7-flash`. The local replacement engineering package contains that
-refresh and passes portable readiness; saved rows using the retired defaults
-were migrated without re-entering their keys. The package is unsigned and has
-not passed live-provider or installed acceptance. Production release remains
+refresh and passes portable readiness. Its core payload files match the 4.4.3
+copy currently installed under Program Files, which is healthy and
+loopback-only. Saved rows using retired defaults were migrated without
+re-entering their keys. The package is unsigned and has not passed provider
+chat or full installed lifecycle acceptance. Production release remains
 blocked by a clean signed installed artifact plus provider, accessibility,
 independent, pilot, and soak gates.
 
@@ -312,7 +314,7 @@ streaming and v1 does not resume a disconnected stream.
 
 1. Open **Admin -> Diagnostics** (`/admin/diagnostics`).
 2. Review the content-free runtime, service, request, log, privacy, and external-
-   telemetry status. This surface is owner-authenticated and does not display
+   telemetry-disabled status. This surface is owner-authenticated and does not display
    prompts, responses, secrets, provider keys, or stored user content.
 3. Select **Preview support bundle**. Review the allowlisted file list, sizes,
    hashes, redaction result, and exact preview fingerprint.
@@ -322,9 +324,9 @@ streaming and v1 does not resume a disconnected stream.
    Store or share them only through an approved support channel. Use the CLI
    encryption option when an encrypted handoff is required.
 
-External crash reporting remains off unless the owner explicitly enables the
-backend and/or renderer telemetry opt-in. Configuring a DSN by itself does not
-authorize egress.
+External crash reporting and telemetry are not approved product behavior and
+must remain disabled. A DSN or other setting does not authorize egress. Local
+crash identifiers and diagnostics remain available without external telemetry.
 
 ### 15. Create a candidate training dataset
 

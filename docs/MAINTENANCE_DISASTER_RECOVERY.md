@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-007 |
 | Title | Maintenance and disaster-recovery plan |
-| Document version | v1.1.1 |
+| Document version | v1.2.0 |
 | Product version | 4.4.3 |
 | Status | qualification_only |
 | Audience | Owner/operator, platform and data engineering, support, security, quality, and recovery reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented coordinated backup/restore, migration, service lifecycle, support, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Store, backup, restore, retention, migration, recovery, update, service, or support-policy change |
 | Requirements and evidence | Product/data requirements, recovery implementation/tests, runbooks, and Phase 3/4/13/15 evidence |
 
@@ -58,7 +58,7 @@ protected recovery mechanism.
   and most recent restore drill.
 - Review provider/model manifest, budgets, key age/test, connector fingerprint/
   consent, client keys/scopes, firewall/private-gateway disabled state, and
-  external telemetry opt-in.
+  external-telemetry-disabled state.
 - Reconcile ingestion object/graph/vector revisions, memory integrity, simulation
   artifacts, gateway/MCP large-result references, deletion remnants, and exports.
 - Review dependency/security findings, alert 389, Windows/service support,

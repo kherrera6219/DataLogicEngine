@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-005 |
 | Title | Privacy impact assessment and data inventory |
-| Document version | v1.1.1 |
+| Document version | v1.2.0 |
 | Product version | 4.4.3 |
 | Status | not_evaluated |
 | Audience | Product owner, privacy/security, data engineering, operations, legal reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data flows, privacy/provider/connector controls, retention/deletion contracts, and current evidence gaps |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Purpose, data category, subject group, store, provider/connector, retention, deletion, telemetry, region, or legal basis change |
 | Requirements and evidence | Product requirements, privacy notice, data/security architecture, tests, provider/connector records, and independent review |
 
@@ -26,12 +26,12 @@ legal basis, jurisdiction, provider/connector contracts, retention periods,
 children/high-risk-use restrictions, installed no-egress/deletion/remnant proof,
 and independent privacy/legal review are not complete.
 
-The 2026-08-10 installed engineering candidate preserved existing app-owned data
-through verified one-time adoption. Installed redaction/no-egress, provider,
-deletion/remnant, retention/legal-basis, and independent privacy review remain
-open; the `not_evaluated` production status is unchanged.
-The newer August 11 local artifact has not completed installed privacy,
-redaction, deletion, or no-egress validation.
+The current 4.4.3 payload is installed under Program Files and running
+loopback-only; its core packaged-file hashes match the extracted build and
+health/readiness report no blockers. That narrow observation does not establish
+installed redaction/no-egress, provider, deletion/remnant,
+retention/legal-basis, lifecycle, or independent privacy review. The
+`not_evaluated` production status is unchanged.
 
 The default product owner/vendor does not operate customer data or provider
 accounts as a multi-tenant SaaS. The customer/owner controls the Windows system
@@ -64,7 +64,7 @@ essential services.
 | Trace/audit | Runs, stages, policy, claims/citations, confidence, convergence, safe errors | PostgreSQL/object/memory/log authorities | Scoped client/export/support metadata |
 | Knowledge/simulation | Sources, provenance, graph/vector revisions, checkpoints/artifacts/results | PostgreSQL, app-owned S3-compatible object store, Neo4j, ChromaDB, memory | Provider/tool/export if initiated |
 | Gateway/MCP | Client identity/scopes/jobs, connector fingerprint/consent/calls/result hashes | PostgreSQL, Redis, encrypted app-owned S3-compatible object store objects | Approved client or local connector |
-| Operational | Health/readiness, resource state, content-free usage, redacted logs/crash/support manifests | Local app-owned records/logs | External telemetry only by explicit opt-in; reviewed bundle sharing |
+| Operational | Health/readiness, resource state, content-free usage, redacted logs/crash/support manifests | Local app-owned records/logs | No approved external telemetry; reviewed owner-initiated bundle sharing only |
 | Backup/export | Encrypted coordinated backups, trace/data exports, bundle archives | Owner-selected protected local/off-device storage | Wherever owner explicitly stores/shares |
 
 The approved requirement is the capability **app-owned S3-compatible object
@@ -100,8 +100,8 @@ firewall/two-machine qualification; public/browser access is unsupported.
 
 Exports go to owner-selected locations. Diagnostics/support bundles are local,
 content-free/allowlisted, previewed, re-redacted, hashed, and not uploaded by the
-app. External telemetry is disabled by default and requires explicit opt-in; a
-DSN alone cannot enable it.
+app. External telemetry and crash-reporting egress are not approved product
+behavior and must remain disabled; a DSN or other setting cannot enable them.
 
 ## Retention and deletion
 
@@ -137,7 +137,7 @@ for every SSD, snapshot, or third party.
 Supported controls include review/export/deletion for sessions, traces, knowledge,
 memory, usage metadata, and other named workflows; provider/model and processing
 preferences; connector consent/revocation; client-key lifecycle; support preview;
-telemetry opt-in; backup/restore; and uninstall data choice. Exact installed
+external-telemetry-disabled status; backup/restore; and uninstall data choice. Exact installed
 discoverability, accessibility, durable effects, deletion completeness, and
 response timing remain validation gates.
 

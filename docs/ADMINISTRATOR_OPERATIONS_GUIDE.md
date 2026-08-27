@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-003 |
 | Title | Administrator and operations guide |
-| Document version | v1.2.1 |
+| Document version | v1.3.0 |
 | Product version | 4.4.3 |
 | Status | qualification_only |
 | Audience | Single owner/operator, Windows administrators, support engineers, and release reviewers |
@@ -14,26 +14,23 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented runtime supervision, data lifecycle, gateway, diagnostics, and operational controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Service, readiness, migration, backup, recovery, gateway, connector, diagnostics, or incident-control change |
 | Requirements and evidence | Product requirements, architecture, runbook sources, tests, and installed qualification evidence |
 
 ## Operating boundary
 
-The 2026-08-10 unsigned qualification candidate installed per-machine, launched from Program
-Files, reached `/ready`, and supervised the five app-owned loopback services in
-the `datalogicengine` Podman machine. Retained relational, graph, and object data
-was adopted and verified; administrators must not initialize a replacement
-database or restart the superseded legacy container. Signed lifecycle, recovery,
-provider, accessibility, independent, pilot, and soak acceptance remains open.
-The newer August 11 local artifact has not completed installed-mode acceptance;
-operators must not transfer the August 10 readiness or retained-data evidence
-to it.
+The current unsigned 4.4.3 payload is installed under Program Files and running
+loopback-only. Its desktop executable, backend executable, and `app.asar` hashes
+match the extracted build; `/health` and `/ready` pass with no blockers. This
+narrow observation does not repeat the installation action, upgrade, repair,
+uninstall, retained-data lifecycle, provider chat, or recovery acceptance.
+Administrators must not transfer those results from an older artifact.
 
 DataLogicEngine 4.4.3 is a single-owner local-first Windows application. The
 normal desktop profile binds the backend and internal services to installation-
 specific local boundaries. The application owns PostgreSQL, Redis, Neo4j,
-ChromaDB, and app-owned S3-compatible object store production responsibilities; externally managed databases
+ChromaDB, and app-owned S3-compatible object-store production responsibilities; externally managed databases
 and public web/SaaS operation are outside the approved contract.
 
 This guide describes the intended production operating model, but the signed
@@ -162,8 +159,8 @@ provider payloads, request/response bodies, or decrypted backups.
 Support bundles require owner preview and confirmation. Verify the preview
 inventory and fingerprint, generate locally, confirm the SHA-256 sidecar, and
 encrypt before approved sharing. The app does not upload a bundle. External
-telemetry is disabled by default and requires a separate explicit opt-in; a DSN
-alone must not enable egress.
+telemetry and crash-reporting egress are not approved product behavior and
+must remain disabled; a DSN or other setting does not authorize egress.
 
 ## Client Gateway
 
@@ -216,7 +213,7 @@ in `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`.
 - Review storage growth, disk margin, logs, support bundles, queues, and jobs.
 - Review failed/partial deletions, migrations, ingestion reconciliation, and
   simulation/MCP/gateway operations.
-- Review client keys, connector consent, external telemetry, firewall, and
+- Review client keys, connector consent, external-telemetry-disabled state, firewall, and
   update-disabled state.
 - Review security findings, dependency alert 389, legal/signing authority, and
   retained Phase 15 qualification gates before any release claim.

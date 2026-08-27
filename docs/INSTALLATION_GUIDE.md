@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.4.3 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
@@ -14,27 +14,28 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | NSIS packaging controls, Windows runtime implementation, release trust policy, and installed qualification plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-12 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Installer, signing, prerequisite, lifecycle, data-location, update, or supported-Windows change |
 | Requirements and evidence | Product requirements, release manifest, installer verification, Phase 15 evidence, and lifecycle acceptance |
 
 ## Current distribution status
 
 DataLogicEngine 4.4.3 is not approved for production or public installation.
-The 2026-08-10 installed engineering candidate is unsigned and is for
-controlled qualification only. It passed payload/integrity checks, installed
-per-machine, launched from Program Files, reached readiness, and supervised all
-five local services. It preserved the existing 0.1.1 data through verified
-one-time adoption rather than creating a replacement database.
+The current engineering installer is `DataLogicEngine Setup 4.4.3.exe`
+(359,111,112 bytes; SHA-256
+`a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`),
+built from exact source commit
+`171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. It is unsigned. Integrity,
+checksum/block-map, NSIS, required resources, the 6,100-file payload, and
+strict package-owned portable readiness pass.
 
-A separate 2026-08-12 local build exists at `DataLogicEngine Setup 4.4.0.exe`
-(283,876,702 bytes; SHA-256
-`b1a331f0592ebf0d874ae97e1a7b0a5fee491955e94567a12d6bfe8ab887c438`).
-It is unsigned; integrity, checksum, block-map, 6,095-file payload, version,
-and dependency audits pass. It was intentionally not launched or installed. Do not
-attribute the August 10 installed results to this different-hash artifact or
-treat an unsigned, stale `Latest`, or locally rebuilt artifact as the production
-installer.
+That 4.4.3 payload is currently installed under Program Files and running
+loopback-only. The installed desktop executable, backend executable, and
+`app.asar` hashes match the extracted build; `/health` is healthy and `/ready`
+reports no blockers. This observation does not prove the installation action,
+upgrade, repair, uninstall, retained-data lifecycle, provider chat, or signed
+release acceptance. Do not transfer evidence from older 4.3.0, 4.4.0, 4.4.1,
+or 4.4.2 hashes to this candidate.
 
 The earlier frozen candidate stopped safely at
 `at_rest_protection_not_ready`; that result remains historical negative evidence
@@ -48,7 +49,7 @@ commit, supported Windows matrix, and accepted lifecycle evidence.
 
 The approved target is Windows 11 x64 on a user-controlled desktop or Windows
 VM. The installed application uses Electron, a loopback backend, and app-owned
-app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store
+PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store
 services. Public cloud/SaaS,
 macOS, Linux, mobile, and public-internet gateway deployments are unsupported.
 
@@ -88,7 +89,7 @@ follow the troubleshooting guide. Do not bypass readiness or trust controls.
    show a safe blocker if required services, identities, migrations, storage
    protection, or policies do not pass.
 7. Open Settings and Diagnostics and confirm product 4.4.3, runtime identity,
-   required service state, external telemetry state, and update state.
+   required service state, external telemetry disabled, and update state.
 8. Configure one supported provider only after reviewing the privacy/AI notice.
    A stored key is not `available` until its bounded live test passes.
 

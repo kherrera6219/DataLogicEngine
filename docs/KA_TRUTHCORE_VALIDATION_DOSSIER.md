@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-004 |
 | Title | KA and TruthCore validation dossier |
-| Document version | v1.4.1 |
+| Document version | v1.5.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | AI assurance, quality, product owner, architecture, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Live KA registry/classification, governed orchestration, evidence contracts, evaluation corpus, tests, and Phase 6 evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | KA registry/implementation/classification, TruthCore, evidence/confidence, evaluation, provider/model, or risk change |
 | Requirements and evidence | Product requirements, production catalog, semantic fixtures, golden corpus, Phase 6 reports, and AI system card |
 
@@ -30,8 +30,9 @@ CP19-K now qualifies 213/213 KAs through named semantic, selector, owner-path,
 trace, limitation, and applicable effect/security/performance evidence. CP19-L
 passed and representative KAs executed from the installed frozen backend. Live
 provider corpus and blinded-human acceptance remain open and release-blocking.
-The newer August 11 local build has not repeated installed per-KA/provider
-acceptance, so its integrity result does not close those rows.
+The current 4.4.3 Program Files payload is healthy and core-file-identical to
+the extracted build, but it has not repeated installed per-KA/provider
+acceptance, so that narrow observation does not close those rows.
 
 ## Registry and classification
 

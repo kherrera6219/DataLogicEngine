@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-005 |
 | Title | Software lifecycle and configuration-management plan |
-| Document version | v1.3.0 |
+| Document version | v1.4.0 |
 | Product version | 4.4.3 |
 | Status | active |
 | Audience | Product owner, engineering, quality, security, release, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, production plan, CI/release workflows, locks, documentation authority, and evidence policy |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Lifecycle, branch, review, toolchain, dependency, build, test, documentation, release, or maintenance-policy change |
 | Requirements and evidence | Product requirements, active plan/TODO, CI workflows, exact locks, manifests, tests, and release records |
 
@@ -25,12 +25,14 @@ product from approved requirements through design, implementation, verification,
 signed release, operation, incident response, update, and retirement. Schedule or
 demonstration pressure does not waive an exit gate.
 
-CP19-L and one clean unsigned rebuild/install checkpoint passed on 2026-08-10.
-A newer August 11 engineering artifact has passed integrity but not installed-
-mode acceptance. The lifecycle remains at CP19-M; signing, exact-artifact
-acceptance, installed lifecycle/recovery, external review, pilot, and soak are
-mandatory. A scheduled full-history secret-scan failure is also open pending
-detector disposition and a clean rerun.
+CP19-L passed. The exact 4.4.3 engineering artifact passes source, dependency,
+integrity, packaging, and portable-readiness gates; its core files match the
+currently running Program Files payload and loopback health/readiness pass.
+The lifecycle remains at CP19-M because signing, provider chat, exact-artifact
+install/upgrade/repair/uninstall, retained data/recovery, accessibility,
+external review, pilot, and soak acceptance are mandatory. The prior scheduled
+full-history secret-scan finding is closed by a clean full-history rerun; future
+candidate scans remain required.
 
 ## Authoritative configuration
 

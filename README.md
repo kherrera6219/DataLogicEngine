@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.10.0 |
+| Document version | v1.11.0 |
 | Product version | 4.4.3 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-20 |
+| Last reviewed | 2026-08-27 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -39,7 +39,9 @@ The built-in chat is a reference client for the same gateway that approved
 applications, agents, and chatbots can use. DataLogicEngine is not a model and
 is not a vendor-hosted SaaS: the owner controls the Windows system, provider
 accounts, connector credentials, local data, retention, backups, and operating
-policy.
+policy. Approved external communication is limited to owner-configured model
+endpoints and explicitly enabled connectors. There is no approved telemetry,
+license check-in, update check, crash-reporting egress, or phone-home.
 
 > [!WARNING]
 > **Engineering evaluation only. DataLogicEngine 4.4.3 is not approved for a
@@ -47,17 +49,19 @@ policy.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The current local engineering build is `DataLogicEngine Setup 4.4.2.exe`
-(358,849,388 bytes; SHA-256
-`ece59ad3e1e36afabd9856b29839254c626638cbcb2d4f00d7efe51c24031f8a`).
+The current engineering build is `DataLogicEngine Setup 4.4.3.exe`
+(359,111,112 bytes; SHA-256
+`a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`).
 It was rebuilt from exact source commit
-`103f52e5f9b51f937ac2da8adc17523ec98affdb` and passes installer integrity,
-NSIS governance, the 6,096-file release-payload check, and package-owned
-portable readiness; `/ready` completed in 38,848 ms and was owned by the
-launched package process tree. The artifact contains the packaged Layer 9/10
-dependency-injection correction and the full Windows source suite passes 3,297
-tests with 18 skipped and zero failures or setup errors. It is unsigned and
-still requires fresh-installed Google chat, provider, accessibility, recovery,
+`171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` and passes installer integrity,
+NSIS governance, required packaging-resource checks, the 6,100-file release
+payload, and strict package-owned portable readiness. The same 4.4.3 payload is
+currently installed under Program Files and running loopback-only: its desktop
+executable, backend executable, and `app.asar` hashes match the extracted build,
+and `/health` and `/ready` report healthy/ready with no blockers. This is a
+narrow installed observation, not completed install/upgrade/repair/uninstall or
+provider-chat acceptance. The artifact remains unsigned and still requires
+fresh-installed Google chat, provider, accessibility, recovery,
 independent-review, pilot, and soak acceptance.
 
 ## Repository guide
@@ -460,16 +464,18 @@ npm --prefix frontend audit --audit-level=high
 ```
 
 Coverage is measured separately for Python and TypeScript; the repository does
-not claim one blended whole-app percentage. The 2026-08-16 clean qualification
-measured `backend/` at **80.30%**, `backend/security/` at **80.67%**, and
-`core/` at **80.89%**. Frontend V8 coverage is **89.54% statements**, **80.69%
-branches**, **86.11% functions**, and **91.36% lines**. All 3,287 Python tests
-and 482 frontend tests passed (18 Python tests skipped). CI now enforces 80.00%
-independently for every named Python scope and frontend metric; see
-`docs/CI_QUALITY_POLICY.md`.
+not claim one blended whole-app percentage. The 2026-08-27 4.4.3 qualification
+measured `backend/` at **80.29%**, `backend/security/` at **80.67%**, and
+`core/` at **81.07%**. Frontend V8 coverage remains **89.54% statements**,
+**80.69% branches**, **86.11% functions**, and **91.36% lines**. All 3,317
+Python tests and 484 frontend tests passed (19 Python tests skipped). CI
+enforces 80.00% independently for every named Python scope and frontend metric;
+see `docs/CI_QUALITY_POLICY.md`.
 
 GitHub Actions also validates backend and frontend behavior, security,
-documentation consistency, container builds, SDKs, and Windows packaging.
+documentation consistency, container builds, SDKs, and Windows packaging. At
+commit `43fd86df74f3545b84c0a10702428723611c40d6`, Deploy run `33039993475`,
+Security run `33039993480`, and CI/CD run `33039993472` all passed.
 
 ## Documentation
 
