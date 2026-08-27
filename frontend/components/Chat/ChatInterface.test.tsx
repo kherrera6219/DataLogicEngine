@@ -145,6 +145,29 @@ describe('ChatInterface', () => {
     await waitFor(() => expect(screen.getByText('Core Response')).toBeInTheDocument());
   });
 
+  it('labels a length-limited answer and requires an explicit continuation send', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'The first portion ends here.',
+      status: 'length_limited',
+      completion: {
+        disposition: 'length_limited',
+        native_reason: 'MAX_TOKENS',
+        response_id: 'provider-response-1',
+      },
+    });
+
+    renderChatInterface();
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Give me a complete Mars engine review' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    expect(await screen.findByText(/answer reached the provider output limit/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /prepare continuation/i }));
+
+    expect(textarea).toHaveValue(expect.stringMatching(/continue the prior answer/i));
+    expect(api.chat.sendMessage).toHaveBeenCalledTimes(1);
+  });
+
   it('creates a durable session before the first message is sent', async () => {
     const createdSession = {
       id: 'created-session-1',
