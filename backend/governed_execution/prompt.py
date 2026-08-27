@@ -12,6 +12,8 @@ def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
     """Build the one request whose inputs match the governed trace."""
 
     request = context.request
+    response_depth = select_response_depth(context)
+    request.metadata["response_depth"] = response_depth
     evidence_lines = []
     for item in context.evidence:
         graph_context = item.metadata.get("graph_context")
@@ -42,6 +44,13 @@ def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
         for part in (
             "You are executing one DataLogicEngine governed request. Follow the admitted user intent and policy constraints. Do not invent source IDs. When retrieved evidence supports a factual statement, cite it using the supplied label such as [S1].",
             f"Contract: {request.contract_version}\nMode: {request.mode.value}\nSource: {request.source}",
+            (
+                "Response-depth requirements:\n"
+                + _json(response_depth)
+                + "\nComplete every requested section. Do not end mid-sentence. "
+                "If the output budget is insufficient, finish the current sentence "
+                "and clearly state which requested sections remain."
+            ),
             "Policy constraints:\n" + _json(request.constraints),
             "Measured routing:\n" + _json(routing_summary),
             "Deterministic persona context:\n" + _json(persona_summary),
@@ -90,6 +99,54 @@ def build_provider_messages(context: GovernedContext) -> list[dict[str, Any]]:
                 output[index]["content"] = parts
             break
     return output
+
+
+def select_response_depth(context: GovernedContext) -> dict[str, Any]:
+    """Choose a deterministic breadth profile without adding provider calls."""
+
+    explicit = str(context.request.constraints.get("response_depth") or "").lower()
+    if explicit in {"concise", "standard", "comprehensive"}:
+        profile = explicit
+        reason = "explicit_request_constraint"
+    else:
+        query = context.query.lower()
+        comprehensive_markers = (
+            "comprehensive",
+            "detailed",
+            "in depth",
+            "analyze",
+            "analysis",
+            "review",
+            "compare",
+            "explain how",
+            "all ",
+        )
+        concise_markers = ("what is", "who is", "when did", "where is")
+        if any(marker in query for marker in comprehensive_markers) or len(query) > 240:
+            profile = "comprehensive"
+            reason = "breadth_or_analysis_intent"
+        elif len(query) <= 100 and query.startswith(concise_markers):
+            profile = "concise"
+            reason = "bounded_direct_question"
+        else:
+            profile = "standard"
+            reason = "default_request_breadth"
+
+    coverage = {
+        "concise": "Give the direct answer, essential context, and necessary qualification.",
+        "standard": "Give a complete explanation with key facts, rationale, and limitations.",
+        "comprehensive": (
+            "Use clear sections covering the conclusion, relevant background, "
+            "major factors, tradeoffs or uncertainty, and practical implications."
+        ),
+    }
+    return {
+        "schema_version": "dle.response-depth.v1",
+        "profile": profile,
+        "selection_reason": reason,
+        "coverage": coverage[profile],
+        "additional_provider_calls_authorized": False,
+    }
 
 
 def build_refinement_messages(

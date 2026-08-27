@@ -21,6 +21,7 @@ export interface ChatRequest {
 export interface ChatResponse {
   contract_version?: 'governed.v1' | string;
   status?: string;
+  completion?: ProviderCompletion | null;
   response?: string;
   history?: Message[];
   trace_id?: string;
@@ -54,6 +55,19 @@ export interface ChatResponse {
     retryable: boolean;
     details?: Record<string, unknown>;
   } | null;
+}
+
+export type CompletionDisposition =
+  | 'complete'
+  | 'length_limited'
+  | 'safety_blocked'
+  | 'provider_incomplete'
+  | 'failed';
+
+export interface ProviderCompletion {
+  disposition: CompletionDisposition;
+  native_reason?: string | null;
+  response_id?: string | null;
 }
 
 export interface AuditTrail {

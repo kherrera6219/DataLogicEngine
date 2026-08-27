@@ -15,6 +15,8 @@ from enum import StrEnum
 from hashlib import sha256
 from typing import Any
 
+from backend.llm_gateway.completion import ProviderCompletion
+
 GOVERNED_CONTRACT_VERSION = "governed.v1"
 
 
@@ -630,6 +632,7 @@ class GovernedResult:
     provider_used: str | None = None
     model_used: str | None = None
     usage: dict[str, Any] = field(default_factory=dict)
+    completion: ProviderCompletion | None = None
     confidence: float | None = None
     coordinate: dict[str, Any] | None = None
     tier: str | None = None
@@ -655,6 +658,7 @@ class GovernedResult:
             "provider_used": self.provider_used,
             "model_used": self.model_used,
             "usage": self.usage,
+            "completion": self.completion.to_dict() if self.completion else None,
             "confidence": self.confidence,
             "coordinate": self.coordinate,
             "tier": self.tier,

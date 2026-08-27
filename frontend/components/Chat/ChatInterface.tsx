@@ -40,6 +40,7 @@ type GatewayTracePayload = {
   audit_trail?: ChatMessage['auditTrail'];
   provider_used?: string | null;
   model_used?: string | null;
+  completion?: ChatMessage['completion'];
   failure?: {
     kind?: string;
     details?: {
@@ -116,6 +117,7 @@ function normalizeApiMessage(message: ApiChatMessage): ChatMessage {
     timestamp: formatMessageTimestamp(message.timestamp),
     isEnhanced: message.is_enhanced ?? message.role === 'assistant',
     runId: message.run_id ?? undefined,
+    completion: message.completion,
   };
 }
 
@@ -302,6 +304,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           isEnhanced: true,
           traces: data.trace_summary as TracePipeline | undefined,
           ...traceFields,
+          completion: data.completion,
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
@@ -402,6 +405,13 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     draftSessionIdRef.current = null;
     sessionCreationRef.current = null;
     setMessages([]);
+  };
+
+  const prepareContinuation = () => {
+    setInputValue(
+      'Continue the prior answer from where it stopped. Do not repeat completed material. Finish the unanswered parts of my request.',
+    );
+    window.requestAnimationFrame(() => composerRef.current?.focus());
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -623,6 +633,31 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          {msg.role === 'assistant' ? (
                             <div className="space-y-4">
                                <div>{msg.finalAnswer || msg.content}</div>
+
+                               {msg.completion?.disposition === 'length_limited' && (
+                                 <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-amber-800 dark:text-amber-200">
+                                   <p className="font-medium">Answer reached the provider output limit.</p>
+                                   <p className="mt-1 text-xs">
+                                     This response is incomplete. Continuing uses another governed provider attempt and remains subject to the displayed usage budget.
+                                   </p>
+                                   <Button
+                                     type="button"
+                                     variant="outline"
+                                     size="sm"
+                                     className="mt-3"
+                                     aria-label="Prepare continuation"
+                                     onClick={prepareContinuation}
+                                   >
+                                     Prepare continuation
+                                   </Button>
+                                 </div>
+                               )}
+
+                               {msg.completion?.disposition === 'provider_incomplete' && (
+                                 <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
+                                   The provider returned content but did not confirm that the response completed normally.
+                                 </div>
+                               )}
 
                                {/* Detailed Response Analysis */}
                                <DetailedResponseView message={msg} />

@@ -47,6 +47,7 @@ export interface ChatMessage {
   isEnhanced?: boolean;
   providerUsed?: string;
   modelUsed?: string;
+  completion?: import('@/lib/api/types').ProviderCompletion | null;
   auditTrail?: {
     decision_path: string;
     complete_trace_url: string;

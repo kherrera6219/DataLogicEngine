@@ -27,6 +27,10 @@ from backend.governed_execution.contracts import (
     GovernedStage,
     GovernedStageStatus,
 )
+from backend.llm_gateway.completion import (
+    CompletionDisposition,
+    ProviderCompletion,
+)
 from backend.governed_execution.extended_subsystems import (
     ExtendedSubsystemCoordinator,
 )
@@ -651,6 +655,7 @@ class GovernedExecutionOrchestrator:
                 "attempts": provider_result.get("attempts", []),
                 "ka_lifecycle": provider_result.get("ka_lifecycle", {}),
                 "effect_receipt": provider_result.get("effect_receipt"),
+                "completion": provider_result.get("completion"),
             },
             metrics={
                 "provider_call_count": context.provider_call_count,
@@ -669,6 +674,15 @@ class GovernedExecutionOrchestrator:
             0,
             1,
         )
+        provider_completion = ProviderCompletion.from_value(
+            provider_result.get("completion")
+        )
+        if (
+            provider_completion is not None
+            and provider_completion.disposition
+            is not CompletionDisposition.COMPLETE
+        ):
+            max_refinements = 0
         requires_evidence = bool(request.constraints.get("requires_evidence")) or (
             request.mode is GovernedMode.ENHANCED
             or str(dmrf_result.tier).lower()
@@ -804,10 +818,20 @@ class GovernedExecutionOrchestrator:
                     details=failure["details"],
                 )
             provider_result = refined_result
+            provider_completion = ProviderCompletion.from_value(
+                provider_result.get("completion")
+            )
             validation = refined_evaluation["validation"]
             convergence = refined_evaluation["convergence"]
 
-        result_status = "completed"
+        result_status = (
+            "completed"
+            if provider_completion is not None
+            and provider_completion.disposition is CompletionDisposition.COMPLETE
+            else provider_completion.disposition.value
+            if provider_completion is not None
+            else CompletionDisposition.PROVIDER_INCOMPLETE.value
+        )
         result_answer = validation["answer"]
         if convergence.action == "abstain":
             result_status = "abstained"
@@ -873,6 +897,7 @@ class GovernedExecutionOrchestrator:
             provider_used=provider_result.get("provider_used"),
             model_used=provider_result.get("model_used"),
             usage=provider_result.get("usage", {}),
+            completion=provider_completion,
             confidence=context.confidence_measurement.value,
             coordinate=context.routing.get("axis_vector"),
             tier=context.routing.get("tier"),
@@ -1791,6 +1816,7 @@ class GovernedExecutionOrchestrator:
         attempts: list[dict[str, Any]] = []
         last_error = "Provider failed to generate a response"
         last_failure = classify_provider_failure(last_error)
+        last_failure_payload: dict[str, Any] | None = None
         started = datetime.now(UTC)
         purpose = "refinement" if context.refinement_cycles else "answer"
         disclosed_categories = self._disclosed_categories(context)
@@ -1935,6 +1961,7 @@ class GovernedExecutionOrchestrator:
                             "retry_index": retry_index,
                             "status": "completed",
                             "duration_ms": duration_ms,
+                            "completion": provider_output.get("completion"),
                         }
                     )
                     record_ai_request(
@@ -2056,6 +2083,7 @@ class GovernedExecutionOrchestrator:
                         "usage": usage,
                         "provider_used": provider_type,
                         "model_used": model,
+                        "completion": provider_output.get("completion"),
                         "attempts": attempts,
                         "ka_lifecycle": {
                             "request_governance": (
@@ -2080,6 +2108,12 @@ class GovernedExecutionOrchestrator:
                 )
                 last_failure = classify_provider_failure(
                     provider_output.get("exception") or last_error
+                )
+                explicit_failure = provider_output.get("failure")
+                last_failure_payload = (
+                    dict(explicit_failure)
+                    if isinstance(explicit_failure, dict)
+                    else None
                 )
                 retryable = last_failure.retryable
                 attempts.append(
@@ -2161,7 +2195,7 @@ class GovernedExecutionOrchestrator:
             "error": last_error,
             "retryable": last_failure.retryable,
             "attempts": attempts,
-            "failure": last_failure.to_dict(),
+            "failure": last_failure_payload or last_failure.to_dict(),
         }
 
     async def _complete_local_review(self, context: GovernedContext) -> GovernedResult:

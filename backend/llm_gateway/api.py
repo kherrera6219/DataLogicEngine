@@ -264,6 +264,22 @@ def _gateway_request_size_error():
     return None
 
 
+def _openai_finish_reason(completion) -> Optional[str]:
+    """Map governed completion truth to the existing compatibility field."""
+
+    if isinstance(completion, dict):
+        payload = completion
+    else:
+        serialize = getattr(completion, 'to_dict', None)
+        payload = serialize() if callable(serialize) else {}
+    disposition = str(payload.get('disposition') or 'provider_incomplete')
+    return {
+        'complete': 'stop',
+        'length_limited': 'length',
+        'safety_blocked': 'content_filter',
+    }.get(disposition)
+
+
 def _begin_gateway_idempotency(data: dict):
     api_key = getattr(g, 'api_key', None)
     idempotency_key = str(data.get('idempotency_key') or '').strip()
@@ -1045,7 +1061,13 @@ async def openai_compatible_chat_completions():
                             'object': 'chat.completion.chunk',
                             'created': int(datetime.now(UTC).timestamp()),
                             'model': compatibility['model'],
-                            'choices': [{'index': 0, 'delta': {}, 'finish_reason': 'stop'}],
+                            'choices': [{
+                                'index': 0,
+                                'delta': {},
+                                'finish_reason': _openai_finish_reason(
+                                    item.get('completion')
+                                ),
+                            }],
                             'dle': {'run_id': item.get('run_id'), 'usage': item.get('usage') or {}},
                         }
                     elif item_type == 'error':
@@ -1116,7 +1138,9 @@ async def openai_compatible_chat_completions():
         'choices': [{
             'index': 0,
             'message': {'role': 'assistant', 'content': native_payload.get('response') or ''},
-            'finish_reason': 'stop',
+            'finish_reason': _openai_finish_reason(
+                getattr(governed_response, 'completion', None)
+            ),
         }],
         'usage': {
             'prompt_tokens': prompt_tokens,
@@ -1317,7 +1341,7 @@ async def gateway_chat():
     if not isinstance(validators, list):
         validators = []
 
-    result = api_response({
+    response_payload = {
         'response': response.content,
         'request_id': data['request_id'],
         'run_id': response.run_id,
@@ -1342,7 +1366,10 @@ async def gateway_chat():
         'status': response.status,
         'failure': response.failure,
         'source_ids': response.meta.get('source_ids', []),
-    })
+    }
+    if not getattr(g, 'api_key', None):
+        response_payload['completion'] = response.completion
+    result = api_response(response_payload)
     return _complete_gateway_idempotency(
         idempotency_record,
         result,
@@ -2118,6 +2145,15 @@ def get_session_messages(session_id):
 
     messages = ChatMessage.query.filter_by(session_id=session.id)\
         .order_by(ChatMessage.created_at.asc()).all()
+    run_ids = {message.run_id for message in messages if message.run_id is not None}
+    completion_by_run = {}
+    if run_ids:
+        trace_runs = TraceRun.query.filter(TraceRun.run_id.in_(run_ids)).all()
+        completion_by_run = {
+            trace_run.run_id: (trace_run.data_snapshot or {}).get('completion')
+            for trace_run in trace_runs
+            if isinstance(trace_run.data_snapshot, dict)
+        }
     
     return jsonify({
         'messages': [
@@ -2127,7 +2163,12 @@ def get_session_messages(session_id):
                 'content': m.content,
                 'timestamp': m.created_at.strftime('%H:%M') if m.created_at else '',
                 'is_enhanced': m.is_enhanced,
-                'run_id': str(m.run_id) if m.run_id else None
+                'run_id': str(m.run_id) if m.run_id else None,
+                'completion': (
+                    completion_by_run.get(m.run_id)
+                    if m.role == 'assistant' and m.run_id
+                    else None
+                ),
             } 
             for m in messages
         ]

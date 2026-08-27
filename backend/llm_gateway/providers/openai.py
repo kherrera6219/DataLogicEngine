@@ -5,6 +5,11 @@ from __future__ import annotations
 import os
 from typing import Any, AsyncIterator
 
+from backend.llm_gateway.completion import (
+    CompletionDisposition,
+    ProviderCompletion,
+    native_reason,
+)
 from backend.llm_gateway.provider_manifest import provider_model_definition
 from backend.llm_gateway.providers.base import LLMProvider, LLMResponse
 
@@ -62,8 +67,12 @@ class OpenAIProvider(LLMProvider):
     ) -> LLMResponse:
         request = self._request(messages, model, temperature, max_tokens)
         response = await self.client.responses.create(**request)
+        completion = self._completion_metadata(response)
         text = str(getattr(response, "output_text", "") or "")
-        if not text:
+        if not text and completion.disposition not in {
+            CompletionDisposition.SAFETY_BLOCKED,
+            CompletionDisposition.FAILED,
+        }:
             raise ValueError("Malformed provider response: missing output text")
         usage_object = getattr(response, "usage", None)
         usage = {
@@ -71,7 +80,47 @@ class OpenAIProvider(LLMProvider):
             "completion_tokens": int(getattr(usage_object, "output_tokens", 0) or 0),
             "total_tokens": int(getattr(usage_object, "total_tokens", 0) or 0),
         }
-        return LLMResponse(text=text, raw={"response_id": getattr(response, "id", None)}, model=request["model"], usage=usage)
+        return LLMResponse(
+            text=text,
+            raw={"response_id": completion.response_id},
+            model=request["model"],
+            usage=usage,
+            completion=completion,
+        )
+
+    @staticmethod
+    def _completion_metadata(response: Any) -> ProviderCompletion:
+        status = native_reason(getattr(response, "status", None))
+        incomplete = getattr(response, "incomplete_details", None)
+        reason = native_reason(
+            getattr(incomplete, "reason", None) if incomplete is not None else None
+        )
+        if status == "COMPLETED":
+            disposition = CompletionDisposition.COMPLETE
+        elif status == "INCOMPLETE" and reason in {
+            "MAX_OUTPUT_TOKENS",
+            "MAX_TOKENS",
+        }:
+            disposition = CompletionDisposition.LENGTH_LIMITED
+        elif status == "INCOMPLETE" and reason in {
+            "CONTENT_FILTER",
+            "SAFETY",
+            "REFUSAL",
+        }:
+            disposition = CompletionDisposition.SAFETY_BLOCKED
+        elif status in {"FAILED", "CANCELLED"}:
+            disposition = CompletionDisposition.FAILED
+            error = getattr(response, "error", None)
+            reason = reason or native_reason(
+                getattr(error, "code", None) if error is not None else None
+            )
+        else:
+            disposition = CompletionDisposition.PROVIDER_INCOMPLETE
+        return ProviderCompletion(
+            disposition=disposition,
+            native_reason=reason or status,
+            response_id=getattr(response, "id", None),
+        )
 
     async def stream(
         self,

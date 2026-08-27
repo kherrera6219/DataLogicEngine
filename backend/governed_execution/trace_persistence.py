@@ -229,6 +229,7 @@ def persist_governed_trace(
                 "source_ids": metadata.get("source_ids", []),
                 "confidence_measurement": sdk_result.get("confidence_measurement"),
                 "convergence": sdk_result.get("convergence"),
+                "completion": sdk_result.get("completion"),
                 "convergence_decisions": metadata.get("convergence_decisions", []),
                 "containment_class": governance["containment_class"],
                 "quarantine": governance["quarantine"],

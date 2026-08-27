@@ -17,6 +17,10 @@ from dataclasses import dataclass, field
 from sqlalchemy.exc import SQLAlchemyError
 
 from models import LLMProvider, LLMProviderUsage, ChatSession, ChatMessage
+from backend.llm_gateway.completion import (
+    CompletionDisposition,
+    ProviderCompletion,
+)
 from backend.utils.error_normalization import normalize_public_error_message
 from backend.llm_gateway.governance import AIGovernanceEngine
 from backend.llm_gateway.model_defaults import (
@@ -58,6 +62,7 @@ class GatewayResponse:
     provider_used: str
     model_used: str
     usage: dict[str, Any]
+    completion: Optional[dict[str, Any]] = None
     ok: bool = True
     # UKG enhancements
     coordinate: Any = None
@@ -495,6 +500,9 @@ class LLMGateway:
             provider_used=governed.provider_used or "none",
             model_used=governed.model_used or request.model or "unknown",
             usage=usage,
+            completion=governed.completion.to_dict()
+            if governed.completion
+            else None,
             ok=governed.ok,
             coordinate=governed.coordinate,
             tier=governed.tier,
@@ -666,6 +674,7 @@ class LLMGateway:
             "provider_used": response.provider_used,
             "model_used": response.model_used,
             "usage": response.usage,
+            "completion": response.completion,
         }
 
     def _create_sdk_provider(self, provider_record: Optional[LLMProvider]) -> Any:
@@ -958,10 +967,41 @@ class LLMGateway:
                     "retryable": raw.get("retryable", False),
                     "usage": {},
                 }
+            completion = (
+                response.completion
+                if isinstance(response.completion, ProviderCompletion)
+                else ProviderCompletion(
+                    disposition=CompletionDisposition.PROVIDER_INCOMPLETE,
+                    native_reason="metadata_unavailable",
+                    response_id=raw.get("response_id"),
+                )
+            )
+            if completion.disposition in {
+                CompletionDisposition.SAFETY_BLOCKED,
+                CompletionDisposition.FAILED,
+            }:
+                return {
+                    "ok": False,
+                    "error": "Provider did not return releasable output",
+                    "retryable": False,
+                    "usage": response.usage or {},
+                    "completion": completion.to_dict(),
+                    "failure": {
+                        "class": "provider_response",
+                        "code": (
+                            "PROVIDER_SAFETY_BLOCK"
+                            if completion.disposition
+                            is CompletionDisposition.SAFETY_BLOCKED
+                            else "PROVIDER_COMPLETION_FAILED"
+                        ),
+                        "replayable": False,
+                    },
+                }
             return {
                 "ok": True,
                 "answer": response.text,
                 "usage": response.usage or {},
+                "completion": completion.to_dict(),
             }
         except Exception as e:
             return {"ok": False, "error": str(e), "exception": e}
