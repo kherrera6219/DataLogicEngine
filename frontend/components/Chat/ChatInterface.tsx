@@ -799,7 +799,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
 
       {/* ðŸ”¬ Live Trace Sidebar */}
       <aside className="w-72 border-l border-white/5 flex flex-col fluent-acrylic z-20" aria-label="Live trace panel">
-         <LiveTracePanel />
+         <LiveTracePanel activeRunId={activeRequestId} />
       </aside>
 
     </div>

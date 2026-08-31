@@ -453,13 +453,19 @@ export interface TraceAxisVector {
 }
 
 export interface TraceStage {
+  schema_version?: 'dle.public-trace-event.v1';
+  event_id?: string;
+  sequence?: number;
   stage_id: string;
   run_id: string;
   name: string;
-  stage_type: 'layer' | 'step';
+  stage_type?: string;
   layer_index?: number | null;
   step_index?: number | null;
   status: string;
+  narrative?: string;
+  occurred_at?: string | null;
+  error_code?: string | null;
   start_time?: string | null;
   end_time?: string | null;
   duration_ms?: number | null;

@@ -604,10 +604,20 @@ class GovernedContext:
     warnings: list[str] = field(default_factory=list)
     lifecycle_transitions: list[dict[str, Any]] = field(default_factory=list)
     lifecycle_failures: list[dict[str, Any]] = field(default_factory=list)
+    trace_event_sequence: int = 0
     memory_proposal: Any = None
     reasoning: GovernedReasoningState = field(init=False)
 
     def __post_init__(self) -> None:
+        # The caller knows request_id before execution begins. Reusing it as the
+        # run correlation ID lets the desktop subscribe before the first stage
+        # without creating a second ID authority.
+        try:
+            self.trace_id = str(uuid.UUID(self.request.request_id))
+        except (TypeError, ValueError, AttributeError):
+            self.trace_id = str(
+                uuid.uuid5(uuid.NAMESPACE_URL, f"dle-request:{self.request.request_id}")
+            )
         self.reasoning = GovernedReasoningState(
             request_id=self.request.request_id,
             trace_id=self.trace_id,

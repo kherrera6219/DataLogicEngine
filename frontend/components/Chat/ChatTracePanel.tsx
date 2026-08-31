@@ -28,6 +28,18 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
   const [error, setError] = useState<string | null>(null);
   const isLive = bundle?.status === 'running';
   const traceStream = useTraceStream(isLive && resolvedRunId ? resolvedRunId : null);
+  const displayedStages = useMemo(() => {
+    const reconciled = [...(bundle?.frost_layers || [])];
+    for (const live of traceStream.layers) {
+      const index = reconciled.findIndex((stage) => stage.stage_id === live.stage_id);
+      if (index >= 0) {
+        reconciled[index] = { ...reconciled[index], ...live };
+      } else {
+        reconciled.push(live);
+      }
+    }
+    return reconciled.sort((left, right) => (left.sequence || 0) - (right.sequence || 0));
+  }, [bundle?.frost_layers, traceStream.layers]);
   const confidenceDisplay = useMemo<ConfidenceDisplay | null>(() => {
     const recorded = bundle?.run?.data_snapshot?.confidence_display;
     if (recorded) return recorded;
@@ -149,23 +161,22 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
               </div>
 
               <div className="space-y-1">
-                {(bundle.frost_layers || []).slice(0, 5).map((stage) => (
-                  <div key={stage.stage_id} className="flex items-center justify-between gap-2 rounded bg-white/70 px-2 py-1 dark:bg-white/5">
-                    <span className="truncate">{stage.layer_index ? `L${stage.layer_index} ` : ''}{stage.name}</span>
-                  <Badge variant="outline" className="h-5 shrink-0 text-[10px]">
-                    {stage.status}
-                  </Badge>
-                </div>
-              ))}
-                {traceStream.layers.map((stage) => (
-                  <div key={`stream-${stage.stage_id || stage.layer_index || stage.name}`} className="flex items-center justify-between gap-2 rounded bg-blue-50 px-2 py-1 dark:bg-blue-950/40">
-                    <span className="truncate">{stage.layer_index ? `L${stage.layer_index} ` : ''}{stage.name || 'Trace update'}</span>
-                    <Badge variant="outline" className="h-5 shrink-0 border-blue-400 text-[10px] text-blue-600 dark:text-blue-300">
-                      {stage.status || 'live'}
-                    </Badge>
+                {displayedStages.slice(0, 8).map((stage) => (
+                  <div key={stage.stage_id || `${stage.layer_index}-${stage.name}`} className="rounded bg-white/70 px-2 py-1 dark:bg-white/5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate">{stage.layer_index ? `L${stage.layer_index} ` : ''}{stage.name || 'Trace update'}</span>
+                      <Badge variant="outline" className="h-5 shrink-0 text-[10px]">
+                        {stage.status || 'live'}
+                      </Badge>
+                    </div>
+                    {stage.narrative && (
+                      <p className="mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+                        {stage.narrative}
+                      </p>
+                    )}
                   </div>
                 ))}
-                {!bundle.frost_layers?.length && (
+                {!displayedStages.length && (
                   <div className="rounded bg-white/70 px-2 py-2 text-slate-500 dark:bg-white/5 dark:text-slate-400">
                     No stage records are attached to this run yet.
                   </div>

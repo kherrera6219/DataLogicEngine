@@ -27,10 +27,6 @@ from backend.governed_execution.contracts import (
     GovernedStage,
     GovernedStageStatus,
 )
-from backend.llm_gateway.completion import (
-    CompletionDisposition,
-    ProviderCompletion,
-)
 from backend.governed_execution.extended_subsystems import (
     ExtendedSubsystemCoordinator,
 )
@@ -40,6 +36,7 @@ from backend.governed_execution.knowledge_lifecycle import (
     LifecycleTransitionPublisher,
 )
 from backend.governed_execution.prompt import build_refinement_messages
+from backend.governed_execution.public_trace import present_stage_event
 from backend.governed_execution.quality import (
     build_confidence_display,
     measure_evidence,
@@ -50,6 +47,10 @@ from backend.governed_execution.ten_layers import (
     LAYER_NAMES,
     GovernedTenLayerStages,
     LayerExecution,
+)
+from backend.llm_gateway.completion import (
+    CompletionDisposition,
+    ProviderCompletion,
 )
 from backend.llm_gateway.latency_metrics import record_ai_request
 from backend.llm_gateway.provider_budget import ProviderBudgetPolicy
@@ -2570,7 +2571,13 @@ class GovernedExecutionOrchestrator:
 
     def _emit(self, context: GovernedContext, stage: GovernedStage) -> None:
         trace_id = context.trace_id
-        payload = {"run_id": trace_id, **stage.to_dict()}
+        context.trace_event_sequence += 1
+        stage.metrics["trace_sequence"] = context.trace_event_sequence
+        payload = present_stage_event(
+            trace_id,
+            stage,
+            sequence=context.trace_event_sequence,
+        )
         try:
             transition = self.transition_publisher.publish_stage(trace_id, stage)
             context.lifecycle_transitions.append(

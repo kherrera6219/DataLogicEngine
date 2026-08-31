@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
+import { useTraceStream } from '@/hooks/useTraceStream';
 
 interface TraceRunRecord {
   run_id: string;
@@ -35,11 +36,13 @@ interface TraceStageRecord {
   stage_id: string;
   name: string;
   status?: string;
-  layer_index?: number;
-  step_index?: number;
+  layer_index?: number | null;
+  step_index?: number | null;
   timing?: {
-    duration_ms?: number;
+    duration_ms?: number | null;
   };
+  sequence?: number;
+  narrative?: string;
 }
 
 interface ReasoningLayerProgress {
@@ -99,7 +102,11 @@ function kaFeedItemKey(item: KAExecutionFeedItem): string {
   return item.uid || `${item.id}-${item.ka_id || 'unknown'}-${item.started_at || 'unstarted'}`;
 }
 
-export function LiveTracePanel() {
+interface LiveTracePanelProps {
+  activeRunId?: string | null;
+}
+
+export function LiveTracePanel({ activeRunId = null }: LiveTracePanelProps) {
   const [runs, setRuns] = useState<TraceRunRecord[]>([]);
   const [stages, setStages] = useState<TraceStageRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,15 +114,12 @@ export function LiveTracePanel() {
   const [error, setError] = useState<string | null>(null);
   const [reasoningProgress, setReasoningProgress] = useState<ReasoningLayerProgress | null>(null);
   const [kaFeed, setKaFeed] = useState<KAExecutionFeed | null>(null);
+  const traceStream = useTraceStream(activeRunId);
 
   const loadTraceData = useCallback(async () => {
     setError(null);
     try {
-      // Treat transient backend errors (startup race, 500, IPC timeout) as an
-      // empty state rather than surfacing the error banner.  The 15-second poll
-      // will recover automatically once the backend is ready.
-      const runsPromise = api.trace.list(12)
-        .catch(() => [] as unknown[]) as Promise<TraceRunRecord[]>;
+      const runsPromise = api.trace.list(12) as Promise<TraceRunRecord[]>;
 
       // IPC calls use invokeWithTimeout which throws on a 5-second timeout.
       // Catch those individually so a slow backend start doesn't abort the
@@ -141,9 +145,7 @@ export function LiveTracePanel() {
 
       const selectedRun = (recentRuns || []).find((run) => run.status === 'running') || recentRuns?.[0];
       const stagePayload: { stages?: TraceStageRecord[] } = selectedRun
-        ? await api.trace
-          .getStages(selectedRun.run_id)
-          .catch(() => ({ stages: [] as TraceStageRecord[] })) as { stages?: TraceStageRecord[] }
+        ? await api.trace.getStages(selectedRun.run_id) as { stages?: TraceStageRecord[] }
         : { stages: [] as TraceStageRecord[] };
 
       setStages(stagePayload.stages || []);
@@ -179,17 +181,29 @@ export function LiveTracePanel() {
     };
   }, [loadTraceData]);
 
-  const currentRun = useMemo(
-    () => runs.find((run) => run.status === 'running') || runs[0],
-    [runs]
+  const currentRun = useMemo(() => {
+    if (activeRunId) {
+      const virtualRun: TraceRunRecord = {
+        run_id: activeRunId,
+        status: 'running',
+        input_message: 'The governed request is running. Stage receipts will appear below.',
+      };
+      return runs.find((run) => run.run_id === activeRunId) || virtualRun;
+    }
+    return runs.find((run) => run.status === 'running') || runs[0];
+  }, [activeRunId, runs]);
+
+  const displayedStages = useMemo<TraceStageRecord[]>(
+    () => activeRunId ? traceStream.layers : stages,
+    [activeRunId, stages, traceStream.layers],
   );
 
   const currentStage = useMemo(
     () =>
-      stages.find((stage) => stage.status === 'running') ||
-      stages.find((stage) => stage.status !== 'pass' && stage.status !== 'completed') ||
-      stages[stages.length - 1],
-    [stages]
+      displayedStages.find((stage) => stage.status === 'running') ||
+      displayedStages.find((stage) => stage.status !== 'pass' && stage.status !== 'completed') ||
+      displayedStages[displayedStages.length - 1],
+    [displayedStages]
   );
 
   const currentConfidenceDisplay = useMemo<ConfidenceDisplay | null>(() => {
@@ -210,17 +224,17 @@ export function LiveTracePanel() {
 
   const progress = useMemo(() => {
     if (!currentRun) return 0;
-    if (!stages.length) {
+    if (!displayedStages.length) {
       const status = (currentRun.status || '').toLowerCase();
       if (status === 'running') return 10;
       if (status === 'pass' || status === 'completed') return 100;
       return 0;
     }
-    const finished = stages.filter((stage) =>
+    const finished = displayedStages.filter((stage) =>
       ['pass', 'completed', 'warn', 'fail', 'failed', 'blocked', 'cancelled', 'skipped'].includes((stage.status || '').toLowerCase())
     ).length;
-    return Math.round((finished / stages.length) * 100);
-  }, [currentRun, stages]);
+    return Math.round((finished / displayedStages.length) * 100);
+  }, [currentRun, displayedStages]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -293,8 +307,8 @@ export function LiveTracePanel() {
               </div>
               <Progress value={progress} className="h-1.5 bg-blue-900/30 [&>div]:bg-blue-500" />
               <div className="flex justify-between mt-1 text-[10px] text-slate-500 dark:text-gray-500">
-                <span>{stages.length ? `${stages.filter((stage) => (stage.status || '').toLowerCase() === 'running').length} active` : 'No stages'}</span>
-                <span>{stages.length ? `${stages.length} total` : 'Waiting for stage data'}</span>
+                <span>{displayedStages.length ? `${displayedStages.filter((stage) => (stage.status || '').toLowerCase() === 'running').length} active` : 'No stages'}</span>
+                <span>{displayedStages.length ? `${displayedStages.length} total` : 'Waiting for stage data'}</span>
               </div>
             </div>
 
@@ -372,18 +386,24 @@ export function LiveTracePanel() {
                     <div className={`text-[10px] uppercase font-semibold ${statusClass(currentStage.status)}`}>
                       {formatStatus(currentStage.status)}
                     </div>
+                    {currentStage.narrative && (
+                      <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-gray-400">
+                        {currentStage.narrative}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </div>
             )}
 
-            {stages.length > 0 && (
+            {displayedStages.length > 0 && (
               <div className="space-y-2">
                 <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Trace Log</div>
                 <div className="space-y-1">
-                  {stages.slice(0, 8).map((stage) => (
-                    <div key={stage.stage_id} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-slate-200/70 dark:hover:bg-white/5 transition-colors">
-                      <div className="flex items-center gap-2">
+                  {displayedStages.slice(0, 8).map((stage) => (
+                    <div key={stage.stage_id} className="rounded p-1.5 text-xs transition-colors hover:bg-slate-200/70 dark:hover:bg-white/5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
                         {['pass', 'completed'].includes((stage.status || '').toLowerCase()) ? (
                           <ShieldCheck className="h-3 w-3 text-green-500" />
                         ) : ['fail', 'failed', 'warn', 'blocked', 'cancelled'].includes((stage.status || '').toLowerCase()) ? (
@@ -392,10 +412,16 @@ export function LiveTracePanel() {
                           <Clock className="h-3 w-3 text-blue-400" />
                         )}
                         <span className={statusClass(stage.status)}>{stage.name}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-500 dark:text-gray-600 font-mono">
+                          {typeof stage.timing?.duration_ms === 'number' ? `${stage.timing.duration_ms}ms` : '--'}
+                        </span>
                       </div>
-                      <span className="text-[10px] text-slate-500 dark:text-gray-600 font-mono">
-                        {typeof stage.timing?.duration_ms === 'number' ? `${stage.timing.duration_ms}ms` : '--'}
-                      </span>
+                      {stage.narrative && (
+                        <p className="mt-1 pl-5 text-[11px] leading-relaxed text-slate-500 dark:text-gray-400">
+                          {stage.narrative}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>

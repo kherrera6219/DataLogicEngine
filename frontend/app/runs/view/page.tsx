@@ -293,7 +293,9 @@ function TraceDetailContent() {
               <Card>
                 <CardHeader>
                   <CardTitle>Reasoning Trace</CardTitle>
-                  <CardDescription>Layered execution path.</CardDescription>
+                  <CardDescription>
+                    Ordered public stage receipts. These summaries describe recorded work without exposing private chain-of-thought.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {!stages.length && <p className="italic text-gray-500">No detailed stage information available.</p>}
@@ -317,6 +319,11 @@ function TraceDetailContent() {
                         <p className="text-sm text-gray-600 dark:text-gray-300">
                           Started: {formatTime(step.started_at || step.start_time)}
                         </p>
+                        {step.narrative && (
+                          <p className="mt-2 text-sm leading-relaxed text-gray-700 dark:text-gray-200">
+                            {step.narrative}
+                          </p>
+                        )}
                         {outputPreview && (
                           <div className="mt-2 rounded bg-gray-50 p-2 font-mono text-xs text-gray-500 dark:bg-gray-950">
                             {outputPreview}

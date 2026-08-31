@@ -8,20 +8,39 @@ import json
 import logging
 import uuid
 from datetime import datetime
-from flask import Blueprint, abort, jsonify, request, Response
+
+from flask import Blueprint, Response, abort, jsonify, request
 from flask_login import current_user
 from werkzeug.exceptions import HTTPException
-from backend.auth.api_decorators import api_session_login_required
 
-from extensions import db, limiter
+from backend.auth.api_decorators import api_session_login_required
+from backend.governed_execution.public_trace import (
+    present_stage_event,
+    trace_unavailable_payload,
+)
 from backend.security.export_integrity import build_trace_export_document
+from extensions import db, limiter
 from models import (
-    TraceRun, TraceStage, TraceEvidence, TraceClaim,
-    TraceAxisVector, TracePersona, TraceKAInvocation,
-    TracePolicyDecision, TraceMemoryEvent, TraceArtifact,
-    ChatSession, TraceSpan, StageLog, TraceExport,
-    ClaimEvidenceLink, ComplianceMapping, KAExecution,
-    TraceCitation, TraceValidator, TraceQualityDecision,
+    ChatSession,
+    ClaimEvidenceLink,
+    ComplianceMapping,
+    KAExecution,
+    StageLog,
+    TraceArtifact,
+    TraceAxisVector,
+    TraceCitation,
+    TraceClaim,
+    TraceEvidence,
+    TraceExport,
+    TraceKAInvocation,
+    TraceMemoryEvent,
+    TracePersona,
+    TracePolicyDecision,
+    TraceQualityDecision,
+    TraceRun,
+    TraceSpan,
+    TraceStage,
+    TraceValidator,
 )
 
 trace_bp = Blueprint('trace', __name__, url_prefix='/api/v1/trace')
@@ -213,44 +232,6 @@ def _idle_progress_payload(error: str | None = None) -> dict:
     return payload
 
 
-def _empty_trace_bundle(run_id: str, error: str | None = None) -> dict:
-    payload = {
-        "run": None,
-        "run_id": str(run_id),
-        "status": "unavailable",
-        "frost_layers": [],
-        "stages": [],
-        "evidence_sources": [],
-        "evidence": [],
-        "claims": [],
-        "citations": [],
-        "validators": [],
-        "quality_decisions": [],
-        "persona_positions": [],
-        "personas": [],
-        "ka_invocations": [],
-        "kas": [],
-        "coordinate": None,
-        "axes": None,
-        "policy_decisions": [],
-        "memory_events": [],
-        "metrics": {
-            "total_duration_ms": 0,
-            "total_tokens_in": 0,
-            "total_tokens_out": 0,
-            "total_retrievals": 0,
-            "stage_count": 0,
-            "confidence": None,
-            "entropy": None,
-        },
-        "export_url": None,
-    }
-    if error:
-        payload["degraded"] = True
-        payload["error"] = error
-    return payload
-
-
 def _rollback_trace_session() -> None:
     try:
         db.session.rollback()
@@ -278,13 +259,17 @@ def _build_trace_bundle(run: TraceRun) -> dict:
     total_tokens_in = sum((stage.metrics or {}).get('tokens_in', 0) for stage in stages)
     total_tokens_out = sum((stage.metrics or {}).get('tokens_out', 0) for stage in stages)
     total_retrievals = sum((stage.metrics or {}).get('retrieval_count', 0) for stage in stages)
+    public_stages = [
+        present_stage_event(str(run.run_id), stage, sequence=index)
+        for index, stage in enumerate(stages, start=1)
+    ]
 
     return {
         'run': run.to_dict(),
         'run_id': str(run.run_id),
         'status': run.status,
-        'frost_layers': [stage.to_dict() for stage in stages],
-        'stages': [stage.to_dict() for stage in stages],
+        'frost_layers': public_stages,
+        'stages': public_stages,
         'evidence_sources': [item.to_dict() for item in evidence],
         'evidence': [item.to_dict() for item in evidence],
         'claims': [claim.to_dict() for claim in claims],
@@ -325,9 +310,14 @@ def get_live_progress():
             return jsonify({'error': 'Access denied'}), 403
         return jsonify(_serialize_layer_progress(run))
     except Exception as exc:
-        logger.warning("live_progress degraded (startup race or schema mismatch): %s", exc)
+        logger.warning("live_progress unavailable: %s", exc)
         _rollback_trace_session()
-        return jsonify(_idle_progress_payload("Trace progress unavailable"))
+        return jsonify(trace_unavailable_payload(
+            None,
+            code="TRACE_PROGRESS_UNAVAILABLE",
+            message="Trace progress is temporarily unavailable.",
+            retryable=True,
+        )), 503
 
 
 @trace_bp.route('/ka-execution-feed', methods=['GET'])
@@ -384,17 +374,14 @@ def list_runs():
             'pages': runs.pages
         })
     except Exception as exc:
-        # Gracefully degrade during startup race or when trace tables aren't
-        # fully migrated yet.  Roll back the broken session so it can be reused
-        # and return an empty run list (HTTP 200) rather than a 500 that would
-        # surface as an error banner in the Live Trace panel.
-        _log.warning("list_runs degraded (startup race or schema mismatch): %s", exc)
-        try:
-            from extensions import db as _db
-            _db.session.rollback()
-        except Exception:
-            pass
-        return jsonify({'runs': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0})
+        _log.warning("list_runs unavailable: %s", exc)
+        _rollback_trace_session()
+        return jsonify(trace_unavailable_payload(
+            None,
+            code="TRACE_RUN_LIST_UNAVAILABLE",
+            message="Trace runs are temporarily unavailable.",
+            retryable=True,
+        )), 503
 
 
 @trace_bp.route('/runs/<run_id>', methods=['GET'])
@@ -419,11 +406,21 @@ def get_run_bundle(run_id):
         run = _get_run_or_404(run_id)
     except HTTPException:
         _rollback_trace_session()
-        return jsonify(_empty_trace_bundle(run_id, "Trace bundle is not available yet"))
+        return jsonify(trace_unavailable_payload(
+            run_id,
+            code="TRACE_BUNDLE_NOT_FOUND",
+            message="Trace bundle is not available yet.",
+            retryable=True,
+        )), 404
     except Exception as exc:
-        logger.warning("trace bundle lookup degraded for %s: %s", run_id, exc)
+        logger.warning("trace bundle lookup unavailable for %s: %s", run_id, exc)
         _rollback_trace_session()
-        return jsonify(_empty_trace_bundle(run_id, "Trace bundle unavailable"))
+        return jsonify(trace_unavailable_payload(
+            run_id,
+            code="TRACE_BUNDLE_UNAVAILABLE",
+            message="Trace bundle is temporarily unavailable.",
+            retryable=True,
+        )), 503
 
     if run.user_id != current_user.id and not _user_is_owner():
         return jsonify({'error': 'Access denied'}), 403
@@ -431,9 +428,14 @@ def get_run_bundle(run_id):
     try:
         return jsonify(filter_by_permissions(_build_trace_bundle(run)))
     except Exception as exc:
-        logger.warning("trace bundle build degraded for %s: %s", run_id, exc)
+        logger.warning("trace bundle build unavailable for %s: %s", run_id, exc)
         _rollback_trace_session()
-        return jsonify(_empty_trace_bundle(run_id, "Trace bundle unavailable"))
+        return jsonify(trace_unavailable_payload(
+            run_id,
+            code="TRACE_BUNDLE_UNAVAILABLE",
+            message="Trace bundle is temporarily unavailable.",
+            retryable=True,
+        )), 503
 
 
 @trace_bp.route('/runs/<run_id>/stages', methods=['GET'])
@@ -450,7 +452,10 @@ def get_run_stages(run_id):
     ).all()
     
     return jsonify({
-        'stages': [s.to_dict() for s in stages]
+        'stages': [
+            present_stage_event(str(run.run_id), stage, sequence=index)
+            for index, stage in enumerate(stages, start=1)
+        ]
     })
 
 
