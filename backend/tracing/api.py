@@ -6,11 +6,15 @@ REST API for accessing trace data with RBAC-aware filtering.
 
 import json
 import logging
+import re
 import uuid
-from datetime import datetime
+from collections import Counter
+from datetime import UTC, datetime, timedelta
 
 from flask import Blueprint, Response, abort, jsonify, request
 from flask_login import current_user
+from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
 from backend.auth.api_decorators import api_session_login_required
@@ -45,6 +49,11 @@ from models import (
 
 trace_bp = Blueprint('trace', __name__, url_prefix='/api/v1/trace')
 logger = logging.getLogger(__name__)
+
+TRACE_ANALYTICS_MAX_DAYS = 90
+TRACE_ANALYTICS_MAX_LIMIT = 100
+TRACE_ANALYTICS_SCAN_LIMIT = 500
+TRACE_ANALYTICS_FILTER_PATTERN = re.compile(r"^[a-zA-Z0-9_.-]+$")
 
 
 # ============== Permission Helpers ==============
@@ -113,6 +122,169 @@ def _get_run_or_404(run_id: str) -> TraceRun:
 
 def _get_export_or_404(export_id: str) -> TraceExport:
     return TraceExport.query.filter_by(export_id=_parse_run_id(export_id)).first_or_404()
+
+
+def _trace_analytics_filter(name: str, *, max_length: int) -> str | None:
+    value = request.args.get(name)
+    if value is None or not value.strip():
+        return None
+    normalized = value.strip().lower()
+    if len(normalized) > max_length or not TRACE_ANALYTICS_FILTER_PATTERN.fullmatch(normalized):
+        abort(400, description=f"Invalid {name} filter")
+    return normalized
+
+
+def _trace_analytics_int(name: str, *, default: int, minimum: int, maximum: int) -> int:
+    raw = request.args.get(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        abort(400, description=f"Invalid {name} value")
+    if value < minimum or value > maximum:
+        abort(400, description=f"{name} must be between {minimum} and {maximum}")
+    return value
+
+
+def _trace_run_provider(run: TraceRun) -> str | None:
+    snapshot = run.data_snapshot if isinstance(run.data_snapshot, dict) else {}
+    provider = snapshot.get("provider_used")
+    return str(provider).lower() if provider else None
+
+
+def _trace_refinement(run: TraceRun) -> dict:
+    snapshot = run.data_snapshot if isinstance(run.data_snapshot, dict) else {}
+    disposition = snapshot.get("refinement_disposition")
+    if not isinstance(disposition, dict):
+        return {
+            "status": "not_recorded",
+            "measurement_status": "not_recorded",
+            "reason": None,
+        }
+    return {
+        "status": str(disposition.get("status") or "not_recorded"),
+        "measurement_status": str(
+            disposition.get("measurement_status") or "not_recorded"
+        ),
+        "reason": str(disposition["reason"]) if disposition.get("reason") else None,
+    }
+
+
+def _measurement_summary(values: list[float | int]) -> dict:
+    if not values:
+        return {"average": None, "measured_runs": 0, "status": "not_measured"}
+    return {
+        "average": sum(values) / len(values),
+        "measured_runs": len(values),
+        "status": "measured",
+    }
+
+
+def _build_trace_analytics(
+    *,
+    user_id: int,
+    owner_scope: bool,
+    days: int,
+    limit: int,
+    status: str | None,
+    mode: str | None,
+    provider: str | None,
+) -> dict:
+    window_end = datetime.now(UTC)
+    window_start = window_end - timedelta(days=days)
+    query = TraceRun.query.filter(TraceRun.created_at >= window_start)
+    if not owner_scope:
+        query = query.filter(TraceRun.user_id == user_id)
+    if status:
+        query = query.filter(func.lower(TraceRun.status) == status)
+    if mode:
+        query = query.filter(func.lower(TraceRun.truth_engine_mode) == mode)
+
+    observed = (
+        query.order_by(TraceRun.created_at.desc())
+        .limit(TRACE_ANALYTICS_SCAN_LIMIT + 1)
+        .all()
+    )
+    partial = len(observed) > TRACE_ANALYTICS_SCAN_LIMIT
+    observed = observed[:TRACE_ANALYTICS_SCAN_LIMIT]
+    matched = [run for run in observed if provider is None or _trace_run_provider(run) == provider]
+
+    run_ids = [run.run_id for run in matched]
+    evidence_counts: dict[uuid.UUID, int] = {}
+    if run_ids:
+        evidence_counts = {
+            run_id: int(count)
+            for run_id, count in (
+                db.session.query(TraceEvidence.run_id, func.count(TraceEvidence.evidence_id))
+                .filter(TraceEvidence.run_id.in_(run_ids))
+                .group_by(TraceEvidence.run_id)
+                .all()
+            )
+        }
+
+    confidence_values = [float(run.confidence) for run in matched if run.confidence is not None]
+    token_values = [int(run.token_cost) for run in matched if run.token_cost is not None]
+    refinements = [_trace_refinement(run) for run in matched]
+    refinement_counts = Counter(item["status"] for item in refinements)
+    recorded_refinements = sum(item["status"] != "not_recorded" for item in refinements)
+    runs = []
+    for run in matched[:limit]:
+        refinement = _trace_refinement(run)
+        provider_used = _trace_run_provider(run)
+        mode_used = str(run.truth_engine_mode).lower() if run.truth_engine_mode else None
+        run_id = str(run.run_id)
+        runs.append({
+            "run_id": run_id,
+            "session_id": str(run.session_id) if run.session_id else None,
+            "created_at": run.created_at.isoformat() if run.created_at else None,
+            "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+            "status": run.status,
+            "mode": mode_used,
+            "provider": provider_used,
+            "model": run.model_name,
+            "confidence": run.confidence,
+            "confidence_status": "measured" if run.confidence is not None else "not_measured",
+            "token_cost": run.token_cost,
+            "token_status": "measured" if run.token_cost is not None else "not_measured",
+            "evidence_count": evidence_counts.get(run.run_id, 0),
+            "refinement": refinement,
+            "detail_url": f"/runs/view?trace={run_id}",
+        })
+
+    status_counts = Counter(str(run.status or "not_recorded").lower() for run in matched)
+    evidence_total = sum(evidence_counts.values())
+    token_summary = _measurement_summary(token_values)
+    token_summary["total"] = sum(token_values) if token_values else None
+    token_summary.pop("average")
+    return {
+        "scope": "owner" if owner_scope else "principal",
+        "partial": partial,
+        "window": {
+            "start": window_start.isoformat(),
+            "end": window_end.isoformat(),
+        },
+        "filters": {
+            "days": days,
+            "limit": limit,
+            "status": status,
+            "mode": mode,
+            "provider": provider,
+        },
+        "summary": {
+            "run_count": len(matched),
+            "status_counts": dict(sorted(status_counts.items())),
+            "confidence": _measurement_summary(confidence_values),
+            "tokens": token_summary,
+            "evidence": {"total": evidence_total, "status": "measured"},
+            "refinement": {
+                "recorded_runs": recorded_refinements,
+                "status_counts": dict(sorted(refinement_counts.items())),
+                "status": "measured" if recorded_refinements else "not_measured",
+            },
+        },
+        "runs": runs,
+    }
 
 
 def _latest_accessible_run() -> TraceRun | None:
@@ -341,6 +513,54 @@ def get_ka_execution_feed():
 
 
 # ============== Run Endpoints ==============
+
+@trace_bp.route('/analytics', methods=['GET'])
+@limiter.exempt
+@api_session_login_required
+def get_trace_analytics():
+    """Return bounded analytics derived only from persisted trace authority."""
+    days = _trace_analytics_int(
+        "days",
+        default=30,
+        minimum=1,
+        maximum=TRACE_ANALYTICS_MAX_DAYS,
+    )
+    limit = _trace_analytics_int(
+        "limit",
+        default=50,
+        minimum=1,
+        maximum=TRACE_ANALYTICS_MAX_LIMIT,
+    )
+    status = _trace_analytics_filter("status", max_length=32)
+    mode = _trace_analytics_filter("mode", max_length=50)
+    provider = _trace_analytics_filter("provider", max_length=64)
+    requested_scope = str(request.args.get("scope") or "principal").lower()
+    if requested_scope not in {"principal", "all"}:
+        abort(400, description="scope must be principal or all")
+    owner_scope = requested_scope == "all"
+    if owner_scope and not _user_is_owner():
+        abort(403)
+
+    try:
+        payload = _build_trace_analytics(
+            user_id=current_user.id,
+            owner_scope=owner_scope,
+            days=days,
+            limit=limit,
+            status=status,
+            mode=mode,
+            provider=provider,
+        )
+    except SQLAlchemyError as exc:
+        logger.warning("trace analytics unavailable: %s", exc)
+        _rollback_trace_session()
+        return jsonify(trace_unavailable_payload(
+            None,
+            code="TRACE_ANALYTICS_UNAVAILABLE",
+            message="Trace analytics are temporarily unavailable.",
+            retryable=True,
+        )), 503
+    return jsonify(payload)
 
 @trace_bp.route('/runs', methods=['GET'])
 @limiter.exempt

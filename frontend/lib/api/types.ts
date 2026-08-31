@@ -125,6 +125,70 @@ export interface TraceRun {
   } | null;
 }
 
+export interface TraceAnalyticsFilters {
+  days?: number;
+  limit?: number;
+  status?: string;
+  mode?: string;
+  provider?: string;
+  scope?: 'principal' | 'all';
+}
+
+export interface TraceAnalyticsMeasurement {
+  status: 'measured' | 'not_measured';
+  measured_runs: number;
+  average?: number | null;
+  total?: number | null;
+}
+
+export interface TraceAnalyticsRun {
+  run_id: string;
+  session_id?: string | null;
+  created_at: string | null;
+  completed_at?: string | null;
+  status: string;
+  mode?: string | null;
+  provider?: string | null;
+  model?: string | null;
+  confidence: number | null;
+  confidence_status: 'measured' | 'not_measured';
+  token_cost: number | null;
+  token_status: 'measured' | 'not_measured';
+  evidence_count: number;
+  refinement: {
+    status: string;
+    measurement_status: string;
+    reason?: string | null;
+  };
+  detail_url: string;
+}
+
+export interface TraceAnalytics {
+  scope: 'principal' | 'owner';
+  partial: boolean;
+  window?: { start: string; end: string };
+  filters: {
+    days: number;
+    limit: number;
+    status: string | null;
+    mode: string | null;
+    provider: string | null;
+  };
+  summary: {
+    run_count: number;
+    status_counts: Record<string, number>;
+    confidence: TraceAnalyticsMeasurement;
+    tokens: TraceAnalyticsMeasurement;
+    evidence: { total: number; status: 'measured' };
+    refinement: {
+      recorded_runs: number;
+      status_counts: Record<string, number>;
+      status: 'measured' | 'not_measured';
+    };
+  };
+  runs: TraceAnalyticsRun[];
+}
+
 export interface ConfidenceMeasurement {
   formula_version?: string;
   value?: number | null;
