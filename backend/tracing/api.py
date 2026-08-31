@@ -168,6 +168,11 @@ def _serialize_layer_progress(run: TraceRun) -> dict:
         "layer_name": current_stage.name if current_stage else None,
         "kas_running": active_kas,
         "confidence_so_far": run.confidence,
+        "confidence_display": (
+            (run.data_snapshot or {}).get("confidence_display")
+            if isinstance(run.data_snapshot, dict)
+            else None
+        ),
         "persona_confidences": [
             {
                 "persona": persona.persona_name or persona.persona_type,
@@ -190,6 +195,14 @@ def _idle_progress_payload(error: str | None = None) -> dict:
         "layer_name": None,
         "kas_running": [],
         "confidence_so_far": None,
+        "confidence_display": {
+            "schema_version": "dle.confidence-display.v1",
+            "status": "not_measured",
+            "value": None,
+            "reason": "no_active_run",
+            "missing_components": [],
+            "explanation": "No active run is available for measurement.",
+        },
         "persona_confidences": [],
         "frost_snapshot_count": 0,
         "updated_at": datetime.now().isoformat(),

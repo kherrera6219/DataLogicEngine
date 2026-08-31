@@ -1369,6 +1369,9 @@ async def gateway_chat():
     }
     if not getattr(g, 'api_key', None):
         response_payload['completion'] = response.completion
+        response_payload['mode'] = response.mode
+        response_payload['confidence_display'] = response.confidence_display
+        response_payload['provider_call_budget'] = response.provider_call_budget
     result = api_response(response_payload)
     return _complete_gateway_idempotency(
         idempotency_record,
@@ -2146,11 +2149,11 @@ def get_session_messages(session_id):
     messages = ChatMessage.query.filter_by(session_id=session.id)\
         .order_by(ChatMessage.created_at.asc()).all()
     run_ids = {message.run_id for message in messages if message.run_id is not None}
-    completion_by_run = {}
+    trace_metadata_by_run = {}
     if run_ids:
         trace_runs = TraceRun.query.filter(TraceRun.run_id.in_(run_ids)).all()
-        completion_by_run = {
-            trace_run.run_id: (trace_run.data_snapshot or {}).get('completion')
+        trace_metadata_by_run = {
+            trace_run.run_id: trace_run.data_snapshot
             for trace_run in trace_runs
             if isinstance(trace_run.data_snapshot, dict)
         }
@@ -2165,7 +2168,26 @@ def get_session_messages(session_id):
                 'is_enhanced': m.is_enhanced,
                 'run_id': str(m.run_id) if m.run_id else None,
                 'completion': (
-                    completion_by_run.get(m.run_id)
+                    (trace_metadata_by_run.get(m.run_id) or {}).get('completion')
+                    if m.role == 'assistant' and m.run_id
+                    else None
+                ),
+                'mode': (
+                    (trace_metadata_by_run.get(m.run_id) or {}).get('governed_mode')
+                    if m.role == 'assistant' and m.run_id
+                    else None
+                ) or ('enhanced' if m.is_enhanced else 'standard'),
+                'confidence_display': (
+                    (trace_metadata_by_run.get(m.run_id) or {}).get(
+                        'confidence_display'
+                    )
+                    if m.role == 'assistant' and m.run_id
+                    else None
+                ),
+                'provider_call_budget': (
+                    (trace_metadata_by_run.get(m.run_id) or {}).get(
+                        'provider_call_budget'
+                    )
                     if m.role == 'assistant' and m.run_id
                     else None
                 ),

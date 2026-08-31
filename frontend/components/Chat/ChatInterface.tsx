@@ -27,6 +27,7 @@ import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
 import { ChatTracePanel } from './ChatTracePanel';
 import { OfflineQueueManager } from './OfflineQueueManager';
+import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
 
 interface ChatInterfaceProps {
   autoOpenUpload?: boolean;
@@ -41,6 +42,9 @@ type GatewayTracePayload = {
   provider_used?: string | null;
   model_used?: string | null;
   completion?: ChatMessage['completion'];
+  mode?: ChatMessage['governedMode'];
+  confidence_display?: ChatMessage['confidenceDisplay'];
+  provider_call_budget?: ChatMessage['providerCallBudget'];
   failure?: {
     kind?: string;
     details?: {
@@ -115,9 +119,15 @@ function normalizeApiMessage(message: ApiChatMessage): ChatMessage {
     content: message.content,
     finalAnswer: message.role === 'assistant' ? message.content : undefined,
     timestamp: formatMessageTimestamp(message.timestamp),
-    isEnhanced: message.is_enhanced ?? message.role === 'assistant',
+    isEnhanced: message.is_enhanced,
+    governedMode: message.mode
+      ?? (message.role === 'assistant'
+        ? (message.is_enhanced ? 'enhanced' : 'standard')
+        : undefined),
     runId: message.run_id ?? undefined,
     completion: message.completion,
+    confidenceDisplay: message.confidence_display,
+    providerCallBudget: message.provider_call_budget,
   };
 }
 
@@ -149,7 +159,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           content: data.response,
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isEnhanced: true,
+          governedMode: data.mode,
+          confidenceDisplay: data.confidence_display,
+          providerCallBudget: data.provider_call_budget,
           ...extractGatewayTraceFields(data as GatewayTracePayload),
         };
         setMessages(prev => [...prev, assistantMsg]);
@@ -301,10 +313,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           content: data.response,
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isEnhanced: true,
+          governedMode: data.mode,
           traces: data.trace_summary as TracePipeline | undefined,
           ...traceFields,
           completion: data.completion,
+          confidenceDisplay: data.confidence_display,
+          providerCallBudget: data.provider_call_budget,
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
@@ -484,7 +498,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         content: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
         finalAnswer: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isEnhanced: true
+        isEnhanced: false
       };
       setMessages(prev => [...prev, assistantMsg]);
     } catch (error) {
@@ -612,9 +626,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          <span className="text-xs text-slate-500 dark:text-gray-500">{msg.timestamp}</span>
                       </div>
                       
-                      {msg.role === 'assistant' && msg.isEnhanced && (
-                         <div className="flex items-center gap-2 text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-blue-500/20">
-                            <Zap className="h-3 w-3" /> Enhanced Mode Active
+                      {msg.role === 'assistant' && msg.governedMode && (
+                         <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-blue-500/20">
+                            <Zap className="h-3 w-3" />
+                            {msg.governedMode === 'enhanced'
+                              ? 'Enhanced Mode'
+                              : msg.governedMode === 'local_review'
+                                ? 'Local Review Mode'
+                                : 'Standard Mode'}
                          </div>
                       )}
 
@@ -633,6 +652,18 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          {msg.role === 'assistant' ? (
                             <div className="space-y-4">
                                <div>{msg.finalAnswer || msg.content}</div>
+
+                               {msg.governedMode && (
+                                 <div className="text-xs text-slate-500 dark:text-slate-400">
+                                   {msg.providerCallBudget
+                                     ? `${msg.providerCallBudget.calls_used} of ${msg.providerCallBudget.max_calls} provider attempts used for this governed run.`
+                                     : 'Provider-attempt budget was not recorded for this historical message.'}
+                                 </div>
+                               )}
+
+                               {msg.confidenceDisplay && (
+                                 <ConfidenceDisplayCard display={msg.confidenceDisplay} compact />
+                               )}
 
                                {msg.completion?.disposition === 'length_limited' && (
                                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-amber-800 dark:text-amber-200">

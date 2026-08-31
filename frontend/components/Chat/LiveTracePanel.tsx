@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { request } from '@/lib/api';
-import type { KAExecutionFeed, KAExecutionFeedItem } from '@/lib/api/types';
+import type { ConfidenceDisplay, KAExecutionFeed, KAExecutionFeedItem } from '@/lib/api/types';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
 
 interface TraceRunRecord {
   run_id: string;
@@ -25,6 +26,9 @@ interface TraceRunRecord {
     entropy?: number;
     bias_risk?: number;
   };
+  data_snapshot?: {
+    confidence_display?: ConfidenceDisplay | null;
+  } | null;
 }
 
 interface TraceStageRecord {
@@ -51,6 +55,7 @@ interface ReasoningLayerProgress {
     duration_ms?: number | null;
   }>;
   confidence_so_far: number | null;
+  confidence_display?: ConfidenceDisplay | null;
   persona_confidences: Array<{
     persona: string;
     confidence: number;
@@ -77,6 +82,12 @@ function scoreToPercent(value?: number): string {
   if (typeof value !== 'number' || Number.isNaN(value)) return '--';
   const normalized = value <= 1 ? value * 100 : value;
   return `${normalized.toFixed(1)}%`;
+}
+
+function confidenceValue(display?: ConfidenceDisplay | null): string {
+  return display?.status === 'measured'
+    ? scoreToPercent(display.value ?? undefined)
+    : 'Not measured';
 }
 
 function formatExecutionDuration(value?: number | null): string {
@@ -181,6 +192,22 @@ export function LiveTracePanel() {
     [stages]
   );
 
+  const currentConfidenceDisplay = useMemo<ConfidenceDisplay | null>(() => {
+    const recorded = currentRun?.data_snapshot?.confidence_display;
+    if (recorded) return recorded;
+    const legacyValue = currentRun?.scores?.confidence;
+    if (typeof legacyValue !== 'number' || Number.isNaN(legacyValue)) return null;
+    return {
+      status: 'measured',
+      measurement_status: 'measured',
+      value: legacyValue,
+      formula_version: null,
+      reason: 'legacy_trace_measurement',
+      missing_components: [],
+      explanation: 'Versioned evidence-support measurement recorded by this historical trace.',
+    };
+  }, [currentRun]);
+
   const progress = useMemo(() => {
     if (!currentRun) return 0;
     if (!stages.length) {
@@ -283,7 +310,7 @@ export function LiveTracePanel() {
                       </div>
                       <div>
                         <div className="text-[10px] uppercase text-slate-500 dark:text-gray-500">Confidence</div>
-                        <div className="text-sm font-semibold">{scoreToPercent(reasoningProgress.confidence_so_far ?? undefined)}</div>
+                        <div className="text-sm font-semibold">{confidenceValue(reasoningProgress.confidence_display)}</div>
                       </div>
                       <div>
                         <div className="text-[10px] uppercase text-slate-500 dark:text-gray-500">FROST</div>
@@ -308,7 +335,10 @@ export function LiveTracePanel() {
 
             {reasoningProgress?.persona_confidences?.length ? (
               <div className="space-y-2">
-                <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Persona Confidence</div>
+                <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Persona Profile Coverage</div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Profile construction coverage is not answer confidence.
+                </p>
                 <div className="space-y-2">
                   {reasoningProgress.persona_confidences.slice(0, 6).map((persona) => {
                     const pct = Math.max(0, Math.min(100, (persona.confidence <= 1 ? persona.confidence * 100 : persona.confidence)));
@@ -375,10 +405,7 @@ export function LiveTracePanel() {
             <div className="space-y-2 pt-2 border-t border-white/10">
               <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider mb-3">Run Scores</div>
               <div className="grid grid-cols-1 gap-2">
-                <div className="p-2 bg-white/70 dark:bg-white/5 rounded border border-slate-200 dark:border-white/5 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-500 dark:text-gray-500 uppercase">Confidence</span>
-                  <span className="text-sm font-semibold">{scoreToPercent(currentRun.scores?.confidence)}</span>
-                </div>
+                <ConfidenceDisplayCard display={currentConfidenceDisplay} compact />
                 <div className="p-2 bg-white/70 dark:bg-white/5 rounded border border-slate-200 dark:border-white/5 flex items-center justify-between">
                   <span className="text-[10px] text-slate-500 dark:text-gray-500 uppercase">Entropy</span>
                   <span className="text-sm font-semibold">{scoreToPercent(currentRun.scores?.entropy)}</span>

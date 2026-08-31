@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ConfidenceDisplayCard } from '@/components/Chat/ConfidenceDisplayCard';
 import type {
   TraceAxisVector,
   TraceBundle,
@@ -538,15 +539,7 @@ function TraceDetailContent() {
               </div>
               {trace.scores && (
                 <>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-gray-500">Evidence support</span>
-                    <span className="font-medium">
-                      {trace.scores.confidence == null ? 'Not measured' : scoreToPercent(trace.scores.confidence)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    {trace.data_snapshot?.confidence_measurement?.explanation || 'No versioned evidence-support measurement is available for this run.'}
-                  </p>
+                  <ConfidenceDisplayCard display={trace.data_snapshot?.confidence_display} />
                   <div className="flex justify-between gap-3">
                     <span className="text-gray-500">Bias Risk</span>
                     <span className="font-medium">{scoreToFixed(trace.scores.bias_risk)}</span>

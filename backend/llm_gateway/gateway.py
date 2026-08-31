@@ -63,6 +63,9 @@ class GatewayResponse:
     model_used: str
     usage: dict[str, Any]
     completion: Optional[dict[str, Any]] = None
+    mode: Optional[str] = None
+    confidence_display: Optional[dict[str, Any]] = None
+    provider_call_budget: Optional[dict[str, Any]] = None
     ok: bool = True
     # UKG enhancements
     coordinate: Any = None
@@ -503,6 +506,17 @@ class LLMGateway:
             completion=governed.completion.to_dict()
             if governed.completion
             else None,
+            mode=governed.mode.value,
+            confidence_display=(
+                governed.metadata.get("confidence_display")
+                if isinstance(governed.metadata, dict)
+                else None
+            ),
+            provider_call_budget=(
+                governed.metadata.get("provider_call_budget")
+                if isinstance(governed.metadata, dict)
+                else None
+            ),
             ok=governed.ok,
             coordinate=governed.coordinate,
             tier=governed.tier,
@@ -1120,6 +1134,7 @@ class LLMGateway:
         role: str,
         content: str,
         run_id: Optional[str] = None,
+        governed_mode: Optional[str] = None,
     ) -> ChatMessagePersistenceResult:
         """Persist one principal-owned transcript row and return a receipt."""
         from extensions import db
@@ -1158,7 +1173,10 @@ class LLMGateway:
                 role=role,
                 content=content,
                 run_id=parsed_run_id,
-                is_enhanced=(role == "assistant"),
+                is_enhanced=(
+                    role == "assistant"
+                    and str(governed_mode or "standard") == "enhanced"
+                ),
             )
             db.session.add(msg)
 

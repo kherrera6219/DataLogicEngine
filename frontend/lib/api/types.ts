@@ -22,6 +22,9 @@ export interface ChatResponse {
   contract_version?: 'governed.v1' | string;
   status?: string;
   completion?: ProviderCompletion | null;
+  mode?: GovernedMode;
+  confidence_display?: ConfidenceDisplay | null;
+  provider_call_budget?: ProviderCallBudget | null;
   response?: string;
   history?: Message[];
   trace_id?: string;
@@ -55,6 +58,25 @@ export interface ChatResponse {
     retryable: boolean;
     details?: Record<string, unknown>;
   } | null;
+}
+
+export type GovernedMode = 'standard' | 'enhanced' | 'local_review';
+
+export interface ProviderCallBudget {
+  max_calls: number;
+  calls_used: number;
+}
+
+export interface ConfidenceDisplay {
+  schema_version?: string;
+  status: 'measured' | 'not_measured' | 'validation_failed' | 'insufficient_evidence';
+  measurement_status?: string;
+  value: number | null;
+  formula_version?: string | null;
+  reason: string;
+  missing_components: string[];
+  failed_validator_ids?: string[];
+  explanation: string;
 }
 
 export type CompletionDisposition =
@@ -94,6 +116,9 @@ export interface TraceRun {
   provider_used?: string | null;
   data_snapshot?: {
     confidence_measurement?: ConfidenceMeasurement | null;
+    confidence_display?: ConfidenceDisplay | null;
+    governed_mode?: GovernedMode | null;
+    provider_call_budget?: ProviderCallBudget | null;
     convergence?: Record<string, unknown> | null;
     [key: string]: unknown;
   } | null;

@@ -1,5 +1,12 @@
 import { request } from '@/lib/api/client';
-import { ChatRequest, ChatResponse, ProviderCompletion } from './types';
+import {
+  ChatRequest,
+  ChatResponse,
+  ConfidenceDisplay,
+  GovernedMode,
+  ProviderCallBudget,
+  ProviderCompletion,
+} from './types';
 
 export interface ChatSession {
   id: string;
@@ -28,6 +35,9 @@ export interface ApiChatMessage {
   is_enhanced?: boolean;
   run_id?: string;
   completion?: ProviderCompletion | null;
+  mode?: GovernedMode | null;
+  confidence_display?: ConfidenceDisplay | null;
+  provider_call_budget?: ProviderCallBudget | null;
 }
 
 export const chat = {

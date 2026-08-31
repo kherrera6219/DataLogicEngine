@@ -8,6 +8,11 @@
  */
 
 import { io, Socket } from "socket.io-client";
+import type {
+  ConfidenceDisplay,
+  GovernedMode,
+  ProviderCallBudget,
+} from '@/lib/api/types';
 
 // Types
 export interface SimulationProgress {
@@ -30,6 +35,9 @@ export interface ChatResponse {
   session_id: string;
   response: string;
   personas?: string[];
+  mode?: GovernedMode;
+  confidence_display?: ConfidenceDisplay | null;
+  provider_call_budget?: ProviderCallBudget | null;
 }
 
 export interface TraceStageUpdate {

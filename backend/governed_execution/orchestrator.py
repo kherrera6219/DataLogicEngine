@@ -41,6 +41,7 @@ from backend.governed_execution.knowledge_lifecycle import (
 )
 from backend.governed_execution.prompt import build_refinement_messages
 from backend.governed_execution.quality import (
+    build_confidence_display,
     measure_evidence,
 )
 from backend.governed_execution.refinement import CanonicalRefinementWorkflow
@@ -927,6 +928,7 @@ class GovernedExecutionOrchestrator:
                 "assistant",
                 result.answer,
                 context.trace_id,
+                request.mode.value,
             )
             if getattr(persistence_result, "ok", True) is False:
                 context.warnings.append("assistant_transcript_persistence_failed")
@@ -1791,6 +1793,7 @@ class GovernedExecutionOrchestrator:
                 "user",
                 context.query,
                 context.trace_id,
+                request.mode.value,
             )
             if getattr(persistence_result, "ok", True) is False:
                 return {
@@ -1813,6 +1816,7 @@ class GovernedExecutionOrchestrator:
 
         budget_policy = ProviderBudgetPolicy(getattr(self.gateway, "db", None))
         max_calls = budget_policy.request_call_limit(request.mode, request.constraints)
+        request.metadata["_provider_call_limit"] = max_calls
         attempts: list[dict[str, Any]] = []
         last_error = "Provider failed to generate a response"
         last_failure = classify_provider_failure(last_error)
@@ -2722,10 +2726,21 @@ class GovernedExecutionOrchestrator:
             ),
             "deadline_seconds": context.request.metadata.get("deadline_seconds"),
             "provider_budget": context.request.metadata.get("provider_budget"),
+            "provider_call_budget": {
+                "max_calls": int(
+                    context.request.metadata.get("_provider_call_limit") or 0
+                ),
+                "calls_used": context.provider_call_count,
+            },
             "refinement_cycles": context.refinement_cycles,
             "confidence_measurement": context.confidence_measurement.to_dict()
             if context.confidence_measurement
             else None,
+            "confidence_display": build_confidence_display(
+                context.confidence_measurement,
+                validators=context.validators,
+                evidence_count=len(context.evidence),
+            ),
             "convergence_decisions": [
                 item.to_dict() for item in context.convergence_decisions
             ],

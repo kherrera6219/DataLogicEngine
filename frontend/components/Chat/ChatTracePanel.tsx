@@ -1,22 +1,18 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Activity, ChevronDown, FileDown, Layers, ShieldCheck, Users } from 'lucide-react';
+import { Activity, ChevronDown, FileDown, Layers, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import type { AuditTrail, TraceBundle } from '@/lib/api/types';
+import type { ConfidenceDisplay } from '@/lib/api/types';
 import { useTraceStream } from '@/hooks/useTraceStream';
+import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
 
 interface ChatTracePanelProps {
   runId?: string;
   auditTrail?: AuditTrail;
-}
-
-function scoreToPercent(value?: number | null): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return 'Not measured';
-  const normalized = value <= 1 ? value * 100 : value;
-  return `${normalized.toFixed(1)}%`;
 }
 
 export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
@@ -32,7 +28,39 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
   const [error, setError] = useState<string | null>(null);
   const isLive = bundle?.status === 'running';
   const traceStream = useTraceStream(isLive && resolvedRunId ? resolvedRunId : null);
-  const confidenceMeasurement = bundle?.run?.data_snapshot?.confidence_measurement;
+  const confidenceDisplay = useMemo<ConfidenceDisplay | null>(() => {
+    const recorded = bundle?.run?.data_snapshot?.confidence_display;
+    if (recorded) return recorded;
+    const measurement = bundle?.run?.data_snapshot?.confidence_measurement;
+    if (measurement?.status) {
+      return {
+        status: measurement.status === 'measured' && typeof measurement.value === 'number'
+          ? 'measured'
+          : 'not_measured',
+        measurement_status: measurement.status,
+        value: measurement.status === 'measured' && typeof measurement.value === 'number'
+          ? measurement.value
+          : null,
+        formula_version: measurement.formula_version,
+        reason: measurement.status === 'measured'
+          ? 'legacy_trace_measurement'
+          : 'required_measurement_components_unavailable',
+        missing_components: measurement.missing_components || [],
+        explanation: measurement.explanation || 'No versioned evidence-support measurement is available for this run.',
+      };
+    }
+    const legacyValue = bundle?.metrics?.confidence;
+    if (typeof legacyValue !== 'number' || Number.isNaN(legacyValue)) return null;
+    return {
+      status: 'measured',
+      measurement_status: 'measured',
+      value: legacyValue,
+      formula_version: null,
+      reason: 'legacy_trace_measurement',
+      missing_components: [],
+      explanation: 'Versioned evidence-support measurement recorded by this historical trace.',
+    };
+  }, [bundle]);
 
   if (!resolvedRunId && !auditTrail) return null;
 
@@ -99,13 +127,7 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
           {bundle && (
             <>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <div className="rounded border border-slate-200 bg-white/80 p-2 dark:border-white/10 dark:bg-white/5">
-                  <div className="mb-1 flex items-center gap-1 text-slate-500 dark:text-slate-400">
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    Evidence support
-                  </div>
-                  <div className="font-semibold">{scoreToPercent(bundle.metrics?.confidence)}</div>
-                </div>
+                <ConfidenceDisplayCard display={confidenceDisplay} compact />
                 <div className="rounded border border-slate-200 bg-white/80 p-2 dark:border-white/10 dark:bg-white/5">
                   <div className="mb-1 flex items-center gap-1 text-slate-500 dark:text-slate-400">
                     <Layers className="h-3.5 w-3.5" />
@@ -124,13 +146,6 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
                   <div className="mb-1 text-slate-500 dark:text-slate-400">Evidence</div>
                   <div className="font-semibold">{bundle.evidence_sources?.length ?? 0}</div>
                 </div>
-              </div>
-
-              <div className="rounded border border-slate-200 bg-white/70 p-2 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-                {confidenceMeasurement?.explanation || 'Evidence-support coverage was not measured for this run.'}
-                {confidenceMeasurement?.formula_version && (
-                  <span className="ml-1 font-mono text-[10px]">({confidenceMeasurement.formula_version})</span>
-                )}
               </div>
 
               <div className="space-y-1">

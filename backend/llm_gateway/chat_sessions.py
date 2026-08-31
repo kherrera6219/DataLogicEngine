@@ -34,6 +34,20 @@ class ChatSessionEnsureResult:
     created: bool
 
 
+def normalize_chat_mode(value: str | None) -> str:
+    normalized = str(value or "standard").strip().lower()
+    compatibility = {
+        "chat": "standard",
+        "trace": "standard",
+        "explain": "standard",
+        "quad": "enhanced",
+    }
+    normalized = compatibility.get(normalized, normalized)
+    if normalized not in {"standard", "enhanced", "local_review"}:
+        raise ChatSessionInvalid("Unsupported governed chat mode")
+    return normalized
+
+
 def _parse_session_id(value: str | uuid.UUID | None) -> uuid.UUID:
     if value is None:
         return uuid.uuid4()
@@ -56,17 +70,27 @@ def ensure_chat_session(
         raise ChatSessionInvalid("An authenticated owner is required")
 
     parsed_id = _parse_session_id(session_id)
+    normalized_mode = normalize_chat_mode(mode)
     existing = db_session.get(ChatSession, parsed_id)
     if existing is not None:
         if int(existing.user_id) != int(user_id):
             # Do not disclose another principal's session existence.
             raise ChatSessionNotFound("Chat session was not found")
+        if existing.mode != normalized_mode:
+            existing.mode = normalized_mode
+            try:
+                db_session.commit()
+            except SQLAlchemyError as exc:
+                db_session.rollback()
+                raise ChatSessionPersistenceError(
+                    "Chat session mode could not be persisted"
+                ) from exc
         return ChatSessionEnsureResult(session=existing, created=False)
 
     record = ChatSession(
         id=parsed_id,
         user_id=int(user_id),
-        mode=str(mode or "chat"),
+        mode=normalized_mode,
     )
     db_session.add(record)
     try:
