@@ -211,7 +211,7 @@ describe('ChatTracePanel', () => {
     expect(screen.getByText('Trace update')).toBeInTheDocument();
     expect(screen.getByText('live')).toBeInTheDocument();
     expect(screen.getByText(/Versioned evidence-support measurement recorded/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open details' })).toHaveAttribute('href', '/runs/view?id=running-run');
+    expect(screen.getByRole('link', { name: 'Open details' })).toHaveAttribute('href', '/runs/view?trace=running-run');
   });
 
   it('handles non-Error loads and object or empty exports', async () => {

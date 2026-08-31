@@ -213,4 +213,21 @@ describe('LiveTracePanel', () => {
     expect(screen.getByText('startup race')).toBeInTheDocument();
     expect(screen.queryByText(/No trace runs found yet/i)).not.toBeInTheDocument();
   });
+
+  it('renders every persisted stage in an accessible scroll region', async () => {
+    getStagesMock.mockResolvedValueOnce({
+      stages: Array.from({ length: 26 }, (_, index) => ({
+        stage_id: `stage-${index + 1}`,
+        name: `Persisted stage ${index + 1}`,
+        status: 'completed',
+        narrative: `Recorded work ${index + 1}`,
+      })),
+    });
+
+    render(<LiveTracePanel />);
+
+    expect((await screen.findAllByText('Persisted stage 26'))[0]).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Complete trace stage log' })).toHaveClass('overflow-y-auto');
+    expect(screen.getByRole('button', { name: 'Refresh trace telemetry' })).toBeInTheDocument();
+  });
 });

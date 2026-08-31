@@ -557,4 +557,14 @@ describe('ChatInterface', () => {
     expect(screen.queryByRole('button', { name: 'Export' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Clear All' })).not.toBeInTheDocument();
   });
+
+  it('lets the user collapse and restore the dedicated trace pane', async () => {
+    renderChatInterface();
+
+    expect(await screen.findByTestId('trace-panel')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Hide trace explorer' }));
+    expect(screen.queryByTestId('trace-panel')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Show trace explorer' }));
+    expect(screen.getByTestId('trace-panel')).toBeInTheDocument();
+  });
 });
