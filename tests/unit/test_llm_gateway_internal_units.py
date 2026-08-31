@@ -22,6 +22,8 @@ sys.modules["models.ChatMessage"] = MagicMock()
 
 # Now import the module under test
 from backend.llm_gateway.gateway import CircuitBreaker, GatewayRequest, GatewayResponse, LLMGateway
+from backend.governed_execution.contracts import GovernedMode
+from backend.llm_gateway.completion import CompletionDisposition, ProviderCompletion
 from backend.llm_gateway.model_defaults import (
     GOOGLE_PRIMARY_MODEL,
     OPENAI_LATEST_MODEL,
@@ -357,6 +359,15 @@ class TestGatewayStreaming:
             provider_used='openai' if ok else 'none',
             model_used='gpt-5.6-sol',
             usage={'tokens_in': 1, 'tokens_out': 1} if ok else {},
+            completion=ProviderCompletion(
+                disposition=(
+                    CompletionDisposition.COMPLETE
+                    if ok
+                    else CompletionDisposition.FAILED
+                ),
+                native_reason='STOP' if ok else 'ERROR',
+            ),
+            mode=GovernedMode.STANDARD,
             ok=ok,
             coordinate=None,
             tier=None,
