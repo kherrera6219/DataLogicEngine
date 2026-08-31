@@ -174,7 +174,7 @@ describe('ChatTracePanel', () => {
     expect(screen.getByText('L7 Live analysis')).toBeInTheDocument();
     expect(screen.getByText('Trace update')).toBeInTheDocument();
     expect(screen.getByText('live')).toBeInTheDocument();
-    expect(screen.getByText(/Evidence-support coverage was not measured/)).toBeInTheDocument();
+    expect(screen.getByText(/Versioned evidence-support measurement recorded/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Open details' })).toHaveAttribute('href', '/runs/view?id=running-run');
   });
 
@@ -196,7 +196,8 @@ describe('ChatTracePanel', () => {
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     render(<ChatTracePanel runId="object-run" />);
     fireEvent.click(screen.getByRole('button', { name: /Reasoning Trace/i }));
-    expect(await screen.findByText('82.0%')).toBeInTheDocument();
+    expect(await screen.findByText('Not measured')).toBeInTheDocument();
+    expect(screen.getByText('Required provenance inputs were unavailable.')).toBeInTheDocument();
     const exportButton = screen.getByRole('button', { name: /Export/i });
     fireEvent.click(exportButton);
     await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled());
