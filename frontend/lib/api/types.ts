@@ -631,6 +631,8 @@ export interface IngestionResult {
   manifest_path?: string | null;
   status?: string;
   checkpoint?: string;
+  created_at?: string | null;
+  completed_at?: string | null;
   materializations_pending?: number;
   files?: IngestionFileState[];
 }
