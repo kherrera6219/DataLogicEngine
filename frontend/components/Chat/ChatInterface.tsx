@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Plus, Search, Calendar,
-  Settings, Mic, Paperclip, Zap, ArrowRight, Target, Bot, User, X
+  Settings, Mic, Paperclip, Zap, ArrowRight, Target, Bot, User, X,
+  PanelRightClose, PanelRightOpen
 } from "lucide-react";
 import { ChatMessage, TracePipeline } from './types';
 import { ApiChatMessage, ChatSession } from '@/lib/api/chat';
@@ -142,6 +143,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [tracePaneOpen, setTracePaneOpen] = useState(true);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const draftSessionIdRef = useRef<string | null>(null);
   const sessionCreationRef = useRef<Promise<ChatSession> | null>(null);
@@ -538,7 +540,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
       
       {/* ðŸ“ Conversational Sidebar */}
-      <aside className="w-64 border-r border-white/5 flex flex-col fluent-acrylic z-20" aria-label="Recent chat sessions">
+      <aside className="hidden w-64 shrink-0 border-r border-white/5 md:flex flex-col fluent-acrylic z-20" aria-label="Recent chat sessions">
          <div className="p-4 border-b border-white/5 space-y-4">
             <Button 
               className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
@@ -589,7 +591,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       </aside>
 
       {/* ðŸ’¬ Main Chat Area */}
-      <main className="flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area" role="main" aria-label="Chat interface">
+      <main className="min-w-0 flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area" role="main" aria-label="Chat interface">
          {/* Header */}
          <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 fluent-acrylic sticky top-0 z-30">
             <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-slate-900 dark:text-gray-100" data-testid="app-header">
@@ -601,6 +603,20 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                </span>
                <Button asChild variant="ghost" size="sm" className="h-8 gap-2 border border-slate-300/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300">
                   <Link href="/settings"><Settings className="h-3.5 w-3.5" /> Settings</Link>
+               </Button>
+               <Button
+                 type="button"
+                 variant="ghost"
+                 size="icon"
+                 className="h-8 w-8 border border-slate-300/70 dark:border-white/10"
+                 aria-label={tracePaneOpen ? 'Hide trace explorer' : 'Show trace explorer'}
+                 aria-controls="chat-trace-explorer-pane"
+                 aria-expanded={tracePaneOpen}
+                 onClick={() => setTracePaneOpen((open) => !open)}
+               >
+                 {tracePaneOpen
+                   ? <PanelRightClose className="h-4 w-4" aria-hidden="true" />
+                   : <PanelRightOpen className="h-4 w-4" aria-hidden="true" />}
                </Button>
                 <span
                  className="flex h-8 items-center gap-2 rounded-md border border-slate-300/70 px-2 text-[10px] text-slate-600 dark:border-white/10 dark:text-gray-400"
@@ -789,18 +805,25 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
               {' '}Verify generated responses before critical use.
             </p>
 
-             <div className="max-w-4xl mx-auto mt-4">
-               <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
-             </div>
-
             <div className="text-center text-[10px] text-slate-500 dark:text-gray-600 mt-2 font-mono">DataLogicEngine AI workspace</div>
          </div>
       </main>
 
-      {/* ðŸ”¬ Live Trace Sidebar */}
-      <aside className="w-72 border-l border-white/5 flex flex-col fluent-acrylic z-20" aria-label="Live trace panel">
-         <LiveTracePanel activeRunId={activeRequestId} />
-      </aside>
+      {tracePaneOpen && (
+        <aside
+          id="chat-trace-explorer-pane"
+          className="fixed inset-y-0 right-0 z-40 flex w-[min(90vw,24rem)] min-w-80 max-w-[90vw] shrink-0 flex-col overflow-auto border-l border-white/5 fluent-acrylic lg:static lg:z-20 lg:max-w-[50vw]"
+          style={{ resize: 'horizontal' }}
+          aria-label="Trace explorer pane"
+        >
+          <div className="border-b border-white/5 p-3">
+            <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
+          </div>
+          <div className="min-h-[32rem] flex-1">
+            <LiveTracePanel activeRunId={activeRequestId} />
+          </div>
+        </aside>
+      )}
 
     </div>
   );

@@ -266,7 +266,7 @@ export function LiveTracePanel({ activeRunId = null }: LiveTracePanelProps) {
               IDLE
             </Badge>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => void handleRefresh()} disabled={refreshing}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => void handleRefresh()} disabled={refreshing} aria-label="Refresh trace telemetry">
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
@@ -406,10 +406,10 @@ export function LiveTracePanel({ activeRunId = null }: LiveTracePanelProps) {
             {displayedStages.length > 0 && (
               <div className="space-y-2">
                 <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Trace Log</div>
-                <div className="space-y-1">
-                  {displayedStages.slice(0, 8).map((stage) => (
-                    <div key={stage.stage_id} className="rounded p-1.5 text-xs transition-colors hover:bg-slate-200/70 dark:hover:bg-white/5">
-                      <div className="flex items-center justify-between">
+                <div className="max-h-[28rem] space-y-1 overflow-y-auto overscroll-contain pr-1" role="region" aria-label="Complete trace stage log">
+                  {displayedStages.map((stage) => (
+                    <details key={stage.stage_id} className="rounded border border-transparent p-1.5 text-xs transition-colors open:border-slate-200 open:bg-slate-100 dark:open:border-white/10 dark:open:bg-white/5">
+                      <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                         <div className="flex items-center gap-2">
                         {['pass', 'completed'].includes((stage.status || '').toLowerCase()) ? (
                           <ShieldCheck className="h-3 w-3 text-green-500" />
@@ -423,13 +423,16 @@ export function LiveTracePanel({ activeRunId = null }: LiveTracePanelProps) {
                         <span className="text-[10px] text-slate-500 dark:text-gray-600 font-mono">
                           {typeof stage.timing?.duration_ms === 'number' ? `${stage.timing.duration_ms}ms` : '--'}
                         </span>
-                      </div>
+                      </summary>
                       {stage.narrative && (
                         <p className="mt-1 pl-5 text-[11px] leading-relaxed text-slate-500 dark:text-gray-400">
                           {stage.narrative}
                         </p>
                       )}
-                    </div>
+                      {!stage.narrative && (
+                        <p className="mt-1 pl-5 text-[11px] text-slate-500 dark:text-gray-400">No public narrative was recorded for this stage.</p>
+                      )}
+                    </details>
                   ))}
                 </div>
               </div>

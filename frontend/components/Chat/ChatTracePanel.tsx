@@ -167,21 +167,24 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
               />
               <AnalystContributions personas={bundle.personas} compact />
 
-              <div className="space-y-1">
-                {displayedStages.slice(0, 8).map((stage) => (
-                  <div key={stage.stage_id || `${stage.layer_index}-${stage.name}`} className="rounded bg-white/70 px-2 py-1 dark:bg-white/5">
-                    <div className="flex items-center justify-between gap-2">
+              <div className="max-h-80 space-y-1 overflow-y-auto overscroll-contain pr-1" role="region" aria-label="Complete saved trace stages">
+                {displayedStages.map((stage) => (
+                  <details key={stage.stage_id || `${stage.layer_index}-${stage.name}`} className="rounded bg-white/70 px-2 py-1 open:ring-1 open:ring-blue-500/30 dark:bg-white/5">
+                    <summary className="flex min-h-8 cursor-pointer list-none items-center justify-between gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                       <span className="truncate">{stage.layer_index ? `L${stage.layer_index} ` : ''}{stage.name || 'Trace update'}</span>
                       <Badge variant="outline" className="h-5 shrink-0 text-[10px]">
                         {stage.status || 'live'}
                       </Badge>
-                    </div>
+                    </summary>
                     {stage.narrative && (
                       <p className="mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
                         {stage.narrative}
                       </p>
                     )}
-                  </div>
+                    {!stage.narrative && (
+                      <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">No public narrative was recorded for this stage.</p>
+                    )}
+                  </details>
                 ))}
                 {!displayedStages.length && (
                   <div className="rounded bg-white/70 px-2 py-2 text-slate-500 dark:bg-white/5 dark:text-slate-400">
@@ -193,7 +196,7 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
               <div className="flex flex-wrap gap-2">
                 {auditTrail?.decision_path && (
                   <Button size="sm" variant="outline" asChild>
-                    <a href={auditTrail.decision_path.replace('/api/v1/trace/runs/', '/runs/view?id=')}>
+                    <a href={auditTrail.decision_path.replace('/api/v1/trace/runs/', '/runs/view?trace=')}>
                       Open details
                     </a>
                   </Button>
