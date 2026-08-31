@@ -9,6 +9,7 @@ import type { AuditTrail, TraceBundle } from '@/lib/api/types';
 import type { ConfidenceDisplay } from '@/lib/api/types';
 import { useTraceStream } from '@/hooks/useTraceStream';
 import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
+import { RefinementDispositionCard } from './RefinementDispositionCard';
 
 interface ChatTracePanelProps {
   runId?: string;
@@ -159,6 +160,10 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
                   <div className="font-semibold">{bundle.evidence_sources?.length ?? 0}</div>
                 </div>
               </div>
+              <RefinementDispositionCard
+                disposition={bundle.run?.data_snapshot?.refinement_disposition}
+                compact
+              />
 
               <div className="space-y-1">
                 {displayedStages.slice(0, 8).map((stage) => (

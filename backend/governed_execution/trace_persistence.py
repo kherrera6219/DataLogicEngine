@@ -233,6 +233,7 @@ def persist_governed_trace(
                 "completion": sdk_result.get("completion"),
                 "governed_mode": sdk_result.get("mode"),
                 "provider_call_budget": metadata.get("provider_call_budget"),
+                "refinement_disposition": metadata.get("refinement_disposition"),
                 "convergence_decisions": metadata.get("convergence_decisions", []),
                 "containment_class": governance["containment_class"],
                 "quarantine": governance["quarantine"],

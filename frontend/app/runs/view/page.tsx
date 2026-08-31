@@ -9,6 +9,7 @@ import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConfidenceDisplayCard } from '@/components/Chat/ConfidenceDisplayCard';
+import { RefinementDispositionCard } from '@/components/Chat/RefinementDispositionCard';
 import type {
   TraceAxisVector,
   TraceBundle,
@@ -277,6 +278,10 @@ function TraceDetailContent() {
         <Button variant="outline" onClick={() => void exportTrace()} disabled={!runId}>Download Trace</Button>
       </header>
       {exportError && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{exportError}</div>}
+
+      <RefinementDispositionCard
+        disposition={trace.data_snapshot?.refinement_disposition}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">

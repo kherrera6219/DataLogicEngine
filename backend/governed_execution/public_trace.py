@@ -123,6 +123,23 @@ def _safe_refinement_receipt(outputs: dict[str, Any]) -> dict[str, Any] | None:
     }
 
 
+def _safe_refinement_step(outputs: dict[str, Any]) -> dict[str, Any] | None:
+    record = outputs.get("refinement_step")
+    if not isinstance(record, dict):
+        return None
+    return {
+        "step": record.get("step") if isinstance(record.get("step"), int) else None,
+        "step_id": _safe_text(record.get("step_id"), limit=80),
+        "name": _safe_text(record.get("name"), limit=100),
+        "status": _safe_text(record.get("status"), limit=40),
+        "reason": (
+            _safe_text(record.get("reason"), limit=160)
+            if record.get("reason")
+            else None
+        ),
+    }
+
+
 def _narrative(
     *,
     name: str,
@@ -131,12 +148,17 @@ def _narrative(
     outputs: dict[str, Any],
     error_code: str | None,
     refinement: dict[str, Any] | None,
+    refinement_step: dict[str, Any] | None,
 ) -> str:
     if status == "running":
         text = f"Started {name}."
     elif status in {"failed", "fail", "blocked", "cancelled"}:
         suffix = f" Error code: {_safe_text(error_code, limit=80)}." if error_code else ""
         text = f"{name} did not complete successfully.{suffix}"
+    elif refinement_step:
+        step = refinement_step.get("step")
+        step_status = refinement_step.get("status") or status
+        text = f"Refinement step {step} finished with status {step_status}."
     elif refinement:
         count = refinement.get("step_count", len(refinement.get("steps") or []))
         text = f"Accounted for {count} ordered refinement steps."
@@ -170,11 +192,21 @@ def present_stage_event(run_id: str, stage: Any, *, sequence: int) -> dict[str, 
     inputs = _mapping(stage, "inputs", "input")
     outputs = _mapping(stage, "outputs", "output")
     metrics = _mapping(stage, "metrics")
-    name = _public_name(_value(stage, "name", _value(stage, "stage_name", "Stage")))
+    stage_type = _safe_text(_value(stage, "stage_type", "stage"), limit=40)
+    if stage_type == "refinement_step" and isinstance(inputs.get("step"), int):
+        name = (
+            f"Step {inputs['step']}: "
+            f"{_safe_text(inputs.get('name'), limit=80) or 'Refinement'}"
+        )
+    else:
+        name = _public_name(
+            _value(stage, "name", _value(stage, "stage_name", "Stage"))
+        )
     layer_index = _layer_index(stage, inputs)
     step_index = _step_index(stage, inputs)
     error_code = _safe_text(_value(stage, "error_code"), limit=80) or None
     refinement = _safe_refinement_receipt(outputs)
+    refinement_step = _safe_refinement_step(outputs)
     start_time = _iso(_value(stage, "started_at", _value(stage, "start_time")))
     end_time = _iso(_value(stage, "completed_at", _value(stage, "end_time")))
     duration = _value(stage, "duration_ms")
@@ -193,7 +225,7 @@ def present_stage_event(run_id: str, stage: Any, *, sequence: int) -> dict[str, 
         "run_id": str(run_id),
         "stage_id": stage_id,
         "name": name,
-        "stage_type": _safe_text(_value(stage, "stage_type", "stage"), limit=40),
+        "stage_type": stage_type,
         "layer_index": layer_index,
         "step_index": step_index,
         "status": status,
@@ -204,6 +236,7 @@ def present_stage_event(run_id: str, stage: Any, *, sequence: int) -> dict[str, 
             outputs=outputs,
             error_code=error_code,
             refinement=refinement,
+            refinement_step=refinement_step,
         ),
         "occurred_at": end_time or start_time,
         "start_time": start_time,
@@ -219,6 +252,8 @@ def present_stage_event(run_id: str, stage: Any, *, sequence: int) -> dict[str, 
     if refinement:
         event["refinement"] = refinement
         event["outputs"] = {"refinement": refinement}
+    if refinement_step:
+        event["refinement_step"] = refinement_step
     if isinstance(metrics.get("trace_sequence"), int):
         event["sequence"] = max(1, int(metrics["trace_sequence"]))
     return event

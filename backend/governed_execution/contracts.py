@@ -408,6 +408,49 @@ class ConvergenceDecision:
         return asdict(self)
 
 
+class RefinementDispositionStatus(StrEnum):
+    NOT_ENABLED = "not_enabled"
+    NOT_NEEDED = "not_needed"
+    NOT_MEASURED = "not_measured"
+    EXECUTED = "executed"
+    BLOCKED = "blocked"
+    FAILED = "failed"
+
+
+@dataclass(slots=True)
+class RefinementDisposition:
+    """One explicit explanation of whether post-candidate refinement ran."""
+
+    status: RefinementDispositionStatus
+    reason: str
+    enabled: bool
+    measurement_status: str = "not_measured"
+    convergence_action: str | None = None
+    workflow_status: str | None = None
+    step_count: int = 0
+    rewrite_performed: bool = False
+    schema_version: str = "dle.refinement-disposition.v1"
+
+    @classmethod
+    def for_mode(cls, mode: GovernedMode) -> RefinementDisposition:
+        if mode is GovernedMode.STANDARD:
+            return cls(
+                status=RefinementDispositionStatus.NOT_ENABLED,
+                reason="standard_mode_provider_budget",
+                enabled=False,
+            )
+        return cls(
+            status=RefinementDispositionStatus.NOT_MEASURED,
+            reason="candidate_measurement_unavailable",
+            enabled=True,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["status"] = self.status.value
+        return payload
+
+
 @dataclass(slots=True)
 class GovernedStage:
     name: str
@@ -607,6 +650,7 @@ class GovernedContext:
     trace_event_sequence: int = 0
     memory_proposal: Any = None
     reasoning: GovernedReasoningState = field(init=False)
+    refinement_disposition: RefinementDisposition = field(init=False)
 
     def __post_init__(self) -> None:
         # The caller knows request_id before execution begins. Reusing it as the
@@ -621,6 +665,9 @@ class GovernedContext:
         self.reasoning = GovernedReasoningState(
             request_id=self.request.request_id,
             trace_id=self.trace_id,
+        )
+        self.refinement_disposition = RefinementDisposition.for_mode(
+            self.request.mode
         )
 
     def add_stage(

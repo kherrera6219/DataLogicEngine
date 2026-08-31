@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { request } from '@/lib/api';
-import type { ConfidenceDisplay, KAExecutionFeed, KAExecutionFeedItem } from '@/lib/api/types';
+import type {
+  ConfidenceDisplay,
+  KAExecutionFeed,
+  KAExecutionFeedItem,
+  TraceRefinementDisposition,
+} from '@/lib/api/types';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +21,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
 import { useTraceStream } from '@/hooks/useTraceStream';
+import { RefinementDispositionCard } from './RefinementDispositionCard';
 
 interface TraceRunRecord {
   run_id: string;
@@ -29,6 +35,7 @@ interface TraceRunRecord {
   };
   data_snapshot?: {
     confidence_display?: ConfidenceDisplay | null;
+    refinement_disposition?: TraceRefinementDisposition | null;
   } | null;
 }
 
@@ -442,6 +449,10 @@ export function LiveTracePanel({ activeRunId = null }: LiveTracePanelProps) {
                 </div>
               </div>
             </div>
+            <RefinementDispositionCard
+              disposition={currentRun.data_snapshot?.refinement_disposition}
+              compact
+            />
           </>
         )}
 

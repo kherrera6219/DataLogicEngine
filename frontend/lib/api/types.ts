@@ -119,6 +119,7 @@ export interface TraceRun {
     confidence_display?: ConfidenceDisplay | null;
     governed_mode?: GovernedMode | null;
     provider_call_budget?: ProviderCallBudget | null;
+    refinement_disposition?: TraceRefinementDisposition | null;
     convergence?: Record<string, unknown> | null;
     [key: string]: unknown;
   } | null;
@@ -503,6 +504,26 @@ export interface TraceRefinementReceipt {
   provider_subcalls_used?: number;
   max_provider_rewrites?: number;
   blocked_by_step?: string | null;
+}
+
+export type TraceRefinementDispositionStatus =
+  | 'not_enabled'
+  | 'not_needed'
+  | 'not_measured'
+  | 'executed'
+  | 'blocked'
+  | 'failed';
+
+export interface TraceRefinementDisposition {
+  schema_version: 'dle.refinement-disposition.v1';
+  status: TraceRefinementDispositionStatus;
+  reason: string;
+  enabled: boolean;
+  measurement_status: string;
+  convergence_action: string | null;
+  workflow_status: string | null;
+  step_count: number;
+  rewrite_performed: boolean;
 }
 
 export interface IngestionRejectedFile {

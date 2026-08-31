@@ -26,6 +26,8 @@ from backend.governed_execution.contracts import (
     GovernedResult,
     GovernedStage,
     GovernedStageStatus,
+    RefinementDisposition,
+    RefinementDispositionStatus,
 )
 from backend.governed_execution.extended_subsystems import (
     ExtendedSubsystemCoordinator,
@@ -710,6 +712,7 @@ class GovernedExecutionOrchestrator:
             )
         validation = evaluation["validation"]
         convergence = evaluation["convergence"]
+        self._record_refinement_decision(context, convergence)
 
         if convergence.action == "refine":
             refinement_stage = self._begin(
@@ -719,13 +722,72 @@ class GovernedExecutionOrchestrator:
                 convergence.to_dict(),
             )
             context.refinement_cycles = 1
+            refinement_step_stages: dict[int, GovernedStage] = {}
+
+            def record_refinement_progress(event: dict[str, Any]) -> None:
+                step = int(event["step"])
+                if event["phase"] == "started":
+                    refinement_step_stages[step] = self._begin(
+                        context,
+                        f"refinement_step_{step}_{event['step_id']}",
+                        "refinement_step",
+                        {
+                            "step": step,
+                            "step_id": event["step_id"],
+                            "name": event["name"],
+                        },
+                    )
+                    return
+                record = dict(event.get("record") or {})
+                status = str(record.get("status") or "failed")
+                terminal_status = {
+                    "executed": GovernedStageStatus.COMPLETED,
+                    "skipped": GovernedStageStatus.SKIPPED,
+                    "blocked": GovernedStageStatus.BLOCKED,
+                    "failed": GovernedStageStatus.FAILED,
+                }.get(status, GovernedStageStatus.FAILED)
+                self._finish(
+                    context,
+                    refinement_step_stages[step],
+                    terminal_status,
+                    outputs={"refinement_step": record},
+                    error_code=(
+                        "REFINEMENT_STEP_BLOCKED"
+                        if status == "blocked"
+                        else "REFINEMENT_STEP_FAILED"
+                        if status == "failed"
+                        else None
+                    ),
+                )
+
             refinement = await self.refinement_workflow.execute(
                 context,
                 prior_answer=validation["answer"],
                 decision=convergence,
+                progress_callback=record_refinement_progress,
             )
             refinement_payload = refinement.to_dict()
             if not refinement.ok or not refinement.rewrite_authorized:
+                failed_step = any(
+                    step.status.value == "failed" for step in refinement.steps
+                )
+                context.refinement_disposition = RefinementDisposition(
+                    status=(
+                        RefinementDispositionStatus.FAILED
+                        if failed_step
+                        else RefinementDispositionStatus.BLOCKED
+                    ),
+                    reason=(
+                        "refinement_step_failed"
+                        if failed_step
+                        else "refinement_step_blocked"
+                    ),
+                    enabled=True,
+                    measurement_status=self._measurement_status(context),
+                    convergence_action=convergence.action,
+                    workflow_status=refinement.status,
+                    step_count=len(refinement.steps),
+                )
                 self._finish(
                     context,
                     refinement_stage,
@@ -758,6 +820,15 @@ class GovernedExecutionOrchestrator:
                 context, save_user_message=False
             )
             if not refined_result.get("ok"):
+                context.refinement_disposition = RefinementDisposition(
+                    status=RefinementDispositionStatus.FAILED,
+                    reason="provider_rewrite_failed",
+                    enabled=True,
+                    measurement_status=self._measurement_status(context),
+                    convergence_action=convergence.action,
+                    workflow_status=refinement.status,
+                    step_count=len(refinement.steps),
+                )
                 self._finish(
                     context,
                     refinement_stage,
@@ -810,6 +881,16 @@ class GovernedExecutionOrchestrator:
                 requires_evidence=requires_evidence,
             )
             if refined_evaluation["failure"]:
+                context.refinement_disposition = RefinementDisposition(
+                    status=RefinementDispositionStatus.FAILED,
+                    reason="post_rewrite_validation_failed",
+                    enabled=True,
+                    measurement_status=self._measurement_status(context),
+                    convergence_action=convergence.action,
+                    workflow_status=refinement.status,
+                    step_count=len(refinement.steps),
+                    rewrite_performed=True,
+                )
                 failure = refined_evaluation["failure"]
                 return await self._failure(
                     context,
@@ -825,6 +906,16 @@ class GovernedExecutionOrchestrator:
             )
             validation = refined_evaluation["validation"]
             convergence = refined_evaluation["convergence"]
+            context.refinement_disposition = RefinementDisposition(
+                status=RefinementDispositionStatus.EXECUTED,
+                reason="canonical_workflow_and_rewrite_completed",
+                enabled=True,
+                measurement_status=self._measurement_status(context),
+                convergence_action="refine",
+                workflow_status=refinement.status,
+                step_count=len(refinement.steps),
+                rewrite_performed=True,
+            )
 
         result_status = (
             "completed"
@@ -2740,6 +2831,7 @@ class GovernedExecutionOrchestrator:
                 "calls_used": context.provider_call_count,
             },
             "refinement_cycles": context.refinement_cycles,
+            "refinement_disposition": context.refinement_disposition.to_dict(),
             "confidence_measurement": context.confidence_measurement.to_dict()
             if context.confidence_measurement
             else None,
@@ -2754,6 +2846,52 @@ class GovernedExecutionOrchestrator:
             "source_ids": [item.source_id for item in context.evidence],
             **extra,
         }
+
+    @staticmethod
+    def _measurement_status(context: GovernedContext) -> str:
+        return (
+            str(context.confidence_measurement.status)
+            if context.confidence_measurement is not None
+            else "not_measured"
+        )
+
+    @classmethod
+    def _record_refinement_decision(
+        cls,
+        context: GovernedContext,
+        convergence: Any,
+    ) -> None:
+        if context.request.mode is GovernedMode.STANDARD:
+            context.refinement_disposition.convergence_action = convergence.action
+            context.refinement_disposition.measurement_status = cls._measurement_status(
+                context
+            )
+            return
+        measurement_status = cls._measurement_status(context)
+        if measurement_status != "measured":
+            context.refinement_disposition = RefinementDisposition(
+                status=RefinementDispositionStatus.NOT_MEASURED,
+                reason="candidate_measurement_unavailable",
+                enabled=True,
+                measurement_status=measurement_status,
+                convergence_action=convergence.action,
+            )
+            return
+        if convergence.action != "refine":
+            context.refinement_disposition = RefinementDisposition(
+                status=RefinementDispositionStatus.NOT_NEEDED,
+                reason=(
+                    "measured_candidate_met_release_gate"
+                    if convergence.action == "finalize"
+                    else "convergence_did_not_request_refinement"
+                ),
+                enabled=True,
+                measurement_status=measurement_status,
+                convergence_action=convergence.action,
+            )
+            return
+        context.refinement_disposition.measurement_status = measurement_status
+        context.refinement_disposition.convergence_action = convergence.action
 
     @staticmethod
     def _cancel_requested(request: GovernedRequest) -> bool:
