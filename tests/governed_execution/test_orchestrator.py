@@ -370,6 +370,22 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
     assert "source_id=source-alpha" in system
     assert "knowledge contribution" in system
     assert '"ka_id": "KA-001"' in system
+    contributions = result.metadata["dsqp"]["persona_contributions"]
+    assert [item["persona_type"] for item in contributions] == [
+        "knowledge",
+        "sector",
+        "regulatory",
+        "compliance",
+    ]
+    assert len({item["finding"] for item in contributions}) == 4
+    assert all(item["evidence_ids"] == [result.evidence[0].evidence_id] for item in contributions)
+    assert all(item["provider_generated"] is False for item in contributions)
+    assert all(item["measurement_status"] == "not_measured" for item in contributions)
+    assert all(
+        item["synthesis_influence"]["disposition"] == "included_as_prompt_constraint"
+        for item in contributions
+    )
+    assert all(item["synthesis_influence"]["authority_weight"] > 0 for item in contributions)
     assert [stage.name for stage in result.stages] == [
         "admission",
         "dmrf_routing",

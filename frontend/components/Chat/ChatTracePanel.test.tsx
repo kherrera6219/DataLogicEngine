@@ -54,7 +54,25 @@ const mockTraceBundle: TraceBundle = {
   evidence: [],
   claims: [],
   persona_positions: [],
-  personas: [],
+  personas: [
+    {
+      persona_id: 'knowledge-1',
+      run_id: 'test-run-123',
+      persona_type: 'knowledge',
+      persona_name: 'Knowledge Analyst',
+      status: 'completed',
+      finding: 'Check the historical claim against the recorded evidence.',
+      measurement_status: 'not_measured',
+      profile_coverage: 0.9,
+      provider_generated: false,
+      evidence_ids: ['evidence-1'],
+      synthesis_influence: {
+        disposition: 'included_as_prompt_constraint',
+        authority_weight: 0.4,
+        reason: 'deterministic_review_lens_included',
+      },
+    } as any,
+  ],
   ka_invocations: [],
   kas: [],
   coordinate: null,
@@ -97,6 +115,10 @@ describe('ChatTracePanel', () => {
     expect(screen.getByText('Refinement decision')).toBeInTheDocument();
     expect(screen.getByText('Not enabled')).toBeInTheDocument();
     expect(screen.getByText(/Standard mode permits one provider attempt/)).toBeInTheDocument();
+    expect(screen.getByText('Analyst contributions')).toBeInTheDocument();
+    expect(screen.getByText('Check the historical claim against the recorded evidence.')).toBeInTheDocument();
+    expect(screen.getByText(/Included in synthesis/)).toBeInTheDocument();
+    expect(screen.getByText(/Deterministic review finding; not a separate provider answer/)).toBeInTheDocument();
   });
 
   it('should handle error loading bundle', async () => {
