@@ -9,6 +9,7 @@ orchestrator-owned provider rewrite.
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from enum import StrEnum
 from hashlib import sha256
@@ -134,6 +135,7 @@ class CanonicalRefinementWorkflow:
         *,
         prior_answer: str,
         decision: ConvergenceDecision,
+        progress_callback: Callable[[dict[str, Any]], None] | None = None,
     ) -> CanonicalRefinementResult:
         """Collect all step findings before authorizing one provider rewrite."""
 
@@ -143,6 +145,15 @@ class CanonicalRefinementWorkflow:
         blocked_by: str | None = None
 
         for spec in self.steps:
+            if progress_callback is not None:
+                progress_callback(
+                    {
+                        "phase": "started",
+                        "step": int(spec["step"]),
+                        "step_id": str(spec["step_id"]),
+                        "name": str(spec["name"]),
+                    }
+                )
             if blocked_by is not None:
                 record = self._record(
                     spec,
@@ -165,6 +176,16 @@ class CanonicalRefinementWorkflow:
                         f"step_execution_error:{type(exc).__name__}",
                     )
             records.append(record)
+            if progress_callback is not None:
+                progress_callback(
+                    {
+                        "phase": "finished",
+                        "step": record.step,
+                        "step_id": record.step_id,
+                        "name": record.name,
+                        "record": record.to_dict(),
+                    }
+                )
             constraints.extend(record.constraints)
             effects.extend(record.effects)
             if record.status in {

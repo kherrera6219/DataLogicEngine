@@ -15,8 +15,12 @@ def app():
         return wrapper
 
     # Force fresh imports so decorators are applied with patched no-op wrappers.
-    sys.modules.pop('backend.ukg_api', None)
-    sys.modules.pop('backend.tracing.api', None)
+    original_ukg_api = sys.modules.pop('backend.ukg_api', None)
+    original_trace_api = sys.modules.pop('backend.tracing.api', None)
+    backend_package = sys.modules.get('backend')
+    tracing_package = sys.modules.get('backend.tracing')
+    original_ukg_package_attr = getattr(backend_package, 'ukg_api', None)
+    original_trace_package_attr = getattr(tracing_package, 'api', None)
 
     with patch('backend.auth.api_decorators.api_login_required', dummy_decorator), \
          patch('backend.auth.api_decorators.api_session_login_required', dummy_decorator), \
@@ -34,7 +38,20 @@ def app():
         app.register_blueprint(ukg_api, url_prefix='/api/ukg')
         app.register_blueprint(trace_bp, url_prefix='/api/tracing')
         
-        return app
+        yield app
+
+    if original_ukg_api is not None:
+        sys.modules['backend.ukg_api'] = original_ukg_api
+    else:
+        sys.modules.pop('backend.ukg_api', None)
+    if original_trace_api is not None:
+        sys.modules['backend.tracing.api'] = original_trace_api
+    else:
+        sys.modules.pop('backend.tracing.api', None)
+    if backend_package is not None and original_ukg_package_attr is not None:
+        setattr(backend_package, 'ukg_api', original_ukg_package_attr)
+    if tracing_package is not None and original_trace_package_attr is not None:
+        setattr(tracing_package, 'api', original_trace_package_attr)
 
 @pytest.fixture
 def client(app):
@@ -106,17 +123,17 @@ class TestTracingApi:
             mock_run_model.query.filter_by.return_value.first_or_404.side_effect = NotFound()
             response = client.get('/api/tracing/runs/00000000-0000-0000-0000-000000000001/bundle')
 
-        assert response.status_code == 200
+        assert response.status_code == 404
         payload = response.get_json()
         assert payload['status'] == 'unavailable'
-        assert payload['degraded'] is True
-        assert payload['stages'] == []
+        assert payload['schema_version'] == 'dle.trace-unavailable.v1'
+        assert payload['error']['code'] == 'TRACE_BUNDLE_NOT_FOUND'
 
     def test_live_progress_degrades_on_trace_storage_error(self, client):
         with patch('backend.tracing.api._latest_accessible_run', side_effect=RuntimeError('schema mismatch')):
             response = client.get('/api/tracing/live-progress')
 
-        assert response.status_code == 200
+        assert response.status_code == 503
         payload = response.get_json()
-        assert payload['status'] == 'idle'
-        assert payload['degraded'] is True
+        assert payload['status'] == 'unavailable'
+        assert payload['error']['code'] == 'TRACE_PROGRESS_UNAVAILABLE'

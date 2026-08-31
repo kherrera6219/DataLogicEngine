@@ -15,6 +15,8 @@ from enum import StrEnum
 from hashlib import sha256
 from typing import Any
 
+from backend.llm_gateway.completion import ProviderCompletion
+
 GOVERNED_CONTRACT_VERSION = "governed.v1"
 
 
@@ -406,6 +408,49 @@ class ConvergenceDecision:
         return asdict(self)
 
 
+class RefinementDispositionStatus(StrEnum):
+    NOT_ENABLED = "not_enabled"
+    NOT_NEEDED = "not_needed"
+    NOT_MEASURED = "not_measured"
+    EXECUTED = "executed"
+    BLOCKED = "blocked"
+    FAILED = "failed"
+
+
+@dataclass(slots=True)
+class RefinementDisposition:
+    """One explicit explanation of whether post-candidate refinement ran."""
+
+    status: RefinementDispositionStatus
+    reason: str
+    enabled: bool
+    measurement_status: str = "not_measured"
+    convergence_action: str | None = None
+    workflow_status: str | None = None
+    step_count: int = 0
+    rewrite_performed: bool = False
+    schema_version: str = "dle.refinement-disposition.v1"
+
+    @classmethod
+    def for_mode(cls, mode: GovernedMode) -> RefinementDisposition:
+        if mode is GovernedMode.STANDARD:
+            return cls(
+                status=RefinementDispositionStatus.NOT_ENABLED,
+                reason="standard_mode_provider_budget",
+                enabled=False,
+            )
+        return cls(
+            status=RefinementDispositionStatus.NOT_MEASURED,
+            reason="candidate_measurement_unavailable",
+            enabled=True,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = asdict(self)
+        payload["status"] = self.status.value
+        return payload
+
+
 @dataclass(slots=True)
 class GovernedStage:
     name: str
@@ -602,13 +647,27 @@ class GovernedContext:
     warnings: list[str] = field(default_factory=list)
     lifecycle_transitions: list[dict[str, Any]] = field(default_factory=list)
     lifecycle_failures: list[dict[str, Any]] = field(default_factory=list)
+    trace_event_sequence: int = 0
     memory_proposal: Any = None
     reasoning: GovernedReasoningState = field(init=False)
+    refinement_disposition: RefinementDisposition = field(init=False)
 
     def __post_init__(self) -> None:
+        # The caller knows request_id before execution begins. Reusing it as the
+        # run correlation ID lets the desktop subscribe before the first stage
+        # without creating a second ID authority.
+        try:
+            self.trace_id = str(uuid.UUID(self.request.request_id))
+        except (TypeError, ValueError, AttributeError):
+            self.trace_id = str(
+                uuid.uuid5(uuid.NAMESPACE_URL, f"dle-request:{self.request.request_id}")
+            )
         self.reasoning = GovernedReasoningState(
             request_id=self.request.request_id,
             trace_id=self.trace_id,
+        )
+        self.refinement_disposition = RefinementDisposition.for_mode(
+            self.request.mode
         )
 
     def add_stage(
@@ -630,6 +689,7 @@ class GovernedResult:
     provider_used: str | None = None
     model_used: str | None = None
     usage: dict[str, Any] = field(default_factory=dict)
+    completion: ProviderCompletion | None = None
     confidence: float | None = None
     coordinate: dict[str, Any] | None = None
     tier: str | None = None
@@ -655,6 +715,7 @@ class GovernedResult:
             "provider_used": self.provider_used,
             "model_used": self.model_used,
             "usage": self.usage,
+            "completion": self.completion.to_dict() if self.completion else None,
             "confidence": self.confidence,
             "coordinate": self.coordinate,
             "tier": self.tier,

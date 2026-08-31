@@ -69,7 +69,14 @@ from backend.llm_gateway.schemas import (
     APIKeyRotate,
     GatewayAsyncRunCreate,
     GatewayChatRequest,
+    GatewaySessionCreateRequest,
     OpenAIChatCompletionRequest,
+)
+from backend.llm_gateway.chat_sessions import (
+    ChatSessionInvalid,
+    ChatSessionNotFound,
+    ChatSessionPersistenceError,
+    ensure_chat_session,
 )
 from backend.auth.api_decorators import (
     api_session_login_required,
@@ -255,6 +262,22 @@ def _gateway_request_size_error():
             'max_request_bytes': maximum,
         }), 413
     return None
+
+
+def _openai_finish_reason(completion) -> Optional[str]:
+    """Map governed completion truth to the existing compatibility field."""
+
+    if isinstance(completion, dict):
+        payload = completion
+    else:
+        serialize = getattr(completion, 'to_dict', None)
+        payload = serialize() if callable(serialize) else {}
+    disposition = str(payload.get('disposition') or 'provider_incomplete')
+    return {
+        'complete': 'stop',
+        'length_limited': 'length',
+        'safety_blocked': 'content_filter',
+    }.get(disposition)
 
 
 def _begin_gateway_idempotency(data: dict):
@@ -1038,7 +1061,13 @@ async def openai_compatible_chat_completions():
                             'object': 'chat.completion.chunk',
                             'created': int(datetime.now(UTC).timestamp()),
                             'model': compatibility['model'],
-                            'choices': [{'index': 0, 'delta': {}, 'finish_reason': 'stop'}],
+                            'choices': [{
+                                'index': 0,
+                                'delta': {},
+                                'finish_reason': _openai_finish_reason(
+                                    item.get('completion')
+                                ),
+                            }],
                             'dle': {'run_id': item.get('run_id'), 'usage': item.get('usage') or {}},
                         }
                     elif item_type == 'error':
@@ -1109,7 +1138,9 @@ async def openai_compatible_chat_completions():
         'choices': [{
             'index': 0,
             'message': {'role': 'assistant', 'content': native_payload.get('response') or ''},
-            'finish_reason': 'stop',
+            'finish_reason': _openai_finish_reason(
+                getattr(governed_response, 'completion', None)
+            ),
         }],
         'usage': {
             'prompt_tokens': prompt_tokens,
@@ -1310,7 +1341,7 @@ async def gateway_chat():
     if not isinstance(validators, list):
         validators = []
 
-    result = api_response({
+    response_payload = {
         'response': response.content,
         'request_id': data['request_id'],
         'run_id': response.run_id,
@@ -1335,7 +1366,13 @@ async def gateway_chat():
         'status': response.status,
         'failure': response.failure,
         'source_ids': response.meta.get('source_ids', []),
-    })
+    }
+    if not getattr(g, 'api_key', None):
+        response_payload['completion'] = response.completion
+        response_payload['mode'] = response.mode
+        response_payload['confidence_display'] = response.confidence_display
+        response_payload['provider_call_budget'] = response.provider_call_budget
+    result = api_response(response_payload)
     return _complete_gateway_idempotency(
         idempotency_record,
         result,
@@ -2111,6 +2148,15 @@ def get_session_messages(session_id):
 
     messages = ChatMessage.query.filter_by(session_id=session.id)\
         .order_by(ChatMessage.created_at.asc()).all()
+    run_ids = {message.run_id for message in messages if message.run_id is not None}
+    trace_metadata_by_run = {}
+    if run_ids:
+        trace_runs = TraceRun.query.filter(TraceRun.run_id.in_(run_ids)).all()
+        trace_metadata_by_run = {
+            trace_run.run_id: trace_run.data_snapshot
+            for trace_run in trace_runs
+            if isinstance(trace_run.data_snapshot, dict)
+        }
     
     return jsonify({
         'messages': [
@@ -2120,11 +2166,80 @@ def get_session_messages(session_id):
                 'content': m.content,
                 'timestamp': m.created_at.strftime('%H:%M') if m.created_at else '',
                 'is_enhanced': m.is_enhanced,
-                'run_id': str(m.run_id) if m.run_id else None
+                'run_id': str(m.run_id) if m.run_id else None,
+                'completion': (
+                    (trace_metadata_by_run.get(m.run_id) or {}).get('completion')
+                    if m.role == 'assistant' and m.run_id
+                    else None
+                ),
+                'mode': (
+                    (trace_metadata_by_run.get(m.run_id) or {}).get('governed_mode')
+                    if m.role == 'assistant' and m.run_id
+                    else None
+                ) or ('enhanced' if m.is_enhanced else 'standard'),
+                'confidence_display': (
+                    (trace_metadata_by_run.get(m.run_id) or {}).get(
+                        'confidence_display'
+                    )
+                    if m.role == 'assistant' and m.run_id
+                    else None
+                ),
+                'provider_call_budget': (
+                    (trace_metadata_by_run.get(m.run_id) or {}).get(
+                        'provider_call_budget'
+                    )
+                    if m.role == 'assistant' and m.run_id
+                    else None
+                ),
             } 
             for m in messages
         ]
     })
+
+
+@gateway_bp.route('/sessions', methods=['POST'])
+@api_key_required
+def create_user_session():
+    """Create or idempotently resolve a principal-owned desktop chat session."""
+    if getattr(g, 'api_key', None):
+        return _external_control_plane_error()
+
+    validated, validation_error = validate_pydantic_payload(
+        GatewaySessionCreateRequest,
+        request.get_json(silent=True) or {},
+    )
+    if validation_error:
+        return validation_error
+    payload = validated.model_dump() if validated else {}
+
+    try:
+        ensured = ensure_chat_session(
+            db.session,
+            session_id=payload.get('session_id'),
+            user_id=g.user_id,
+            mode=payload.get('mode') or 'chat',
+        )
+    except ChatSessionInvalid:
+        return jsonify({
+            'error': 'Invalid chat session request',
+            'code': 'INVALID_CHAT_SESSION',
+        }), 422
+    except ChatSessionNotFound:
+        return jsonify({
+            'error': 'Chat session not found',
+            'code': 'CHAT_SESSION_NOT_FOUND',
+        }), 404
+    except ChatSessionPersistenceError:
+        logger.exception('Desktop chat-session persistence failed')
+        return jsonify({
+            'error': 'Chat session could not be persisted',
+            'code': 'CHAT_SESSION_PERSISTENCE_FAILED',
+        }), 500
+
+    return jsonify({
+        'session': ensured.session.to_dict(),
+        'created': ensured.created,
+    }), 201 if ensured.created else 200
 
 
 @gateway_bp.route('/sessions', methods=['GET'])

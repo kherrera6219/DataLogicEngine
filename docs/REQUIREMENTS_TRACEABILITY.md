@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-001 |
 | Title | Requirements traceability matrix |
 | Document version | v1.4.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, quality, assurance, release authority, and professional reviewers |
 | Owner | Quality Engineering |

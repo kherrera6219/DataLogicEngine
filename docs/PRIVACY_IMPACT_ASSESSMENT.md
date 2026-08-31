@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-005 |
 | Title | Privacy impact assessment and data inventory |
 | Document version | v1.2.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | not_evaluated |
 | Audience | Product owner, privacy/security, data engineering, operations, legal reviewers, and release authority |
 | Owner | Privacy Engineering |

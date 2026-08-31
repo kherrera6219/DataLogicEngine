@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
 | Document version | v1.5.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
 | Owner | Security Engineering |
@@ -167,7 +167,7 @@ disabled. A DSN or other setting cannot authorize egress.
 
 ## Release and update trust
 
-Product 4.4.3, Windows 4.4.3.0, exact Python/Node/Electron locks, immutable
+Product 4.4.4, Windows 4.4.4.0, exact Python/Node/Electron locks, immutable
 workflow actions, SBOMs, manifests, content inventories, attestations, publisher
 identity, signature/timestamp, malware/license review, and release authority form
 one promotion boundary. Candidate mode cannot authorize production.

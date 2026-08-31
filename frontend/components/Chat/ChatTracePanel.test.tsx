@@ -29,6 +29,17 @@ const mockTraceBundle: TraceBundle = {
     status: 'completed',
     created_at: null,
     data_snapshot: {
+      refinement_disposition: {
+        schema_version: 'dle.refinement-disposition.v1',
+        status: 'not_enabled',
+        reason: 'standard_mode_provider_budget',
+        enabled: false,
+        measurement_status: 'not_measured',
+        convergence_action: null,
+        workflow_status: null,
+        step_count: 0,
+        rewrite_performed: false,
+      },
       confidence_measurement: {
         formula_version: 'dle-confidence.v1',
         value: null,
@@ -43,7 +54,25 @@ const mockTraceBundle: TraceBundle = {
   evidence: [],
   claims: [],
   persona_positions: [],
-  personas: [],
+  personas: [
+    {
+      persona_id: 'knowledge-1',
+      run_id: 'test-run-123',
+      persona_type: 'knowledge',
+      persona_name: 'Knowledge Analyst',
+      status: 'completed',
+      finding: 'Check the historical claim against the recorded evidence.',
+      measurement_status: 'not_measured',
+      profile_coverage: 0.9,
+      provider_generated: false,
+      evidence_ids: ['evidence-1'],
+      synthesis_influence: {
+        disposition: 'included_as_prompt_constraint',
+        authority_weight: 0.4,
+        reason: 'deterministic_review_lens_included',
+      },
+    } as any,
+  ],
   ka_invocations: [],
   kas: [],
   coordinate: null,
@@ -83,6 +112,13 @@ describe('ChatTracePanel', () => {
     });
     expect(screen.getByText('Not measured')).toBeInTheDocument();
     expect(screen.getByText(/Required provenance inputs were unavailable/)).toBeInTheDocument();
+    expect(screen.getByText('Refinement decision')).toBeInTheDocument();
+    expect(screen.getByText('Not enabled')).toBeInTheDocument();
+    expect(screen.getByText(/Standard mode permits one provider attempt/)).toBeInTheDocument();
+    expect(screen.getByText('Analyst contributions')).toBeInTheDocument();
+    expect(screen.getByText('Check the historical claim against the recorded evidence.')).toBeInTheDocument();
+    expect(screen.getByText(/Included in synthesis/)).toBeInTheDocument();
+    expect(screen.getByText(/Deterministic review finding; not a separate provider answer/)).toBeInTheDocument();
   });
 
   it('should handle error loading bundle', async () => {
@@ -174,8 +210,8 @@ describe('ChatTracePanel', () => {
     expect(screen.getByText('L7 Live analysis')).toBeInTheDocument();
     expect(screen.getByText('Trace update')).toBeInTheDocument();
     expect(screen.getByText('live')).toBeInTheDocument();
-    expect(screen.getByText(/Evidence-support coverage was not measured/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Open details' })).toHaveAttribute('href', '/runs/view?id=running-run');
+    expect(screen.getByText(/Versioned evidence-support measurement recorded/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open details' })).toHaveAttribute('href', '/runs/view?trace=running-run');
   });
 
   it('handles non-Error loads and object or empty exports', async () => {
@@ -196,7 +232,8 @@ describe('ChatTracePanel', () => {
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     render(<ChatTracePanel runId="object-run" />);
     fireEvent.click(screen.getByRole('button', { name: /Reasoning Trace/i }));
-    expect(await screen.findByText('82.0%')).toBeInTheDocument();
+    expect(await screen.findByText('Not measured')).toBeInTheDocument();
+    expect(screen.getByText('Required provenance inputs were unavailable.')).toBeInTheDocument();
     const exportButton = screen.getByRole('button', { name: /Export/i });
     fireEvent.click(exportButton);
     await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled());

@@ -4,7 +4,15 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, patch
 
+from backend.llm_gateway.api import _openai_finish_reason
 from backend.llm_gateway.gateway import GatewayResponse
+
+
+def test_openai_finish_reason_never_infers_stop_from_missing_metadata() -> None:
+    assert _openai_finish_reason(None) is None
+    assert _openai_finish_reason({'disposition': 'complete'}) == 'stop'
+    assert _openai_finish_reason({'disposition': 'length_limited'}) == 'length'
+    assert _openai_finish_reason({'disposition': 'safety_blocked'}) == 'content_filter'
 
 
 def _client_key(authenticated_client) -> str:
@@ -45,6 +53,7 @@ def test_openai_chat_adapts_to_the_governed_contract_and_is_idempotent(
         provider_used='openai',
         model_used='gpt-5.6-sol',
         usage={'prompt_tokens': 10, 'completion_tokens': 5},
+        completion={'disposition': 'complete', 'native_reason': 'stop'},
         confidence_measurement={'status': 'measured', 'value': 0.9},
     )
     headers = {
@@ -68,6 +77,7 @@ def test_openai_chat_adapts_to_the_governed_contract_and_is_idempotent(
     assert body['object'] == 'chat.completion'
     assert body['model'] == 'dle-standard'
     assert body['choices'][0]['message']['content'] == 'Governed compatibility answer'
+    assert body['choices'][0]['finish_reason'] == 'stop'
     assert body['dle']['run_id'] == governed.run_id
     assert body['dle']['provider_used'] == 'openai'
     assert replay.headers['Idempotent-Replay'] == 'true'

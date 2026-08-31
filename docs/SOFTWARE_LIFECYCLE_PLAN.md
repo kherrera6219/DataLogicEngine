@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-005 |
 | Title | Software lifecycle and configuration-management plan |
 | Document version | v1.4.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | active |
 | Audience | Product owner, engineering, quality, security, release, operations, and professional reviewers |
 | Owner | Release Engineering |
@@ -176,7 +176,7 @@ eligible for production support.
 
 ## Current status
 
-Product 4.4.3 inherits engineering checkpoints through Phase 15, completed CP16-F
+Product 4.4.4 inherits engineering checkpoints through Phase 15, completed CP16-F
 documentation replacement, and completed CP17-A through CP17-D consolidation.
 CP17-E remains an exact signed clean-installed walkthrough. The unsigned
 candidate, differing independent build hashes, installed/manual/independent

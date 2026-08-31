@@ -500,6 +500,74 @@ class GovernedTenLayerStages:
                 "conflict_resolution": conflict_resolution,
                 "consensus": consensus,
             }
+            finding_by_persona = {
+                str(item.get("persona_type")): item
+                for item in analysis.get("persona_findings") or []
+                if isinstance(item, dict) and item.get("persona_type")
+            }
+            weighted_by_persona = {
+                str(item.get("persona_type")): item
+                for item in weighting.get("weighted_results") or []
+                if isinstance(item, dict) and item.get("persona_type")
+            }
+            retained_by_persona: dict[str, list[dict[str, Any]]] = {}
+            for item in conflict_resolution.get("resolved_findings") or []:
+                if not isinstance(item, dict):
+                    continue
+                retained_by_persona.setdefault(
+                    str(item.get("persona") or "unknown"), []
+                ).append(item)
+            contributions: list[dict[str, Any]] = []
+            for persona_type in expected_personas:
+                finding = finding_by_persona.get(persona_type, {})
+                weighted = weighted_by_persona.get(persona_type, {})
+                constraints = [
+                    dict(item)
+                    for item in finding.get("constraints") or []
+                    if isinstance(item, dict)
+                ]
+                objections = [
+                    dict(item)
+                    for item in finding.get("objections") or []
+                    if isinstance(item, dict)
+                ]
+                contributions.append(
+                    {
+                        "persona_type": persona_type,
+                        "persona_name": str(
+                            finding.get("name") or persona_type.title() + " Analyst"
+                        ),
+                        "finding": str(finding.get("response") or ""),
+                        "focus": str(finding.get("focus") or ""),
+                        "topic_terms": list(finding.get("topic_terms") or []),
+                        "constraints": constraints,
+                        "objections": objections,
+                        "evidence_ids": list(context.reasoning.evidence_ids),
+                        "measurement_status": str(
+                            finding.get("measurement_status") or "not_measured"
+                        ),
+                        "profile_coverage": finding.get("profile_coverage"),
+                        "provider_generated": False,
+                        "synthesis_influence": {
+                            "disposition": "included_as_prompt_constraint",
+                            "authority_weight": float(
+                                weighted.get("authority_weight") or 0.0
+                            ),
+                            "constraint_ids": [
+                                str(item.get("id"))
+                                for item in constraints
+                                if item.get("id")
+                            ],
+                            "retained_objection_ids": [
+                                str(item.get("conflict_id"))
+                                for item in retained_by_persona.get(persona_type, [])
+                                if item.get("conflict_id")
+                            ],
+                            "reason": "deterministic_review_lens_included",
+                        },
+                    }
+                )
+            context.dsqp["persona_contributions"] = contributions
             context.dsqp["persona_context_receipt"] = receipt
         context.provider_messages = build_provider_messages(context)
         system_text = str(context.provider_messages[0].get("content") or "")

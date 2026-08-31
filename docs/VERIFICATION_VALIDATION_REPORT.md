@@ -7,22 +7,23 @@
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
 | Document version | v1.8.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
 | Owner | Quality Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-08-31 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
 ## Purpose
 
 CP19-K is complete at 213/213 individually qualified KAs and CP19-L passed. The
-current 4.4.3 qualification records 3,317 Python tests passed with 19 skipped
-and 484 frontend tests passed. Independent Python coverage passes at 80.29%
+current 4.4.4 installed-chat repair source gate records 3,353 Python tests
+passed with 18 skipped and 504 frontend tests passed. Independent Python
+coverage remains recorded at 80.29%
 `backend/`, 80.67% `backend/security/`, and 81.07% `core/`; frontend coverage,
 lint, typecheck, build, packaging, governance, deployment, and security gates
 pass. At commit `43fd86df...`, Deploy run `33039993475`, Security run
@@ -48,7 +49,7 @@ That narrow observation does not prove the install/upgrade/repair/uninstall
 actions, retained-data lifecycle, provider chat, or other installed acceptance.
 CP19-M remains partial and release-blocking.
 
-Define how DataLogicEngine 4.4.3 is verified against specifications and validated
+Define how DataLogicEngine 4.4.4 is verified against specifications and validated
 for intended Windows use, summarize current evidence, and keep engineering/source
 results distinct from signed installed, human, independent, and long-duration
 acceptance. This report is not a production approval.
@@ -99,8 +100,9 @@ acceptance. This report is not a production approval.
 ## Current candidate evidence
 
 This checkpoint retains the last completed installed qualification artifact as
-historical evidence and separately records the current 4.4.3 engineering build
-and narrow running-installed observation.
+historical evidence and separately records the superseded 4.4.3 engineering
+build and narrow running-installed observation. The 4.4.4 exact-source rebuild
+is pending at this source checkpoint.
 
 The last installed qualification artifact, built on 2026-08-10, is 283,890,413 bytes with SHA-256
 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.

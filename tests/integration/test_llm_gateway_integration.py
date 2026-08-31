@@ -429,7 +429,9 @@ async def test_create_trace_run_persists_dsqp_personas(app):
         assert run.latency_ms == 1234
         assert TraceStage.query.filter_by(run_id=run_id).count() == 1
         assert persona.persona_type == "knowledge"
-        assert persona.confidence == 1.0
+        assert persona.confidence is None
+        assert persona.to_dict()["measurement_status"] == "not_measured"
+        assert persona.to_dict()["profile_coverage"] == 1.0
 
 
 

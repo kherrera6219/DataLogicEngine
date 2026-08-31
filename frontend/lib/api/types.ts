@@ -21,6 +21,10 @@ export interface ChatRequest {
 export interface ChatResponse {
   contract_version?: 'governed.v1' | string;
   status?: string;
+  completion?: ProviderCompletion | null;
+  mode?: GovernedMode;
+  confidence_display?: ConfidenceDisplay | null;
+  provider_call_budget?: ProviderCallBudget | null;
   response?: string;
   history?: Message[];
   trace_id?: string;
@@ -56,6 +60,38 @@ export interface ChatResponse {
   } | null;
 }
 
+export type GovernedMode = 'standard' | 'enhanced' | 'local_review';
+
+export interface ProviderCallBudget {
+  max_calls: number;
+  calls_used: number;
+}
+
+export interface ConfidenceDisplay {
+  schema_version?: string;
+  status: 'measured' | 'not_measured' | 'validation_failed' | 'insufficient_evidence';
+  measurement_status?: string;
+  value: number | null;
+  formula_version?: string | null;
+  reason: string;
+  missing_components: string[];
+  failed_validator_ids?: string[];
+  explanation: string;
+}
+
+export type CompletionDisposition =
+  | 'complete'
+  | 'length_limited'
+  | 'safety_blocked'
+  | 'provider_incomplete'
+  | 'failed';
+
+export interface ProviderCompletion {
+  disposition: CompletionDisposition;
+  native_reason?: string | null;
+  response_id?: string | null;
+}
+
 export interface AuditTrail {
   decision_path: string;
   complete_trace_url: string;
@@ -80,9 +116,77 @@ export interface TraceRun {
   provider_used?: string | null;
   data_snapshot?: {
     confidence_measurement?: ConfidenceMeasurement | null;
+    confidence_display?: ConfidenceDisplay | null;
+    governed_mode?: GovernedMode | null;
+    provider_call_budget?: ProviderCallBudget | null;
+    refinement_disposition?: TraceRefinementDisposition | null;
     convergence?: Record<string, unknown> | null;
     [key: string]: unknown;
   } | null;
+}
+
+export interface TraceAnalyticsFilters {
+  days?: number;
+  limit?: number;
+  status?: string;
+  mode?: string;
+  provider?: string;
+  scope?: 'principal' | 'all';
+}
+
+export interface TraceAnalyticsMeasurement {
+  status: 'measured' | 'not_measured';
+  measured_runs: number;
+  average?: number | null;
+  total?: number | null;
+}
+
+export interface TraceAnalyticsRun {
+  run_id: string;
+  session_id?: string | null;
+  created_at: string | null;
+  completed_at?: string | null;
+  status: string;
+  mode?: string | null;
+  provider?: string | null;
+  model?: string | null;
+  confidence: number | null;
+  confidence_status: 'measured' | 'not_measured';
+  token_cost: number | null;
+  token_status: 'measured' | 'not_measured';
+  evidence_count: number;
+  refinement: {
+    status: string;
+    measurement_status: string;
+    reason?: string | null;
+  };
+  detail_url: string;
+}
+
+export interface TraceAnalytics {
+  scope: 'principal' | 'owner';
+  partial: boolean;
+  window?: { start: string; end: string };
+  filters: {
+    days: number;
+    limit: number;
+    status: string | null;
+    mode: string | null;
+    provider: string | null;
+  };
+  summary: {
+    run_count: number;
+    status_counts: Record<string, number>;
+    confidence: TraceAnalyticsMeasurement;
+    tokens: TraceAnalyticsMeasurement;
+    evidence: { total: number; status: 'measured' };
+    refinement: {
+      recorded_runs: number;
+      status_counts: Record<string, number>;
+      status: 'measured' | 'not_measured';
+    };
+  };
+  runs: TraceAnalyticsRun[];
 }
 
 export interface ConfidenceMeasurement {
@@ -395,6 +499,18 @@ export interface TracePersona {
     confidence?: number | null;
   };
   confidence?: number | null; // Top level confidence
+  finding?: string | null;
+  measurement_status?: string;
+  profile_coverage?: number | null;
+  provider_generated?: boolean;
+  evidence_ids?: string[];
+  synthesis_influence?: {
+    disposition?: string;
+    authority_weight?: number | null;
+    reason?: string | null;
+    constraint_ids?: string[];
+    retained_objection_ids?: string[];
+  };
   initial_position?: string | null;
   critique_of_others?: string | null;
   final_position?: string | null;
@@ -414,13 +530,19 @@ export interface TraceAxisVector {
 }
 
 export interface TraceStage {
+  schema_version?: 'dle.public-trace-event.v1';
+  event_id?: string;
+  sequence?: number;
   stage_id: string;
   run_id: string;
   name: string;
-  stage_type: 'layer' | 'step';
+  stage_type?: string;
   layer_index?: number | null;
   step_index?: number | null;
   status: string;
+  narrative?: string;
+  occurred_at?: string | null;
+  error_code?: string | null;
   start_time?: string | null;
   end_time?: string | null;
   duration_ms?: number | null;
@@ -460,6 +582,26 @@ export interface TraceRefinementReceipt {
   blocked_by_step?: string | null;
 }
 
+export type TraceRefinementDispositionStatus =
+  | 'not_enabled'
+  | 'not_needed'
+  | 'not_measured'
+  | 'executed'
+  | 'blocked'
+  | 'failed';
+
+export interface TraceRefinementDisposition {
+  schema_version: 'dle.refinement-disposition.v1';
+  status: TraceRefinementDispositionStatus;
+  reason: string;
+  enabled: boolean;
+  measurement_status: string;
+  convergence_action: string | null;
+  workflow_status: string | null;
+  step_count: number;
+  rewrite_performed: boolean;
+}
+
 export interface IngestionRejectedFile {
   path: string;
   reason: string;
@@ -489,6 +631,8 @@ export interface IngestionResult {
   manifest_path?: string | null;
   status?: string;
   checkpoint?: string;
+  created_at?: string | null;
+  completed_at?: string | null;
   materializations_pending?: number;
   files?: IngestionFileState[];
 }

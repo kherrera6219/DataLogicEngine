@@ -26,6 +26,8 @@ from backend.governed_execution.contracts import (
     GovernedResult,
     GovernedStage,
     GovernedStageStatus,
+    RefinementDisposition,
+    RefinementDispositionStatus,
 )
 from backend.governed_execution.extended_subsystems import (
     ExtendedSubsystemCoordinator,
@@ -36,7 +38,9 @@ from backend.governed_execution.knowledge_lifecycle import (
     LifecycleTransitionPublisher,
 )
 from backend.governed_execution.prompt import build_refinement_messages
+from backend.governed_execution.public_trace import present_stage_event
 from backend.governed_execution.quality import (
+    build_confidence_display,
     measure_evidence,
 )
 from backend.governed_execution.refinement import CanonicalRefinementWorkflow
@@ -45,6 +49,10 @@ from backend.governed_execution.ten_layers import (
     LAYER_NAMES,
     GovernedTenLayerStages,
     LayerExecution,
+)
+from backend.llm_gateway.completion import (
+    CompletionDisposition,
+    ProviderCompletion,
 )
 from backend.llm_gateway.latency_metrics import record_ai_request
 from backend.llm_gateway.provider_budget import ProviderBudgetPolicy
@@ -651,6 +659,7 @@ class GovernedExecutionOrchestrator:
                 "attempts": provider_result.get("attempts", []),
                 "ka_lifecycle": provider_result.get("ka_lifecycle", {}),
                 "effect_receipt": provider_result.get("effect_receipt"),
+                "completion": provider_result.get("completion"),
             },
             metrics={
                 "provider_call_count": context.provider_call_count,
@@ -669,6 +678,15 @@ class GovernedExecutionOrchestrator:
             0,
             1,
         )
+        provider_completion = ProviderCompletion.from_value(
+            provider_result.get("completion")
+        )
+        if (
+            provider_completion is not None
+            and provider_completion.disposition
+            is not CompletionDisposition.COMPLETE
+        ):
+            max_refinements = 0
         requires_evidence = bool(request.constraints.get("requires_evidence")) or (
             request.mode is GovernedMode.ENHANCED
             or str(dmrf_result.tier).lower()
@@ -694,6 +712,7 @@ class GovernedExecutionOrchestrator:
             )
         validation = evaluation["validation"]
         convergence = evaluation["convergence"]
+        self._record_refinement_decision(context, convergence)
 
         if convergence.action == "refine":
             refinement_stage = self._begin(
@@ -703,13 +722,72 @@ class GovernedExecutionOrchestrator:
                 convergence.to_dict(),
             )
             context.refinement_cycles = 1
+            refinement_step_stages: dict[int, GovernedStage] = {}
+
+            def record_refinement_progress(event: dict[str, Any]) -> None:
+                step = int(event["step"])
+                if event["phase"] == "started":
+                    refinement_step_stages[step] = self._begin(
+                        context,
+                        f"refinement_step_{step}_{event['step_id']}",
+                        "refinement_step",
+                        {
+                            "step": step,
+                            "step_id": event["step_id"],
+                            "name": event["name"],
+                        },
+                    )
+                    return
+                record = dict(event.get("record") or {})
+                status = str(record.get("status") or "failed")
+                terminal_status = {
+                    "executed": GovernedStageStatus.COMPLETED,
+                    "skipped": GovernedStageStatus.SKIPPED,
+                    "blocked": GovernedStageStatus.BLOCKED,
+                    "failed": GovernedStageStatus.FAILED,
+                }.get(status, GovernedStageStatus.FAILED)
+                self._finish(
+                    context,
+                    refinement_step_stages[step],
+                    terminal_status,
+                    outputs={"refinement_step": record},
+                    error_code=(
+                        "REFINEMENT_STEP_BLOCKED"
+                        if status == "blocked"
+                        else "REFINEMENT_STEP_FAILED"
+                        if status == "failed"
+                        else None
+                    ),
+                )
+
             refinement = await self.refinement_workflow.execute(
                 context,
                 prior_answer=validation["answer"],
                 decision=convergence,
+                progress_callback=record_refinement_progress,
             )
             refinement_payload = refinement.to_dict()
             if not refinement.ok or not refinement.rewrite_authorized:
+                failed_step = any(
+                    step.status.value == "failed" for step in refinement.steps
+                )
+                context.refinement_disposition = RefinementDisposition(
+                    status=(
+                        RefinementDispositionStatus.FAILED
+                        if failed_step
+                        else RefinementDispositionStatus.BLOCKED
+                    ),
+                    reason=(
+                        "refinement_step_failed"
+                        if failed_step
+                        else "refinement_step_blocked"
+                    ),
+                    enabled=True,
+                    measurement_status=self._measurement_status(context),
+                    convergence_action=convergence.action,
+                    workflow_status=refinement.status,
+                    step_count=len(refinement.steps),
+                )
                 self._finish(
                     context,
                     refinement_stage,
@@ -742,6 +820,15 @@ class GovernedExecutionOrchestrator:
                 context, save_user_message=False
             )
             if not refined_result.get("ok"):
+                context.refinement_disposition = RefinementDisposition(
+                    status=RefinementDispositionStatus.FAILED,
+                    reason="provider_rewrite_failed",
+                    enabled=True,
+                    measurement_status=self._measurement_status(context),
+                    convergence_action=convergence.action,
+                    workflow_status=refinement.status,
+                    step_count=len(refinement.steps),
+                )
                 self._finish(
                     context,
                     refinement_stage,
@@ -794,6 +881,16 @@ class GovernedExecutionOrchestrator:
                 requires_evidence=requires_evidence,
             )
             if refined_evaluation["failure"]:
+                context.refinement_disposition = RefinementDisposition(
+                    status=RefinementDispositionStatus.FAILED,
+                    reason="post_rewrite_validation_failed",
+                    enabled=True,
+                    measurement_status=self._measurement_status(context),
+                    convergence_action=convergence.action,
+                    workflow_status=refinement.status,
+                    step_count=len(refinement.steps),
+                    rewrite_performed=True,
+                )
                 failure = refined_evaluation["failure"]
                 return await self._failure(
                     context,
@@ -804,10 +901,30 @@ class GovernedExecutionOrchestrator:
                     details=failure["details"],
                 )
             provider_result = refined_result
+            provider_completion = ProviderCompletion.from_value(
+                provider_result.get("completion")
+            )
             validation = refined_evaluation["validation"]
             convergence = refined_evaluation["convergence"]
+            context.refinement_disposition = RefinementDisposition(
+                status=RefinementDispositionStatus.EXECUTED,
+                reason="canonical_workflow_and_rewrite_completed",
+                enabled=True,
+                measurement_status=self._measurement_status(context),
+                convergence_action="refine",
+                workflow_status=refinement.status,
+                step_count=len(refinement.steps),
+                rewrite_performed=True,
+            )
 
-        result_status = "completed"
+        result_status = (
+            "completed"
+            if provider_completion is not None
+            and provider_completion.disposition is CompletionDisposition.COMPLETE
+            else provider_completion.disposition.value
+            if provider_completion is not None
+            else CompletionDisposition.PROVIDER_INCOMPLETE.value
+        )
         result_answer = validation["answer"]
         if convergence.action == "abstain":
             result_status = "abstained"
@@ -873,6 +990,7 @@ class GovernedExecutionOrchestrator:
             provider_used=provider_result.get("provider_used"),
             model_used=provider_result.get("model_used"),
             usage=provider_result.get("usage", {}),
+            completion=provider_completion,
             confidence=context.confidence_measurement.value,
             coordinate=context.routing.get("axis_vector"),
             tier=context.routing.get("tier"),
@@ -891,14 +1009,32 @@ class GovernedExecutionOrchestrator:
         if not await self._persist(context, result):
             self.knowledge_lifecycle.rollback_validated_memory(context.memory_proposal)
             self._apply_persistence_failure(context, result)
-        if request.session_id and result.ok:
-            await self.gateway._save_chat_message(
+        if (
+            request.session_id
+            and result.ok
+            and request.metadata.get("_store_chat_history", True)
+        ):
+            persistence_result = await self.gateway._save_chat_message(
                 request.session_id,
                 request.user_id,
                 "assistant",
                 result.answer,
                 context.trace_id,
+                request.mode.value,
             )
+            if getattr(persistence_result, "ok", True) is False:
+                context.warnings.append("assistant_transcript_persistence_failed")
+                self._apply_chat_persistence_failure(
+                    context,
+                    result,
+                    code=str(
+                        getattr(
+                            persistence_result,
+                            "code",
+                            "CHAT_MESSAGE_PERSISTENCE_FAILED",
+                        )
+                    ),
+                )
         return result
 
     async def _evaluate_candidate(
@@ -1740,19 +1876,43 @@ class GovernedExecutionOrchestrator:
         if not providers:
             return {"ok": False, "error": "No active providers found", "attempts": []}
 
+        request.metadata["_store_chat_history"] = store_history
+
         if request.session_id and store_history and save_user_message:
-            await self.gateway._save_chat_message(
+            persistence_result = await self.gateway._save_chat_message(
                 request.session_id,
                 request.user_id,
                 "user",
                 context.query,
+                context.trace_id,
+                request.mode.value,
             )
+            if getattr(persistence_result, "ok", True) is False:
+                return {
+                    "ok": False,
+                    "error": "Chat transcript could not be persisted",
+                    "retryable": False,
+                    "attempts": [],
+                    "failure": {
+                        "class": ProviderFailureClass.PERSISTENCE.value,
+                        "code": str(
+                            getattr(
+                                persistence_result,
+                                "code",
+                                "CHAT_MESSAGE_PERSISTENCE_FAILED",
+                            )
+                        ),
+                        "replayable": False,
+                    },
+                }
 
         budget_policy = ProviderBudgetPolicy(getattr(self.gateway, "db", None))
         max_calls = budget_policy.request_call_limit(request.mode, request.constraints)
+        request.metadata["_provider_call_limit"] = max_calls
         attempts: list[dict[str, Any]] = []
         last_error = "Provider failed to generate a response"
         last_failure = classify_provider_failure(last_error)
+        last_failure_payload: dict[str, Any] | None = None
         started = datetime.now(UTC)
         purpose = "refinement" if context.refinement_cycles else "answer"
         disclosed_categories = self._disclosed_categories(context)
@@ -1897,6 +2057,7 @@ class GovernedExecutionOrchestrator:
                             "retry_index": retry_index,
                             "status": "completed",
                             "duration_ms": duration_ms,
+                            "completion": provider_output.get("completion"),
                         }
                     )
                     record_ai_request(
@@ -2018,6 +2179,7 @@ class GovernedExecutionOrchestrator:
                         "usage": usage,
                         "provider_used": provider_type,
                         "model_used": model,
+                        "completion": provider_output.get("completion"),
                         "attempts": attempts,
                         "ka_lifecycle": {
                             "request_governance": (
@@ -2042,6 +2204,12 @@ class GovernedExecutionOrchestrator:
                 )
                 last_failure = classify_provider_failure(
                     provider_output.get("exception") or last_error
+                )
+                explicit_failure = provider_output.get("failure")
+                last_failure_payload = (
+                    dict(explicit_failure)
+                    if isinstance(explicit_failure, dict)
+                    else None
                 )
                 retryable = last_failure.retryable
                 attempts.append(
@@ -2123,7 +2291,7 @@ class GovernedExecutionOrchestrator:
             "error": last_error,
             "retryable": last_failure.retryable,
             "attempts": attempts,
-            "failure": last_failure.to_dict(),
+            "failure": last_failure_payload or last_failure.to_dict(),
         }
 
     async def _complete_local_review(self, context: GovernedContext) -> GovernedResult:
@@ -2385,6 +2553,26 @@ class GovernedExecutionOrchestrator:
         )
         result.warnings = context.warnings
 
+    @staticmethod
+    def _apply_chat_persistence_failure(
+        context: GovernedContext,
+        result: GovernedResult,
+        *,
+        code: str,
+    ) -> None:
+        result.ok = False
+        result.status = GovernedFailureKind.INTERNAL_FAILURE.value
+        result.answer = ""
+        result.failure = GovernedFailure(
+            kind=GovernedFailureKind.INTERNAL_FAILURE,
+            code=code,
+            message="Provider result was not released because the chat transcript did not persist",
+            stage="persistence",
+            retryable=False,
+            details={"provider_succeeded": True},
+        )
+        result.warnings = context.warnings
+
     def _begin(
         self,
         context: GovernedContext,
@@ -2474,7 +2662,13 @@ class GovernedExecutionOrchestrator:
 
     def _emit(self, context: GovernedContext, stage: GovernedStage) -> None:
         trace_id = context.trace_id
-        payload = {"run_id": trace_id, **stage.to_dict()}
+        context.trace_event_sequence += 1
+        stage.metrics["trace_sequence"] = context.trace_event_sequence
+        payload = present_stage_event(
+            trace_id,
+            stage,
+            sequence=context.trace_event_sequence,
+        )
         try:
             transition = self.transition_publisher.publish_stage(trace_id, stage)
             context.lifecycle_transitions.append(
@@ -2630,16 +2824,74 @@ class GovernedExecutionOrchestrator:
             ),
             "deadline_seconds": context.request.metadata.get("deadline_seconds"),
             "provider_budget": context.request.metadata.get("provider_budget"),
+            "provider_call_budget": {
+                "max_calls": int(
+                    context.request.metadata.get("_provider_call_limit") or 0
+                ),
+                "calls_used": context.provider_call_count,
+            },
             "refinement_cycles": context.refinement_cycles,
+            "refinement_disposition": context.refinement_disposition.to_dict(),
             "confidence_measurement": context.confidence_measurement.to_dict()
             if context.confidence_measurement
             else None,
+            "confidence_display": build_confidence_display(
+                context.confidence_measurement,
+                validators=context.validators,
+                evidence_count=len(context.evidence),
+            ),
             "convergence_decisions": [
                 item.to_dict() for item in context.convergence_decisions
             ],
             "source_ids": [item.source_id for item in context.evidence],
             **extra,
         }
+
+    @staticmethod
+    def _measurement_status(context: GovernedContext) -> str:
+        return (
+            str(context.confidence_measurement.status)
+            if context.confidence_measurement is not None
+            else "not_measured"
+        )
+
+    @classmethod
+    def _record_refinement_decision(
+        cls,
+        context: GovernedContext,
+        convergence: Any,
+    ) -> None:
+        if context.request.mode is GovernedMode.STANDARD:
+            context.refinement_disposition.convergence_action = convergence.action
+            context.refinement_disposition.measurement_status = cls._measurement_status(
+                context
+            )
+            return
+        measurement_status = cls._measurement_status(context)
+        if measurement_status != "measured":
+            context.refinement_disposition = RefinementDisposition(
+                status=RefinementDispositionStatus.NOT_MEASURED,
+                reason="candidate_measurement_unavailable",
+                enabled=True,
+                measurement_status=measurement_status,
+                convergence_action=convergence.action,
+            )
+            return
+        if convergence.action != "refine":
+            context.refinement_disposition = RefinementDisposition(
+                status=RefinementDispositionStatus.NOT_NEEDED,
+                reason=(
+                    "measured_candidate_met_release_gate"
+                    if convergence.action == "finalize"
+                    else "convergence_did_not_request_refinement"
+                ),
+                enabled=True,
+                measurement_status=measurement_status,
+                convergence_action=convergence.action,
+            )
+            return
+        context.refinement_disposition.measurement_status = measurement_status
+        context.refinement_disposition.convergence_action = convergence.action
 
     @staticmethod
     def _cancel_requested(request: GovernedRequest) -> bool:

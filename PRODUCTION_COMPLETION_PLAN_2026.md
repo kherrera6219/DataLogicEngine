@@ -4,11 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.82.0 |
+| Document version | v1.83.0 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Runtime model | Electron control/validation shell plus a Flask backend that is loopback-only by default and may expose an explicitly enabled private gateway mode |
 | Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store services |
 | External runtime dependency | Optional OpenAI or Google model access and explicitly enabled MCP connectors only |
@@ -18,6 +18,17 @@
 | Release authority | `docs/RELEASE_READINESS_RECORD.md` and `docs/VERIFICATION_VALIDATION_REPORT.md` |
 
 ### Current execution checkpoint
+
+On 2026-08-31, the installed governed-chat repair completed its entire source
+sequence through CHAT-QC-05. The integrated gate passes 3,353 Windows backend
+tests with 18 skipped and zero failures or setup errors, all 504 frontend
+tests, the production frontend build, frontend lint/type checks, documentation
+references, and requirements traceability. The product authority advanced once
+from 4.4.3 to 4.4.4 under the standing major-update rule. The exact-source
+Windows rebuild and installed CHAT-QC-06 matrix remain open; no source-only
+result closes CP19-M, signing, provider, accessibility, lifecycle, recovery,
+independent-review, pilot, or soak gates. Production/public release remains
+**NO-GO**.
 
 Phase 19 CP19-K closed all 213/213 individual KA qualification rows. CP19-L
 passed on 2026-08-10 after the full source, dependency, security, frontend, SDK,

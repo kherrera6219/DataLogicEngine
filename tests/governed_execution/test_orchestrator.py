@@ -117,6 +117,7 @@ class _Gateway:
             "ok": True,
             "answer": f"Answer from {marker} evidence [S1]",
             "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            "completion": {"disposition": "complete", "native_reason": "STOP"},
         }
 
     async def _record_usage(self, *args, **kwargs):
@@ -170,6 +171,7 @@ class _RefinementGateway(_Gateway):
             "ok": True,
             "answer": answer,
             "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            "completion": {"disposition": "complete", "native_reason": "STOP"},
         }
 
 
@@ -179,7 +181,12 @@ class _SlowGateway(_Gateway):
     ):
         self.provider_calls += 1
         await asyncio.sleep(30)
-        return {"ok": True, "answer": "late answer", "usage": {}}
+        return {
+            "ok": True,
+            "answer": "late answer",
+            "usage": {},
+            "completion": {"disposition": "complete", "native_reason": "STOP"},
+        }
 
 
 class _PersistenceFailureGateway(_Gateway):
@@ -202,6 +209,7 @@ class _PIIGateway(_Gateway):
             "ok": True,
             "answer": "Contact admin@example.com for support.",
             "usage": {"prompt_tokens": 10, "completion_tokens": 5},
+            "completion": {"disposition": "complete", "native_reason": "STOP"},
         }
 
 
@@ -362,6 +370,22 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
     assert "source_id=source-alpha" in system
     assert "knowledge contribution" in system
     assert '"ka_id": "KA-001"' in system
+    contributions = result.metadata["dsqp"]["persona_contributions"]
+    assert [item["persona_type"] for item in contributions] == [
+        "knowledge",
+        "sector",
+        "regulatory",
+        "compliance",
+    ]
+    assert len({item["finding"] for item in contributions}) == 4
+    assert all(item["evidence_ids"] == [result.evidence[0].evidence_id] for item in contributions)
+    assert all(item["provider_generated"] is False for item in contributions)
+    assert all(item["measurement_status"] == "not_measured" for item in contributions)
+    assert all(
+        item["synthesis_influence"]["disposition"] == "included_as_prompt_constraint"
+        for item in contributions
+    )
+    assert all(item["synthesis_influence"]["authority_weight"] > 0 for item in contributions)
     assert [stage.name for stage in result.stages] == [
         "admission",
         "dmrf_routing",
@@ -799,6 +823,35 @@ async def test_provider_failure_has_no_validation_stage(monkeypatch):
     names = [stage.name for stage in result.stages]
     assert "layer_6_evidence_validation" not in names
     assert result.stages[names.index("provider_execution")].status.value == "failed"
+    assert result.metadata["refinement_disposition"] == {
+        "schema_version": "dle.refinement-disposition.v1",
+        "status": "not_measured",
+        "reason": "candidate_measurement_unavailable",
+        "enabled": True,
+        "measurement_status": "not_measured",
+        "convergence_action": None,
+        "workflow_status": None,
+        "step_count": 0,
+        "rewrite_performed": False,
+    }
+
+
+@pytest.mark.asyncio
+async def test_standard_run_records_refinement_not_enabled(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: ([], []))
+    gateway = _Gateway()
+    result = await _orchestrator(gateway).execute(
+        _request(mode=GovernedMode.STANDARD)
+    )
+
+    disposition = result.metadata["refinement_disposition"]
+    assert disposition["status"] == "not_enabled"
+    assert disposition["reason"] == "standard_mode_provider_budget"
+    assert disposition["enabled"] is False
+    assert disposition["step_count"] == 0
+    assert not [stage for stage in result.stages if stage.stage_type == "refinement_step"]
 
 
 @pytest.mark.asyncio
@@ -839,6 +892,15 @@ async def test_enhanced_refinement_converges_once_and_terminates(monkeypatch):
         ("L8", 1),
         ("L9", 1),
     ]
+    disposition = result.metadata["refinement_disposition"]
+    assert disposition["status"] == "executed"
+    assert disposition["workflow_status"] == "completed"
+    assert disposition["step_count"] == 12
+    assert disposition["rewrite_performed"] is True
+    refinement_steps = [
+        stage for stage in result.stages if stage.stage_type == "refinement_step"
+    ]
+    assert [stage.inputs["step"] for stage in refinement_steps] == list(range(1, 13))
 
 
 @pytest.mark.asyncio
@@ -892,6 +954,8 @@ async def test_refinement_provider_failure_is_terminal(monkeypatch):
     assert result.ok is False
     assert result.failure.code == "PROVIDER_REFINEMENT_FAILURE"
     assert gateway.provider_calls == 2
+    assert result.metadata["refinement_disposition"]["status"] == "failed"
+    assert result.metadata["refinement_disposition"]["step_count"] == 12
 
 
 @pytest.mark.asyncio

@@ -104,6 +104,65 @@ def calculate_confidence(
     )
 
 
+def build_confidence_display(
+    measurement: ConfidenceMeasurement | None,
+    *,
+    validators: Iterable[ValidatorRecord],
+    evidence_count: int,
+) -> dict[str, object]:
+    """Build the shared display state without repurposing other scores."""
+
+    validator_rows = list(validators)
+    failed_validators = [
+        item.validator_id for item in validator_rows if item.status == "failed"
+    ]
+    formula_version = measurement.formula_version if measurement else None
+    missing = list(measurement.missing_components) if measurement else []
+
+    if failed_validators:
+        status = "validation_failed"
+        reason = "one_or_more_governed_validators_failed"
+        value = None
+        explanation = (
+            "Evidence support is not displayed as a score because one or more "
+            "governed validators failed."
+        )
+    elif evidence_count <= 0:
+        status = "insufficient_evidence"
+        reason = "no_governed_evidence_available"
+        value = None
+        explanation = (
+            "Evidence support was not measured because no governed evidence was available."
+        )
+    elif measurement is None:
+        status = "not_measured"
+        reason = "confidence_measurement_unavailable"
+        value = None
+        explanation = "The governed confidence formula did not produce a measurement."
+    elif measurement.status == "measured" and measurement.value is not None:
+        status = "measured"
+        reason = "all_required_components_measured"
+        value = measurement.value
+        explanation = measurement.explanation
+    else:
+        status = "not_measured"
+        reason = "required_measurement_components_unavailable"
+        value = None
+        explanation = measurement.explanation
+
+    return {
+        "schema_version": "dle.confidence-display.v1",
+        "status": status,
+        "measurement_status": measurement.status if measurement else "not_available",
+        "value": value,
+        "formula_version": formula_version,
+        "reason": reason,
+        "missing_components": missing,
+        "failed_validator_ids": failed_validators,
+        "explanation": explanation,
+    }
+
+
 def decide_convergence(
     claims: Iterable[ClaimRecord],
     validators: Iterable[ValidatorRecord],

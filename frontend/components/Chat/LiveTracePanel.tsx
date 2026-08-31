@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
 import { request } from '@/lib/api';
-import type { KAExecutionFeed, KAExecutionFeedItem } from '@/lib/api/types';
+import type {
+  ConfidenceDisplay,
+  KAExecutionFeed,
+  KAExecutionFeedItem,
+  TraceRefinementDisposition,
+} from '@/lib/api/types';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +19,9 @@ import {
   ChevronRight
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
+import { useTraceStream } from '@/hooks/useTraceStream';
+import { RefinementDispositionCard } from './RefinementDispositionCard';
 
 interface TraceRunRecord {
   run_id: string;
@@ -25,17 +33,23 @@ interface TraceRunRecord {
     entropy?: number;
     bias_risk?: number;
   };
+  data_snapshot?: {
+    confidence_display?: ConfidenceDisplay | null;
+    refinement_disposition?: TraceRefinementDisposition | null;
+  } | null;
 }
 
 interface TraceStageRecord {
   stage_id: string;
   name: string;
   status?: string;
-  layer_index?: number;
-  step_index?: number;
+  layer_index?: number | null;
+  step_index?: number | null;
   timing?: {
-    duration_ms?: number;
+    duration_ms?: number | null;
   };
+  sequence?: number;
+  narrative?: string;
 }
 
 interface ReasoningLayerProgress {
@@ -51,6 +65,7 @@ interface ReasoningLayerProgress {
     duration_ms?: number | null;
   }>;
   confidence_so_far: number | null;
+  confidence_display?: ConfidenceDisplay | null;
   persona_confidences: Array<{
     persona: string;
     confidence: number;
@@ -79,6 +94,12 @@ function scoreToPercent(value?: number): string {
   return `${normalized.toFixed(1)}%`;
 }
 
+function confidenceValue(display?: ConfidenceDisplay | null): string {
+  return display?.status === 'measured'
+    ? scoreToPercent(display.value ?? undefined)
+    : 'Not measured';
+}
+
 function formatExecutionDuration(value?: number | null): string {
   if (typeof value !== 'number' || !Number.isFinite(value)) return '';
   return ` (${Math.max(0, Math.round(value))}ms)`;
@@ -88,7 +109,11 @@ function kaFeedItemKey(item: KAExecutionFeedItem): string {
   return item.uid || `${item.id}-${item.ka_id || 'unknown'}-${item.started_at || 'unstarted'}`;
 }
 
-export function LiveTracePanel() {
+interface LiveTracePanelProps {
+  activeRunId?: string | null;
+}
+
+export function LiveTracePanel({ activeRunId = null }: LiveTracePanelProps) {
   const [runs, setRuns] = useState<TraceRunRecord[]>([]);
   const [stages, setStages] = useState<TraceStageRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,15 +121,12 @@ export function LiveTracePanel() {
   const [error, setError] = useState<string | null>(null);
   const [reasoningProgress, setReasoningProgress] = useState<ReasoningLayerProgress | null>(null);
   const [kaFeed, setKaFeed] = useState<KAExecutionFeed | null>(null);
+  const traceStream = useTraceStream(activeRunId);
 
   const loadTraceData = useCallback(async () => {
     setError(null);
     try {
-      // Treat transient backend errors (startup race, 500, IPC timeout) as an
-      // empty state rather than surfacing the error banner.  The 15-second poll
-      // will recover automatically once the backend is ready.
-      const runsPromise = api.trace.list(12)
-        .catch(() => [] as unknown[]) as Promise<TraceRunRecord[]>;
+      const runsPromise = api.trace.list(12) as Promise<TraceRunRecord[]>;
 
       // IPC calls use invokeWithTimeout which throws on a 5-second timeout.
       // Catch those individually so a slow backend start doesn't abort the
@@ -130,9 +152,7 @@ export function LiveTracePanel() {
 
       const selectedRun = (recentRuns || []).find((run) => run.status === 'running') || recentRuns?.[0];
       const stagePayload: { stages?: TraceStageRecord[] } = selectedRun
-        ? await api.trace
-          .getStages(selectedRun.run_id)
-          .catch(() => ({ stages: [] as TraceStageRecord[] })) as { stages?: TraceStageRecord[] }
+        ? await api.trace.getStages(selectedRun.run_id) as { stages?: TraceStageRecord[] }
         : { stages: [] as TraceStageRecord[] };
 
       setStages(stagePayload.stages || []);
@@ -168,32 +188,60 @@ export function LiveTracePanel() {
     };
   }, [loadTraceData]);
 
-  const currentRun = useMemo(
-    () => runs.find((run) => run.status === 'running') || runs[0],
-    [runs]
+  const currentRun = useMemo(() => {
+    if (activeRunId) {
+      const virtualRun: TraceRunRecord = {
+        run_id: activeRunId,
+        status: 'running',
+        input_message: 'The governed request is running. Stage receipts will appear below.',
+      };
+      return runs.find((run) => run.run_id === activeRunId) || virtualRun;
+    }
+    return runs.find((run) => run.status === 'running') || runs[0];
+  }, [activeRunId, runs]);
+
+  const displayedStages = useMemo<TraceStageRecord[]>(
+    () => activeRunId ? traceStream.layers : stages,
+    [activeRunId, stages, traceStream.layers],
   );
 
   const currentStage = useMemo(
     () =>
-      stages.find((stage) => stage.status === 'running') ||
-      stages.find((stage) => stage.status !== 'pass' && stage.status !== 'completed') ||
-      stages[stages.length - 1],
-    [stages]
+      displayedStages.find((stage) => stage.status === 'running') ||
+      displayedStages.find((stage) => stage.status !== 'pass' && stage.status !== 'completed') ||
+      displayedStages[displayedStages.length - 1],
+    [displayedStages]
   );
+
+  const currentConfidenceDisplay = useMemo<ConfidenceDisplay | null>(() => {
+    const recorded = currentRun?.data_snapshot?.confidence_display;
+    if (recorded) return recorded;
+    const legacyValue = currentRun?.scores?.confidence;
+    if (typeof legacyValue !== 'number' || Number.isNaN(legacyValue)) return null;
+    return {
+      status: 'measured',
+      measurement_status: 'measured',
+      value: legacyValue,
+      formula_version: null,
+      reason: 'legacy_trace_measurement',
+      missing_components: [],
+      explanation: 'Versioned evidence-support measurement recorded by this historical trace.',
+    };
+  }, [currentRun]);
 
   const progress = useMemo(() => {
     if (!currentRun) return 0;
-    if (!stages.length) {
+    if (!displayedStages.length) {
       const status = (currentRun.status || '').toLowerCase();
       if (status === 'running') return 10;
       if (status === 'pass' || status === 'completed') return 100;
       return 0;
     }
-    const finished = stages.filter((stage) =>
+    const finished = displayedStages.filter((stage) =>
       ['pass', 'completed', 'warn', 'fail', 'failed', 'blocked', 'cancelled', 'skipped'].includes((stage.status || '').toLowerCase())
     ).length;
-    return Math.round((finished / stages.length) * 100);
-  }, [currentRun, stages]);
+    return Math.round((finished / displayedStages.length) * 100);
+  }, [currentRun, displayedStages]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -218,7 +266,7 @@ export function LiveTracePanel() {
               IDLE
             </Badge>
           )}
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => void handleRefresh()} disabled={refreshing}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => void handleRefresh()} disabled={refreshing} aria-label="Refresh trace telemetry">
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
@@ -266,8 +314,8 @@ export function LiveTracePanel() {
               </div>
               <Progress value={progress} className="h-1.5 bg-blue-900/30 [&>div]:bg-blue-500" />
               <div className="flex justify-between mt-1 text-[10px] text-slate-500 dark:text-gray-500">
-                <span>{stages.length ? `${stages.filter((stage) => (stage.status || '').toLowerCase() === 'running').length} active` : 'No stages'}</span>
-                <span>{stages.length ? `${stages.length} total` : 'Waiting for stage data'}</span>
+                <span>{displayedStages.length ? `${displayedStages.filter((stage) => (stage.status || '').toLowerCase() === 'running').length} active` : 'No stages'}</span>
+                <span>{displayedStages.length ? `${displayedStages.length} total` : 'Waiting for stage data'}</span>
               </div>
             </div>
 
@@ -283,7 +331,7 @@ export function LiveTracePanel() {
                       </div>
                       <div>
                         <div className="text-[10px] uppercase text-slate-500 dark:text-gray-500">Confidence</div>
-                        <div className="text-sm font-semibold">{scoreToPercent(reasoningProgress.confidence_so_far ?? undefined)}</div>
+                        <div className="text-sm font-semibold">{confidenceValue(reasoningProgress.confidence_display)}</div>
                       </div>
                       <div>
                         <div className="text-[10px] uppercase text-slate-500 dark:text-gray-500">FROST</div>
@@ -308,7 +356,10 @@ export function LiveTracePanel() {
 
             {reasoningProgress?.persona_confidences?.length ? (
               <div className="space-y-2">
-                <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Persona Confidence</div>
+                <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Persona Profile Coverage</div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Profile construction coverage is not answer confidence.
+                </p>
                 <div className="space-y-2">
                   {reasoningProgress.persona_confidences.slice(0, 6).map((persona) => {
                     const pct = Math.max(0, Math.min(100, (persona.confidence <= 1 ? persona.confidence * 100 : persona.confidence)));
@@ -342,18 +393,24 @@ export function LiveTracePanel() {
                     <div className={`text-[10px] uppercase font-semibold ${statusClass(currentStage.status)}`}>
                       {formatStatus(currentStage.status)}
                     </div>
+                    {currentStage.narrative && (
+                      <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-gray-400">
+                        {currentStage.narrative}
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </div>
             )}
 
-            {stages.length > 0 && (
+            {displayedStages.length > 0 && (
               <div className="space-y-2">
                 <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider">Trace Log</div>
-                <div className="space-y-1">
-                  {stages.slice(0, 8).map((stage) => (
-                    <div key={stage.stage_id} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-slate-200/70 dark:hover:bg-white/5 transition-colors">
-                      <div className="flex items-center gap-2">
+                <div className="max-h-[28rem] space-y-1 overflow-y-auto overscroll-contain pr-1" role="region" aria-label="Complete trace stage log">
+                  {displayedStages.map((stage) => (
+                    <details key={stage.stage_id} className="rounded border border-transparent p-1.5 text-xs transition-colors open:border-slate-200 open:bg-slate-100 dark:open:border-white/10 dark:open:bg-white/5">
+                      <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                        <div className="flex items-center gap-2">
                         {['pass', 'completed'].includes((stage.status || '').toLowerCase()) ? (
                           <ShieldCheck className="h-3 w-3 text-green-500" />
                         ) : ['fail', 'failed', 'warn', 'blocked', 'cancelled'].includes((stage.status || '').toLowerCase()) ? (
@@ -362,11 +419,20 @@ export function LiveTracePanel() {
                           <Clock className="h-3 w-3 text-blue-400" />
                         )}
                         <span className={statusClass(stage.status)}>{stage.name}</span>
-                      </div>
-                      <span className="text-[10px] text-slate-500 dark:text-gray-600 font-mono">
-                        {typeof stage.timing?.duration_ms === 'number' ? `${stage.timing.duration_ms}ms` : '--'}
-                      </span>
-                    </div>
+                        </div>
+                        <span className="text-[10px] text-slate-500 dark:text-gray-600 font-mono">
+                          {typeof stage.timing?.duration_ms === 'number' ? `${stage.timing.duration_ms}ms` : '--'}
+                        </span>
+                      </summary>
+                      {stage.narrative && (
+                        <p className="mt-1 pl-5 text-[11px] leading-relaxed text-slate-500 dark:text-gray-400">
+                          {stage.narrative}
+                        </p>
+                      )}
+                      {!stage.narrative && (
+                        <p className="mt-1 pl-5 text-[11px] text-slate-500 dark:text-gray-400">No public narrative was recorded for this stage.</p>
+                      )}
+                    </details>
                   ))}
                 </div>
               </div>
@@ -375,10 +441,7 @@ export function LiveTracePanel() {
             <div className="space-y-2 pt-2 border-t border-white/10">
               <div className="text-xs text-slate-500 dark:text-gray-500 font-mono uppercase tracking-wider mb-3">Run Scores</div>
               <div className="grid grid-cols-1 gap-2">
-                <div className="p-2 bg-white/70 dark:bg-white/5 rounded border border-slate-200 dark:border-white/5 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-500 dark:text-gray-500 uppercase">Confidence</span>
-                  <span className="text-sm font-semibold">{scoreToPercent(currentRun.scores?.confidence)}</span>
-                </div>
+                <ConfidenceDisplayCard display={currentConfidenceDisplay} compact />
                 <div className="p-2 bg-white/70 dark:bg-white/5 rounded border border-slate-200 dark:border-white/5 flex items-center justify-between">
                   <span className="text-[10px] text-slate-500 dark:text-gray-500 uppercase">Entropy</span>
                   <span className="text-sm font-semibold">{scoreToPercent(currentRun.scores?.entropy)}</span>
@@ -389,6 +452,10 @@ export function LiveTracePanel() {
                 </div>
               </div>
             </div>
+            <RefinementDispositionCard
+              disposition={currentRun.data_snapshot?.refinement_disposition}
+              compact
+            />
           </>
         )}
 

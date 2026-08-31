@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Plus, Search, Calendar,
-  Settings, Mic, Paperclip, Zap, ArrowRight, Target, Bot, User, X
+  Settings, Mic, Paperclip, Zap, ArrowRight, Target, Bot, User, X,
+  PanelRightClose, PanelRightOpen
 } from "lucide-react";
 import { ChatMessage, TracePipeline } from './types';
 import { ApiChatMessage, ChatSession } from '@/lib/api/chat';
 import { api, request, ApiError } from '@/lib/api';
+import type { Message as GatewayMessage } from '@/lib/api/types';
 import { socketClient, useSocket } from '@/lib/socket';
 import {
   sanitizeFileName,
@@ -27,12 +29,27 @@ import { DetailedResponseView } from './DetailedResponseView';
 import { TraceVisualizer } from './TraceVisualizer';
 import { ChatTracePanel } from './ChatTracePanel';
 import { OfflineQueueManager } from './OfflineQueueManager';
+import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
 
 interface ChatInterfaceProps {
   autoOpenUpload?: boolean;
 }
 
 const MAX_CHAT_INPUT_LENGTH = 8_000;
+const MAX_GATEWAY_MESSAGE_COUNT = 64;
+
+function buildGatewayMessages(
+  history: ChatMessage[],
+  currentMessage: ChatMessage,
+): GatewayMessage[] {
+  return [...history, currentMessage]
+    .map((message) => ({
+      role: message.role,
+      content: (message.content || message.finalAnswer || '').trim(),
+    }))
+    .filter((message) => message.content.length > 0)
+    .slice(-MAX_GATEWAY_MESSAGE_COUNT);
+}
 
 type GatewayTracePayload = {
   run_id?: string | null;
@@ -40,6 +57,10 @@ type GatewayTracePayload = {
   audit_trail?: ChatMessage['auditTrail'];
   provider_used?: string | null;
   model_used?: string | null;
+  completion?: ChatMessage['completion'];
+  mode?: ChatMessage['governedMode'];
+  confidence_display?: ChatMessage['confidenceDisplay'];
+  provider_call_budget?: ChatMessage['providerCallBudget'];
   failure?: {
     kind?: string;
     details?: {
@@ -114,8 +135,15 @@ function normalizeApiMessage(message: ApiChatMessage): ChatMessage {
     content: message.content,
     finalAnswer: message.role === 'assistant' ? message.content : undefined,
     timestamp: formatMessageTimestamp(message.timestamp),
-    isEnhanced: message.is_enhanced ?? message.role === 'assistant',
+    isEnhanced: message.is_enhanced,
+    governedMode: message.mode
+      ?? (message.role === 'assistant'
+        ? (message.is_enhanced ? 'enhanced' : 'standard')
+        : undefined),
     runId: message.run_id ?? undefined,
+    completion: message.completion,
+    confidenceDisplay: message.confidence_display,
+    providerCallBudget: message.provider_call_budget,
   };
 }
 
@@ -130,7 +158,11 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [tracePaneOpen, setTracePaneOpen] = useState(true);
   const composerRef = useRef<HTMLTextAreaElement>(null);
+  const draftSessionIdRef = useRef<string | null>(null);
+  const sessionCreationRef = useRef<Promise<ChatSession> | null>(null);
+  const freshSessionIdsRef = useRef<Set<string>>(new Set());
 
   const strictInputSanitization = isEnabled('strictInputSanitization');
 
@@ -144,7 +176,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           content: data.response,
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isEnhanced: true,
+          governedMode: data.mode,
+          confidenceDisplay: data.confidence_display,
+          providerCallBudget: data.provider_call_budget,
           ...extractGatewayTraceFields(data as GatewayTracePayload),
         };
         setMessages(prev => [...prev, assistantMsg]);
@@ -163,7 +197,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     const fetchSessions = async () => {
       try {
         const data = await api.chat.listSessions();
-        setSessions(data.sessions || []);
+        const loadedSessions = data.sessions || [];
+        setSessions(loadedSessions);
+        setCurrentSessionId((selected) => selected ?? loadedSessions[0]?.id ?? null);
       } catch (err) {
         reportClientError(err, {
           module: 'ChatInterface',
@@ -184,11 +220,6 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       .catch(() => setProviderBudget(null));
   }, []);
 
-  // Auto-select first session when sessions are loaded (render-time derivation).
-  if (sessions.length > 0 && !currentSessionId) {
-    setCurrentSessionId(sessions[0].id);
-  }
-
   // Hydrate history when session changes
   useEffect(() => {
     if (!currentSessionId) return;
@@ -196,7 +227,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     // Join WebSocket room for this session
     socketClient.joinRoom(`chat_${currentSessionId}`);
 
+    const isFreshSession = freshSessionIdsRef.current.delete(currentSessionId);
     const fetchHistory = async () => {
+      if (isFreshSession) return;
       try {
         const data = await api.chat.getSessionMessages(currentSessionId);
         if (data.messages?.length) {
@@ -215,6 +248,31 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       socketClient.leaveRoom(`chat_${currentSessionId}`);
     };
   }, [currentSessionId]);
+
+  const ensureCurrentSession = async (): Promise<string> => {
+    if (currentSessionId) return currentSessionId;
+
+    if (!draftSessionIdRef.current) {
+      draftSessionIdRef.current = crypto.randomUUID();
+    }
+    if (!sessionCreationRef.current) {
+      sessionCreationRef.current = api.chat.createSession({
+        session_id: draftSessionIdRef.current,
+        mode,
+      }).then(({ session }) => {
+        freshSessionIdsRef.current.add(session.id);
+        setCurrentSessionId(session.id);
+        setSessions((existing) => [
+          session,
+          ...existing.filter((item) => item.id !== session.id),
+        ]);
+        return session;
+      }).finally(() => {
+        sessionCreationRef.current = null;
+      });
+    }
+    return (await sessionCreationRef.current).id;
+  };
 
   const handleSend = async () => {
     const normalizedInput = strictInputSanitization
@@ -249,14 +307,17 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     setIsLoading(true);
     const requestId = crypto.randomUUID();
     setActiveRequestId(requestId);
+    let sessionId = currentSessionId ?? undefined;
+    const gatewayMessages = buildGatewayMessages(messages, userMsg);
 
     try {
+      sessionId = await ensureCurrentSession();
       // Use the centralized API
       const data = await api.chat.sendMessage({
-        messages: [{ role: 'user', content: userMsg.content }],
+        messages: gatewayMessages,
         request_id: requestId,
         mode: mode,
-        session_id: currentSessionId ?? undefined,
+        session_id: sessionId,
         run_ukg_pipeline: true,
         meta: { budget_warning_confirmed: budgetWarningConfirmed },
       });
@@ -270,9 +331,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           content: data.response,
           finalAnswer: data.response,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isEnhanced: true,
+          governedMode: data.mode,
           traces: data.trace_summary as TracePipeline | undefined,
           ...traceFields,
+          completion: data.completion,
+          confidenceDisplay: data.confidence_display,
+          providerCallBudget: data.provider_call_budget,
         };
         setMessages(prev => [...prev, assistantMsg]);
         setIsLoading(false);
@@ -291,8 +355,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       }
       
       // Refresh session list in case a new session was created
-      const sessionData = await api.chat.listSessions().catch(() => ({ sessions: [] }));
-      setSessions(sessionData.sessions || []);
+      const sessionData = await api.chat.listSessions().catch(() => null);
+      if (sessionData) {
+        setSessions(sessionData.sessions || []);
+      }
       setActiveRequestId(null);
 
     } catch (error) {
@@ -329,9 +395,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             failure_class: failureClass,
             payload: {
               request_id: requestId,
-              messages: [{ role: 'user', content: userMsg.content }],
+              messages: gatewayMessages,
               mode,
-              session_id: currentSessionId ?? undefined,
+              session_id: sessionId,
               run_ukg_pipeline: true,
             },
           }),
@@ -367,8 +433,17 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   };
 
   const handleNewChat = () => {
-    setCurrentSessionId(crypto.randomUUID());
+    setCurrentSessionId(null);
+    draftSessionIdRef.current = null;
+    sessionCreationRef.current = null;
     setMessages([]);
+  };
+
+  const prepareContinuation = () => {
+    setInputValue(
+      'Continue the prior answer from where it stopped. Do not repeat completed material. Finish the unanswered parts of my request.',
+    );
+    window.requestAnimationFrame(() => composerRef.current?.focus());
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -441,7 +516,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         content: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
         finalAnswer: `File processed successfully. Analysis: ${data.message || JSON.stringify(data.result || data.analysis)}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        isEnhanced: true
+        isEnhanced: false
       };
       setMessages(prev => [...prev, assistantMsg]);
     } catch (error) {
@@ -481,7 +556,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
       
       {/* ðŸ“ Conversational Sidebar */}
-      <aside className="w-64 border-r border-white/5 flex flex-col fluent-acrylic z-20" aria-label="Recent chat sessions">
+      <aside className="hidden w-64 shrink-0 border-r border-white/5 md:flex flex-col fluent-acrylic z-20" aria-label="Recent chat sessions">
          <div className="p-4 border-b border-white/5 space-y-4">
             <Button 
               className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
@@ -532,7 +607,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       </aside>
 
       {/* ðŸ’¬ Main Chat Area */}
-      <main className="flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area" role="main" aria-label="Chat interface">
+      <main className="min-w-0 flex-1 flex flex-col relative z-10 bg-transparent" data-testid="main-chat-area" role="main" aria-label="Chat interface">
          {/* Header */}
          <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 fluent-acrylic sticky top-0 z-30">
             <h1 className="font-bold text-sm tracking-wide flex items-center gap-2 text-slate-900 dark:text-gray-100" data-testid="app-header">
@@ -544,6 +619,20 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                </span>
                <Button asChild variant="ghost" size="sm" className="h-8 gap-2 border border-slate-300/70 dark:border-white/10 hover:bg-slate-200/70 dark:hover:bg-white/5 text-slate-700 dark:text-gray-300">
                   <Link href="/settings"><Settings className="h-3.5 w-3.5" /> Settings</Link>
+               </Button>
+               <Button
+                 type="button"
+                 variant="ghost"
+                 size="icon"
+                 className="h-8 w-8 border border-slate-300/70 dark:border-white/10"
+                 aria-label={tracePaneOpen ? 'Hide trace explorer' : 'Show trace explorer'}
+                 aria-controls="chat-trace-explorer-pane"
+                 aria-expanded={tracePaneOpen}
+                 onClick={() => setTracePaneOpen((open) => !open)}
+               >
+                 {tracePaneOpen
+                   ? <PanelRightClose className="h-4 w-4" aria-hidden="true" />
+                   : <PanelRightOpen className="h-4 w-4" aria-hidden="true" />}
                </Button>
                 <span
                  className="flex h-8 items-center gap-2 rounded-md border border-slate-300/70 px-2 text-[10px] text-slate-600 dark:border-white/10 dark:text-gray-400"
@@ -569,9 +658,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          <span className="text-xs text-slate-500 dark:text-gray-500">{msg.timestamp}</span>
                       </div>
                       
-                      {msg.role === 'assistant' && msg.isEnhanced && (
-                         <div className="flex items-center gap-2 text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-blue-500/20">
-                            <Zap className="h-3 w-3" /> Enhanced Mode Active
+                      {msg.role === 'assistant' && msg.governedMode && (
+                         <div className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-blue-500/20">
+                            <Zap className="h-3 w-3" />
+                            {msg.governedMode === 'enhanced'
+                              ? 'Enhanced Mode'
+                              : msg.governedMode === 'local_review'
+                                ? 'Local Review Mode'
+                                : 'Standard Mode'}
                          </div>
                       )}
 
@@ -590,6 +684,43 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          {msg.role === 'assistant' ? (
                             <div className="space-y-4">
                                <div>{msg.finalAnswer || msg.content}</div>
+
+                               {msg.governedMode && (
+                                 <div className="text-xs text-slate-500 dark:text-slate-400">
+                                   {msg.providerCallBudget
+                                     ? `${msg.providerCallBudget.calls_used} of ${msg.providerCallBudget.max_calls} provider attempts used for this governed run.`
+                                     : 'Provider-attempt budget was not recorded for this historical message.'}
+                                 </div>
+                               )}
+
+                               {msg.confidenceDisplay && (
+                                 <ConfidenceDisplayCard display={msg.confidenceDisplay} compact />
+                               )}
+
+                               {msg.completion?.disposition === 'length_limited' && (
+                                 <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-amber-800 dark:text-amber-200">
+                                   <p className="font-medium">Answer reached the provider output limit.</p>
+                                   <p className="mt-1 text-xs">
+                                     This response is incomplete. Continuing uses another governed provider attempt and remains subject to the displayed usage budget.
+                                   </p>
+                                   <Button
+                                     type="button"
+                                     variant="outline"
+                                     size="sm"
+                                     className="mt-3"
+                                     aria-label="Prepare continuation"
+                                     onClick={prepareContinuation}
+                                   >
+                                     Prepare continuation
+                                   </Button>
+                                 </div>
+                               )}
+
+                               {msg.completion?.disposition === 'provider_incomplete' && (
+                                 <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
+                                   The provider returned content but did not confirm that the response completed normally.
+                                 </div>
+                               )}
 
                                {/* Detailed Response Analysis */}
                                <DetailedResponseView message={msg} />
@@ -690,18 +821,25 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
               {' '}Verify generated responses before critical use.
             </p>
 
-             <div className="max-w-4xl mx-auto mt-4">
-               <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
-             </div>
-
             <div className="text-center text-[10px] text-slate-500 dark:text-gray-600 mt-2 font-mono">DataLogicEngine AI workspace</div>
          </div>
       </main>
 
-      {/* ðŸ”¬ Live Trace Sidebar */}
-      <aside className="w-72 border-l border-white/5 flex flex-col fluent-acrylic z-20" aria-label="Live trace panel">
-         <LiveTracePanel />
-      </aside>
+      {tracePaneOpen && (
+        <aside
+          id="chat-trace-explorer-pane"
+          className="fixed inset-y-0 right-0 z-40 flex w-[min(90vw,24rem)] min-w-80 max-w-[90vw] shrink-0 flex-col overflow-auto border-l border-white/5 fluent-acrylic lg:static lg:z-20 lg:max-w-[50vw]"
+          style={{ resize: 'horizontal' }}
+          aria-label="Trace explorer pane"
+        >
+          <div className="border-b border-white/5 p-3">
+            <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
+          </div>
+          <div className="min-h-[32rem] flex-1">
+            <LiveTracePanel activeRunId={activeRequestId} />
+          </div>
+        </aside>
+      )}
 
     </div>
   );

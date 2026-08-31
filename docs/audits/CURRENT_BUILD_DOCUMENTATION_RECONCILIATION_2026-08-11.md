@@ -7,7 +7,7 @@
 | Document ID | DLE-AUDIT-012 |
 | Title | Current-build documentation reconciliation |
 | Document version | v1.4.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | active supporting review |
 | Audience | Product owner, engineering, quality, release reviewers, and documentation maintainers |
 | Owner | Documentation Engineering |

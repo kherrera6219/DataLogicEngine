@@ -165,9 +165,10 @@ describe('KnowledgeIngestionSettings', () => {
     });
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     render(<KnowledgeIngestionSettings />);
-    expect(await screen.findByText('policy.pdf')).toBeInTheDocument();
+    fireEvent.click(await screen.findByText('View source and file details'));
+    expect(screen.getByText('policy.pdf')).toBeInTheDocument();
     expect(screen.getByText('unsupported: bad.exe')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /view last answer trace/i })).toHaveAttribute('href', '/runs/view?id=trace%201');
+    expect(screen.getByRole('link', { name: /view last answer trace/i })).toHaveAttribute('href', '/runs/view?trace=trace%201');
     fireEvent.click(screen.getByRole('button', { name: /repair ingestion failed-run/i }));
     fireEvent.click(screen.getByRole('button', { name: /retry ingestion failed-run/i }));
     fireEvent.click(screen.getByRole('button', { name: /delete ingestion failed-run/i }));
@@ -181,6 +182,40 @@ describe('KnowledgeIngestionSettings', () => {
     expect(toastMock).toHaveBeenCalledWith('Corpus differences require attention.', 'error');
     fireEvent.click(screen.getByRole('button', { name: /refresh ingestion history/i }));
     await waitFor(() => expect(api.ingestion.supported).toHaveBeenCalledTimes(5));
+  });
+
+  it('shows the complete durable lifecycle without inventing completion', async () => {
+    vi.mocked(api.ingestion.history).mockResolvedValue(
+      ['queued', 'completed', 'failed', 'cancelled', 'superseded'].map((status) => ({
+        ingestion_id: `${status}-run`,
+        source: `${status}-source`,
+        status,
+        files_scanned: 0,
+        files_ingested: 0,
+        files_rejected: 0,
+        chunks_created: 0,
+        chunks_indexed: 0,
+        rejected_files: [],
+        chunks: [],
+      } as any)),
+    );
+
+    render(<KnowledgeIngestionSettings />);
+
+    for (const status of ['queued', 'completed', 'failed', 'cancelled', 'superseded']) {
+      expect(await screen.findByText(`${status}-source`)).toBeInTheDocument();
+      expect(screen.getAllByText(status).length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('reports knowledge-store unavailability instead of a zero-state result', async () => {
+    vi.mocked(api.ingestion.consistency).mockRejectedValueOnce(new Error('stores offline'));
+    render(<KnowledgeIngestionSettings />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /scan corpus consistency/i }));
+
+    expect(await screen.findByText('Knowledge store status is unavailable: stores offline')).toBeInTheDocument();
+    expect(screen.queryByText(/0\/0 jobs consistent/)).not.toBeInTheDocument();
   });
 
   it('cancels source deletion and reports consistent stores', async () => {

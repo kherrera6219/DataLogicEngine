@@ -6,15 +6,15 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.11.0 |
-| Product version | 4.4.3 |
+| Document version | v1.12.0 |
+| Product version | 4.4.4 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
 | Owner | Product Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-08-31 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -44,25 +44,27 @@ endpoints and explicitly enabled connectors. There is no approved telemetry,
 license check-in, update check, crash-reporting egress, or phone-home.
 
 > [!WARNING]
-> **Engineering evaluation only. DataLogicEngine 4.4.3 is not approved for a
+> **Engineering evaluation only. DataLogicEngine 4.4.4 is not approved for a
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The current engineering build is `DataLogicEngine Setup 4.4.3.exe`
+The last installed engineering build is `DataLogicEngine Setup 4.4.3.exe`
 (359,111,112 bytes; SHA-256
 `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`).
 It was rebuilt from exact source commit
 `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` and passes installer integrity,
 NSIS governance, required packaging-resource checks, the 6,100-file release
-payload, and strict package-owned portable readiness. The same 4.4.3 payload is
+payload, and strict package-owned portable readiness. That 4.4.3 payload is
 currently installed under Program Files and running loopback-only: its desktop
 executable, backend executable, and `app.asar` hashes match the extracted build,
 and `/health` and `/ready` report healthy/ready with no blockers. This is a
 narrow installed observation, not completed install/upgrade/repair/uninstall or
-provider-chat acceptance. The artifact remains unsigned and still requires
-fresh-installed Google chat, provider, accessibility, recovery,
-independent-review, pilot, and soak acceptance.
+provider-chat acceptance. The artifact remains unsigned, is superseded by the
+integrated 4.4.4 source, and is not the next acceptance target. The clean 4.4.4
+rebuild and fresh-installed Google chat, provider,
+accessibility, recovery, independent-review, pilot, and soak acceptance remain
+open.
 
 ## Repository guide
 
@@ -94,7 +96,7 @@ control plane.
 | Software developers and integrators | A versioned API, generated Python and TypeScript SDKs, asynchronous jobs, streaming responses, and provider-key separation |
 | Operators, reviewers, and pilot users | A desktop experience for configuration, governed chat, monitoring, trace review, privacy, diagnostics, and support |
 
-The current 4.4.3 product boundary is a single owner/operator on Windows 11 or
+The current 4.4.4 product boundary is a single owner/operator on Windows 11 or
 an owner-controlled Windows VM. It is not a public web service or a multi-tenant
 identity platform.
 
@@ -184,7 +186,7 @@ certifications.
 - Providers: owner-configured OpenAI or Google credentials and approved models
 - Connectors: owner-approved local MCP processes with recorded scope and consent
 - Data: app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible storage
-- Excluded from 4.4.3: public-internet exposure, public self-registration,
+- Excluded from 4.4.4: public-internet exposure, public self-registration,
   multi-tenancy, vendor-hosted customer data or API spend, Kubernetes, managed
   cloud databases as production authorities, mobile clients, and macOS/Linux
   packaging

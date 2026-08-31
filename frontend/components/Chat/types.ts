@@ -47,6 +47,10 @@ export interface ChatMessage {
   isEnhanced?: boolean;
   providerUsed?: string;
   modelUsed?: string;
+  completion?: import('@/lib/api/types').ProviderCompletion | null;
+  governedMode?: import('@/lib/api/types').GovernedMode;
+  confidenceDisplay?: import('@/lib/api/types').ConfidenceDisplay | null;
+  providerCallBudget?: import('@/lib/api/types').ProviderCallBudget | null;
   auditTrail?: {
     decision_path: string;
     complete_trace_url: string;

@@ -1,22 +1,20 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Activity, ChevronDown, FileDown, Layers, ShieldCheck, Users } from 'lucide-react';
+import { Activity, ChevronDown, FileDown, Layers, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import type { AuditTrail, TraceBundle } from '@/lib/api/types';
+import type { ConfidenceDisplay } from '@/lib/api/types';
 import { useTraceStream } from '@/hooks/useTraceStream';
+import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
+import { RefinementDispositionCard } from './RefinementDispositionCard';
+import { AnalystContributions } from './AnalystContributions';
 
 interface ChatTracePanelProps {
   runId?: string;
   auditTrail?: AuditTrail;
-}
-
-function scoreToPercent(value?: number | null): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return 'Not measured';
-  const normalized = value <= 1 ? value * 100 : value;
-  return `${normalized.toFixed(1)}%`;
 }
 
 export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
@@ -32,7 +30,51 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
   const [error, setError] = useState<string | null>(null);
   const isLive = bundle?.status === 'running';
   const traceStream = useTraceStream(isLive && resolvedRunId ? resolvedRunId : null);
-  const confidenceMeasurement = bundle?.run?.data_snapshot?.confidence_measurement;
+  const displayedStages = useMemo(() => {
+    const reconciled = [...(bundle?.frost_layers || [])];
+    for (const live of traceStream.layers) {
+      const index = reconciled.findIndex((stage) => stage.stage_id === live.stage_id);
+      if (index >= 0) {
+        reconciled[index] = { ...reconciled[index], ...live };
+      } else {
+        reconciled.push(live);
+      }
+    }
+    return reconciled.sort((left, right) => (left.sequence || 0) - (right.sequence || 0));
+  }, [bundle?.frost_layers, traceStream.layers]);
+  const confidenceDisplay = useMemo<ConfidenceDisplay | null>(() => {
+    const recorded = bundle?.run?.data_snapshot?.confidence_display;
+    if (recorded) return recorded;
+    const measurement = bundle?.run?.data_snapshot?.confidence_measurement;
+    if (measurement?.status) {
+      return {
+        status: measurement.status === 'measured' && typeof measurement.value === 'number'
+          ? 'measured'
+          : 'not_measured',
+        measurement_status: measurement.status,
+        value: measurement.status === 'measured' && typeof measurement.value === 'number'
+          ? measurement.value
+          : null,
+        formula_version: measurement.formula_version,
+        reason: measurement.status === 'measured'
+          ? 'legacy_trace_measurement'
+          : 'required_measurement_components_unavailable',
+        missing_components: measurement.missing_components || [],
+        explanation: measurement.explanation || 'No versioned evidence-support measurement is available for this run.',
+      };
+    }
+    const legacyValue = bundle?.metrics?.confidence;
+    if (typeof legacyValue !== 'number' || Number.isNaN(legacyValue)) return null;
+    return {
+      status: 'measured',
+      measurement_status: 'measured',
+      value: legacyValue,
+      formula_version: null,
+      reason: 'legacy_trace_measurement',
+      missing_components: [],
+      explanation: 'Versioned evidence-support measurement recorded by this historical trace.',
+    };
+  }, [bundle]);
 
   if (!resolvedRunId && !auditTrail) return null;
 
@@ -99,13 +141,7 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
           {bundle && (
             <>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <div className="rounded border border-slate-200 bg-white/80 p-2 dark:border-white/10 dark:bg-white/5">
-                  <div className="mb-1 flex items-center gap-1 text-slate-500 dark:text-slate-400">
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    Evidence support
-                  </div>
-                  <div className="font-semibold">{scoreToPercent(bundle.metrics?.confidence)}</div>
-                </div>
+                <ConfidenceDisplayCard display={confidenceDisplay} compact />
                 <div className="rounded border border-slate-200 bg-white/80 p-2 dark:border-white/10 dark:bg-white/5">
                   <div className="mb-1 flex items-center gap-1 text-slate-500 dark:text-slate-400">
                     <Layers className="h-3.5 w-3.5" />
@@ -125,32 +161,32 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
                   <div className="font-semibold">{bundle.evidence_sources?.length ?? 0}</div>
                 </div>
               </div>
+              <RefinementDispositionCard
+                disposition={bundle.run?.data_snapshot?.refinement_disposition}
+                compact
+              />
+              <AnalystContributions personas={bundle.personas} compact />
 
-              <div className="rounded border border-slate-200 bg-white/70 p-2 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-                {confidenceMeasurement?.explanation || 'Evidence-support coverage was not measured for this run.'}
-                {confidenceMeasurement?.formula_version && (
-                  <span className="ml-1 font-mono text-[10px]">({confidenceMeasurement.formula_version})</span>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                {(bundle.frost_layers || []).slice(0, 5).map((stage) => (
-                  <div key={stage.stage_id} className="flex items-center justify-between gap-2 rounded bg-white/70 px-2 py-1 dark:bg-white/5">
-                    <span className="truncate">{stage.layer_index ? `L${stage.layer_index} ` : ''}{stage.name}</span>
-                  <Badge variant="outline" className="h-5 shrink-0 text-[10px]">
-                    {stage.status}
-                  </Badge>
-                </div>
-              ))}
-                {traceStream.layers.map((stage) => (
-                  <div key={`stream-${stage.stage_id || stage.layer_index || stage.name}`} className="flex items-center justify-between gap-2 rounded bg-blue-50 px-2 py-1 dark:bg-blue-950/40">
-                    <span className="truncate">{stage.layer_index ? `L${stage.layer_index} ` : ''}{stage.name || 'Trace update'}</span>
-                    <Badge variant="outline" className="h-5 shrink-0 border-blue-400 text-[10px] text-blue-600 dark:text-blue-300">
-                      {stage.status || 'live'}
-                    </Badge>
-                  </div>
+              <div className="max-h-80 space-y-1 overflow-y-auto overscroll-contain pr-1" role="region" aria-label="Complete saved trace stages">
+                {displayedStages.map((stage) => (
+                  <details key={stage.stage_id || `${stage.layer_index}-${stage.name}`} className="rounded bg-white/70 px-2 py-1 open:ring-1 open:ring-blue-500/30 dark:bg-white/5">
+                    <summary className="flex min-h-8 cursor-pointer list-none items-center justify-between gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                      <span className="truncate">{stage.layer_index ? `L${stage.layer_index} ` : ''}{stage.name || 'Trace update'}</span>
+                      <Badge variant="outline" className="h-5 shrink-0 text-[10px]">
+                        {stage.status || 'live'}
+                      </Badge>
+                    </summary>
+                    {stage.narrative && (
+                      <p className="mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+                        {stage.narrative}
+                      </p>
+                    )}
+                    {!stage.narrative && (
+                      <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">No public narrative was recorded for this stage.</p>
+                    )}
+                  </details>
                 ))}
-                {!bundle.frost_layers?.length && (
+                {!displayedStages.length && (
                   <div className="rounded bg-white/70 px-2 py-2 text-slate-500 dark:bg-white/5 dark:text-slate-400">
                     No stage records are attached to this run yet.
                   </div>
@@ -160,7 +196,7 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
               <div className="flex flex-wrap gap-2">
                 {auditTrail?.decision_path && (
                   <Button size="sm" variant="outline" asChild>
-                    <a href={auditTrail.decision_path.replace('/api/v1/trace/runs/', '/runs/view?id=')}>
+                    <a href={auditTrail.decision_path.replace('/api/v1/trace/runs/', '/runs/view?trace=')}>
                       Open details
                     </a>
                   </Button>

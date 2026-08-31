@@ -8,6 +8,11 @@
  */
 
 import { io, Socket } from "socket.io-client";
+import type {
+  ConfidenceDisplay,
+  GovernedMode,
+  ProviderCallBudget,
+} from '@/lib/api/types';
 
 // Types
 export interface SimulationProgress {
@@ -30,21 +35,30 @@ export interface ChatResponse {
   session_id: string;
   response: string;
   personas?: string[];
+  mode?: GovernedMode;
+  confidence_display?: ConfidenceDisplay | null;
+  provider_call_budget?: ProviderCallBudget | null;
 }
 
 export interface TraceStageUpdate {
+  schema_version: 'dle.public-trace-event.v1';
+  event_id: string;
+  sequence: number;
   run_id: string;
-  stage_id?: string;
-  name?: string;
-  status?: string;
-  layer_index?: number;
-  step_index?: number;
+  stage_id: string;
+  name: string;
+  status: string;
+  stage_type?: string;
+  layer_index?: number | null;
+  step_index?: number | null;
+  narrative: string;
+  occurred_at?: string | null;
+  error_code?: string | null;
   timing?: {
+    start_time?: string | null;
+    end_time?: string | null;
     duration_ms?: number | null;
   };
-  inputs?: unknown;
-  outputs?: unknown;
-  metrics?: Record<string, unknown> | null;
 }
 
 // Event handlers type

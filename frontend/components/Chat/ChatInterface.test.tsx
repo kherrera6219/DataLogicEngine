@@ -17,6 +17,7 @@ vi.mock('@/lib/api', () => ({
     chat: {
       listSessions: vi.fn(),
       getSessionMessages: vi.fn(),
+      createSession: vi.fn(),
       sendMessage: vi.fn(),
     },
   },
@@ -96,6 +97,17 @@ describe('ChatInterface', () => {
     (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       messages: [{ id: 'hist-1', role: 'assistant', content: '', finalAnswer: 'Session History' }] 
     });
+    (api.chat.createSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+      created: true,
+      session: {
+        id: 'created-session-1',
+        user_id: 1,
+        title: null,
+        mode: 'chat',
+        created_at: '2026-08-26T00:00:00Z',
+        updated_at: '2026-08-26T00:00:00Z',
+      },
+    });
     (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       response: 'Core Response',
       trace_summary: { steps: [] }
@@ -131,6 +143,158 @@ describe('ChatInterface', () => {
     fireEvent.click(sendBtn);
     
     await waitFor(() => expect(screen.getByText('Core Response')).toBeInTheDocument());
+  });
+
+  it('labels a length-limited answer and sends the visible transcript with an explicit continuation', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'The first portion ends here.',
+      status: 'length_limited',
+      completion: {
+        disposition: 'length_limited',
+        native_reason: 'MAX_TOKENS',
+        response_id: 'provider-response-1',
+      },
+    });
+
+    renderChatInterface();
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Give me a complete Mars engine review' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    expect(await screen.findByText(/answer reached the provider output limit/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /prepare continuation/i }));
+
+    expect((textarea as HTMLTextAreaElement).value).toMatch(/continue the prior answer/i);
+    expect(api.chat.sendMessage).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    await waitFor(() => expect(api.chat.sendMessage).toHaveBeenCalledTimes(2));
+    expect(api.chat.sendMessage).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        messages: [
+          { role: 'user', content: 'Give me a complete Mars engine review' },
+          { role: 'assistant', content: 'The first portion ends here.' },
+          {
+            role: 'user',
+            content: 'Continue the prior answer from where it stopped. Do not repeat completed material. Finish the unanswered parts of my request.',
+          },
+        ],
+      }),
+    );
+  });
+
+  it('renders measured evidence support and the actual Standard mode', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'Measured response',
+      mode: 'standard',
+      provider_call_budget: { max_calls: 1, calls_used: 1 },
+      confidence_display: {
+        status: 'measured',
+        value: 0.84,
+        formula_version: 'dle-confidence.v1',
+        reason: 'all_required_components_measured',
+        missing_components: [],
+        explanation: 'Evidence-support coverage, not correctness probability.',
+      },
+    });
+
+    renderChatInterface();
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Measured request' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    expect(await screen.findByText('Standard Mode')).toBeInTheDocument();
+    expect(screen.queryByText(/Enhanced Mode Active/i)).not.toBeInTheDocument();
+    expect(screen.getByText('84.0%')).toBeInTheDocument();
+    expect(screen.getByText(/not correctness probability/i)).toBeInTheDocument();
+    expect(screen.getByText(/1 of 1 provider attempts used/i)).toBeInTheDocument();
+  });
+
+  it('renders unmeasured confidence with its reason and Enhanced mode', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'Unmeasured response',
+      mode: 'enhanced',
+      provider_call_budget: { max_calls: 2, calls_used: 1 },
+      confidence_display: {
+        status: 'insufficient_evidence',
+        value: null,
+        formula_version: 'dle-confidence.v1',
+        reason: 'no_governed_evidence_available',
+        missing_components: ['claim_support', 'source_quality'],
+        explanation: 'Evidence support was not measured because no governed evidence was available.',
+      },
+    });
+
+    renderChatInterface();
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Unmeasured request' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    expect(await screen.findByText('Enhanced Mode')).toBeInTheDocument();
+    expect(screen.getByText('Not measured')).toBeInTheDocument();
+    expect(screen.getByText(/no governed evidence was available/i)).toBeInTheDocument();
+    expect(screen.queryByText('100.0%')).not.toBeInTheDocument();
+  });
+
+  it('creates a durable session before the first message is sent', async () => {
+    const createdSession = {
+      id: 'created-session-1',
+      user_id: 1,
+      title: null,
+      mode: 'chat',
+      created_at: '2026-08-26T00:00:00Z',
+      updated_at: '2026-08-26T00:00:00Z',
+    };
+    (api.chat.listSessions as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ sessions: [] })
+      .mockResolvedValue({ sessions: [createdSession] });
+    (api.chat.createSession as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      created: true,
+      session: createdSession,
+    });
+
+    renderChatInterface();
+    expect(await screen.findByText('No recent sessions found')).toBeInTheDocument();
+
+    const textarea = screen.getByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'First durable question' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    await waitFor(() => expect(api.chat.createSession).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      expect(api.chat.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          session_id: 'created-session-1',
+          messages: [{ role: 'user', content: 'First durable question' }],
+        }),
+      );
+    });
+    expect(
+      (api.chat.createSession as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
+    ).toBeLessThan(
+      (api.chat.sendMessage as ReturnType<typeof vi.fn>).mock.invocationCallOrder[0],
+    );
+    expect(await screen.findByText('Session created-')).toBeInTheDocument();
+  });
+
+  it('new chat stays a draft until send and then uses one persisted session', async () => {
+    renderChatInterface();
+    await screen.findByText('Session 1');
+
+    fireEvent.click(screen.getByTestId('new-chat-button'));
+    expect(screen.getByText('No active session')).toBeInTheDocument();
+
+    const textarea = screen.getByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Start a new persisted chat' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    await waitFor(() => expect(api.chat.createSession).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      expect(api.chat.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ session_id: 'created-session-1' }),
+      );
+    });
   });
 
   it('should display queued gateway trace links when a provider request is saved offline', async () => {
@@ -408,5 +572,15 @@ describe('ChatInterface', () => {
     expect(screen.queryByText('Advanced Configuration')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Export' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Clear All' })).not.toBeInTheDocument();
+  });
+
+  it('lets the user collapse and restore the dedicated trace pane', async () => {
+    renderChatInterface();
+
+    expect(await screen.findByTestId('trace-panel')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Hide trace explorer' }));
+    expect(screen.queryByTestId('trace-panel')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Show trace explorer' }));
+    expect(screen.getByTestId('trace-panel')).toBeInTheDocument();
   });
 });

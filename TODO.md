@@ -6,21 +6,21 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.17.0 |
-| Product version | 4.4.3 |
+| Document version | v1.19.0 |
+| Product version | 4.4.4 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-08-31 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.82.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; 4.4.3 exact-source rebuild is installed and healthy with core payload identity matched while provider/signing/lifecycle CP19-M acceptance remains open |
+| Current phase | Phase 19 installed-chat repair; 4.4.4 source is integrated and green, exact-source Windows rebuild/installed acceptance is next, and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -483,6 +483,147 @@ Phase 18 source baseline while completing the whole-application wiring.
         releases through Layer 10, and exposes persisted validation telemetry.
   - [ ] Complete elevated install/upgrade/repair/uninstall, retained-data, and
         post-uninstall cleanup acceptance on the exact replacement artifact.
+
+## Installed governed-chat findings — 2026-08-26
+
+Owner-observed installed-app review and source reconciliation. These findings
+do not reopen CP19-D through CP19-G: the canonical ten-layer path, causal DSQP
+preparation, and conditional 12-step refinement workflow remain implemented.
+They identify missing or misleading product presentation, durability, and
+acceptance behavior that must close before the CP19-M chat, trace, UI, and
+accessibility rows can pass.
+
+Evidence snapshot: installed run `0779492c-c054-4630-b321-b2e13be7b4ef`
+completed through 14 governed stages with Google `gemini-3.7-flash`. The run
+was Standard mode, trivial tier, had zero evidence, reported confidence as
+`not_measured`, and did not execute `refinement_1`. Its 107-token answer was
+short and ended mid-sentence. The chat trace showed compressed stage labels,
+no working detail controls, no distinct analyst contributions, and no visible
+explanation for the absent refinement workflow.
+
+Supporting implementation plan:
+`docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md`.
+
+Source checkpoint (2026-08-31): CHAT-QC-01 through CHAT-QC-05,
+TRACE-QC-01 through TRACE-QC-06, and DATA-QC-01 through DATA-QC-02 are
+implemented. The integrated gate passes 3,353 backend tests with 18 skipped
+and zero failures/setup errors, 504 frontend tests, the production frontend
+build, frontend lint/type checking, documentation references, and requirements
+traceability. Product source is now 4.4.4. Installed artifact-bound CHAT-QC-06
+acceptance remains open and none of these source results closes CP19-M.
+
+### A. Chat durability and answer quality
+
+- [x] **CHAT-QC-01 — create and retain a durable session before the first
+      send.** A new-chat request currently omits `session_id`, so the backend
+      cannot attach the exchange to recent-session history. Create or resolve
+      the session before provider execution, use the same ID for the governed
+      run and history writes, and restore the conversation after navigation and
+      application relaunch. Acceptance: a first-message chat appears once in
+      Recent Sessions, reopens with the complete transcript, and never creates
+      a duplicate session during retry or replay.
+- [x] **CHAT-QC-02 — prevent incomplete or prematurely truncated answers.**
+      Reconcile configured output limits, provider finish reasons, response
+      parsing, persistence, and rendering. Never present content ending
+      mid-sentence as an ordinary successful answer. Acceptance: the installed
+      Mars-engine question produces a complete answer appropriate to the
+      requested breadth, or an explicit typed truncation/limit result with a
+      safe continuation action; persisted and displayed content must match.
+- [x] **CHAT-QC-03 — report confidence truthfully and explain absence.** Show a
+      measured evidence-support score only when the governed confidence formula
+      produced one. Otherwise show `Not measured` plus its reason. Do not use
+      DSQP profile coverage as persona-answer confidence and do not infer high
+      confidence from successful provider execution. Acceptance: measured,
+      unmeasured, failed-validation, and insufficient-evidence fixtures render
+      distinct, accurate states in chat, Live Trace, run detail, and export.
+- [x] **CHAT-QC-04 — render the actual governed mode.** Direct chat responses
+      currently mark every assistant message as enhanced. Bind the badge and
+      explanatory copy to the returned governed mode. Acceptance: Standard and
+      Enhanced fixtures display their real mode and provider-attempt budget.
+
+### B. Trace truthfulness, reasoning narrative, and refinement visibility
+
+- [x] **TRACE-QC-01 — establish one live trace event contract.** Normalize the
+      backend fields (`stage_name`, `input`, `output`, `duration_ms`) and the
+      renderer contract, return or correlate the run ID early enough to join
+      its room before execution, and reconnect without losing ordered events.
+      Acceptance: stage-start and stage-finish events appear while a request is
+      running, then reconcile exactly with the persisted trace bundle.
+- [x] **TRACE-QC-02 — stream safe structured reasoning summaries.** For every
+      stage, show its purpose, authorized inputs/evidence, selected KAs,
+      material findings, decision and reason, checks, warnings, output summary,
+      and duration as those records become available. Do not expose private raw
+      chain-of-thought, credentials, full prompts, personal data, or unbounded
+      internal JSON. Generate the narrative deterministically from governed
+      records without an additional provider call. Acceptance: a user can tell
+      what each stage did and why it advanced, blocked, failed, or skipped,
+      while redaction/canary tests prove sensitive values are absent.
+- [x] **TRACE-QC-03 — make refinement disposition visible on every run.** Show
+      one of `not_enabled`, `not_needed`, `not_measured`, `executed`, `blocked`,
+      or `failed`, with the exact policy/convergence reason. Never say
+      confidence was high when it was not measured. For the observed Standard
+      run, the truthful message is that Standard mode permitted zero refinement
+      cycles and confidence was not measured. Acceptance: every run has a
+      refinement card even when no `refinement_1` stage exists.
+- [x] **TRACE-QC-04 — stream and expand all 12 canonical refinement steps when
+      invoked.** Preserve the single persisted refinement receipt while
+      presenting each ordered step, status, reason, selected/executed/reused
+      KAs, findings, constraints, effects, and rewrite decision in chat and run
+      detail. Acceptance: Enhanced refine, explicit skip, blocked-step, failed-
+      step, and completed-rewrite fixtures show all 12 accounted steps and the
+      post-rewrite L6-L10 pass.
+- [x] **TRACE-QC-05 — expose truthful analyst contributions before synthesis.**
+      Display each knowledge, sector, regulatory, and compliance analyst's
+      actual findings, objections, constraints, evidence references, and
+      measurement status separately from the combined answer. Replace the
+      misleading 100% profile-coverage display and generic persona descriptions.
+      If separately generated full prose answers require extra provider calls
+      or an external response-contract change, stop for owner approval of the
+      call budget, latency, and public field names. Acceptance: no analyst card
+      is shown as an answer unless that contribution actually affected the
+      synthesis and is trace-linked.
+- [x] **TRACE-QC-06 — repair the Trace Explorer layout and controls.** Move the
+      explorer out of the composer, prevent fixed sidebars from collapsing the
+      center pane, provide responsive/scrollable stage navigation, and make
+      Tree View, Timeline View, and View Details real keyboard-operable
+      controls. Acceptance: 14 stages plus a 12-step refinement remain readable
+      at supported scaling, contrast, keyboard, and screen-reader settings.
+
+### C. Trace analytics and knowledge connectivity
+
+- [x] **DATA-QC-01 — connect Trace & Review analytics to persisted run data.**
+      Verify the analytics page uses the authoritative trace API and current
+      principal scope; implement explicit loading, empty, error, filtered, and
+      populated states. Acceptance: the observed run and its real stage,
+      provider, token, duration, confidence-measurement, evidence, persona, and
+      refinement disposition are visible without fabricated zero values.
+- [x] **DATA-QC-02 — connect the Knowledge Base page to authoritative ingestion
+      and retrieval state.** Verify source/job/revision, graph/vector/object
+      materialization, retrieval use, failure, and deletion/reconciliation
+      bindings. Acceptance: an authorized source moves through visible durable
+      states, affects a governed answer with traceable source identity, and its
+      deletion reconciles every store; unavailable services render an explicit
+      reason instead of an empty or synthetic page.
+
+### D. Integrated acceptance and documentation
+
+- [x] **CHAT-QC-05 — complete focused source regression coverage.** Add backend
+      contract tests, frontend component tests, live-event ordering/reconnect
+      tests, session idempotency tests, trace-redaction tests, and browser tests
+      covering CHAT-QC-01 through DATA-QC-02. Do not weaken existing gates.
+- [ ] **CHAT-QC-06 — rebuild and perform installed visual/functional
+      acceptance.** After the source tasks pass, apply the standing major-update
+      version rule, rebuild from the exact clean commit, and bind the artifact
+      hash to session persistence, answer completeness, confidence semantics,
+      live narrative, analyst contribution, conditional 12-step refinement,
+      analytics, Knowledge Base, scaling, keyboard, contrast, and NVDA evidence.
+      This acceptance is required before the affected CP19-M rows can close.
+
+Execution order: CHAT-QC-01 through CHAT-QC-04; TRACE-QC-01 through
+TRACE-QC-05; DATA-QC-01 and DATA-QC-02; TRACE-QC-06; CHAT-QC-05; then
+CHAT-QC-06. Independent tasks within the same group may be prepared together,
+but their evidence must remain individually attributable.
+
 - [x] **CU-4 terminology evidence inventory:** classified the archived rename
       proposals against current code, UI, APIs, SDKs, schemas, active docs, and
       tests; rejected unsupported mathematical, standards, deployment,

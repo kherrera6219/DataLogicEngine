@@ -1,6 +1,8 @@
 import { request } from '@/lib/api/client';
 import type {
   TraceAxisVector,
+  TraceAnalytics,
+  TraceAnalyticsFilters,
   TraceBundle,
   TraceEvidenceSource,
   TraceKAInvocation,
@@ -34,6 +36,17 @@ export const trace = {
     request<TraceListResponse | TraceRun[]>(`/trace/runs?per_page=${boundedLimit(limit)}`).then(traceRunsFromResponse),
   get: (id: string) => request<TraceRun>(traceRunPath(id)),
   getBundle: (id: string) => request<TraceBundle>(`${traceRunPath(id)}/bundle`),
+  analytics: (filters: TraceAnalyticsFilters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.days !== undefined) params.set('days', String(filters.days));
+    if (filters.limit !== undefined) params.set('limit', String(filters.limit));
+    if (filters.status) params.set('status', filters.status);
+    if (filters.mode) params.set('mode', filters.mode);
+    if (filters.provider) params.set('provider', filters.provider);
+    if (filters.scope) params.set('scope', filters.scope);
+    const suffix = params.toString();
+    return request<TraceAnalytics>(`/trace/analytics${suffix ? `?${suffix}` : ''}`);
+  },
   getStages: (id: string) => request<{ stages: TraceStage[] }>(`${traceRunPath(id)}/stages`),
   getEvidence: (id: string) => request<{ evidence: TraceEvidenceSource[] }>(`${traceRunPath(id)}/evidence`),
   getPersonas: (id: string) => request<{ personas: TracePersona[] }>(`${traceRunPath(id)}/personas`),

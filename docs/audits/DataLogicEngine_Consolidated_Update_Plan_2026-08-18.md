@@ -7,7 +7,7 @@
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
 | Document version | v1.12.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Date | 2026-08-27 |
 | Status | Active supporting review input; CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
