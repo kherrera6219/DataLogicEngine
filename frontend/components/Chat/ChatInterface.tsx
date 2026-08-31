@@ -14,6 +14,7 @@ import {
 import { ChatMessage, TracePipeline } from './types';
 import { ApiChatMessage, ChatSession } from '@/lib/api/chat';
 import { api, request, ApiError } from '@/lib/api';
+import type { Message as GatewayMessage } from '@/lib/api/types';
 import { socketClient, useSocket } from '@/lib/socket';
 import {
   sanitizeFileName,
@@ -35,6 +36,20 @@ interface ChatInterfaceProps {
 }
 
 const MAX_CHAT_INPUT_LENGTH = 8_000;
+const MAX_GATEWAY_MESSAGE_COUNT = 64;
+
+function buildGatewayMessages(
+  history: ChatMessage[],
+  currentMessage: ChatMessage,
+): GatewayMessage[] {
+  return [...history, currentMessage]
+    .map((message) => ({
+      role: message.role,
+      content: (message.content || message.finalAnswer || '').trim(),
+    }))
+    .filter((message) => message.content.length > 0)
+    .slice(-MAX_GATEWAY_MESSAGE_COUNT);
+}
 
 type GatewayTracePayload = {
   run_id?: string | null;
@@ -293,12 +308,13 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     const requestId = crypto.randomUUID();
     setActiveRequestId(requestId);
     let sessionId = currentSessionId ?? undefined;
+    const gatewayMessages = buildGatewayMessages(messages, userMsg);
 
     try {
       sessionId = await ensureCurrentSession();
       // Use the centralized API
       const data = await api.chat.sendMessage({
-        messages: [{ role: 'user', content: userMsg.content }],
+        messages: gatewayMessages,
         request_id: requestId,
         mode: mode,
         session_id: sessionId,
@@ -379,7 +395,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             failure_class: failureClass,
             payload: {
               request_id: requestId,
-              messages: [{ role: 'user', content: userMsg.content }],
+              messages: gatewayMessages,
               mode,
               session_id: sessionId,
               run_ukg_pipeline: true,

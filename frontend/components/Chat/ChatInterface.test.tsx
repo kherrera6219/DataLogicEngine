@@ -145,7 +145,7 @@ describe('ChatInterface', () => {
     await waitFor(() => expect(screen.getByText('Core Response')).toBeInTheDocument());
   });
 
-  it('labels a length-limited answer and requires an explicit continuation send', async () => {
+  it('labels a length-limited answer and sends the visible transcript with an explicit continuation', async () => {
     (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
       response: 'The first portion ends here.',
       status: 'length_limited',
@@ -166,6 +166,22 @@ describe('ChatInterface', () => {
 
     expect((textarea as HTMLTextAreaElement).value).toMatch(/continue the prior answer/i);
     expect(api.chat.sendMessage).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+
+    await waitFor(() => expect(api.chat.sendMessage).toHaveBeenCalledTimes(2));
+    expect(api.chat.sendMessage).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        messages: [
+          { role: 'user', content: 'Give me a complete Mars engine review' },
+          { role: 'assistant', content: 'The first portion ends here.' },
+          {
+            role: 'user',
+            content: 'Continue the prior answer from where it stopped. Do not repeat completed material. Finish the unanswered parts of my request.',
+          },
+        ],
+      }),
+    );
   });
 
   it('renders measured evidence support and the actual Standard mode', async () => {
