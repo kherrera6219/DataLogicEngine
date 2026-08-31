@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-007 |
 | Title | Maintenance and disaster-recovery plan |
 | Document version | v1.2.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | qualification_only |
 | Audience | Owner/operator, platform and data engineering, support, security, quality, and recovery reviewers |
 | Owner | Platform Operations |

@@ -7,7 +7,7 @@
 | Document ID | DLE-USER-003 |
 | Title | Administrator and operations guide |
 | Document version | v1.3.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | qualification_only |
 | Audience | Single owner/operator, Windows administrators, support engineers, and release reviewers |
 | Owner | Platform Operations |
@@ -27,7 +27,7 @@ narrow observation does not repeat the installation action, upgrade, repair,
 uninstall, retained-data lifecycle, provider chat, or recovery acceptance.
 Administrators must not transfer those results from an older artifact.
 
-DataLogicEngine 4.4.3 is a single-owner local-first Windows application. The
+DataLogicEngine 4.4.4 is a single-owner local-first Windows application. The
 normal desktop profile binds the backend and internal services to installation-
 specific local boundaries. The application owns PostgreSQL, Redis, Neo4j,
 ChromaDB, and app-owned S3-compatible object-store production responsibilities; externally managed databases

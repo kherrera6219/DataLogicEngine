@@ -2,7 +2,7 @@
 
 **Version:** 1.1 *(rev. — US-only market decision applied, 2026-08-18)*
 **Date:** August 17, 2026
-**Target:** `C:\software\DataLogicEngine` @ main, v4.4.3 (`release_blocked`)
+**Target:** `C:\software\DataLogicEngine` @ main, v4.4.4 (`release_blocked`)
 **Executor:** Codex (autonomous coding agent), reviewed by Kevin Herrera
 **Source findings:** `DataLogicEngine_External_Review_2026-08-16.md`, `UKG_Standards_Compliance_Blueprint_2026-08-17.md`
 **Conventions:** extends `DataLogicEngine_Audit_Sprint_Plan_v2.md` (task IDs, exit gates, one-task-one-commit)
@@ -13,7 +13,7 @@ before CR-A1 is treated as open work. Other findings retain their task-level
 verify-first requirements; CR-E1 and CR-E4 were found already satisfied.
 
 **Assumption stated in the open:** this program remains a separate gate to
-unblocking v4.4.3. Phase 19 established substantial pipeline wiring evidence,
+unblocking v4.4.4. Phase 19 established substantial pipeline wiring evidence,
 but CP19-M installed/provider/signing acceptance remains independently open.
 The CR task IDs are namespaced to avoid collision with the release program.
 

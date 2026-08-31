@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
 | Document version | v3.8.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
 | Owner | Platform Engineering |
@@ -22,7 +22,7 @@
 
 Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
 
-The current 4.4.3 source baseline passes 3,317 Python tests with 19 skipped and
+The current 4.4.4 source baseline passes 3,353 Python tests with 18 skipped and
 484 frontend tests. It selects OpenAI `gpt-5.6-sol` with High reasoning and
 Google `gemini-3.7-flash`. The current replacement was rebuilt from exact
 source commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`; static packaging,

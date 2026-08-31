@@ -7,7 +7,7 @@
 | Document ID | DLE-PROD-001 |
 | Title | Product requirements and acceptance specification |
 | Document version | v1.5.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | active |
 | Audience | Product owner, engineering, quality, assurance, operators, and professional reviewers |
 | Owner | Product Engineering |
@@ -20,7 +20,7 @@
 
 ## Purpose
 
-Define the approved product contract for DataLogicEngine 4.4.3 and the evidence
+Define the approved product contract for DataLogicEngine 4.4.4 and the evidence
 needed to claim that contract is satisfied. This document states requirements;
 it does not convert an engineering checkpoint into production approval.
 
@@ -65,7 +65,7 @@ acceptance passes.
 
 ## Explicit exclusions
 
-The 4.4.3 contract excludes public-internet gateway exposure, public
+The 4.4.4 contract excludes public-internet gateway exposure, public
 self-registration, multi-tenancy, vendor-hosted customer data or API spend,
 Kubernetes, managed cloud databases as production authorities, mobile clients,
 and macOS or Linux packaging. CORS/browser gateway use and network MCP

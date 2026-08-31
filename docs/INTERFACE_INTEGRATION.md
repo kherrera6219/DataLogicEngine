@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
 | Document version | v1.6.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
 | Owner | API Engineering |
@@ -28,7 +28,7 @@ call model providers or internal data services directly.
 The default listener is loopback-only. Same-host clients are supported at the
 engineering checkpoint. `private_windows_gateway` remains disabled until the
 signed two-machine TLS/firewall qualification passes. Browser/CORS and public-
-internet exposure are outside the 4.4.3 contract.
+internet exposure are outside the 4.4.4 contract.
 
 The current 4.4.3 payload is installed under Program Files and its backend is
 healthy on `127.0.0.1:5000`; core packaged-file hashes match the extracted

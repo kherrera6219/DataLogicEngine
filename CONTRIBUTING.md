@@ -7,7 +7,7 @@
 | Document ID | DLE-ROOT-004 |
 | Title | Contribution controls |
 | Document version | v1.2.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | active |
 | Audience | Contributors, maintainers, and reviewers |
 | Owner | Platform Engineering |
@@ -175,7 +175,7 @@ then-current product or any already-built engineering artifact. The first
 qualifying application of this rule advanced the desktop-chat/runtime repair
 batch to `4.4.1`; the subsequent packaged dependency-injection correction
 advanced the replacement batch to `4.4.2`; the runtime-capture and Layer-8
-closure advances the next exact-source build to `4.4.3`.
+closure advances the next exact-source build to `4.4.4`.
 
 ### Sync with Upstream
 

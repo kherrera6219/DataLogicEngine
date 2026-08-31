@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-004 |
 | Title | KA and TruthCore validation dossier |
 | Document version | v1.5.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.4 |
 | Status | release_blocked |
 | Audience | AI assurance, quality, product owner, architecture, independent reviewers, and evaluators |
 | Owner | AI Assurance |
