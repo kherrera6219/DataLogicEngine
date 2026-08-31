@@ -56,13 +56,13 @@ export function TraceVisualizer({ trace, hasExecutedQuery = false }: TraceVisual
           {(['tree', 'timeline'] as const).map((name) => (
             <button
               key={name}
+              onClick={() => selectView(name)}
               ref={(node) => { tabRefs.current[name] = node; }}
               type="button"
               role="tab"
               aria-selected={view === name}
               aria-controls={`trace-${name}-panel`}
               tabIndex={view === name ? 0 : -1}
-              onClick={() => selectView(name)}
               onKeyDown={handleTabKey}
               className="min-h-10 rounded-lg border px-3 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 aria-selected:border-blue-500 aria-selected:bg-blue-500/10 aria-selected:text-blue-700 dark:aria-selected:text-blue-300"
             >
