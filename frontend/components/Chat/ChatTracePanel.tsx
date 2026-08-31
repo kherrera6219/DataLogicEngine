@@ -10,6 +10,7 @@ import type { ConfidenceDisplay } from '@/lib/api/types';
 import { useTraceStream } from '@/hooks/useTraceStream';
 import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
 import { RefinementDispositionCard } from './RefinementDispositionCard';
+import { AnalystContributions } from './AnalystContributions';
 
 interface ChatTracePanelProps {
   runId?: string;
@@ -164,6 +165,7 @@ export function ChatTracePanel({ runId, auditTrail }: ChatTracePanelProps) {
                 disposition={bundle.run?.data_snapshot?.refinement_disposition}
                 compact
               />
+              <AnalystContributions personas={bundle.personas} compact />
 
               <div className="space-y-1">
                 {displayedStages.slice(0, 8).map((stage) => (

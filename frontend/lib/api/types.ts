@@ -435,6 +435,18 @@ export interface TracePersona {
     confidence?: number | null;
   };
   confidence?: number | null; // Top level confidence
+  finding?: string | null;
+  measurement_status?: string;
+  profile_coverage?: number | null;
+  provider_generated?: boolean;
+  evidence_ids?: string[];
+  synthesis_influence?: {
+    disposition?: string;
+    authority_weight?: number | null;
+    reason?: string | null;
+    constraint_ids?: string[];
+    retained_objection_ids?: string[];
+  };
   initial_position?: string | null;
   critique_of_others?: string | null;
   final_position?: string | null;

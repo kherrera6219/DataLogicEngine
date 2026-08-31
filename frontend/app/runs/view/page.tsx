@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConfidenceDisplayCard } from '@/components/Chat/ConfidenceDisplayCard';
 import { RefinementDispositionCard } from '@/components/Chat/RefinementDispositionCard';
+import { AnalystContributions } from '@/components/Chat/AnalystContributions';
 import type {
   TraceAxisVector,
   TraceBundle,
@@ -43,12 +44,6 @@ function formatCount(value: unknown, fallback = 0): string {
 
 function formatMs(value: unknown): string {
   return isFiniteNumber(value) ? String(value) + ' ms' : '--';
-}
-
-function scoreToPercent(value: unknown, digits = 0): string {
-  if (!isFiniteNumber(value)) return '--';
-  const normalized = value <= 1 ? value * 100 : value;
-  return normalized.toFixed(digits) + '%';
 }
 
 function scoreToFixed(value: unknown): string {
@@ -440,32 +435,10 @@ function TraceDetailContent() {
             </TabsContent>
 
             <TabsContent value="personas" className="mt-4 space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {personas.map((p, index) => {
-                  const personaName = p.persona_name || p.persona_type || 'Persona';
-                  const draftText = p.draft?.text || p.final_position || p.initial_position || '';
-                  return (
-                    <Card key={p.persona_id || 'persona-' + index} className="border-l-4 border-l-blue-500">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="flex justify-between gap-3 text-lg">
-                          <span>{personaName}</span>
-                          <Badge variant="outline" className="text-xs uppercase">{p.persona_type || 'unknown'}</Badge>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="mb-3 text-sm italic text-gray-600 dark:text-gray-300">
-                          {draftText ? <>&quot;{draftText.slice(0, 150)}{draftText.length > 150 ? '...' : ''}&quot;</> : 'No draft recorded.'}
-                        </p>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>Confidence: {scoreToPercent(p.confidence ?? p.draft?.confidence)}</span>
-                          <span className="capitalize">{statusLabel(p.status)}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+              <div>
+                <AnalystContributions personas={personas} />
                 {!personas.length && (
-                  <div className="col-span-2 rounded-lg border border-dashed p-8 text-center text-gray-500">
+                  <div className="rounded-lg border border-dashed p-8 text-center text-gray-500">
                     No persona activation data found for this run.
                   </div>
                 )}
