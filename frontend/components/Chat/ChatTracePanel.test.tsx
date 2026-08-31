@@ -29,6 +29,17 @@ const mockTraceBundle: TraceBundle = {
     status: 'completed',
     created_at: null,
     data_snapshot: {
+      refinement_disposition: {
+        schema_version: 'dle.refinement-disposition.v1',
+        status: 'not_enabled',
+        reason: 'standard_mode_provider_budget',
+        enabled: false,
+        measurement_status: 'not_measured',
+        convergence_action: null,
+        workflow_status: null,
+        step_count: 0,
+        rewrite_performed: false,
+      },
       confidence_measurement: {
         formula_version: 'dle-confidence.v1',
         value: null,
@@ -83,6 +94,9 @@ describe('ChatTracePanel', () => {
     });
     expect(screen.getByText('Not measured')).toBeInTheDocument();
     expect(screen.getByText(/Required provenance inputs were unavailable/)).toBeInTheDocument();
+    expect(screen.getByText('Refinement decision')).toBeInTheDocument();
+    expect(screen.getByText('Not enabled')).toBeInTheDocument();
+    expect(screen.getByText(/Standard mode permits one provider attempt/)).toBeInTheDocument();
   });
 
   it('should handle error loading bundle', async () => {

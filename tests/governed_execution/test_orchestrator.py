@@ -807,6 +807,35 @@ async def test_provider_failure_has_no_validation_stage(monkeypatch):
     names = [stage.name for stage in result.stages]
     assert "layer_6_evidence_validation" not in names
     assert result.stages[names.index("provider_execution")].status.value == "failed"
+    assert result.metadata["refinement_disposition"] == {
+        "schema_version": "dle.refinement-disposition.v1",
+        "status": "not_measured",
+        "reason": "candidate_measurement_unavailable",
+        "enabled": True,
+        "measurement_status": "not_measured",
+        "convergence_action": None,
+        "workflow_status": None,
+        "step_count": 0,
+        "rewrite_performed": False,
+    }
+
+
+@pytest.mark.asyncio
+async def test_standard_run_records_refinement_not_enabled(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: ([], []))
+    gateway = _Gateway()
+    result = await _orchestrator(gateway).execute(
+        _request(mode=GovernedMode.STANDARD)
+    )
+
+    disposition = result.metadata["refinement_disposition"]
+    assert disposition["status"] == "not_enabled"
+    assert disposition["reason"] == "standard_mode_provider_budget"
+    assert disposition["enabled"] is False
+    assert disposition["step_count"] == 0
+    assert not [stage for stage in result.stages if stage.stage_type == "refinement_step"]
 
 
 @pytest.mark.asyncio
@@ -847,6 +876,15 @@ async def test_enhanced_refinement_converges_once_and_terminates(monkeypatch):
         ("L8", 1),
         ("L9", 1),
     ]
+    disposition = result.metadata["refinement_disposition"]
+    assert disposition["status"] == "executed"
+    assert disposition["workflow_status"] == "completed"
+    assert disposition["step_count"] == 12
+    assert disposition["rewrite_performed"] is True
+    refinement_steps = [
+        stage for stage in result.stages if stage.stage_type == "refinement_step"
+    ]
+    assert [stage.inputs["step"] for stage in refinement_steps] == list(range(1, 13))
 
 
 @pytest.mark.asyncio
@@ -900,6 +938,8 @@ async def test_refinement_provider_failure_is_terminal(monkeypatch):
     assert result.ok is False
     assert result.failure.code == "PROVIDER_REFINEMENT_FAILURE"
     assert gateway.provider_calls == 2
+    assert result.metadata["refinement_disposition"]["status"] == "failed"
+    assert result.metadata["refinement_disposition"]["step_count"] == 12
 
 
 @pytest.mark.asyncio

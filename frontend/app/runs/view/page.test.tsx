@@ -186,4 +186,50 @@ describe('TraceDetailPage', () => {
     expect(screen.getByText(/Executed KAs: KA-018/)).toBeInTheDocument();
     expect(screen.getByText('Authorized')).toBeInTheDocument();
   });
+
+  it('renders a not-needed refinement decision even when no refinement stage exists', async () => {
+    searchParamGetMock.mockImplementation((key: string) => (key === 'id' ? 'trace-no-refinement' : null));
+    getBundleMock.mockResolvedValue({
+      run_id: 'trace-no-refinement',
+      status: 'completed',
+      run: {
+        run_id: 'trace-no-refinement',
+        status: 'completed',
+        created_at: '2026-08-18T10:00:00Z',
+        data_snapshot: {
+          refinement_disposition: {
+            schema_version: 'dle.refinement-disposition.v1',
+            status: 'not_needed',
+            reason: 'measured_candidate_met_release_gate',
+            enabled: true,
+            measurement_status: 'measured',
+            convergence_action: 'finalize',
+            workflow_status: null,
+            step_count: 0,
+            rewrite_performed: false,
+          },
+        },
+      },
+      stages: [],
+      frost_layers: [],
+      personas: [],
+      persona_positions: [],
+      evidence_sources: [],
+      evidence: [],
+      ka_invocations: [],
+      kas: [],
+      axes: null,
+      coordinate: null,
+      policy_decisions: [],
+      memory_events: [],
+      metrics: {},
+      export_url: '/trace/export',
+    });
+
+    render(<TraceDetailPage />);
+
+    expect(await screen.findByText('Refinement decision')).toBeInTheDocument();
+    expect(screen.getByText('Not needed')).toBeInTheDocument();
+    expect(screen.getByText(/measured candidate met the release gate/i)).toBeInTheDocument();
+  });
 });
