@@ -22,6 +22,10 @@ vi.mock('@/lib/api', () => ({
   request: requestMock,
 }));
 
+vi.mock('@/hooks/useTraceStream', () => ({
+  useTraceStream: () => ({ layers: [], connected: false, error: null }),
+}));
+
 // Mock UI components
 vi.mock('@/components/ui/progress', () => ({
   Progress: ({ value }: { value: number }) => <div data-testid="progress" data-value={value} />
@@ -194,19 +198,19 @@ describe('LiveTracePanel', () => {
     await waitFor(() => expect(listMock).toHaveBeenCalledTimes(2));
   });
 
-  it('shows running progress without stages and tolerates all telemetry failures', async () => {
+  it('shows an explicit error when stage telemetry is unavailable', async () => {
     getStagesMock.mockRejectedValueOnce(new Error('stage unavailable'));
     requestMock.mockRejectedValue(new Error('telemetry unavailable'));
     render(<LiveTracePanel />);
-    expect(await screen.findByText('10%')).toBeInTheDocument();
-    expect(screen.getByText('No stages')).toBeInTheDocument();
-    expect(screen.getByText('Waiting for stage data')).toBeInTheDocument();
+    expect(await screen.findByText('stage unavailable')).toBeInTheDocument();
+    expect(screen.queryByText('10%')).not.toBeInTheDocument();
   });
 
-  it('falls back to idle when trace listing fails', async () => {
+  it('does not disguise a trace listing failure as an empty idle result', async () => {
     listMock.mockRejectedValueOnce(new Error('startup race'));
     render(<LiveTracePanel />);
     expect(await screen.findByText('IDLE')).toBeInTheDocument();
-    expect(screen.getByText(/No trace runs found yet/i)).toBeInTheDocument();
+    expect(screen.getByText('startup race')).toBeInTheDocument();
+    expect(screen.queryByText(/No trace runs found yet/i)).not.toBeInTheDocument();
   });
 });

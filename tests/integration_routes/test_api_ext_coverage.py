@@ -106,17 +106,17 @@ class TestTracingApi:
             mock_run_model.query.filter_by.return_value.first_or_404.side_effect = NotFound()
             response = client.get('/api/tracing/runs/00000000-0000-0000-0000-000000000001/bundle')
 
-        assert response.status_code == 200
+        assert response.status_code == 404
         payload = response.get_json()
         assert payload['status'] == 'unavailable'
-        assert payload['degraded'] is True
-        assert payload['stages'] == []
+        assert payload['schema_version'] == 'dle.trace-unavailable.v1'
+        assert payload['error']['code'] == 'TRACE_BUNDLE_NOT_FOUND'
 
     def test_live_progress_degrades_on_trace_storage_error(self, client):
         with patch('backend.tracing.api._latest_accessible_run', side_effect=RuntimeError('schema mismatch')):
             response = client.get('/api/tracing/live-progress')
 
-        assert response.status_code == 200
+        assert response.status_code == 503
         payload = response.get_json()
-        assert payload['status'] == 'idle'
-        assert payload['degraded'] is True
+        assert payload['status'] == 'unavailable'
+        assert payload['error']['code'] == 'TRACE_PROGRESS_UNAVAILABLE'
