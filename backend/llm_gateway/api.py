@@ -33,11 +33,12 @@ from models import (
     TraceRun,
     TraceStage,
     TraceEvidence,
+    UserAIPreferences,
 )
 from backend.llm_gateway.gateway import LLMGateway, NetworkState
 from backend.governed_execution import GovernedRequest
 from backend.llm_gateway.model_defaults import SUPPORTED_PROVIDER_TYPES, default_model_for_provider
-from backend.llm_gateway.provider_manifest import normalize_provider_type, validate_provider_model
+from backend.llm_gateway.provider_manifest import normalize_provider_type, provider_model_definition, validate_provider_model
 from backend.llm_gateway.provider_errors import (
     ProviderFailureClass,
     classify_provider_failure,
@@ -69,6 +70,7 @@ from backend.llm_gateway.schemas import (
     APIKeyRotate,
     GatewayAsyncRunCreate,
     GatewayChatRequest,
+    DesktopGatewayChatRequest,
     GatewaySessionCreateRequest,
     OpenAIChatCompletionRequest,
 )
@@ -157,6 +159,54 @@ def _positive_int(value):
     except (TypeError, ValueError):
         return None
     return parsed if parsed > 0 else None
+
+
+def _desktop_session_messages(messages: list[dict], *, session_id: str | None, user_id: int) -> list[dict]:
+    """Use the authenticated session transcript as chat continuation authority."""
+    if not session_id or not messages or messages[-1].get('role') != 'user':
+        return messages
+    try:
+        parsed_session_id = uuid.UUID(str(session_id))
+    except (TypeError, ValueError, AttributeError):
+        return messages
+    session = ChatSession.query.filter_by(id=parsed_session_id, user_id=user_id).first()
+    if session is None:
+        return messages
+    preferences = UserAIPreferences.query.filter_by(user_id=user_id).first()
+    if preferences is not None and not preferences.store_chat_history:
+        return messages
+    transcript = ChatMessage.query.filter_by(session_id=session.id).order_by(ChatMessage.created_at.asc()).all()
+    return [
+        {'role': row.role, 'content': row.content}
+        for row in transcript
+        if row.role in {'user', 'assistant'} and row.content.strip()
+    ] + [messages[-1]]
+
+
+async def _chat_output_tokens(data: dict, *, user_id: int, gateway: LLMGateway, external: bool) -> int:
+    """Use the selected model's full output capacity for desktop chat."""
+    if data.get('max_tokens') is not None:
+        return int(data['max_tokens'])
+    if external:
+        return 1024
+
+    preferences = UserAIPreferences.query.filter_by(user_id=user_id).first()
+    preferred_provider = data.get('provider') or (
+        preferences.preferred_provider if preferences else None
+    )
+    preferred_model = data.get('model') or (
+        preferences.preferred_model if preferences else None
+    )
+    providers = await gateway._get_eligible_providers(preferred_provider, data.get('meta'))
+    if providers:
+        selected = providers[0]
+        model = (
+            preferred_model
+            or getattr(selected, 'model_id', None)
+            or default_model_for_provider(selected.provider_type)
+        )
+        return provider_model_definition(selected.provider_type, model).max_output_tokens
+    return 1024
 
 
 def _public_gateway_error(raw_error: Optional[str], fallback: str = "Gateway request failed") -> str:
@@ -249,6 +299,9 @@ def _external_control_plane_error():
 
 
 def _gateway_request_size_error():
+    if not getattr(g, 'api_key', None):
+        # The global request middleware retains its 16 MiB desktop safety guard.
+        return None
     try:
         configured = int(current_app.config.get('DLE_GATEWAY_MAX_REQUEST_BYTES', 1_048_576))
     except (TypeError, ValueError):
@@ -1177,7 +1230,7 @@ async def gateway_chat():
         return jsonify({'error': 'messages required'}), 400
 
     validated_payload, validation_error_response = validate_pydantic_payload(
-        GatewayChatRequest,
+        GatewayChatRequest if getattr(g, 'api_key', None) else DesktopGatewayChatRequest,
         raw_data,
     )
     if validation_error_response:
@@ -1185,6 +1238,10 @@ async def gateway_chat():
 
     data = validated_payload.model_dump() if validated_payload else {}
     messages = data.get('messages', [])
+    if not getattr(g, 'api_key', None):
+        messages = _desktop_session_messages(
+            messages, session_id=data.get('session_id'), user_id=g.user_id
+        )
 
     try:
         apply_virtual_model(data)
@@ -1202,6 +1259,12 @@ async def gateway_chat():
     idempotency_record, idempotency_response = _begin_gateway_idempotency(data)
     if idempotency_response:
         return idempotency_response
+
+    gateway = LLMGateway(db_session=db.session)
+    output_tokens = await _chat_output_tokens(
+        data, user_id=g.user_id, gateway=gateway, external=bool(g.api_key)
+    )
+    data['max_tokens'] = output_tokens
         
     gateway_request = GovernedRequest(
         messages=messages,
@@ -1211,7 +1274,7 @@ async def gateway_chat():
         mode=data.get('mode') or 'standard',
         constraints=data.get('constraints', {}),
         temperature=data.get('temperature', 0.7),
-        max_tokens=data.get('max_tokens') or 1024,
+        max_tokens=output_tokens,
         user_id=g.user_id,
         session_id=data.get('session_id'),
         api_key_id=str(g.api_key.id) if g.api_key else None,
@@ -1229,7 +1292,6 @@ async def gateway_chat():
     # persist AIAuditEvent rows and enforce the daily token budget (A3-5):
     # a bare LLMGateway() leaves AIGovernanceEngine.db None, silently no-opping
     # both. Mirrors the known-good chat.py live path.
-    gateway = LLMGateway(db_session=db.session)
     try:
         response = await gateway.process(gateway_request)
     except Exception:
@@ -1822,7 +1884,7 @@ async def replay_offline_queue():
 
 @gateway_bp.route('/chat/stream', methods=['POST'])
 @api_key_required
-def gateway_chat_stream():
+async def gateway_chat_stream():
     """
     Streaming gateway endpoint.
     
@@ -1836,7 +1898,7 @@ def gateway_chat_stream():
         return jsonify({'error': 'messages required'}), 400
 
     validated_payload, validation_error_response = validate_pydantic_payload(
-        GatewayChatRequest,
+        GatewayChatRequest if getattr(g, 'api_key', None) else DesktopGatewayChatRequest,
         raw_data,
     )
     if validation_error_response:
@@ -1844,6 +1906,10 @@ def gateway_chat_stream():
 
     data = validated_payload.model_dump() if validated_payload else {}
     messages = data.get('messages', [])
+    if not getattr(g, 'api_key', None):
+        messages = _desktop_session_messages(
+            messages, session_id=data.get('session_id'), user_id=g.user_id
+        )
 
     if data.get('idempotency_key'):
         return jsonify({
@@ -1862,6 +1928,10 @@ def gateway_chat_stream():
     policy_error = _apply_api_key_request_policy(data, required_scope='stream')
     if policy_error:
         return policy_error
+
+    output_tokens = await _chat_output_tokens(
+        data, user_id=g.user_id, gateway=LLMGateway(db_session=db.session), external=bool(g.api_key)
+    )
     
     gateway_request = GovernedRequest(
         messages=messages,
@@ -1871,7 +1941,7 @@ def gateway_chat_stream():
         mode=data.get('mode') or 'standard',
         constraints=data.get('constraints', {}),
         temperature=data.get('temperature', 0.7),
-        max_tokens=data.get('max_tokens') or 1024,
+        max_tokens=output_tokens,
         user_id=g.user_id,
         session_id=data.get('session_id'),
         api_key_id=str(g.api_key.id) if g.api_key else None,
@@ -1977,8 +2047,8 @@ def list_active_providers():
 def save_provider_key():
     """Create or update an LLM provider API key (basic UI helper).
 
-    The app uses one user-selected cloud model (OpenAI ``gpt-5.6-sol`` or
-    Google ``gemini-3.7-flash``), so an API key is required.
+    The app uses one user-selected cloud model (OpenAI ``gpt-6-sol`` or
+    Google ``gemini-3.8-flash``), so an API key is required.
     """
     data = request.get_json() or {}
     provider_type = str(data.get('provider') or '').strip().lower()

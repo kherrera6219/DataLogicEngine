@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.4.5 engineering candidate - 2026-09-27
+
+- Updated the supported owner-selected models to Gemini 3.8 Flash and GPT-6 Sol
+  with High reasoning, with a forward migration for saved provider selections.
+- Removed desktop-only chat truncation below provider capacity, restored
+  principal-owned saved-session context at the server, and connected the
+  dashboard to current governed runs and chat sessions.
+- The Windows suite passed (3,364 passed, 18 skipped, zero setup errors), as
+  did 504 frontend tests and the frontend production build. A 4.4.5 Windows
+  engineering installer was built; it is unsigned and has not passed
+  installed-provider acceptance. Production/public release remains blocked.
+
 ## 4.4.0 candidate qualification - 2026-08-11
 
 - Promoted the product and Windows installer identity from 4.3.0/4.3.0.0 to
@@ -52,7 +64,7 @@
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
 | Document version | v1.12.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
 | Owner | Release Engineering |

@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
 | Document version | v1.5.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
 | Owner | Security Engineering |

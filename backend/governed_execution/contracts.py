@@ -145,7 +145,7 @@ class GovernedRequest:
             raise ValueError("GovernedRequest.constraints must be an object")
         if not isinstance(self.metadata, dict):
             raise ValueError("GovernedRequest.metadata must be an object")
-        self.max_tokens = max(1, min(int(self.max_tokens or 1024), 64_000))
+        self.max_tokens = max(1, min(int(self.max_tokens or 1024), 128_000))
         self.temperature = max(0.0, min(float(self.temperature), 2.0))
         self.source = str(self.source or "unknown")
         self.principal_kind = str(self.principal_kind or "unknown")

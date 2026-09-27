@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from backend.auth.api_decorators import api_session_login_required
+from backend.auth.api_decorators import api_session_login_required, get_authenticated_principal
 from backend.services.analytics_service import AnalyticsService
 
 analytics_bp = Blueprint('analytics', __name__, url_prefix='/api/v1/analytics')
@@ -10,7 +10,7 @@ def get_overview():
     """
     Get high-level dashboard metrics from real data.
     """
-    stats = AnalyticsService.get_dashboard_overview()
+    stats = AnalyticsService.get_dashboard_overview(user_id=get_authenticated_principal().id)
     if stats:
         return jsonify({
             'success': True,
@@ -28,7 +28,7 @@ def get_activity():
     Get recent system activity.
     """
     limit = request.args.get('limit', 10, type=int)
-    activity = AnalyticsService.get_recent_activity(limit=limit)
+    activity = AnalyticsService.get_recent_activity(limit=limit, user_id=get_authenticated_principal().id)
     if activity is None:
         return jsonify({
             'success': False,

@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
 | Document version | v1.8.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
 | Owner | Quality Engineering |

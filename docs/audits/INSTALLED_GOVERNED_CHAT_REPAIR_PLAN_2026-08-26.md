@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PLAN-CHAT-QC-2026-08-26 |
 | Document version | v1.1.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Date | 2026-08-26 |
 | Status | Source implementation complete through CHAT-QC-05; exact-source rebuild and installed CHAT-QC-06 acceptance open; not release authority |
 | Owner | Production Program Owner |

@@ -8,8 +8,8 @@
 | Field | Authority value |
 |---|---|
 | Product | `DataLogicEngine Desktop` |
-| Product version | `4.4.4` |
-| Windows file version | `4.4.4.0` |
+| Product version | `4.4.5` |
+| Windows file version | `4.4.5.0` |
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
 | Current local artifact | `DataLogicEngine Setup 4.4.3.exe` |
@@ -25,8 +25,8 @@
 
 | Provider ID | Label | Models | Request API | Key environment | Pricing |
 |---|---|---|---|---|---|
-| `openai` | OpenAI | `gpt-5.6-sol` | `responses` | `OPENAI_API_KEY` | `unknown` |
-| `google` | Google | `gemini-3.7-flash` | `generate_content` | `GOOGLE_API_KEY`, `GEMINI_API_KEY` | `unknown` |
+| `openai` | OpenAI | `gpt-6-sol` | `responses` | `OPENAI_API_KEY` | `unknown` |
+| `google` | Google | `gemini-3.8-flash` | `generate_content` | `GOOGLE_API_KEY`, `GEMINI_API_KEY` | `unknown` |
 
 ## Internal service candidate lock
 

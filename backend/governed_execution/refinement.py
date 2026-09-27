@@ -791,7 +791,7 @@ class CanonicalRefinementWorkflow:
                     max_selected_algorithms=8,
                     max_fan_out=4,
                     max_parallelism=2,
-                    max_input_bytes=1_000_000,
+                    max_input_bytes=16_777_216,
                     max_output_bytes=5_000_000,
                     max_provider_calls=0,
                     max_effects=1,

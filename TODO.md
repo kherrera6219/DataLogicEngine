@@ -7,20 +7,20 @@
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
 | Document version | v1.19.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-31 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; 4.4.4 source is integrated and green, exact-source Windows rebuild/installed acceptance is next, and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19 installed-chat repair; 4.4.5 Windows source/build gates passed, clean-commit artifact binding and installed acceptance remain next, and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -618,6 +618,19 @@ acceptance remains open and none of these source results closes CP19-M.
       live narrative, analyst contribution, conditional 12-step refinement,
       analytics, Knowledge Base, scaling, keyboard, contrast, and NVDA evidence.
       This acceptance is required before the affected CP19-M rows can close.
+      Include the 2026-09-27 4.4.5 source changes for Gemini 3.8 Flash and
+      GPT-6 Sol High output capacity, full desktop input, saved-session context,
+      and current-data dashboard. Confirm both configured providers against
+      installed builds, verify a continued answer after leaving and returning
+      to chat, and retain provider usage and completion evidence. A source test
+      pass is not installed proof.
+      The 2026-09-27 4.4.5 engineering installer has been built after the
+      Windows source suite passed (3,364 passed, 18 skipped, zero setup errors)
+      and after 504 frontend tests passed. Its root copy matches the packaging
+      output (SHA-256
+      `23bd5dddd7571b4ebe5c24d35854af2d8827360029c80737763620f93e368334`).
+      It is unsigned and not yet installed or provider-tested; do not close
+      this acceptance item from source/build evidence alone.
 
 Execution order: CHAT-QC-01 through CHAT-QC-04; TRACE-QC-01 through
 TRACE-QC-05; DATA-QC-01 and DATA-QC-02; TRACE-QC-06; CHAT-QC-05; then

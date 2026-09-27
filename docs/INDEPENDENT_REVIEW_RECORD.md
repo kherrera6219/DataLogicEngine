@@ -7,7 +7,7 @@
 | Document ID | DLE-EXT-003 |
 | Title | Independent review record |
 | Document version | v1.1.1 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | not_evaluated |
 | Audience | Independent reviewers, product/release authority, engineering, procurement/evaluation teams, and auditors |
 | Owner | External Review Coordinator |

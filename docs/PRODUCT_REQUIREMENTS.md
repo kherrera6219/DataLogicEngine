@@ -7,7 +7,7 @@
 | Document ID | DLE-PROD-001 |
 | Title | Product requirements and acceptance specification |
 | Document version | v1.5.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, engineering, quality, assurance, operators, and professional reviewers |
 | Owner | Product Engineering |

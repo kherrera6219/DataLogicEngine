@@ -7,7 +7,7 @@
 | Document ID | DLE-USER-003 |
 | Title | Administrator and operations guide |
 | Document version | v1.3.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | qualification_only |
 | Audience | Single owner/operator, Windows administrators, support engineers, and release reviewers |
 | Owner | Platform Operations |

@@ -56,6 +56,7 @@ from backend.llm_gateway.completion import (
 )
 from backend.llm_gateway.latency_metrics import record_ai_request
 from backend.llm_gateway.provider_budget import ProviderBudgetPolicy
+from backend.llm_gateway.provider_manifest import provider_model_definition
 from backend.llm_gateway.provider_errors import (
     ProviderFailureClass,
     classify_provider_failure,
@@ -1837,18 +1838,50 @@ class GovernedExecutionOrchestrator:
                     exc_info=True,
                 )
 
+        providers = await self.gateway._get_eligible_providers(
+            request.provider,
+            request.metadata,
+            allowed_provider_types=allowed_provider_types or None,
+            allowed_models=allowed_models or None,
+        )
+        if not providers:
+            return {"ok": False, "error": "No active providers found", "attempts": []}
+
+        first_provider = providers[0]
+        first_model = self.gateway._resolve_model(request, first_provider)
+        model_contract = provider_model_definition(first_provider.provider_type, first_model)
+        if request.max_tokens > model_contract.max_output_tokens:
+            return {
+                "ok": False,
+                "error": "Requested max_tokens exceeds the selected model output limit",
+                "retryable": False,
+                "attempts": [],
+                "failure": {
+                    "class": ProviderFailureClass.POLICY_BLOCK.value,
+                    "code": "MODEL_OUTPUT_LIMIT_EXCEEDED",
+                    "replayable": False,
+                },
+            }
+        model_input_limit = model_contract.max_input_tokens
+        if model_contract.max_context_tokens is not None:
+            model_input_limit = min(
+                model_input_limit,
+                model_contract.max_context_tokens - request.max_tokens,
+            )
+        requested_input_limit = request.constraints.get("max_input_tokens")
+        input_token_budget = (
+            min(self._bounded_int(requested_input_limit, model_input_limit, 1, model_input_limit), model_input_limit)
+            if requested_input_limit is not None
+            else model_input_limit
+        )
+
         try:
             provider_plan = await self.extended_subsystems.plan_provider_request(
                 request_id=request.request_id,
                 trace_id=context.trace_id,
                 principal_id=str(request.user_id or request.api_key_id or "") or None,
                 messages=context.provider_messages,
-                token_budget=self._bounded_int(
-                    request.constraints.get("max_input_tokens"),
-                    128_000,
-                    1,
-                    2_000_000,
-                ),
+                token_budget=input_token_budget,
             )
         except KnowledgeLifecycleError:
             logger.warning(
@@ -1866,15 +1899,6 @@ class GovernedExecutionOrchestrator:
                     "replayable": False,
                 },
             }
-
-        providers = await self.gateway._get_eligible_providers(
-            request.provider,
-            request.metadata,
-            allowed_provider_types=allowed_provider_types or None,
-            allowed_models=allowed_models or None,
-        )
-        if not providers:
-            return {"ok": False, "error": "No active providers found", "attempts": []}
 
         request.metadata["_store_chat_history"] = store_history
 

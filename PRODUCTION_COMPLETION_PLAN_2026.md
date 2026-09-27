@@ -8,7 +8,7 @@
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Runtime model | Electron control/validation shell plus a Flask backend that is loopback-only by default and may expose an explicitly enabled private gateway mode |
 | Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store services |
 | External runtime dependency | Optional OpenAI or Google model access and explicitly enabled MCP connectors only |

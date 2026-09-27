@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-005 |
 | Title | Software lifecycle and configuration-management plan |
 | Document version | v1.4.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, engineering, quality, security, release, operations, and professional reviewers |
 | Owner | Release Engineering |

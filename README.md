@@ -7,14 +7,14 @@
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
 | Document version | v1.12.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
 | Owner | Product Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-31 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -44,25 +44,36 @@ endpoints and explicitly enabled connectors. There is no approved telemetry,
 license check-in, update check, crash-reporting egress, or phone-home.
 
 > [!WARNING]
-> **Engineering evaluation only. DataLogicEngine 4.4.4 is not approved for a
+> **Engineering evaluation only. DataLogicEngine 4.4.5 is not approved for a
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The last installed engineering build is `DataLogicEngine Setup 4.4.3.exe`
+The current locally built engineering candidate is `DataLogicEngine Setup 4.4.5.exe`
+(398,782,959 bytes; SHA-256
+`23bd5dddd7571b4ebe5c24d35854af2d8827360029c80737763620f93e368334`).
+The copied installer matches the packaging output byte-for-byte, and its frozen
+backend contains the 4.4.5 provider manifest and forward migration. The
+Windows source suite passed with 3,364 tests, 18 skipped, and zero setup errors;
+504 frontend tests and the production frontend build passed. This candidate is
+unsigned and has not been installed or provider-tested, so it is not release
+acceptance evidence.
+
+The last independently recorded installed engineering build is `DataLogicEngine Setup 4.4.3.exe`
 (359,111,112 bytes; SHA-256
 `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`).
 It was rebuilt from exact source commit
 `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` and passes installer integrity,
 NSIS governance, required packaging-resource checks, the 6,100-file release
-payload, and strict package-owned portable readiness. That 4.4.3 payload is
-currently installed under Program Files and running loopback-only: its desktop
+payload, and strict package-owned portable readiness. At that historical
+checkpoint, the 4.4.3 payload was installed under Program Files and running
+loopback-only: its desktop
 executable, backend executable, and `app.asar` hashes match the extracted build,
 and `/health` and `/ready` report healthy/ready with no blockers. This is a
 narrow installed observation, not completed install/upgrade/repair/uninstall or
 provider-chat acceptance. The artifact remains unsigned, is superseded by the
-integrated 4.4.4 source, and is not the next acceptance target. The clean 4.4.4
-rebuild and fresh-installed Google chat, provider,
+integrated 4.4.5 source, and is not the next acceptance target. Clean-commit
+artifact binding and fresh-installed Google chat, provider,
 accessibility, recovery, independent-review, pilot, and soak acceptance remain
 open.
 
@@ -96,7 +107,7 @@ control plane.
 | Software developers and integrators | A versioned API, generated Python and TypeScript SDKs, asynchronous jobs, streaming responses, and provider-key separation |
 | Operators, reviewers, and pilot users | A desktop experience for configuration, governed chat, monitoring, trace review, privacy, diagnostics, and support |
 
-The current 4.4.4 product boundary is a single owner/operator on Windows 11 or
+The current 4.4.5 product boundary is a single owner/operator on Windows 11 or
 an owner-controlled Windows VM. It is not a public web service or a multi-tenant
 identity platform.
 
@@ -186,7 +197,7 @@ certifications.
 - Providers: owner-configured OpenAI or Google credentials and approved models
 - Connectors: owner-approved local MCP processes with recorded scope and consent
 - Data: app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible storage
-- Excluded from 4.4.4: public-internet exposure, public self-registration,
+- Excluded from 4.4.5: public-internet exposure, public self-registration,
   multi-tenancy, vendor-hosted customer data or API spend, Kubernetes, managed
   cloud databases as production authorities, mobile clients, and macOS/Linux
   packaging
@@ -240,10 +251,10 @@ flowchart LR
 
 | Layer | Technology | Responsibility |
 |---|---|---|
-| Desktop | Electron 40, Next.js 16, React 18 | Control, configuration, chat, audit, observability, and validation |
+| Desktop | Electron 43, Next.js 16, React 18 | Control, configuration, chat, audit, observability, and validation |
 | Backend | Flask 3.1, SQLAlchemy, Socket.IO | API gateway, policy, orchestration, tracing, and service supervision |
 | Data | PostgreSQL, Redis, Neo4j, ChromaDB, SeaweedFS | Relational state, queues, graph provenance, vector retrieval, and artifacts |
-| AI | OpenAI `gpt-5.6-sol` (High reasoning) or Google `gemini-3.7-flash` | Owner-selected cloud inference using BYOK |
+| AI | OpenAI `gpt-6-sol` (High reasoning) or Google `gemini-3.8-flash` | Owner-selected cloud inference using BYOK |
 
 The data plane is local and app-owned. External processing is limited to the
 configured model provider and explicitly approved connectors. Desktop and API

@@ -7,7 +7,7 @@
 | Document ID | DLE-ROOT-004 |
 | Title | Contribution controls |
 | Document version | v1.2.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | Contributors, maintainers, and reviewers |
 | Owner | Platform Engineering |

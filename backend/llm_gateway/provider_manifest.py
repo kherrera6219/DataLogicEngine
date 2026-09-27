@@ -19,6 +19,9 @@ class ProviderModel:
     id: str
     label: str
     minimum_output_tokens: int
+    max_output_tokens: int
+    max_input_tokens: int
+    max_context_tokens: int | None
     reasoning_effort: str | None
 
 
@@ -72,6 +75,13 @@ def _load_manifest() -> tuple[dict[str, Any], tuple[ProviderDefinition, ...]]:
                 id=_required_text(model.get("id"), f"providers[{provider_id}].models[].id"),
                 label=_required_text(model.get("label"), f"providers[{provider_id}].models[].label"),
                 minimum_output_tokens=max(1, int(model.get("minimum_output_tokens") or 1)),
+                max_output_tokens=int(model["max_output_tokens"]),
+                max_input_tokens=int(model["max_input_tokens"]),
+                max_context_tokens=(
+                    int(model["max_context_tokens"])
+                    if model.get("max_context_tokens") is not None
+                    else None
+                ),
                 reasoning_effort=(
                     str(model["reasoning_effort"]).strip().lower()
                     if model.get("reasoning_effort")
@@ -89,6 +99,19 @@ def _load_manifest() -> tuple[dict[str, Any], tuple[ProviderDefinition, ...]]:
             raise ValueError(
                 f"Unsupported reasoning effort for {provider_id}: {sorted(invalid_efforts)}"
             )
+        if any(
+            model.max_output_tokens < model.minimum_output_tokens
+            or model.max_input_tokens < 1
+            or (
+                model.max_context_tokens is not None
+                and (
+                    model.max_context_tokens <= model.max_output_tokens
+                    or model.max_context_tokens > model.max_input_tokens
+                )
+            )
+            for model in models
+        ):
+            raise ValueError(f"Invalid model token capacities for {provider_id}")
         default_model = _required_text(
             entry.get("default_model"), f"providers[{provider_id}].default_model"
         )

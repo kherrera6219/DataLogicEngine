@@ -7,14 +7,14 @@
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
 | Document version | v1.21.0 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-31 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.0 (release program) |
@@ -22,7 +22,7 @@
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (all source work through CHAT-QC-05 is complete; 4.4.4 exact-source rebuild and installed CHAT-QC-06 acceptance remain open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; 4.4.4 source is integrated and green. Exact-source Windows rebuild and installed CHAT-QC-06 acceptance are next. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
+| Current phase | Phase 19 installed-chat repair; 4.4.5 source and Windows build gates passed. Clean-commit artifact binding and installed CHAT-QC-06 acceptance remain next. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -53,6 +53,22 @@ terminology source plans are historical records under `docs/archive/audits/`.
 Phase 5 remains partial/deferred.
 
 ## Installed governed-chat repair checkpoint — 2026-08-31
+
+Source follow-up (2026-09-27): 4.4.5 source selects Google `gemini-3.8-flash`
+(65,536 output tokens) or OpenAI `gpt-6-sol` with High reasoning (128,000 output
+tokens) for desktop chat. The desktop composer no longer truncates at 8,000
+characters or 64 messages; the local API public-client contract remains
+unchanged. Continued chats reconstruct principal-owned history from saved
+transcripts, and the dashboard reads current governed runs and chat sessions.
+The 4.4.5 Windows suite passed 3,364 tests with 18 skipped and zero setup
+errors; 504 frontend tests, frontend lint/type checking, and the production
+build passed. The local `DataLogicEngine Setup 4.4.5.exe` candidate is
+398,782,959 bytes (SHA-256
+`23bd5dddd7571b4ebe5c24d35854af2d8827360029c80737763620f93e368334`),
+and its packaged backend includes the refreshed provider manifest and
+migration. It is unsigned and has not been installed or provider-tested; the
+CHAT-QC-06 acceptance row remains open. Existing owner/provider token budgets
+remain separate controls pending the product owner's decision on their defaults.
 
 CHAT-QC-01 through CHAT-QC-05, TRACE-QC-01 through TRACE-QC-06, and
 DATA-QC-01 through DATA-QC-02 are source-complete. The repair now provides

@@ -7,7 +7,7 @@
 | Document ID | DLE-EXT-001 |
 | Title | Professional review index |
 | Document version | v1.1.1 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Independent reviewers, procurement/evaluation teams, product owner, engineering, and release authority |
 | Owner | External Review Coordinator |

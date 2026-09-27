@@ -35,9 +35,6 @@ interface ChatInterfaceProps {
   autoOpenUpload?: boolean;
 }
 
-const MAX_CHAT_INPUT_LENGTH = 8_000;
-const MAX_GATEWAY_MESSAGE_COUNT = 64;
-
 function buildGatewayMessages(
   history: ChatMessage[],
   currentMessage: ChatMessage,
@@ -47,8 +44,7 @@ function buildGatewayMessages(
       role: message.role,
       content: (message.content || message.finalAnswer || '').trim(),
     }))
-    .filter((message) => message.content.length > 0)
-    .slice(-MAX_GATEWAY_MESSAGE_COUNT);
+    .filter((message) => message.content.length > 0);
 }
 
 type GatewayTracePayload = {
@@ -276,7 +272,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
 
   const handleSend = async () => {
     const normalizedInput = strictInputSanitization
-      ? sanitizeTextInput(inputValue, { maxLength: MAX_CHAT_INPUT_LENGTH })
+      ? sanitizeTextInput(inputValue)
       : inputValue.trim();
 
     if (!normalizedInput || isLoading) return;
@@ -750,10 +746,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                   value={inputValue}
                   onChange={(e) => {
                     const nextValue = strictInputSanitization
-                      ? sanitizeTextInput(e.target.value, {
-                          maxLength: MAX_CHAT_INPUT_LENGTH,
-                          trim: false,
-                        })
+                      ? sanitizeTextInput(e.target.value, { trim: false })
                       : e.target.value;
                     setInputValue(nextValue);
                   }}

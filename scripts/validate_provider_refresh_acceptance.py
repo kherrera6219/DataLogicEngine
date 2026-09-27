@@ -28,8 +28,8 @@ if str(REPO_ROOT) not in sys.path:
 
 
 PROVIDER_MODELS = {
-    "google": "gemini-3.7-flash",
-    "openai": "gpt-5.6-sol",
+    "google": "gemini-3.8-flash",
+    "openai": "gpt-6-sol",
 }
 PROMPT = "Reply with the single word ONLINE."
 DEFAULT_REPORT = (

@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-007 |
 | Title | SBOM, licensing, redistribution, and notices index |
 | Document version | v1.1.1 |
-| Product version | 4.4.4 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Release/legal/security engineering, procurement, operators, independent reviewers, and release authority |
 | Owner | Release Engineering |

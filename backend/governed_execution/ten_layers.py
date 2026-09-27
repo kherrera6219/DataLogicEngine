@@ -1365,7 +1365,7 @@ class GovernedTenLayerStages:
                     max_selected_algorithms=16,
                     max_fan_out=8,
                     max_parallelism=4,
-                    max_input_bytes=1_000_000,
+                    max_input_bytes=16_777_216,
                     max_output_bytes=5_000_000,
                     max_effects=16,
                 ),
