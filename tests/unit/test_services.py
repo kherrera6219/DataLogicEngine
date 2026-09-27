@@ -13,13 +13,13 @@ from backend.services.video_service import VideoService
 # --- Analytics Service Tests ---
 
 @patch('backend.services.analytics_service.db')
-@patch('backend.services.analytics_service.KAExecution')
+@patch('backend.services.analytics_service.TraceRun')
 @patch('backend.services.analytics_service.Node')
 @patch('backend.services.analytics_service.Edge')
-def test_analytics_service_dashboard(mock_edge, mock_node, mock_ka, mock_db, caplog):
+def test_analytics_service_dashboard(mock_edge, mock_node, mock_trace, mock_db, caplog):
     # Setup mocks
     # Handle SQLAlchemy operator overloading for mocks
-    mock_ka.started_at.__ge__.return_value = MagicMock()
+    mock_trace.created_at.__ge__.return_value = MagicMock()
     
     # Configure query chain to support multiple .filter() calls
     mock_query = mock_db.session.query.return_value

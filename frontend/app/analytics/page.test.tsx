@@ -50,7 +50,7 @@ describe('AnalyticsPage', () => {
           status: 'completed',
           mode: 'governed',
           provider: 'google',
-          model: 'gemini-3.7-flash',
+          model: 'gemini-3.8-flash',
           confidence: null,
           confidence_status: 'not_measured',
           token_cost: null,

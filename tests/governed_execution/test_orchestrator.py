@@ -79,7 +79,7 @@ class _Gateway:
                 id="provider-1",
                 name="Test Provider",
                 provider_type="openai",
-                model_id="test-model",
+                model_id="gpt-6-sol",
                 api_version="test",
             )
         ]

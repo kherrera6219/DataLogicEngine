@@ -18,6 +18,7 @@ from backend.storage.migration_inventory import (
 from backend.storage.runtime_migrations import (
     BACKUP_REQUIRED_RUNTIME_MIGRATION_PATHS,
     POSTGRESQL_PROVIDER_DEFAULT_SOURCE_REVISION,
+    POSTGRESQL_PREVIOUS_TARGET_REVISION,
     POSTGRESQL_TARGET_REVISION,
     SUPPORTED_RUNTIME_MIGRATION_PATHS,
 )
@@ -30,12 +31,12 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_alembic_revision_graph_has_one_ordered_base_and_head():
     graph = inventory_alembic_revisions(ROOT / "migrations" / "versions")
 
-    assert len(graph["revisions"]) == 27
+    assert len(graph["revisions"]) == 28
     assert graph["bases"] == ["000000000001"]
-    assert graph["heads"] == ["b2c3d4e5f6a7"]
+    assert graph["heads"] == ["c3d4e5f6a7b8"]
     assert graph["errors"] == []
     assert graph["linear_order"][0] == "000000000001"
-    assert graph["linear_order"][-1] == "b2c3d4e5f6a7"
+    assert graph["linear_order"][-1] == "c3d4e5f6a7b8"
 
 
 def test_empty_database_upgrades_from_frozen_baseline(tmp_path):
@@ -72,7 +73,7 @@ def test_empty_database_upgrades_from_frozen_baseline(tmp_path):
         "cancellation_requested",
     } <= ka_run_columns
     assert "uq_ka_product_run_principal_idempotency" in ka_run_constraints
-    assert current == "b2c3d4e5f6a7"
+    assert current == "c3d4e5f6a7b8"
 
 
 def test_provider_default_migration_updates_only_known_retired_models(tmp_path):
@@ -118,12 +119,12 @@ def test_provider_default_migration_updates_only_known_retired_models(tmp_path):
 
     assert provider_models == {
         "Custom": "owner-pinned-model",
-        "Google": "gemini-3.7-flash",
-        "OpenAI": "gpt-5.6-sol",
+        "Google": "gemini-3.8-flash",
+        "OpenAI": "gpt-6-sol",
     }
     assert preference_models == {
-        "google": "gemini-3.7-flash",
-        "openai": "gpt-5.6-sol",
+        "google": "gemini-3.8-flash",
+        "openai": "gpt-6-sol",
     }
 
 
@@ -133,7 +134,12 @@ def test_runtime_authorizes_only_the_lossless_provider_default_revision():
             "postgresql",
             POSTGRESQL_PROVIDER_DEFAULT_SOURCE_REVISION,
             POSTGRESQL_TARGET_REVISION,
-        )
+        ),
+        (
+            "postgresql",
+            POSTGRESQL_PREVIOUS_TARGET_REVISION,
+            POSTGRESQL_TARGET_REVISION,
+        ),
     }
     assert BACKUP_REQUIRED_RUNTIME_MIGRATION_PATHS == set()
 

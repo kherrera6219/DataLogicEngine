@@ -3,6 +3,7 @@ import uuid
 import pytest
 
 from backend.llm_gateway.gateway import LLMGateway
+from backend.llm_gateway.api import _desktop_session_messages
 from extensions import db
 from models import ChatMessage, ChatSession, User
 from tests.conftest import create_test_user
@@ -12,6 +13,41 @@ def _authenticated_user_id(app) -> int:
     with app.app_context():
         user = User.query.filter_by(username="testuser").one()
         return int(user.id)
+
+
+def test_desktop_continuation_uses_owner_transcript_even_if_client_history_is_stale(app):
+    with app.app_context():
+        owner_id = create_test_user(
+            username="chat-context-owner",
+            email="chat-context-owner@example.com",
+            password="SecureTest789$#@",
+        )
+        other_id = create_test_user(
+            username="chat-context-other",
+            email="chat-context-other@example.com",
+            password="SecureTest789$#@",
+        )
+        session_id = uuid.uuid4()
+        session = ChatSession(id=session_id, user_id=owner_id, mode="standard")
+        db.session.add(session)
+        db.session.add_all([
+            ChatMessage(session_id=session_id, role="user", content="What is the capital of France?"),
+            ChatMessage(session_id=session_id, role="assistant", content="Paris."),
+        ])
+        db.session.commit()
+
+        incoming = [{"role": "user", "content": "And in 1324?"}]
+        result = _desktop_session_messages(
+            incoming, session_id=str(session_id), user_id=owner_id
+        )
+        assert result == [
+            {"role": "user", "content": "What is the capital of France?"},
+            {"role": "assistant", "content": "Paris."},
+            incoming[0],
+        ]
+        assert _desktop_session_messages(
+            incoming, session_id=str(session_id), user_id=other_id
+        ) == incoming
 
 
 def test_desktop_session_create_is_idempotent_and_principal_owned(

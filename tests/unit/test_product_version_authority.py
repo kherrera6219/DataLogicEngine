@@ -17,8 +17,8 @@ def test_checked_in_version_authority_is_valid_and_complete():
     payload = load_version_authority()
 
     assert payload["schema_version"] == VERSION_AUTHORITY_SCHEMA
-    assert PRODUCT_VERSION == "4.4.4"
-    assert CONTRACT_VERSIONS["data_plane_schema"] == "b2c3d4e5f6a7"
+    assert PRODUCT_VERSION == "4.4.5"
+    assert CONTRACT_VERSIONS["data_plane_schema"] == "c3d4e5f6a7b8"
     assert payload["upgrade"]["supported_product_sources"] == [
         "0.1.1",
         "4.3.0",
@@ -26,6 +26,7 @@ def test_checked_in_version_authority_is_valid_and_complete():
         "4.4.1",
         "4.4.2",
         "4.4.3",
+        "4.4.4",
     ]
 
 

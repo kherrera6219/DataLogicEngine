@@ -23,7 +23,7 @@ def _trace_run(
         status=status,
         created_at=datetime.now(UTC) - timedelta(hours=1),
         completed_at=datetime.now(UTC),
-        model_name="gemini-3.7-flash" if provider == "google" else "gpt-5.6-sol",
+        model_name="gemini-3.8-flash" if provider == "google" else "gpt-6-sol",
         truth_engine_mode=mode,
         confidence=confidence,
         token_cost=token_cost,

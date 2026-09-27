@@ -152,13 +152,13 @@ class TestProviderPreference:
 
         openai = SimpleNamespace(
             provider_type="openai",
-            model_id="gpt-5.6-sol",
+            model_id="gpt-6-sol",
             priority=1,
             get_api_key=lambda: "openai-db-key",
         )
         google = SimpleNamespace(
             provider_type="google",
-            model_id="gemini-3.7-flash",
+            model_id="gemini-3.8-flash",
             priority=2,
             get_api_key=lambda: "google-db-key",
         )
@@ -176,7 +176,7 @@ class TestProviderPreference:
         assert resolve_active_cloud_model() == (
             "google",
             "google-db-key",
-            "gemini-3.7-flash",
+            "gemini-3.8-flash",
         )
 
     def test_runtime_data_root_uses_desktop_settings_parent(self, monkeypatch, tmp_path):
@@ -357,7 +357,7 @@ class TestGatewayStreaming:
             answer=answer,
             trace_id=trace_id,
             provider_used='openai' if ok else 'none',
-            model_used='gpt-5.6-sol',
+            model_used='gpt-6-sol',
             usage={'tokens_in': 1, 'tokens_out': 1} if ok else {},
             completion=ProviderCompletion(
                 disposition=(
@@ -389,7 +389,7 @@ class TestGatewayStreaming:
     @pytest.mark.asyncio
     async def test_process_stream_emits_chunks_and_done(self):
         gateway = LLMGateway()
-        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-5.6-sol")
+        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-6-sol")
         governed = self._governed_result(
             ok=True,
             answer='abcdefghijklmnopqrstuvwxyz',
@@ -409,7 +409,7 @@ class TestGatewayStreaming:
     @pytest.mark.asyncio
     async def test_process_stream_emits_error_event_on_failure(self):
         gateway = LLMGateway()
-        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-5.6-sol")
+        request = GatewayRequest(messages=[{"role": "user", "content": "hello"}], model="gpt-6-sol")
         governed = self._governed_result(
             ok=False,
             answer='',

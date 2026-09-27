@@ -29,7 +29,7 @@ def test_openai_case_records_high_reasoning_without_content_or_key(monkeypatch):
     result = asyncio.run(
         validator._run_case(
             provider="openai",
-            model="gpt-5.6-sol",
+            model="gpt-6-sol",
             api_key="never-record-this-key",
             credential_source="existing_local_environment",
             timeout_seconds=1,
@@ -40,7 +40,7 @@ def test_openai_case_records_high_reasoning_without_content_or_key(monkeypatch):
     serialized = str(result)
     assert result["status"] == "pass"
     assert result["reasoning_effort"] == "high"
-    assert result["response_model"] == "gpt-5.6-sol"
+    assert result["response_model"] == "gpt-6-sol"
     assert result["credential_or_response_content_recorded"] is False
     assert "never-record-this-key" not in serialized
     assert "ONLINE" not in serialized

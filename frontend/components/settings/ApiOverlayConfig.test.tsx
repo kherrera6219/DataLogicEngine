@@ -86,7 +86,7 @@ beforeEach(() => {
           id: 'provider-openai-id',
           name: 'OpenAI',
           type: 'openai',
-          model: 'gpt-5.6-sol',
+          model: 'gpt-6-sol',
           is_default: true,
         }]
       });
@@ -169,7 +169,7 @@ describe('ApiOverlayConfig', () => {
       }
       if (url.includes('/gateway/providers')) {
         return jsonResponse({
-          providers: [{ id: 'provider-openai-id', name: 'OpenAI', type: 'openai', model: 'gpt-5.6-sol', is_default: true }],
+          providers: [{ id: 'provider-openai-id', name: 'OpenAI', type: 'openai', model: 'gpt-6-sol', is_default: true }],
         });
       }
       if (url.includes('/analytics/activity')) return jsonResponse([]);
@@ -210,7 +210,7 @@ describe('ApiOverlayConfig', () => {
     const modelSelect = screen.getByRole('combobox', { name: 'Model' }) as HTMLSelectElement;
     await waitFor(() => {
       const options = Array.from(modelSelect.options).map((option) => option.value);
-      expect(options).toContain('gemini-3.7-flash');
+      expect(options).toContain('gemini-3.8-flash');
       expect(options).not.toContain('gemini-3.1-pro-preview');
     });
   });
@@ -228,7 +228,7 @@ describe('ApiOverlayConfig', () => {
     const providerSelect = screen.getByRole('combobox', { name: 'Provider' });
     const modelSelect = screen.getByRole('combobox', { name: 'Model' });
     await waitFor(() => expect(providerSelect).toHaveValue('google'));
-    expect(modelSelect).toHaveValue('gemini-3.7-flash');
+    expect(modelSelect).toHaveValue('gemini-3.8-flash');
 
     const input = screen.getByLabelText('Provider API key');
     expect(input).toHaveAttribute('type', 'password');
