@@ -22,7 +22,7 @@
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (all source work through CHAT-QC-05 is complete; 4.4.4 exact-source rebuild and installed CHAT-QC-06 acceptance remain open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; 4.4.5 source and Windows build gates passed. Clean-commit artifact binding and installed CHAT-QC-06 acceptance remain next. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
+| Current phase | Phase 19 installed-chat repair; 4.4.5 source and clean-commit Windows build gates passed. Installed CHAT-QC-06 acceptance remains next. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -63,8 +63,9 @@ transcripts, and the dashboard reads current governed runs and chat sessions.
 The 4.4.5 Windows suite passed 3,364 tests with 18 skipped and zero setup
 errors; 504 frontend tests, frontend lint/type checking, and the production
 build passed. The local `DataLogicEngine Setup 4.4.5.exe` candidate is
-398,782,959 bytes (SHA-256
-`23bd5dddd7571b4ebe5c24d35854af2d8827360029c80737763620f93e368334`),
+398,783,115 bytes (SHA-256
+`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`),
+packaged from clean source commit `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`,
 and its packaged backend includes the refreshed provider manifest and
 migration. It is unsigned and has not been installed or provider-tested; the
 CHAT-QC-06 acceptance row remains open. Existing owner/provider token budgets

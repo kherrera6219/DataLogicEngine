@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.0 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; 4.4.5 Windows source/build gates passed, clean-commit artifact binding and installed acceptance remain next, and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19 installed-chat repair; 4.4.5 Windows source and clean-commit build gates passed, installed acceptance remains next, and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -627,8 +627,10 @@ acceptance remains open and none of these source results closes CP19-M.
       The 2026-09-27 4.4.5 engineering installer has been built after the
       Windows source suite passed (3,364 passed, 18 skipped, zero setup errors)
       and after 504 frontend tests passed. Its root copy matches the packaging
-      output (SHA-256
-      `23bd5dddd7571b4ebe5c24d35854af2d8827360029c80737763620f93e368334`).
+      output (398,783,115 bytes; SHA-256
+      `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`),
+      packaged from clean source commit
+      `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`.
       It is unsigned and not yet installed or provider-tested; do not close
       this acceptance item from source/build evidence alone.
 

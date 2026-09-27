@@ -50,8 +50,10 @@ license check-in, update check, crash-reporting egress, or phone-home.
 > pilot, and soak acceptance remain release gates.
 
 The current locally built engineering candidate is `DataLogicEngine Setup 4.4.5.exe`
-(398,782,959 bytes; SHA-256
-`23bd5dddd7571b4ebe5c24d35854af2d8827360029c80737763620f93e368334`).
+(398,783,115 bytes; SHA-256
+`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`).
+It was packaged from clean source commit
+`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`.
 The copied installer matches the packaging output byte-for-byte, and its frozen
 backend contains the 4.4.5 provider manifest and forward migration. The
 Windows source suite passed with 3,364 tests, 18 skipped, and zero setup errors;
@@ -72,8 +74,8 @@ executable, backend executable, and `app.asar` hashes match the extracted build,
 and `/health` and `/ready` report healthy/ready with no blockers. This is a
 narrow installed observation, not completed install/upgrade/repair/uninstall or
 provider-chat acceptance. The artifact remains unsigned, is superseded by the
-integrated 4.4.5 source, and is not the next acceptance target. Clean-commit
-artifact binding and fresh-installed Google chat, provider,
+integrated 4.4.5 source, and is not the next acceptance target. Fresh-installed
+Google chat, provider,
 accessibility, recovery, independent-review, pilot, and soak acceptance remain
 open.
 
