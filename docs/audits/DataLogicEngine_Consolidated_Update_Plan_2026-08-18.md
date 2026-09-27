@@ -9,7 +9,7 @@
 | Document version | v1.12.0 |
 | Product version | 4.4.5 |
 | Date | 2026-08-27 |
-| Status | Active supporting review input; CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/OpenAI/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred until after CU-2, and CU-5 source/publication is partial |
+| Status | Active supporting review input; 4.4.5 clean-source engineering rebuild is complete while installed/provider/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -50,7 +50,14 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 - Independent coverage gates pass at 80.29% for `backend/`, 80.67% for
   `backend/security/`, 81.07% for `core/`, and 89.54% statements, 80.69%
   branches, 86.11% functions, and 91.36% lines for the frontend.
-- The current engineering artifact is `DataLogicEngine Setup 4.4.3.exe`,
+- The current 4.4.5 engineering artifact is `DataLogicEngine Setup 4.4.5.exe`,
+  398,783,115 bytes, SHA-256
+  `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`,
+  built from clean source commit
+  `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`. Its packaged-payload
+  check passes; it is unsigned and has not passed portable smoke, installation,
+  or live-provider acceptance.
+- The earlier 4.4.3 engineering artifact was `DataLogicEngine Setup 4.4.3.exe`,
   359,111,112 bytes, SHA-256
   `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`,
   built from exact clean source commit
@@ -70,11 +77,10 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 ### 2.2 Open and release-blocking
 
 - CP19-M exact clean-source, signed, installed acceptance remains open.
-- Fresh-installed Google chat proof against the exact 4.4.3 artifact remains
-  open.
-- Google `gemini-3.7-flash` source-level live availability passes. OpenAI
-  `gpt-5.6-sol` used High reasoning but is blocked on `quota_exhausted`; the
-  two-provider source gate remains open.
+- Fresh-installed Google and OpenAI chat proof against the exact 4.4.5 artifact
+  remains open. The earlier `gemini-3.7-flash` source-level live pass and
+  `gpt-5.6-sol` quota-exhausted result do not validate current models
+  `gemini-3.8-flash` and `gpt-6-sol` High.
 - Signing/timestamping, elevated install/upgrade/repair/uninstall, retained-data
   lifecycle, Diagnostics service-role classification, installed Phase 9–13,
   accessibility/NVDA, protected-volume recovery, independent review, pilot,
@@ -155,8 +161,9 @@ Specifically:
 
 ### CU-2 — CP19-M exact-artifact acceptance
 
-**Status:** active; exact-source 4.4.3 portable engineering rebuild is complete
-while OpenAI, signing, installed, manual, and external acceptance remain open.
+**Status:** active; 4.4.5 clean-source engineering rebuild is complete, but
+portable, both current-model providers, signing, installed, manual, and
+external acceptance remain open.
 
 **2026-08-18 checkpoint:** focused provider/evidence contracts pass 26/26.
 Google `gemini-3.7-flash` passes one bounded live call; OpenAI `gpt-5.6-sol`

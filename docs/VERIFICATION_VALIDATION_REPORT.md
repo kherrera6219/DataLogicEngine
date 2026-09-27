@@ -21,12 +21,13 @@
 ## Purpose
 
 CP19-K is complete at 213/213 individually qualified KAs and CP19-L passed. The
-current 4.4.4 installed-chat repair source gate records 3,353 Python tests
-passed with 18 skipped and 504 frontend tests passed. Independent Python
-coverage remains recorded at 80.29%
-`backend/`, 80.67% `backend/security/`, and 81.07% `core/`; frontend coverage,
-lint, typecheck, build, packaging, governance, deployment, and security gates
-pass. At commit `43fd86df...`, Deploy run `33039993475`, Security run
+current 4.4.5 source gate records 3,364 Python tests passed with 18 skipped,
+zero setup errors, and 504 frontend tests passed. Independent Python
+coverage remains recorded from an earlier checkpoint at 80.29%
+`backend/`, 80.67% `backend/security/`, and 81.07% `core/`; these percentages
+were not refreshed for 4.4.5. Frontend lint, typecheck, production build, and
+packaged-payload checks pass for the current source. At historical commit
+`43fd86df...`, Deploy run `33039993475`, Security run
 `33039993480`, and CI/CD run `33039993472` all pass. The later Lob-detector
 finding is closed: scheduled full-history
 run `32093054806`, job `95578937904`, scanned 1,298 commits and
@@ -34,22 +35,20 @@ run `32093054806`, job `95578937904`, scanned 1,298 commits and
 exact-candidate secret scans remain required.
 
 The source Trace Explorer now renders the existing canonical nested refinement
-receipt as named step detail. Focused trace persistence/bundle tests pass 4/4,
-the Trace Detail page passes 3/3 tests, the complete frontend suite passes 483
-tests, and focused TypeScript/lint plus optimized production-build gates pass.
+receipt as named step detail. Earlier focused trace persistence/bundle tests
+passed 4/4 and the Trace Detail page passed 3/3; the current complete frontend
+suite passes 504 tests, plus TypeScript/lint and production-build gates.
 The reviewed 213-row KA registry and axes 14-17 replacement also passed export
 freshness tests 3/3 and were published to connected Google Drive with byte-count
 readback. These results do not replace packaged accessibility validation; stale
 external analysis cleanup remains blocked on Google file-scoped write access.
 
-The current unsigned 4.4.3 payload is installed under Program Files and running
-loopback-only. Its desktop executable, backend executable, and `app.asar`
-hashes match the extracted build; `/health` and `/ready` pass with no blockers.
-That narrow observation does not prove the install/upgrade/repair/uninstall
-actions, retained-data lifecycle, provider chat, or other installed acceptance.
-CP19-M remains partial and release-blocking.
+An older unsigned 4.4.3 payload had a narrow Program Files loopback
+health/readiness observation. It cannot prove the 4.4.5 artifact's install,
+upgrade, repair, uninstall, retained-data lifecycle, provider chat, or other
+installed acceptance. CP19-M remains partial and release-blocking.
 
-Define how DataLogicEngine 4.4.4 is verified against specifications and validated
+Define how DataLogicEngine 4.4.5 is verified against specifications and validated
 for intended Windows use, summarize current evidence, and keep engineering/source
 results distinct from signed installed, human, independent, and long-duration
 acceptance. This report is not a production approval.
@@ -100,9 +99,9 @@ acceptance. This report is not a production approval.
 ## Current candidate evidence
 
 This checkpoint retains the last completed installed qualification artifact as
-historical evidence and separately records the superseded 4.4.3 engineering
-build and narrow running-installed observation. The 4.4.4 exact-source rebuild
-is pending at this source checkpoint.
+historical evidence and separately records the 4.4.5 clean-source engineering
+build. The new installer is unsigned and has not been installed, run through
+portable smoke, or live-provider tested.
 
 The last installed qualification artifact, built on 2026-08-10, is 283,890,413 bytes with SHA-256
 `1b7bb3202f1ac320d266f1203e12956c152040c42ba015f405ca33c2425a018e`.
@@ -117,19 +116,15 @@ That installed candidate is unsigned. Prior frozen candidate hashes and the earl
 the current installed result. Reproducibility, signing, exact-artifact binding,
 and the retained CP19-M/system/manual/external acceptance rows remain open.
 
-The current engineering artifact was rebuilt from exact clean source commit
-`171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. It is 359,111,112 bytes with
-SHA-256
-`a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`.
-Its checksum, block map, installer-integrity report, NSIS governance,
-6,100-file payload, and required packaging-resource checks pass. Strict
-portable smoke reached package-owned `/ready` in 56,001 ms with zero blockers
-and verified descendant ownership. Its core files match the currently running
-Program Files payload, whose loopback `/health` and `/ready` pass. It is
-unsigned; full installer/lifecycle and provider acceptance were not run.
-Google source-level availability passes; OpenAI remains `quota_exhausted`. No
-provider-corpus/human, accessibility, recovery, independent-review, pilot, or
-soak evidence transfers between artifact hashes.
+The current engineering artifact was rebuilt from clean source commit
+`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`. It is 398,783,115 bytes
+with SHA-256
+`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`.
+Its packaged-payload check passes, but it is unsigned; portable smoke, full
+installer/lifecycle, and installed live-provider acceptance were not run.
+Earlier 4.4.3 portable and installed observations are historical, not 4.4.5
+results. No provider-corpus/human, accessibility, recovery, independent-review,
+pilot, or soak evidence transfers between artifact hashes.
 
 ## Phase evidence disposition
 

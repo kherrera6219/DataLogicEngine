@@ -20,18 +20,17 @@
 
 ## Important current status
 
-DataLogicEngine 4.4.4 is not approved for production or public distribution.
+DataLogicEngine 4.4.5 is not approved for production or public distribution.
 This notice describes the implemented and approved local-first contract while
 clearly retaining installed, independent, legal, security, provider, deletion,
 backup/restore, and release evidence that remains open. It is not a claim of
 certification, regulatory approval, or legal suitability for a particular use.
 
-The current 4.4.3 payload is installed under Program Files and running
-loopback-only; its core packaged-file hashes match the extracted engineering
-build and health/readiness report no blockers. This is not installed
-all-output redaction/no-egress, provider, deletion/recovery, independent
-privacy, lifecycle, or exact signed-artifact acceptance; those gates remain
-open.
+The current 4.4.5 engineering installer is unsigned and has not been installed
+or provider-tested. Earlier 4.4.3 Program Files readiness evidence is
+historical and cannot establish 4.4.5 all-output redaction/no-egress,
+provider, deletion/recovery, independent privacy, lifecycle, or exact
+signed-artifact acceptance; those gates remain open.
 
 ## Local-first does not mean air-gapped
 

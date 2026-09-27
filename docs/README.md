@@ -6,13 +6,13 @@
 
 ## Authority and release status
 
-- Generated: `2026-08-31`
+- Generated: `2026-09-27`
 - Documentation authority: `2026.08.10-cp19l-installed-evidence` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19 installed-chat repair; 4.4.4 source is integrated and green, exact-source Windows rebuild/installed acceptance is next, and signing/lifecycle/provider CP19-M rows remain open
-- Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The current local engineering build recorded against source base `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` is `DataLogicEngine Setup 4.4.3.exe` (359111112 bytes; SHA-256 `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`); it is unsigned, its integrity/checksum/block-map gate passes, and portable smoke reached package-owned backend readiness in 56001 ms. The build report records the exact source commit; signed installed release binding remains open. It has not passed installed-mode acceptance and does not replace the distinct 2026-08-10 installed qualification artifact recorded in the release and V&V records. One-time installed retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
+- Current program checkpoint: Phase 19 installed-chat repair; 4.4.5 Windows source and clean-commit build gates passed, installed acceptance remains next, and signing/lifecycle/provider CP19-M rows remain open
+- Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The 4.4.5 clean-source engineering build from commit `8a419f6c8908c541ac13389dd75e9b7bb83bb87f` produced `DataLogicEngine Setup 4.4.5.exe` (398783115 bytes; SHA-256 `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`). Its packaged-payload check passed, but it is unsigned. Portable smoke: not run; installed-mode acceptance: not run; live-provider acceptance: not run. Earlier 4.4.3 build reports do not bind to it. It has not passed installed-mode acceptance and does not replace the distinct 2026-08-10 installed qualification artifact recorded in the release and V&V records. The earlier 2026-08-10 installed candidate's one-time retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
 The authoritative program is root `PRODUCTION_COMPLETION_PLAN_2026.md`; root

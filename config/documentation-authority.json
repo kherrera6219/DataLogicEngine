@@ -2,6 +2,18 @@
   "schema_version": "dle.documentation-authority.v1",
   "program_version": "2026.08.10-cp19l-installed-evidence",
   "status": "approved_phase16_replacement_closed",
+  "current_engineering_candidate": {
+    "product_version": "4.4.5",
+    "source_commit": "8a419f6c8908c541ac13389dd75e9b7bb83bb87f",
+    "installer": "DataLogicEngine Setup 4.4.5.exe",
+    "size_bytes": 398783115,
+    "sha256": "9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941",
+    "signature": "unsigned",
+    "packaged_payload_check": "pass",
+    "portable_smoke": "not_run",
+    "installed_acceptance": "not_run",
+    "live_provider_acceptance": "not_run"
+  },
   "approval": {
     "status": "approved",
     "owner": "Kevin Herrera",

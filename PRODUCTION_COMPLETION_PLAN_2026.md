@@ -19,16 +19,14 @@
 
 ### Current execution checkpoint
 
-On 2026-08-31, the installed governed-chat repair completed its entire source
-sequence through CHAT-QC-05. The integrated gate passes 3,353 Windows backend
-tests with 18 skipped and zero failures or setup errors, all 504 frontend
-tests, the production frontend build, frontend lint/type checks, documentation
-references, and requirements traceability. The product authority advanced once
-from 4.4.3 to 4.4.4 under the standing major-update rule. The exact-source
-Windows rebuild and installed CHAT-QC-06 matrix remain open; no source-only
-result closes CP19-M, signing, provider, accessibility, lifecycle, recovery,
-independent-review, pilot, or soak gates. Production/public release remains
-**NO-GO**.
+On 2026-09-27, the 4.4.5 source gate passed 3,364 Windows backend tests with
+18 skipped and zero setup errors, all 504 frontend tests, and the production
+frontend build. The clean-source Windows installer was built from commit
+`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`; its packaged-payload check
+passes. It is unsigned and has not passed portable smoke or installed
+CHAT-QC-06/provider acceptance. No source or build-only result closes CP19-M,
+signing, accessibility, lifecycle, recovery, independent-review, pilot, or
+soak gates. Production/public release remains **NO-GO**.
 
 Phase 19 CP19-K closed all 213/213 individual KA qualification rows. CP19-L
 passed on 2026-08-10 after the full source, dependency, security, frontend, SDK,
@@ -241,8 +239,8 @@ release remains **NO-GO**.
 The follow-on documentation/evidence closure is pushed on `main` at
 `43fd86df74f3545b84c0a10702428723611c40d6`; Deploy run `33039993475`,
 Security run `33039993480`, and CI/CD run `33039993472` all pass. The same
-4.4.3 payload is currently installed under Program Files and running
-loopback-only. Its desktop executable, backend executable, and `app.asar`
+4.4.3 payload was observed installed under Program Files and running
+loopback-only at that checkpoint. Its desktop executable, backend executable, and `app.asar`
 hashes match the extracted build, while `/health` and `/ready` report no
 blockers. This is a narrow installed runtime observation, not the elevated
 install/upgrade/repair/uninstall, provider-chat, retained-data, accessibility,
@@ -6513,13 +6511,15 @@ exit gate.
 
 ## 34. Immediate next action
 
-The current overriding CU-2 action is to use only the installed 4.4.3 payload
-bound to exact source commit `171ba1db...` and SHA-256
-`a9c80380...d377c5a`. Prove a normal Google chat invokes the
-configured provider once, releases through Layer 10, and exposes persisted
-validation telemetry. Restore OpenAI quota and rerun the bounded High-reasoning
-check without exposing stored keys. The 4.4.2 artifact is historical
-engineering evidence and must not continue installed acceptance.
+The current overriding CU-2 action is to qualify the 4.4.5 engineering
+installer bound to clean source commit `8a419f6c...` and SHA-256
+`9686f458...ad4941`. It is unsigned, so signed release acceptance remains
+blocked. First record portable and installed behavior for this exact artifact;
+then prove Google `gemini-3.8-flash` and OpenAI `gpt-6-sol` High chat each
+invoke the configured provider once, release through Layer 10, and expose
+persisted validation telemetry without exposing stored keys. Older 4.4.3 and
+4.4.2 artifacts are historical engineering evidence and must not continue
+current installed acceptance.
 
 CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-43 now truthfully
 qualify all 213 rows, including the causal simulation core, MCP admission/result

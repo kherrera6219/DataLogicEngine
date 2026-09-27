@@ -8,7 +8,7 @@
 | Title | Current-build documentation reconciliation |
 | Document version | v1.4.0 |
 | Product version | 4.4.5 |
-| Status | active supporting review |
+| Status | Historical supporting review; superseded for current build identity by `docs/generated/PRODUCTION_CONTRACT_INDEX.md` and `docs/RELEASE_READINESS_RECORD.md` |
 | Audience | Product owner, engineering, quality, release reviewers, and documentation maintainers |
 | Owner | Documentation Engineering |
 | Approver | Kevin Herrera, Product Owner |
@@ -20,8 +20,9 @@
 
 ## Purpose and boundary
 
-This review reconciles every tracked current file under `docs/` with the current
-DataLogicEngine 4.4.3 source and build state. It distinguishes current authority,
+This review captured the 2026-08-11 DataLogicEngine 4.4.3 source and build
+state. Its artifact identity and source/CI results below are historical, not
+current 4.4.5 evidence. It distinguishes then-current authority,
 generated contracts, immutable evaluation inputs, current supporting reviews,
 and historical records.
 
@@ -48,8 +49,9 @@ product authority.
 | Installed evidence | Bound only to the August 10 hash: per-machine Program Files launch, `/ready`, five app-owned services, retained-data adoption, authentication, Diagnostics, and representative KA smoke |
 | Release decision | **NO-GO**; CP19-M and retained signing, provider, installed, accessibility, recovery, external, pilot, and soak gates remain open |
 
-The current 4.4.3 build and the last completed installed qualification artifact
-are different evidence subjects. The narrow 4.4.3 running-installed observation
+At this historical checkpoint, the then-current 4.4.3 build and the last
+completed installed qualification artifact were different evidence subjects.
+The narrow 4.4.3 running-installed observation
 does not transfer retained-data, provider, accessibility, recovery, privacy,
 performance, or soak results between them.
 

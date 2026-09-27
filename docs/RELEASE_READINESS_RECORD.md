@@ -65,8 +65,9 @@ keep the decision **NO-GO**.
 
 ## Candidate identity
 
-Two distinct engineering artifacts are recorded below. Evidence remains bound
-to its exact hash and is never transferred between them.
+The installed historical qualification artifact and the current 4.4.5
+engineering build are distinct. Evidence remains bound to its exact hash and
+is never transferred between them.
 
 ### Last installed qualification artifact
 
@@ -96,23 +97,21 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 
 | Item | Current local build record |
 |---|---|
-| Runtime source input | Exact clean commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` |
-| Artifact | `DataLogicEngine Setup 4.4.3.exe` |
-| Size | 359,111,112 bytes |
-| SHA-256 | `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a` |
-| Integrity | Pass; zero errors/warnings; checksum and block map present; 6,100-file release payload has zero issues |
-| Packaging governance | NSIS governance and required resource checks pass; one Rego policy present |
+| Runtime source input | Exact clean commit `8a419f6c8908c541ac13389dd75e9b7bb83bb87f` |
+| Artifact | `DataLogicEngine Setup 4.4.5.exe` |
+| Size | 398,783,115 bytes |
+| SHA-256 | `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941` |
+| Integrity | Packaged-payload check passes; full current-candidate installer integrity evidence remains to be recorded |
+| Packaging governance | Current-candidate installed and release-governance gates remain open |
 | Signature | `NotSigned`; production signing remains unauthorized |
-| Portable smoke | Pass; package-owned `/ready` in 56,001 ms with verified descendant-process ownership and zero blockers |
-| Installed-mode observation | Program Files copy is running loopback-only; desktop/backend/`app.asar` hashes match the extracted payload and health/readiness pass. Install action, upgrade, repair, uninstall, retained data, and provider chat are not accepted. |
+| Portable smoke | Not run for this artifact |
+| Installed-mode observation | Not installed or provider-tested; earlier Program Files observations belong to a different artifact |
 | Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
 
-The current build is exact-source-bound but unsigned. The Google
-source-level availability row passes; OpenAI remains blocked on
-`quota_exhausted`. No installed, provider-corpus/human, accessibility, recovery,
-independent-review, pilot, or soak result from an earlier hash is attributed to
-this artifact. The narrow running Program Files observation above does not
-replace those gates. The next CP19-M release-candidate run must bind every
+The current build is exact-source-bound but unsigned. No live Google or OpenAI
+result for the 4.4.5 models, installed, provider-corpus/human, accessibility,
+recovery, independent-review, pilot, or soak result from an earlier hash is
+attributed to this artifact. The next CP19-M release-candidate run must bind every
 result to one exact signed artifact.
 
 ## Gate summary

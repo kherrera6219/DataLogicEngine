@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.19.0 |
+| Document version | v1.20.0 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |

@@ -167,7 +167,7 @@ disabled. A DSN or other setting cannot authorize egress.
 
 ## Release and update trust
 
-Product 4.4.4, Windows 4.4.4.0, exact Python/Node/Electron locks, immutable
+Product 4.4.5, Windows 4.4.5.0, exact Python/Node/Electron locks, immutable
 workflow actions, SBOMs, manifests, content inventories, attestations, publisher
 identity, signature/timestamp, malware/license review, and release authority form
 one promotion boundary. Candidate mode cannot authorize production.

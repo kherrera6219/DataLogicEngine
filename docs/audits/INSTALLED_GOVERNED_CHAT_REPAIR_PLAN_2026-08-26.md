@@ -8,7 +8,7 @@
 | Document version | v1.1.0 |
 | Product version | 4.4.5 |
 | Date | 2026-08-26 |
-| Status | Source implementation complete through CHAT-QC-05; exact-source rebuild and installed CHAT-QC-06 acceptance open; not release authority |
+| Status | Source implementation through CHAT-QC-05 and 4.4.5 clean-source engineering rebuild complete; installed CHAT-QC-06 acceptance open; not release authority |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Evidence run | `0779492c-c054-4630-b321-b2e13be7b4ef` |
@@ -33,18 +33,19 @@ This is a supporting plan. It does not replace, reopen, or weaken:
 
 CP19-D through CP19-G remain implemented. The work below repairs product
 binding, presentation, durability, and acceptance around those capabilities.
-The current 4.4.4 release status remains `release_blocked`.
+The current 4.4.5 release status remains `release_blocked`.
 
-### Source implementation checkpoint — 2026-08-31
+### Source and build checkpoint — 2026-09-27
 
 CHAT-QC-01 through CHAT-QC-05, TRACE-QC-01 through TRACE-QC-06, and
 DATA-QC-01 through DATA-QC-02 are implemented. The integrated source gate
-passes 3,353 backend tests with 18 skipped and zero failures or setup errors,
-504 frontend tests, the production frontend build, frontend lint/type checks,
-documentation references, and requirements traceability. The standing version
-rule advanced the exact-source target once, from 4.4.3 to 4.4.4. CHAT-QC-06
-remains open until the exact artifact is rebuilt and installed visual,
-functional, provider, accessibility, and lifecycle evidence is recorded.
+passes 3,364 Windows backend tests with 18 skipped and zero setup errors,
+504 frontend tests, and the production frontend build. The 4.4.5 clean-source
+engineering installer was built from commit
+`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`, and its packaged-payload
+check passes. The installer is unsigned; CHAT-QC-06 remains open until the
+exact artifact completes installed visual, functional, provider,
+accessibility, and lifecycle evidence.
 
 ## 2. Fixed boundaries
 

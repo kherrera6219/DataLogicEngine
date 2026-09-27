@@ -20,15 +20,16 @@
 
 ## Purpose
 
-Define the approved product contract for DataLogicEngine 4.4.4 and the evidence
+Define the approved product contract for DataLogicEngine 4.4.5 and the evidence
 needed to claim that contract is satisfied. This document states requirements;
 it does not convert an engineering checkpoint into production approval.
 
-CP19-L passed on 2026-08-10 and one clean unsigned candidate installed and
-reached readiness with retained app-owned data. The newer 2026-08-11 local
-engineering build is a different, unsigned artifact that has passed integrity
-but not installed-mode acceptance. CP19-M signed installed and all retained
-acceptance requirements remain binding for the exact final artifact.
+CP19-L passed on 2026-08-10 and an older clean unsigned candidate installed and
+reached readiness with retained app-owned data. The 4.4.5 clean-source
+engineering build is a different, unsigned artifact whose packaged-payload
+check passes but which has not been installed or provider-tested. CP19-M signed
+installed and all retained acceptance requirements remain binding for the
+exact final artifact.
 
 ## Product definition
 
@@ -65,7 +66,7 @@ acceptance passes.
 
 ## Explicit exclusions
 
-The 4.4.4 contract excludes public-internet gateway exposure, public
+The 4.4.5 contract excludes public-internet gateway exposure, public
 self-registration, multi-tenancy, vendor-hosted customer data or API spend,
 Kubernetes, managed cloud databases as production authorities, mobile clients,
 and macOS or Linux packaging. CORS/browser gateway use and network MCP

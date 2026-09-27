@@ -85,7 +85,9 @@ def render(
     installer_hash = current_installer.get("sha256", "not_evaluated")
     installer_name = current_installer.get("artifact", "not_evaluated")
     installer_size = current_installer.get("size_bytes", "not_evaluated")
-    build_commit = installer_report.get("results", {}).get("source_commit", "not_evaluated")
+    build_commit = installer_report.get("results", {}).get(
+        "source_commit", "not_evaluated"
+    )
     packaging_matches = packaging_report.get("installer_sha256") == installer_hash
     backend_readiness = packaging_report.get("backend_readiness", {})
     if packaging_matches and backend_readiness.get("ready"):
@@ -101,7 +103,37 @@ def render(
         smoke_state = "started but did not prove backend readiness"
     else:
         smoke_state = "was not run for this artifact"
-    if "replacement rebuild required" in current_phase.lower():
+    candidate = authority.get("current_engineering_candidate")
+    if candidate:
+        result_labels = {
+            "pass": "passed",
+            "fail": "failed",
+            "not_run": "not run",
+        }
+        payload_status = result_labels.get(
+            candidate.get("packaged_payload_check"), "not evaluated"
+        )
+        portable_status = result_labels.get(
+            candidate.get("portable_smoke"), "not evaluated"
+        )
+        installed_status = result_labels.get(
+            candidate.get("installed_acceptance"), "not evaluated"
+        )
+        provider_status = result_labels.get(
+            candidate.get("live_provider_acceptance"), "not evaluated"
+        )
+        artifact_evidence = (
+            f"The {candidate['product_version']} clean-source engineering build from commit "
+            f"`{candidate['source_commit']}` produced "
+            f"`{candidate['installer']}` ({candidate['size_bytes']} bytes; "
+            f"SHA-256 `{candidate['sha256']}`). Its packaged-payload check "
+            f"{payload_status}, but it is "
+            f"{candidate['signature']}. Portable smoke: {portable_status}; "
+            f"installed-mode acceptance: {installed_status}; live-provider "
+            f"acceptance: {provider_status}. "
+            "Earlier 4.4.3 build reports do not bind to it."
+        )
+    elif "replacement rebuild required" in current_phase.lower():
         artifact_evidence = (
             f"The latest recorded local engineering build is `{installer_name}` "
             f"({installer_size} bytes; SHA-256 `{installer_hash}`), but it is "
@@ -123,7 +155,7 @@ def render(
         f"{artifact_evidence} "
         "It has not passed installed-mode acceptance and does not replace the distinct "
         "2026-08-10 installed qualification artifact recorded in the release and V&V records. "
-        "One-time installed retained-data adoption preserved 22,068 listed relational "
+        "The earlier 2026-08-10 installed candidate's one-time retained-data adoption preserved 22,068 listed relational "
         "rows, 20 graph nodes/18 relationships, and eight objects. The reviewed "
         "dataset exporter remains supporting owner tooling and does not satisfy "
         "installed training/provider acceptance. CP19-M remains open for the "
@@ -233,8 +265,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--closure", type=Path, default=DEFAULT_CLOSURE)
     parser.add_argument("--todo", type=Path, default=DEFAULT_TODO)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--installer-report", type=Path, default=DEFAULT_INSTALLER_REPORT)
-    parser.add_argument("--packaging-report", type=Path, default=DEFAULT_PACKAGING_REPORT)
+    parser.add_argument(
+        "--installer-report", type=Path, default=DEFAULT_INSTALLER_REPORT
+    )
+    parser.add_argument(
+        "--packaging-report", type=Path, default=DEFAULT_PACKAGING_REPORT
+    )
     args = parser.parse_args(argv)
     args.output.write_text(
         render(

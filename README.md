@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.12.0 |
+| Document version | v1.13.0 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -39,9 +39,10 @@ The built-in chat is a reference client for the same gateway that approved
 applications, agents, and chatbots can use. DataLogicEngine is not a model and
 is not a vendor-hosted SaaS: the owner controls the Windows system, provider
 accounts, connector credentials, local data, retention, backups, and operating
-policy. Approved external communication is limited to owner-configured model
-endpoints and explicitly enabled connectors. There is no approved telemetry,
-license check-in, update check, crash-reporting egress, or phone-home.
+policy. The approved boundary permits owner-configured model endpoints and
+explicitly enabled connectors; end-to-end egress enforcement proof remains an
+open remediation gate. There is no approved telemetry, license check-in,
+update check, crash-reporting egress, or phone-home.
 
 > [!WARNING]
 > **Engineering evaluation only. DataLogicEngine 4.4.5 is not approved for a
@@ -60,6 +61,13 @@ Windows source suite passed with 3,364 tests, 18 skipped, and zero setup errors;
 504 frontend tests and the production frontend build passed. This candidate is
 unsigned and has not been installed or provider-tested, so it is not release
 acceptance evidence.
+
+In 4.4.5, desktop chat uses the selected model's declared input/output
+capacity and can continue from the owner's saved local session transcript.
+The app selects retrieved context from its internal stores; the provider does
+not receive direct database access. The dashboard reads governed-run and chat-
+session records. Independent spending quotas, the desktop request-size safety
+guard, and the existing external-client API limits still apply.
 
 The last independently recorded installed engineering build is `DataLogicEngine Setup 4.4.3.exe`
 (359,111,112 bytes; SHA-256
@@ -404,7 +412,9 @@ npm --prefix frontend run electron:dist
 
 `CSC_SKIP=true` produces an unsigned local engineering build. It is not a
 public release artifact. Installer output is generated as
-`DataLogicEngine Setup 4.4.3.exe` with its checksum and block map.
+`DataLogicEngine Setup 4.4.5.exe` with its checksum and block map when the
+standard copy step completes. That step removes older root installer copies;
+preserve any historical artifacts separately before running it.
 
 Verify the package before installing it:
 

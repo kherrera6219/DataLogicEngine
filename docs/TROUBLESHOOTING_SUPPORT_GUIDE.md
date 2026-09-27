@@ -25,15 +25,17 @@ around an error by disabling storage protection, ACLs, authentication, signature
 migration, readiness, provider, scope, or required-service checks. Record the
 safe error code and fix the underlying condition.
 
-Every current 4.4.4 artifact is qualification-only, unsigned, and not approved
-for public installation. The 2026-08-10 installed candidate reached readiness
-with its managed five-service data plane. Do not resolve a startup problem by
+The current 4.4.5 engineering installer is unsigned, qualification-only, and
+not approved for public installation. It has not passed installed readiness.
+The 2026-08-10 installed candidate reached readiness with its managed
+five-service data plane, but that result belongs to a different artifact.
+Do not resolve a startup problem by
 creating another database, switching to SQLite/memory/filesystem fallbacks, or
 restarting superseded legacy service containers.
 
-The August 11 local build is a different artifact and has not passed installed
-acceptance. Always record the exact SHA-256 before applying troubleshooting
-evidence from another build.
+Always record the exact SHA-256 before applying troubleshooting evidence from
+another build. The current 4.4.5 installer has SHA-256
+`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`.
 
 On Windows, the backend may log that signal-based request timeout is unavailable
 and that the packaged server timeout should be used. This is a non-blocking

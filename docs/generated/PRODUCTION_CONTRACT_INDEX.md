@@ -12,14 +12,14 @@
 | Windows file version | `4.4.5.0` |
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
-| Current local artifact | `DataLogicEngine Setup 4.4.3.exe` |
-| Current local artifact size | `359111112` bytes |
-| Current local artifact SHA-256 | `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a` |
-| Current build source commit | `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` |
-| Current artifact signature | `NotSigned` |
-| Portable backend readiness | `true` |
-| Portable readiness listener owned by package | `true` |
-| Installed-mode smoke accepted | `false` |
+| Current local artifact | `DataLogicEngine Setup 4.4.5.exe` |
+| Current local artifact size | `398783115` bytes |
+| Current local artifact SHA-256 | `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941` |
+| Current build source commit | `8a419f6c8908c541ac13389dd75e9b7bb83bb87f` |
+| Current artifact signature | `unsigned` |
+| Portable backend readiness | `not_run` |
+| Portable readiness listener owned by package | `not_run` |
+| Installed-mode smoke accepted | `not_run` |
 
 ## Provider and model allowlist
 
@@ -113,6 +113,7 @@ to use an unsupported deployment or bypass production validation.
 
 - `config/product-versions.json`
 - `config/provider_manifest.v1.json`
+- `config/documentation-authority.json`
 - `deploy/internal-data-plane.candidate-lock.json`
 - `reports/production-readiness/2026/phase-17/route-manifest.json`
 - `docs/openapi.yaml`

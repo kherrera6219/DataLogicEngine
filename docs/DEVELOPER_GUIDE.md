@@ -22,15 +22,14 @@
 
 Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
 
-The current 4.4.4 source baseline passes 3,353 Python tests with 18 skipped and
-484 frontend tests. It selects OpenAI `gpt-5.6-sol` with High reasoning and
-Google `gemini-3.7-flash`. The current replacement was rebuilt from exact
-source commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`; static packaging,
-the 6,100-file payload, and package-owned portable `/ready` pass. Core files in
-the currently installed Program Files copy match the extracted build and its
-loopback health/readiness checks pass. It remains unsigned, provider chat and
-full lifecycle acceptance remain open, and CP19-M remains the exact signed
-installed acceptance boundary.
+The 4.4.5 Windows source gate passes 3,364 Python tests with 18 skipped and
+zero setup errors, plus 504 frontend tests. It selects OpenAI `gpt-6-sol`
+with High reasoning and Google `gemini-3.8-flash`. The engineering installer
+was rebuilt from clean commit `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`;
+the packaged payload check passes. The installer is unsigned, and this exact
+artifact has not passed portable readiness, installed provider chat, or full
+lifecycle acceptance. CP19-M remains the exact signed installed acceptance
+boundary; previous Program Files observations belong to a different artifact.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
 
@@ -108,7 +107,7 @@ Set in `.env`:
    - `OPENAI_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
    - `LLM_DEFAULT_PROVIDER=google` when both OpenAI and Google keys are present and Google should be the env fallback default
-   - The app uses one user-selected cloud model (OpenAI `gpt-5.6-sol` or Google `gemini-3.7-flash`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
+   - The app uses one user-selected cloud model (OpenAI `gpt-6-sol` or Google `gemini-3.8-flash`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 3. Runtime mode/storage values only when overriding defaults. The current supported data modes are local, VM, and auto internal service modes.
 
 Do not carry `AUTO_CREATE_SCHEMA=true` into shared or production environments.

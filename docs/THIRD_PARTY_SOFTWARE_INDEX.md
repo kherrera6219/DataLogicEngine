@@ -21,7 +21,7 @@
 ## Current disposition
 
 This index is an engineering inventory, not legal advice, redistribution
-approval, a complete notice bundle, or a SLSA conformance claim. Product 4.4.4
+approval, a complete notice bundle, or a SLSA conformance claim. Product 4.4.5
 remains release-blocked: ten legal/distribution actions, final exact-artifact
 SBOM/notices reconciliation, publisher/signing, vulnerability/malware scans,
 service redistribution, installed object-store acceptance, export/region review,
@@ -30,10 +30,10 @@ and owner/independent approvals remain open.
 The CP19-L governed Python and Node locks pass local vulnerability audits and the
 rebuilt candidate passes payload/integrity checks. Exact signed-artifact SBOM,
 malware scan, redistribution/notices, publisher, and legal approval remain open.
-The August 11 local artifact has a different hash from the installed
+The 4.4.5 engineering artifact has a different hash from the installed
 qualification artifact and requires its own final SBOM/notices and scan binding.
-A scheduled full-history secret scan is also open pending false-positive or
-credential disposition and a clean rerun.
+Prior scheduled secret-scan evidence does not replace final exact-candidate
+scans.
 
 ## Dependency authorities
 
@@ -42,7 +42,7 @@ credential disposition and a clean rerun.
 | Python | `requirements.txt` (81 direct pins at Phase 14) | `requirements.lock` (315 hash-locked packages at Phase 14) | CPython 3.11; hashes required; no implicit `pyproject` runtime authority |
 | Node/Electron | `frontend/package.json` | `frontend/package-lock.json` v3 via `npm ci` | Node major 24; Electron 43.1.1, Chromium 150.0.7871.114, embedded Node 24.18.0 |
 | Internal services | `deploy/internal-data-plane.candidate-lock.json` | Exact image/runtime digests and platform selection | Engineering candidates only until redistribution/security/license approval |
-| Product/contracts | `config/product-versions.json` | Product 4.4.4, Windows 4.4.4.0, versioned public/gateway/governed/data contracts | Must match installer, binaries, UI/API/support, SDKs, manifests, and evidence |
+| Product/contracts | `config/product-versions.json` | Product 4.4.5, Windows 4.4.5.0, versioned public/gateway/governed/data contracts | Must match installer, binaries, UI/API/support, SDKs, manifests, and evidence |
 
 Package-manager license metadata is a discovery input, not authoritative legal
 permission. Exact source/license texts, notices, exceptions, linking/distribution

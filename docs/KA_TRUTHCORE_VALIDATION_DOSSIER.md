@@ -30,9 +30,9 @@ CP19-K now qualifies 213/213 KAs through named semantic, selector, owner-path,
 trace, limitation, and applicable effect/security/performance evidence. CP19-L
 passed and representative KAs executed from the installed frozen backend. Live
 provider corpus and blinded-human acceptance remain open and release-blocking.
-The current 4.4.3 Program Files payload is healthy and core-file-identical to
-the extracted build, but it has not repeated installed per-KA/provider
-acceptance, so that narrow observation does not close those rows.
+The earlier 4.4.3 Program Files payload had narrow readiness/core-file
+identity evidence, but that does not prove installed per-KA/provider acceptance
+for the current unsigned 4.4.5 engineering installer. Those rows remain open.
 
 ## Registry and classification
 

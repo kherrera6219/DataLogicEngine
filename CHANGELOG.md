@@ -9,7 +9,10 @@
   dashboard to current governed runs and chat sessions.
 - The Windows suite passed (3,364 passed, 18 skipped, zero setup errors), as
   did 504 frontend tests and the frontend production build. A 4.4.5 Windows
-  engineering installer was built; it is unsigned and has not passed
+  engineering installer was built from clean source commit
+  `8a419f6c8908c541ac13389dd75e9b7bb83bb87f` (398,783,115 bytes;
+  SHA-256 `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`).
+  It is unsigned and has not passed
   installed-provider acceptance. Production/public release remains blocked.
 
 ## 4.4.0 candidate qualification - 2026-08-11
@@ -63,7 +66,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.12.0 |
+| Document version | v1.13.0 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -71,7 +74,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 

@@ -28,13 +28,14 @@ call model providers or internal data services directly.
 The default listener is loopback-only. Same-host clients are supported at the
 engineering checkpoint. `private_windows_gateway` remains disabled until the
 signed two-machine TLS/firewall qualification passes. Browser/CORS and public-
-internet exposure are outside the 4.4.4 contract.
+internet exposure are outside the 4.4.5 contract.
 
-The current 4.4.3 payload is installed under Program Files and its backend is
-healthy on `127.0.0.1:5000`; core packaged-file hashes match the extracted
-build. Signed same-host/private gateway, provider-chat, authenticated client,
-load, lifecycle, and two-machine acceptance remain open. The narrow loopback
-observation must not be represented as completed installed gateway acceptance.
+The current unsigned 4.4.5 engineering installer has not been installed or
+gateway/provider-tested. An earlier 4.4.3 Program Files backend was healthy
+on `127.0.0.1:5000` and its core packaged-file hashes matched that build;
+those observations do not establish 4.4.5 signed same-host/private gateway,
+provider-chat, authenticated-client, load, lifecycle, or two-machine
+acceptance.
 
 ## Version and route policy
 

@@ -20,22 +20,19 @@
 
 ## Current distribution status
 
-DataLogicEngine 4.4.3 is not approved for production or public installation.
-The current engineering installer is `DataLogicEngine Setup 4.4.3.exe`
-(359,111,112 bytes; SHA-256
-`a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`),
-built from exact source commit
-`171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. It is unsigned. Integrity,
-checksum/block-map, NSIS, required resources, the 6,100-file payload, and
-strict package-owned portable readiness pass.
+DataLogicEngine 4.4.5 is not approved for production or public installation.
+The current engineering installer is `DataLogicEngine Setup 4.4.5.exe`
+(398,783,115 bytes; SHA-256
+`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`),
+built from clean source commit
+`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`. It is unsigned. The
+packaged-payload check passes, but portable, installed-mode, provider-chat,
+upgrade, repair, uninstall, and retained-data acceptance have not been run
+for this exact artifact.
 
-That 4.4.3 payload is currently installed under Program Files and running
-loopback-only. The installed desktop executable, backend executable, and
-`app.asar` hashes match the extracted build; `/health` is healthy and `/ready`
-reports no blockers. This observation does not prove the installation action,
-upgrade, repair, uninstall, retained-data lifecycle, provider chat, or signed
-release acceptance. Do not transfer evidence from older 4.3.0, 4.4.0, 4.4.1,
-or 4.4.2 hashes to this candidate.
+The older 4.4.3 payload had a narrow Program Files loopback health/readiness
+observation. That evidence does not transfer to the 4.4.5 installer or prove
+its installation, lifecycle, provider chat, or signed release acceptance.
 
 The earlier frozen candidate stopped safely at
 `at_rest_protection_not_ready`; that result remains historical negative evidence
@@ -62,7 +59,7 @@ yet ratified and must not be guessed from development machines.
 
 1. Obtain the installer only from the release location named in the approved
    release-readiness record.
-2. Confirm the filename is `DataLogicEngine Setup 4.4.3.exe`.
+2. Confirm the filename matches the exact approved release-readiness record; the current unsigned `DataLogicEngine Setup 4.4.5.exe` is engineering-only.
 3. Confirm the published SHA-256 matches the installer.
 4. Open Windows file properties and verify a valid signature from the approved
    publisher, a trusted chain, a valid timestamp, and no revocation failure.
@@ -78,7 +75,7 @@ follow the troubleshooting guide. Do not bypass readiness or trust controls.
 
 ## Clean installation
 
-1. Run `DataLogicEngine Setup 4.4.3.exe` as the Windows user who will own the
+1. Run the exact signed installer named by the release-readiness record as the Windows user who will own the
    installation.
 2. Review the publisher and version displayed by Windows before continuing.
 3. Select only an approved protected local data location when prompted.
@@ -88,7 +85,7 @@ follow the troubleshooting guide. Do not bypass readiness or trust controls.
 6. Wait for readiness. A live backend is not necessarily ready; the desktop must
    show a safe blocker if required services, identities, migrations, storage
    protection, or policies do not pass.
-7. Open Settings and Diagnostics and confirm product 4.4.3, runtime identity,
+7. Open Settings and Diagnostics and confirm the approved release version, runtime identity,
    required service state, external telemetry disabled, and update state.
 8. Configure one supported provider only after reviewing the privacy/AI notice.
    A stored key is not `available` until its bounded live test passes.
@@ -121,7 +118,7 @@ otherwise, restore only approved binaries/configuration, rerun readiness and
 migrations, and leave unrelated applications and ports untouched. Record the
 repair log and rerun the first-use acceptance steps.
 
-Repair behavior remains an open installed qualification gate for 4.4.3.
+Repair behavior remains an open installed qualification gate for 4.4.5.
 
 ## Upgrade
 

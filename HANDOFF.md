@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.21.0 |
+| Document version | v1.22.0 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.0 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
-| Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (all source work through CHAT-QC-05 is complete; 4.4.4 exact-source rebuild and installed CHAT-QC-06 acceptance remain open) |
+| Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.5 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19 installed-chat repair; 4.4.5 source and clean-commit Windows build gates passed. Installed CHAT-QC-06 acceptance remains next. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
 | Release verdict | Production/public release: **NO-GO** |
@@ -71,19 +71,20 @@ migration. It is unsigned and has not been installed or provider-tested; the
 CHAT-QC-06 acceptance row remains open. Existing owner/provider token budgets
 remain separate controls pending the product owner's decision on their defaults.
 
-CHAT-QC-01 through CHAT-QC-05, TRACE-QC-01 through TRACE-QC-06, and
+At the 2026-08-31 source checkpoint, CHAT-QC-01 through CHAT-QC-05, TRACE-QC-01 through TRACE-QC-06, and
 DATA-QC-01 through DATA-QC-02 are source-complete. The repair now provides
 durable first-message sessions, typed completion and continuation, truthful
 mode/confidence/budget presentation, safe ordered trace narratives, explicit
 refinement disposition and twelve-step detail, trace-linked analyst findings,
 principal-scoped trace analytics, the authoritative ingestion workspace, and
 a collapsible/resizable accessible Trace Explorer. The integrated source gate
-passes 3,353 backend tests with 18 skipped and zero failures/setup errors, 504
+passed 3,353 backend tests with 18 skipped and zero failures/setup errors, 504
 frontend tests, the production frontend build, frontend lint/type checking,
 documentation references, and requirements traceability.
 
-The product authority is now 4.4.4. The exact next action is a clean 4.4.4
-Windows rebuild followed by artifact-bound installed acceptance. The source
+At that checkpoint the product authority was 4.4.4 and its next action was a
+clean Windows rebuild. The current 4.4.5 candidate is built; artifact-bound
+installed acceptance remains next. The source
 results do not prove Google answer quality in the rebuilt installed app, NVDA,
 contrast, full installer lifecycle, signing, recovery, external review, pilot,
 or soak gates; production/public release remains NO-GO.
@@ -758,8 +759,8 @@ Key results:
   provider matrix, and AI system card are versioned.
 
 CP6-A through CP6-E pass for the engineering checkpoint. CP6-F remains an
-explicit installed-release blocker: current OpenAI `gpt-5.6-sol`, Google
-`gemini-3.7-flash`, the blinded human sample, second reviewer, and owner
+explicit installed-release blocker: the then-current OpenAI `gpt-5.6-sol` and Google
+`gemini-3.7-flash` rows, the blinded human sample, second reviewer, and owner
 release approval are pending. The provider rows remain quarantined and
 `release_ready=false`. Production/public release remains **NO-GO**.
 

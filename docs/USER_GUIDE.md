@@ -24,15 +24,14 @@ Provide task-focused instructions for day-to-day use of DataLogicEngine by analy
 
 This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, Diagnostics, and admin workflows.
 
-The current source selects OpenAI `gpt-5.6-sol` with High reasoning and Google
-`gemini-3.7-flash`. The local replacement engineering package contains that
-refresh and passes portable readiness. Its core payload files match the 4.4.3
-copy currently installed under Program Files, which is healthy and
-loopback-only. Saved rows using retired defaults were migrated without
-re-entering their keys. The package is unsigned and has not passed provider
-chat or full installed lifecycle acceptance. Production release remains
-blocked by a clean signed installed artifact plus provider, accessibility,
-independent, pilot, and soak gates.
+The 4.4.5 source selects OpenAI `gpt-6-sol` with High reasoning and Google
+`gemini-3.8-flash`. The clean-source engineering installer contains that
+refresh and a migration for known retired saved defaults; those rows have not
+been verified after installing this artifact. The installer is unsigned and
+has not passed installed provider chat or lifecycle acceptance. Production
+release remains blocked by a signed installed artifact plus provider,
+accessibility, independent, pilot, and soak gates. Earlier 4.4.3 installed
+observations do not transfer to 4.4.5.
 
 ## Audience
 
@@ -110,7 +109,7 @@ the local desktop trust boundary.
 8. If the test fails, use the specific reason: invalid key, unauthorized/invalid
    model, quota/rate/billing, network/outage, or timeout.
 
-**Choose a cloud model:** the app uses one user-selected cloud model. In **Settings → AI/Model**, pick **OpenAI** (`gpt-5.6-sol`, High reasoning) or **Google** (`gemini-3.7-flash`) and save its API key. Every request is then served by that model. An API key and internet connection are required for reasoning.
+**Choose a cloud model:** the app uses one user-selected cloud model. In **Settings → AI/Model**, pick **OpenAI** (`gpt-6-sol`, High reasoning) or **Google** (`gemini-3.8-flash`) and save its API key. Every request is then served by that model. An API key and internet connection are required for reasoning.
 
 ### 2. Start governed AI chat
 

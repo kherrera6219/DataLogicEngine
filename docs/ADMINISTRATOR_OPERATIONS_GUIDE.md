@@ -20,14 +20,12 @@
 
 ## Operating boundary
 
-The current unsigned 4.4.3 payload is installed under Program Files and running
-loopback-only. Its desktop executable, backend executable, and `app.asar` hashes
-match the extracted build; `/health` and `/ready` pass with no blockers. This
-narrow observation does not repeat the installation action, upgrade, repair,
-uninstall, retained-data lifecycle, provider chat, or recovery acceptance.
-Administrators must not transfer those results from an older artifact.
+The current 4.4.5 engineering installer is unsigned and has not been installed
+or run through portable, provider-chat, or lifecycle acceptance. Earlier
+4.4.3 Program Files loopback health/readiness evidence belongs to another
+artifact and must not be transferred to this one.
 
-DataLogicEngine 4.4.4 is a single-owner local-first Windows application. The
+DataLogicEngine 4.4.5 is a single-owner local-first Windows application. The
 normal desktop profile binds the backend and internal services to installation-
 specific local boundaries. The application owns PostgreSQL, Redis, Neo4j,
 ChromaDB, and app-owned S3-compatible object-store production responsibilities; externally managed databases
