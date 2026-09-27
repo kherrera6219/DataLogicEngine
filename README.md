@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.0 |
+| Document version | v1.13.1 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -61,6 +61,14 @@ Windows source suite passed with 3,364 tests, 18 skipped, and zero setup errors;
 504 frontend tests and the production frontend build passed. This candidate is
 unsigned and has not been installed or provider-tested, so it is not release
 acceptance evidence.
+
+PR #91 proposes a dependency and CI-fixture refresh after that installer was
+built. Local frontend build and route checks pass and npm audit reports zero
+advisories. A sequential Windows suite using the updated Python packages
+passed 3,364 tests with 18 skipped and zero setup errors. A transitive NLTK
+advisory still has no published patch. The PR is not release-accepted; the
+installer above does not contain these proposed changes and must be rebuilt
+from an accepted source commit before installed verification resumes.
 
 In 4.4.5, desktop chat uses the selected model's declared input/output
 capacity and can continue from the owner's saved local session transcript.

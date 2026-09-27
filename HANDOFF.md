@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.0 |
+| Document version | v1.22.1 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -51,6 +51,24 @@ over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
 remaining supporting work. Completed slow-audit, QC, coverage, and rejected
 terminology source plans are historical records under `docs/archive/audits/`.
 Phase 5 remains partial/deferred.
+
+## Pull-request verification checkpoint — 2026-09-27
+
+PR #91 is open; do not merge it while its security gate is red. A dependency
+refresh in the PR removes all locally reported npm advisories and reduces the
+Python audit to one finding: transitive `nltk==3.10.3` has
+`PYSEC-2026-3740` / `CVE-2026-81726`, with no published patched version.
+`llama-index-core` still requires NLTK, including in its 0.14.25 release.
+The finding is not suppressed or waived. Local verification of the proposed
+frontend work passed 504 unit tests, type checking, the desktop export build,
+the five-test route/sidebar browser smoke, the Analytics accessibility scan,
+and lockfile governance. A clean, sequential Windows Python run with the
+updated NLTK, pypdf, and soupsieve packages passed 3,364 tests with 18 skipped,
+zero setup errors, and 35 warnings. The refreshed GitHub checks must still be
+reviewed before any merge decision. Repo-wide Ruff remains non-green on
+pre-existing lint/format debt; the CI-scoped Ruff rule set passes. The 4.4.5
+installer described below predates this dependency refresh and must not be
+presented as containing it.
 
 ## Installed governed-chat repair checkpoint — 2026-08-31
 

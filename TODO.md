@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.0 |
+| Document version | v1.20.1 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -26,6 +26,29 @@
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
+
+## Open PR #91 verification and dependency gate
+
+- [ ] Review the refreshed GitHub checks for PR #91 after the dependency and
+      frontend route-fixture updates. Local npm audit reports zero advisories,
+      and the desktop frontend build, 504 unit tests, five route/sidebar browser
+      tests, Analytics accessibility scan, type checking, and lockfile
+      governance pass. The sequential Windows Python suite with the refreshed
+      parser/NLTK packages passed 3,364 tests, 18 skipped, and zero setup
+      errors. The refreshed remote checks remain to be reviewed.
+- [ ] Resolve or explicitly disposition `PYSEC-2026-3740` /
+      `CVE-2026-81726` in transitive `nltk==3.10.3`. The 2026-09-27 local
+      Python audit reports one remaining finding and the upstream advisory
+      lists no patched version. Do not add an audit suppression or merge with
+      the security gate red. Any dependency removal or replacement that changes
+      retrieval behavior requires owner direction and testing.
+- [ ] Track existing repository-wide lint debt through the compliance
+      remediation program: the full Ruff check currently reports 58 errors
+      and the format check would change 870 files. The CI-scoped Ruff rule set
+      passes; this dependency PR does not weaken either full gate.
+- [ ] After a green merge decision, produce a fresh exact-source 4.4.5
+      engineering installer and repeat installed acceptance. The existing
+      unsigned setup artifact was built before this dependency refresh.
 
 ## Active Phase 19 canonical KA system-of-systems integration
 

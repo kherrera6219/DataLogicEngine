@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import type { TraceAnalytics } from '../../../lib/api/types';
 
 export async function installSourceApiMocks(page: Page) {
   await page.route('**/api/v1/**', async (route) => {
@@ -23,6 +24,28 @@ export async function installSourceApiMocks(page: Page) {
       payload = [];
     } else if (path.startsWith('/trace/runs')) {
       payload = { runs: [] };
+    } else if (path === '/trace/analytics') {
+      const analytics: TraceAnalytics = {
+        scope: url.searchParams.get('scope') === 'all' ? 'owner' : 'principal',
+        partial: false,
+        filters: {
+          days: Number(url.searchParams.get('days') ?? 30),
+          limit: Number(url.searchParams.get('limit') ?? 50),
+          status: url.searchParams.get('status'),
+          mode: url.searchParams.get('mode'),
+          provider: url.searchParams.get('provider'),
+        },
+        summary: {
+          run_count: 0,
+          status_counts: {},
+          confidence: { average: null, measured_runs: 0, status: 'not_measured' },
+          tokens: { total: null, measured_runs: 0, status: 'not_measured' },
+          evidence: { total: 0, status: 'measured' },
+          refinement: { recorded_runs: 0, status_counts: {}, status: 'not_measured' },
+        },
+        runs: [],
+      };
+      payload = analytics;
     } else if (path === '/analytics/activity') {
       payload = [];
     } else if (path === '/analytics/summary' || path === '/analytics/overview') {
