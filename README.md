@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.1 |
+| Document version | v1.13.2 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -66,7 +66,9 @@ PR #91 proposes a dependency and CI-fixture refresh after that installer was
 built. Local frontend build and route checks pass and npm audit reports zero
 advisories. A sequential Windows suite using the updated Python packages
 passed 3,364 tests with 18 skipped and zero setup errors. A transitive NLTK
-advisory still has no published patch. The PR is not release-accepted; the
+advisory still has no published patch. GitHub's frontend, npm audit, and
+Windows packaging checks pass, while its Python dependency scan and backend
+job fail on that advisory. The PR remains open and is not release-accepted; the
 installer above does not contain these proposed changes and must be rebuilt
 from an accepted source commit before installed verification resumes.
 

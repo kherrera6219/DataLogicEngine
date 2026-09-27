@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.1 |
+| Document version | v1.22.2 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -64,8 +64,11 @@ frontend work passed 504 unit tests, type checking, the desktop export build,
 the five-test route/sidebar browser smoke, the Analytics accessibility scan,
 and lockfile governance. A clean, sequential Windows Python run with the
 updated NLTK, pypdf, and soupsieve packages passed 3,364 tests with 18 skipped,
-zero setup errors, and 35 warnings. The refreshed GitHub checks must still be
-reviewed before any merge decision. Repo-wide Ruff remains non-green on
+zero setup errors, and 35 warnings. At source commit `7e86feae`, GitHub's
+npm audit, frontend build/browser gates, Windows packaging smoke, governance,
+lint, code scans, and SBOM jobs passed. The Python dependency scan and
+`backend-test` failed on the same NLTK advisory, so PR #91 remains open and
+unmerged. Repo-wide Ruff remains non-green on
 pre-existing lint/format debt; the CI-scoped Ruff rule set passes. The 4.4.5
 installer described below predates this dependency refresh and must not be
 presented as containing it.
