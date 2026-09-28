@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-003 |
 | Title | Vulnerability reporting and disclosure policy |
-| Document version | v2.8.0 |
+| Document version | v2.8.1 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Security researchers, users, maintainers, and release reviewers |
@@ -14,9 +14,9 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Security policy, supported-version authority, and release-risk records |
 | Confidentiality | Public |
-| Last reviewed | 2026-07-14 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Supported-version, reporting, threat, or disclosure-process change |
-| Requirements and evidence | `docs/SECURITY_ARCHITECTURE.md`, `docs/SECURITY_ARCHITECTURE.md`, and security workflow evidence |
+| Requirements and evidence | `docs/SECURITY_ARCHITECTURE.md`, `docs/RELEASE_READINESS_RECORD.md`, and security workflow evidence |
 
 ## Purpose
 
@@ -28,11 +28,12 @@ For detailed internal security architecture, see `docs/SECURITY_ARCHITECTURE.md`
 
 ## Supported versions
 
-Security patches are provided for actively maintained release lines only.
+Security maintenance applies to actively maintained source lines only. A
+maintained line is not necessarily an approved production release.
 
 | Version | Supported | Notes |
 |---|---|---|
-| Current 4.x line | Yes | Active development/release line. |
+| Current 4.x line | Source maintenance | Version 4.4.5 remains an engineering candidate with production/public release **NO-GO**. |
 | Older lines | No, unless separately announced | Upgrade to the current maintained line. |
 
 ---
@@ -113,11 +114,9 @@ Detailed controls are documented in:
 
 1. `docs/SECURITY_ARCHITECTURE.md`
 2. `docs/PRIVACY_AI_NOTICE.md`
-3. `docs/SECURITY_ARCHITECTURE.md`
-4. `docs/SECURITY_ARCHITECTURE.md`
-5. `docs/THIRD_PARTY_SOFTWARE_INDEX.md`
-6. `docs/RELEASE_READINESS_RECORD.md`
-7. `docs/VERIFICATION_VALIDATION_REPORT.md`
+3. `docs/THIRD_PARTY_SOFTWARE_INDEX.md`
+4. `docs/RELEASE_READINESS_RECORD.md`
+5. `docs/VERIFICATION_VALIDATION_REPORT.md`
 
 ---
 
@@ -133,7 +132,14 @@ Current documentation may include mappings, roadmaps, and evidence-guided contro
 
 ## Known release caveats
 
-Current caveats may include, depending on release mode:
+The merged 4.4.5 engineering source has an unsuppressed transitive
+`nltk==3.10.3` finding (`PYSEC-2026-3740` / `CVE-2026-81726`). The
+[post-merge dependency security scan](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632416)
+failed; the [advisory](https://github.com/advisories/GHSA-8mgp-746c-j5xp)
+lists no patched version. Merging source does not waive this finding or
+qualify an installer. Production/public release remains **NO-GO**.
+
+Other release caveats include:
 
 1. trusted public Windows code-signing certificate provisioning;
 2. signed installer artifact validation;

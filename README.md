@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.3 |
+| Document version | v1.13.4 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -50,6 +50,19 @@ update check, crash-reporting egress, or phone-home.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
+The public `main` branch includes [PR #91](https://github.com/kherrera6219/DataLogicEngine/pull/91)
+at merge commit `39ba7e54e5e403dbb704ed49ad87b5cf8db3fa26`. This merged
+source is an engineering checkpoint, not an approved release. Its
+[post-merge Security Scan](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632416)
+failed the Python dependency audit on transitive `nltk==3.10.3`
+(`PYSEC-2026-3740` / `CVE-2026-81726`); the
+[advisory](https://github.com/advisories/GHSA-8mgp-746c-j5xp) lists no
+patched version. The finding is not suppressed or waived. Production/public
+release remains **NO-GO**. Separately, the
+[post-merge Deploy test run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632388)
+failed one Linux refinement-workflow test; that result has not been
+dispositioned.
+
 The current locally built engineering candidate is `DataLogicEngine Setup 4.4.5.exe`
 (398,783,115 bytes; SHA-256
 `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`).
@@ -60,18 +73,14 @@ backend contains the 4.4.5 provider manifest and forward migration. The
 Windows source suite passed with 3,364 tests, 18 skipped, and zero setup errors;
 504 frontend tests and the production frontend build passed. This candidate is
 unsigned and has not been installed or provider-tested, so it is not release
-acceptance evidence.
+acceptance evidence. It predates the merged `main` dependency refresh and does
+not contain those changes.
 
-PR #91 contains a dependency and CI-fixture refresh after that installer was
-built. Local frontend build and route checks pass and npm audit reports zero
-advisories. A sequential Windows suite using the updated Python packages
-passed 3,364 tests with 18 skipped and zero setup errors. A transitive NLTK
-advisory still has no published patch. GitHub's frontend, npm audit, and
-Windows packaging checks pass, while its Python dependency scan and backend
-job fail on that advisory. The owner requested repository integration despite
-these failed checks; a source merge does not waive the finding or approve a
-release. The installer above does not contain these changes and must be rebuilt
-from a security-dispositioned source commit before installed verification resumes.
+For the refreshed source, a sequential local Windows suite passed 3,364 tests
+with 18 skipped and zero setup errors. The PR's frontend, npm audit, and
+Windows packaging checks passed; its Python dependency scan and backend job
+failed on the NLTK advisory. A new installer must be built from a
+security-dispositioned source commit before installed verification resumes.
 
 In 4.4.5, desktop chat uses the selected model's declared input/output
 capacity and can continue from the owner's saved local session transcript.
@@ -228,8 +237,9 @@ supported contract and exclusions.
 
 ## Release status
 
-The source repository is an active production candidate, but the release
-decision remains **NO-GO**. Before public distribution, the same signed rebuilt
+The source repository is an engineering candidate, but the release decision
+remains **NO-GO**. The merged source still has an unresolved Python dependency
+security finding. Before public distribution, the same signed rebuilt
 artifact must pass the remaining clean-installed and retained-data acceptance
 matrix, provider and human review, packaged accessibility checks, upgrade and
 recovery tests, independent professional reviews, pilot operation, and 24/72-
@@ -491,7 +501,7 @@ Run the primary source checks from the repository root:
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests
 .\.venv\Scripts\python.exe -m ruff check . --select E9,F63,F7
-.\.venv\Scripts\python.exe -m pip_audit -r requirements.txt --desc
+.\.venv\Scripts\python.exe -m pip_audit -r requirements.lock --desc
 npm --prefix frontend run lint
 npm --prefix frontend run typecheck
 npm --prefix frontend run test
@@ -500,7 +510,10 @@ npm --prefix frontend audit --audit-level=high
 ```
 
 Coverage is measured separately for Python and TypeScript; the repository does
-not claim one blended whole-app percentage. The 2026-08-27 4.4.3 qualification
+not claim one blended whole-app percentage. The merged 4.4.5 source passed a
+sequential local Windows run of 3,364 Python tests with 18 skipped and zero
+setup errors, plus 504 frontend tests. These are source results, not an
+installed acceptance or a passing security audit. The 2026-08-27 4.4.3 qualification
 measured `backend/` at **80.29%**, `backend/security/` at **80.67%**, and
 `core/` at **81.07%**. Frontend V8 coverage remains **89.54% statements**,
 **80.69% branches**, **86.11% functions**, and **91.36% lines**. All 3,317
@@ -509,9 +522,16 @@ enforces 80.00% independently for every named Python scope and frontend metric;
 see `docs/CI_QUALITY_POLICY.md`.
 
 GitHub Actions also validates backend and frontend behavior, security,
-documentation consistency, container builds, SDKs, and Windows packaging. At
-commit `43fd86df74f3545b84c0a10702428723611c40d6`, Deploy run `33039993475`,
-Security run `33039993480`, and CI/CD run `33039993472` all passed.
+documentation consistency, SDKs, and Windows packaging. At merged commit
+`39ba7e54`, the Python dependency security scan failed on the NLTK finding;
+the `backend-test` job stopped at its audit step before running tests. The
+separate Deploy job ran the Linux suite and reported one failed refinement
+workflow test, 3,355 passed, and 26 skipped. Neither failure is a passing
+release gate.
+Earlier Deploy run `33039993475`, Security run `33039993480`, and CI/CD run
+`33039993472` passed at historical commit
+`43fd86df74f3545b84c0a10702428723611c40d6`; those results do not describe
+the merged source.
 
 ## Documentation
 

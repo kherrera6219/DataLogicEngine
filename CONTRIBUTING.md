@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-004 |
 | Title | Contribution controls |
-| Document version | v1.2.0 |
+| Document version | v1.2.1 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Contributors, maintainers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, branch protections, and required validation workflows |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-16 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Contribution workflow, toolchain, branch, or validation-gate change |
 | Requirements and evidence | CI workflows, root plan, and `docs/DEVELOPER_GUIDE.md` |
 
@@ -466,6 +466,12 @@ Closes #<issue-number>
 2. **Code review:** At least one maintainer approval is required.
 3. **Revision:** Address all requested changes before re-requesting review.
 4. **Merge:** Maintainers merge approved PRs via squash merge to maintain a clean commit history.
+
+This is the normal contribution policy, not a claim that every historical
+merge followed it. PR #91 was merged with a merge commit at the sole owner's
+direction while the Python dependency security and backend checks were red on
+the documented NLTK advisory. That source-integration exception did not waive
+the finding, change the default review/CI policy, or authorize a release.
 
 ---
 

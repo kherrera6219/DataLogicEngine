@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.1 |
+| Document version | v1.8.2 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -37,11 +37,18 @@ exact-candidate secret scans remain required.
 At the later PR #91 source checkpoint, a clean sequential Windows run with
 updated Python dependencies passed 3,364 tests with 18 skipped and zero setup
 errors; 504 frontend tests, route/browser checks, and the frontend build pass.
-GitHub's frontend and Windows packaging checks pass, but its Python dependency
-security scan and `backend-test` fail on transitive `nltk==3.10.3`
+GitHub's frontend and Windows packaging checks passed, but its Python dependency
+security scan and `backend-test` failed on transitive `nltk==3.10.3`
 (`PYSEC-2026-3740` / `CVE-2026-81726`). No suppression or waiver is in place.
-The existing local 4.4.5 installer was built before this source checkpoint;
-neither source tests nor a repository merge prove installed acceptance or GO.
+PR #91 merged into `main` at `39ba7e54`, whose post-merge Security Scan
+failed at the same dependency audit. The existing local 4.4.5 installer was
+built before this source checkpoint; neither source tests nor a repository
+merge prove installed acceptance or GO.
+
+The post-merge Deploy Linux suite independently reported one failing
+refinement-workflow test, 3,355 passed, and 26 skipped in run `36378632388`.
+The failure remains undispositioned; the earlier Windows pass does not
+supersede this negative evidence.
 
 The source Trace Explorer now renders the existing canonical nested refinement
 receipt as named step detail. Earlier focused trace persistence/bundle tests

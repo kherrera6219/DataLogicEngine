@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
-| Document version | v1.5.1 |
+| Document version | v1.5.2 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
@@ -38,8 +38,9 @@ closure does not replace exact-candidate scans. At the PR #91 source checkpoint
 on 2026-09-27, the Python dependency security scan and `backend-test` fail on
 transitive `nltk==3.10.3` (`PYSEC-2026-3740` / `CVE-2026-81726`). The
 reviewed advisory lists no patched version. This finding is not suppressed or
-waived; an owner-requested source merge does not change the release-blocked
-security disposition.
+waived; PR #91 merged into `main` at `39ba7e54`, and the post-merge dependency
+scan failed on the same finding. Source integration did not change the
+release-blocked security disposition.
 
 ## Trust boundaries
 

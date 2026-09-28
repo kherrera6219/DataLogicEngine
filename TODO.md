@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.3 |
+| Document version | v1.20.4 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -20,24 +20,34 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.1 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; pre-PR 4.4.5 source/build gates passed, but PR #91 Python dependency security and backend checks are red on NLTK. Security disposition, new exact-source rebuild, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19 installed-chat repair; PR #91 merged into `main` at `39ba7e54`, but Python dependency security/backend checks remain red on NLTK and post-merge Deploy has one Linux refinement test failure. Security/test disposition, a new exact-source rebuild, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
-## PR #91 engineering integration and open release gates
+## Merged PR #91 source and open release gates
 
-At source commit `7e86feae`, local npm audit reports zero advisories;
+PR #91 merged into `main` at `39ba7e54`. At its source checkpoint
+`7e86feae`, local npm audit reported zero advisories;
 the frontend build, 504 unit tests, five route/sidebar browser tests, Analytics
 accessibility scan, type checking, lockfile governance, and the sequential
 Windows Python suite (3,364 passed, 18 skipped, zero setup errors) pass.
 GitHub's npm audit, frontend, Windows packaging, governance, lint, code scans,
-and SBOM jobs pass. Its Python dependency scan and `backend-test` fail on the
-same NLTK advisory. The owner requested repository integration while these
-checks are red; that does not waive the finding or authorize release.
+and SBOM jobs passed. Its Python dependency scan and `backend-test` failed on
+the same NLTK advisory, and the post-merge `main` Security Scan failed at the
+dependency audit. The repository merge did not waive the finding or authorize
+release.
 
+The post-merge Deploy run `36378632388` separately failed
+`tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once`
+on Linux (one failed, 3,355 passed, 26 skipped). This is an additional open
+source gate; the earlier Windows pass does not close it.
+
+- [ ] Triage the post-merge Linux refinement-workflow failure, verify the
+      premise against current source, and rerun the affected and full gates.
+      Do not skip or weaken the test.
 - [ ] After the NLTK security blocker is resolved, rerun the affected security
       and backend checks, then the full current-source release gate. Record an
       exact-source Windows packaging and installed-acceptance result before a
@@ -51,7 +61,7 @@ checks are red; that does not waive the finding or authorize release.
 - [ ] Track existing repository-wide lint debt through the compliance
       remediation program: the full Ruff check currently reports 58 errors
       and the format check would change 870 files. The CI-scoped Ruff rule set
-      passes; this dependency PR does not weaken either full gate.
+      passes; this dependency merge does not weaken either full gate.
 - [ ] After the dependency gate is green, produce a fresh exact-source 4.4.5
       engineering installer and repeat installed acceptance. The existing
       unsigned setup artifact was built before this dependency refresh.

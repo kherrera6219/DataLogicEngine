@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.3 |
+| Document version | v1.22.4 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -22,7 +22,7 @@
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.5 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; pre-PR 4.4.5 source/build gates passed. PR #91 Python dependency security and backend checks are red on NLTK; disposition is next, followed by a new exact-source rebuild and installed CHAT-QC-06 acceptance. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
+| Current phase | Phase 19 installed-chat repair; PR #91 source merged into `main` at `39ba7e54`, but Python dependency security/backend checks remain red on NLTK and post-merge Deploy has one Linux refinement test failure. Security/test disposition, a new exact-source rebuild, and installed CHAT-QC-06 acceptance are next. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -52,9 +52,9 @@ remaining supporting work. Completed slow-audit, QC, coverage, and rejected
 terminology source plans are historical records under `docs/archive/audits/`.
 Phase 5 remains partial/deferred.
 
-## PR #91 engineering integration checkpoint — 2026-09-27
+## PR #91 merged engineering checkpoint — 2026-09-27
 
-The owner requested source integration of PR #91 with its security gate still
+PR #91 merged into public `main` at `39ba7e54` with its security gate still
 red. That repository action is not a security waiver, installed acceptance, or
 production/public release approval. The dependency refresh removes all locally
 reported npm advisories and reduces the
@@ -69,11 +69,19 @@ updated NLTK, pypdf, and soupsieve packages passed 3,364 tests with 18 skipped,
 zero setup errors, and 35 warnings. At source commit `7e86feae`, GitHub's
 npm audit, frontend build/browser gates, Windows packaging smoke, governance,
 lint, code scans, and SBOM jobs passed. The Python dependency scan and
-`backend-test` failed on the same NLTK advisory. Keep those failures visible
-and release-blocking after any repository merge. Repo-wide Ruff remains non-green on
+`backend-test` failed on the same NLTK advisory. The post-merge `main` Security
+Scan also failed at the dependency audit. Keep those failures visible and
+release-blocking. Repo-wide Ruff remains non-green on
 pre-existing lint/format debt; the CI-scoped Ruff rule set passes. The 4.4.5
 installer described below predates this dependency refresh and must not be
 presented as containing it.
+
+The post-merge Deploy run `36378632388` independently executed the Linux
+Python suite and reported one failed refinement-workflow test
+(`test_cp19g_refinement_accounts_all_steps_and_revalidates_once`), 3,355
+passed, and 26 skipped. That failure is not explained by the dependency
+security scan and remains open for triage; the earlier clean Windows run does
+not override it.
 
 ## Installed governed-chat repair checkpoint — 2026-08-31
 
