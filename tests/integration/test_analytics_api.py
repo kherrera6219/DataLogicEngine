@@ -46,6 +46,7 @@ class TestAnalyticsEndpoints:
         data = response.get_json()
         assert data['success'] is True
         assert data['data']['total_runs'] == 4
+        mock_get_dashboard_overview.assert_called_once_with(user_id=1)
 
     def test_analytics_overview_unauthenticated(self, client):
         """Test analytics overview requires authentication."""
@@ -65,6 +66,7 @@ class TestAnalyticsEndpoints:
         data = response.get_json()
         assert data['success'] is True
         assert data['data'][0]['event'] == 'trace_completed'
+        mock_get_recent_activity.assert_called_once_with(limit=10, user_id=1)
 
     @patch('backend.routes.analytics_routes.AnalyticsService.get_recent_activity')
     def test_analytics_activity_reports_unavailable_instead_of_empty(self, mock_get_recent_activity, session_authenticated_client):

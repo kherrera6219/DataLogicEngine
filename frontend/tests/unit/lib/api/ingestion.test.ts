@@ -48,6 +48,12 @@ describe('ingestion api', () => {
     expect(requestMock).toHaveBeenCalledWith('/ingestion/history?limit=5');
   });
 
+  it('rejects malformed history instead of treating it as an empty corpus', async () => {
+    requestMock.mockResolvedValue({});
+
+    await expect(ingestion.history(5)).rejects.toThrow('Invalid ingestion history response');
+  });
+
   it('starts local ingestion', async () => {
     requestMock.mockResolvedValue({ ingestion_id: 'run-2' });
 

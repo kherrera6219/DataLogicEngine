@@ -6,28 +6,30 @@
 |---|---|
 | Document ID | DLE-USER-003 |
 | Title | Administrator and operations guide |
-| Document version | v1.3.0 |
-| Product version | 4.4.3 |
+| Document version | v1.3.1 |
+| Product version | 4.4.5 |
 | Status | qualification_only |
 | Audience | Single owner/operator, Windows administrators, support engineers, and release reviewers |
 | Owner | Platform Operations |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented runtime supervision, data lifecycle, gateway, diagnostics, and operational controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Service, readiness, migration, backup, recovery, gateway, connector, diagnostics, or incident-control change |
 | Requirements and evidence | Product requirements, architecture, runbook sources, tests, and installed qualification evidence |
 
 ## Operating boundary
 
-The current unsigned 4.4.3 payload is installed under Program Files and running
-loopback-only. Its desktop executable, backend executable, and `app.asar` hashes
-match the extracted build; `/health` and `/ready` pass with no blockers. This
-narrow observation does not repeat the installation action, upgrade, repair,
-uninstall, retained-data lifecycle, provider chat, or recovery acceptance.
-Administrators must not transfer those results from an older artifact.
+The available local 4.4.5 engineering installer is an unsigned physical artifact
+from before the PR #91 dependency/source refresh. It has not been installed or
+run through portable, provider-chat, or lifecycle acceptance, and it cannot
+validate the later source changes. Earlier 4.4.3 Program Files loopback
+health/readiness evidence belongs to another artifact and must not be
+transferred to this one. PR #91's Python dependency scan and backend-test gate
+remain red on the unsuppressed transitive NLTK advisory. Repository integration
+does not waive that finding or change the production/public release **NO-GO**.
 
-DataLogicEngine 4.4.3 is a single-owner local-first Windows application. The
+DataLogicEngine 4.4.5 is a single-owner local-first Windows application. The
 normal desktop profile binds the backend and internal services to installation-
 specific local boundaries. The application owns PostgreSQL, Redis, Neo4j,
 ChromaDB, and app-owned S3-compatible object-store production responsibilities; externally managed databases

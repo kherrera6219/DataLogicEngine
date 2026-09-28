@@ -82,7 +82,7 @@ async function mockApi(page) {
 
     if (path === '/gateway/providers') {
       return route.fulfill(jsonResponse({
-        providers: [{ id: 'provider-openai', name: 'OpenAI', type: 'openai', model: 'gpt-5.6-sol', is_default: true }],
+        providers: [{ id: 'provider-openai', name: 'OpenAI', type: 'openai', model: 'gpt-6-sol', is_default: true }],
       }));
     }
 
@@ -94,6 +94,28 @@ async function mockApi(page) {
     if (path === '/pillars' || path === '/nodes' || path === '/edges') return route.fulfill(jsonResponse([]));
     if (path === '/simulations') return route.fulfill(jsonResponse([]));
     if (path.startsWith('/trace/runs')) return route.fulfill(jsonResponse({ runs: [] }));
+    if (path === '/trace/analytics') {
+      return route.fulfill(jsonResponse({
+        scope: url.searchParams.get('scope') === 'all' ? 'owner' : 'principal',
+        partial: false,
+        filters: {
+          days: Number(url.searchParams.get('days') ?? 30),
+          limit: Number(url.searchParams.get('limit') ?? 50),
+          status: url.searchParams.get('status'),
+          mode: url.searchParams.get('mode'),
+          provider: url.searchParams.get('provider'),
+        },
+        summary: {
+          run_count: 0,
+          status_counts: {},
+          confidence: { average: null, measured_runs: 0, status: 'not_measured' },
+          tokens: { total: null, measured_runs: 0, status: 'not_measured' },
+          evidence: { total: 0, status: 'measured' },
+          refinement: { recorded_runs: 0, status_counts: {}, status: 'not_measured' },
+        },
+        runs: [],
+      }));
+    }
     if (path === '/analytics/activity') return route.fulfill(jsonResponse([]));
     if (path === '/analytics/summary' || path === '/analytics/overview') return route.fulfill(jsonResponse({}));
     if (path === '/analytics/mcp') return route.fulfill(jsonResponse({ servers: 0, tools: 0, resources: 0 }));

@@ -114,7 +114,13 @@ class IngestionCorpusReconciler:
             "memory_records_deleted": memory_records_deleted,
         }
 
-    def scan(self, *, job_id: str | UUID | None = None, repair: bool = False) -> dict[str, Any]:
+    def scan(
+        self,
+        *,
+        job_id: str | UUID | None = None,
+        user_id: int | None = None,
+        repair: bool = False,
+    ) -> dict[str, Any]:
         query = IngestionJob.query.filter(
             IngestionJob.status.in_(
                 (
@@ -127,6 +133,8 @@ class IngestionCorpusReconciler:
         )
         if job_id is not None:
             query = query.filter(IngestionJob.id == UUID(str(job_id)))
+        if user_id is not None:
+            query = query.filter(IngestionJob.user_id == user_id)
         jobs = query.order_by(IngestionJob.created_at).all()
         reports = [self._scan_job(job, repair=repair) for job in jobs]
         db.session.commit()

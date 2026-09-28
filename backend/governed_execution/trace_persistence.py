@@ -228,7 +228,12 @@ def persist_governed_trace(
                 "provider_call_count": metadata.get("provider_call_count", 0),
                 "source_ids": metadata.get("source_ids", []),
                 "confidence_measurement": sdk_result.get("confidence_measurement"),
+                "confidence_display": metadata.get("confidence_display"),
                 "convergence": sdk_result.get("convergence"),
+                "completion": sdk_result.get("completion"),
+                "governed_mode": sdk_result.get("mode"),
+                "provider_call_budget": metadata.get("provider_call_budget"),
+                "refinement_disposition": metadata.get("refinement_disposition"),
                 "convergence_decisions": metadata.get("convergence_decisions", []),
                 "containment_class": governance["containment_class"],
                 "quarantine": governance["quarantine"],
@@ -529,6 +534,11 @@ def persist_governed_trace(
 
         dsqp = _mapping(metadata.get("dsqp"))
         profiles = _mapping(dsqp.get("profiles"))
+        contributions = {
+            str(item.get("persona_type")): item
+            for item in _objects(dsqp.get("persona_contributions"))
+            if item.get("persona_type")
+        }
         if not profiles:
             for stage in trace:
                 profiles = gateway._dsqp_profiles_from_output(stage.get("output")) or {}
@@ -550,19 +560,42 @@ def persist_governed_trace(
                 db.session.add(record)
             validation = _mapping(item.get("validation"))
             profile_metadata = _mapping(item.get("metadata"))
+            persona_type = str(item.get("persona_type") or f"axis_{axis_number}")
+            contribution = _mapping(contributions.get(persona_type))
             record.run_id = run.run_id
-            record.persona_type = str(item.get("persona_type") or f"axis_{axis_number}")
-            record.persona_name = str(item.get("name") or f"Axis {axis_number} Persona")
+            record.persona_type = persona_type
+            record.persona_name = str(
+                contribution.get("persona_name")
+                or item.get("name")
+                or f"Axis {axis_number} Persona"
+            )
             record.status = "completed" if validation.get("valid", True) else "failed"
-            record.evidence_ids = [str(value.get("source_id")) for value in evidence]
+            record.evidence_ids = list(contribution.get("evidence_ids") or []) or [
+                str(value.get("source_id")) for value in evidence
+            ]
             record.context_scope = str(profile_metadata.get("coordinate_path") or "")
-            record.draft_text = str(item.get("description") or "")
-            record.confidence = _float_or_none(item.get("coverage_score"))
-            record.objections = validation.get("errors") or []
+            record.draft_text = str(
+                contribution.get("finding") or item.get("description") or ""
+            )
+            record.confidence = None
+            record.objections = (
+                contribution.get("objections") or validation.get("errors") or []
+            )
             record.consensus_impact = {
                 "construction_mode": profile_metadata.get("construction_mode"),
                 "axis_number": item.get("axis_number", axis_number),
                 "components": list(_mapping(item.get("components")).keys()),
+                "measurement_status": contribution.get("measurement_status")
+                or "not_measured",
+                "profile_coverage": contribution.get("profile_coverage")
+                if contribution
+                else item.get("coverage_score"),
+                "provider_generated": contribution.get("provider_generated") is True,
+                "synthesis_influence": _mapping(
+                    contribution.get("synthesis_influence")
+                ),
+                "focus": contribution.get("focus"),
+                "constraints": contribution.get("constraints") or [],
             }
         _prune(TracePersona, run.run_id, "persona_id", active_personas)
 

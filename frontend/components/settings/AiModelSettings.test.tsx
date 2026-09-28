@@ -229,7 +229,7 @@ describe('AiModelSettings', () => {
 
     await waitFor(() => {
       expect(request).toHaveBeenCalled();
-      expect(screen.getByRole('option', { name: 'gpt-5.6-sol' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'gpt-6-sol' })).toBeInTheDocument();
       expect(screen.getByText(/Reasoning level:/)).toHaveTextContent('high (default)');
     });
   });

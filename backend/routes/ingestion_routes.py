@@ -193,7 +193,8 @@ def list_ingestion_history():
         requested_limit = 20
     limit = max(1, min(requested_limit, 100))
     jobs = (
-        IngestionJob.query.order_by(IngestionJob.created_at.desc())
+        IngestionJob.query.filter_by(user_id=current_user.id)
+        .order_by(IngestionJob.created_at.desc())
         .limit(limit)
         .all()
     )
@@ -396,32 +397,31 @@ def ingest_local_path_async():
 @api_session_login_required
 def get_ingestion_status(ingestion_id: str):
     """Return the status of an async ingestion run."""
-    status = LocalKnowledgeIngestionService.get_async_status(ingestion_id)
-    if status is None:
-        return jsonify({"success": False, "error": "Ingestion run not found"}), 404
     job = _load_ingestion_job(ingestion_id)
-    if job is not None:
-        status["files"] = _job_file_states(job)
-        try:
-            from backend.ingestion.jobs import get_ingestion_job_runner
+    if job is None:
+        return jsonify({"success": False, "error": "Ingestion run not found"}), 404
+    status = job.to_status_dict()
+    status["files"] = _job_file_states(job)
+    try:
+        from backend.ingestion.jobs import get_ingestion_job_runner
 
-            live_state = get_ingestion_job_runner(
-                current_app._get_current_object()
-            ).coordination_state(ingestion_id)
-        except Exception:
-            live_state = None
-        if live_state:
-            status["checkpoint"] = live_state.get("checkpoint") or status.get("checkpoint")
-            for name in (
-                "files_scanned",
-                "files_ingested",
-                "files_rejected",
-                "chunks_created",
-                "chunks_indexed",
-                "materializations_pending",
-            ):
-                if name in live_state:
-                    status[name] = int(live_state[name])
+        live_state = get_ingestion_job_runner(
+            current_app._get_current_object()
+        ).coordination_state(ingestion_id)
+    except Exception:
+        live_state = None
+    if live_state:
+        status["checkpoint"] = live_state.get("checkpoint") or status.get("checkpoint")
+        for name in (
+            "files_scanned",
+            "files_ingested",
+            "files_rejected",
+            "chunks_created",
+            "chunks_indexed",
+            "materializations_pending",
+        ):
+            if name in live_state:
+                status[name] = int(live_state[name])
     return jsonify({"success": True, "data": status})
 
 
@@ -430,7 +430,10 @@ def _load_ingestion_job(ingestion_id: str) -> IngestionJob | None:
         job_id = UUID(str(ingestion_id))
     except (TypeError, ValueError):
         return None
-    return db.session.get(IngestionJob, job_id)
+    return IngestionJob.query.filter_by(
+        id=job_id,
+        user_id=current_user.id,
+    ).one_or_none()
 
 
 @ingestion_api.route("/jobs/<ingestion_id>/cancel", methods=["POST"])
@@ -506,7 +509,7 @@ def scan_ingestion_corpus():
     """Return real PostgreSQL-to-store revision consistency."""
     from backend.ingestion.reconciliation import IngestionCorpusReconciler
 
-    report = IngestionCorpusReconciler().scan()
+    report = IngestionCorpusReconciler().scan(user_id=current_user.id)
     return jsonify({"success": True, "data": report})
 
 

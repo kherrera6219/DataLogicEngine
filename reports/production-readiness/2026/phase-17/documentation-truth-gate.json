@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-08-27T05:21:41.370896+00:00",
+  "generated_at": "2026-09-28T04:22:55.236164+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -19,7 +19,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "{\n  \"routes\": 352,\n  \"classifications\": {\n    \"authenticated-mutation\": 88,\n    \"authenticated-read\": 174,\n    \"desktop-only\": 13,\n    \"external-client-governed-execution\": 5,\n    \"external-client-read\": 8,\n    \"internal-only\": 1,\n    \"owner-admin-mutation\": 59,\n    \"public-health\": 4\n  },\n  \"unclassified\": 0,\n  \"mutations_without_auth_evidence\": 0,\n  \"graphql_operations\": 12,\n  \"ipc_channels\": 19,\n  \"mcp_methods\": 3,\n  \"file_capabilities\": 5,\n  \"network_surfaces\": 5,\n  \"unclassified_non_http_surfaces\": 0,\n  \"incomplete_ipc_channels\": 0\n}\nWrote reports\\production-readiness\\2026\\phase-17\\route-manifest.json\n",
+      "stdout": "{\n  \"routes\": 354,\n  \"classifications\": {\n    \"authenticated-mutation\": 88,\n    \"authenticated-read\": 175,\n    \"desktop-only\": 13,\n    \"external-client-governed-execution\": 6,\n    \"external-client-read\": 8,\n    \"internal-only\": 1,\n    \"owner-admin-mutation\": 59,\n    \"public-health\": 4\n  },\n  \"unclassified\": 0,\n  \"mutations_without_auth_evidence\": 0,\n  \"graphql_operations\": 12,\n  \"ipc_channels\": 19,\n  \"mcp_methods\": 3,\n  \"file_capabilities\": 5,\n  \"network_surfaces\": 5,\n  \"unclassified_non_http_surfaces\": 0,\n  \"incomplete_ipc_channels\": 0\n}\nWrote reports\\production-readiness\\2026\\phase-17\\route-manifest.json\n",
       "stderr": "Signal-based timeout not available on this platform. Configure gunicorn worker timeout instead: --timeout 30\n"
     },
     {
@@ -32,7 +32,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "[PASS] pyproject: 4.4.3\n[PASS] frontend-package: 4.4.3\n[PASS] frontend-lock: 4.4.3\n[PASS] frontend-lock-root: 4.4.3\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: b2c3d4e5f6a7\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.4.3\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
+      "stdout": "[PASS] pyproject: 4.4.5\n[PASS] frontend-package: 4.4.5\n[PASS] frontend-lock: 4.4.5\n[PASS] frontend-lock-root: 4.4.5\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: c3d4e5f6a7b8\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.4.5\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
       "stderr": ""
     },
     {
@@ -50,12 +50,11 @@
       "name": "generated_contract_index",
       "command": [
         "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
-        "scripts/generate_documentation_contract_index.py",
-        "--check"
+        "scripts/generate_documentation_contract_index.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Generated documentation contract index matches authorities\n",
+      "stdout": "Generated documentation contract index: C:\\software\\DataLogicEngine\\docs\\generated\\PRODUCTION_CONTRACT_INDEX.md\n",
       "stderr": ""
     },
     {
@@ -77,7 +76,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=181 errors=0\n",
+      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=182 errors=0\n",
       "stderr": ""
     },
     {
@@ -121,7 +120,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Discovered 56 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
+      "stdout": "Discovered 57 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
       "stderr": ""
     }
   ]

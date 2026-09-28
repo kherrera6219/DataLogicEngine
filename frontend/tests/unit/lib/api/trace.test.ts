@@ -47,6 +47,23 @@ describe('trace API', () => {
     expect(apiBase.request).toHaveBeenCalledWith('/trace/runs/abc%2F123/bundle');
   });
 
+  it('gets bounded trace analytics with encoded filters', async () => {
+    vi.mocked(apiBase.request).mockResolvedValueOnce({ runs: [], summary: { run_count: 0 } });
+
+    await trace.analytics({
+      days: 7,
+      limit: 25,
+      status: 'policy block',
+      mode: 'governed',
+      provider: 'google/gemini',
+      scope: 'all',
+    });
+
+    expect(apiBase.request).toHaveBeenCalledWith(
+      '/trace/analytics?days=7&limit=25&status=policy+block&mode=governed&provider=google%2Fgemini&scope=all',
+    );
+  });
+
   it('gets stages for a trace', async () => {
     vi.mocked(apiBase.request).mockResolvedValueOnce({ stages: [] });
     await trace.getStages('123');

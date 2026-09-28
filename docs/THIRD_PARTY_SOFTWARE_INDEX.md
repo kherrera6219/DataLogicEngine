@@ -6,34 +6,40 @@
 |---|---|
 | Document ID | DLE-ASR-007 |
 | Title | SBOM, licensing, redistribution, and notices index |
-| Document version | v1.1.1 |
-| Product version | 4.4.3 |
+| Document version | v1.1.2 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Release/legal/security engineering, procurement, operators, independent reviewers, and release authority |
 | Owner | Release Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Exact dependency locks, service candidate lock, SBOMs, release manifest, ownership/legal registers, and review evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Dependency/service/artifact, license, notice, vulnerability, provider/model, asset, redistribution, region, or release change |
 | Requirements and evidence | Product requirement DLE-QR-002/004/006, exact locks, SBOMs, manifests, scans, legal actions, and approved notice bundle |
 
 ## Current disposition
 
 This index is an engineering inventory, not legal advice, redistribution
-approval, a complete notice bundle, or a SLSA conformance claim. Product 4.4.3
+approval, a complete notice bundle, or a SLSA conformance claim. Product 4.4.5
 remains release-blocked: ten legal/distribution actions, final exact-artifact
 SBOM/notices reconciliation, publisher/signing, vulnerability/malware scans,
 service redistribution, installed object-store acceptance, export/region review,
 and owner/independent approvals remain open.
 
-The CP19-L governed Python and Node locks pass local vulnerability audits and the
-rebuilt candidate passes payload/integrity checks. Exact signed-artifact SBOM,
+At the historical CP19-L checkpoint, the governed Python and Node locks passed
+local vulnerability audits and the candidate passed payload/integrity checks.
+That finding does not apply to the later PR #91 dependency refresh: local npm
+audit reports zero advisories, while the Python audit and GitHub dependency
+security scan report transitive `nltk==3.10.3` advisory `PYSEC-2026-3740` /
+`CVE-2026-81726`, with no published patched version in the reviewed advisory.
+No suppression or waiver is in place. Exact signed-artifact SBOM,
 malware scan, redistribution/notices, publisher, and legal approval remain open.
-The August 11 local artifact has a different hash from the installed
-qualification artifact and requires its own final SBOM/notices and scan binding.
-A scheduled full-history secret scan is also open pending false-positive or
-credential disposition and a clean rerun.
+The local 4.4.5 engineering artifact predates PR #91 source and has a different
+hash from the installed qualification artifact. A later exact-source candidate
+requires its own final SBOM/notices and scan binding.
+Prior scheduled secret-scan evidence does not replace final exact-candidate
+scans.
 
 ## Dependency authorities
 
@@ -42,7 +48,7 @@ credential disposition and a clean rerun.
 | Python | `requirements.txt` (81 direct pins at Phase 14) | `requirements.lock` (315 hash-locked packages at Phase 14) | CPython 3.11; hashes required; no implicit `pyproject` runtime authority |
 | Node/Electron | `frontend/package.json` | `frontend/package-lock.json` v3 via `npm ci` | Node major 24; Electron 43.1.1, Chromium 150.0.7871.114, embedded Node 24.18.0 |
 | Internal services | `deploy/internal-data-plane.candidate-lock.json` | Exact image/runtime digests and platform selection | Engineering candidates only until redistribution/security/license approval |
-| Product/contracts | `config/product-versions.json` | Product 4.4.3, Windows 4.4.3.0, versioned public/gateway/governed/data contracts | Must match installer, binaries, UI/API/support, SDKs, manifests, and evidence |
+| Product/contracts | `config/product-versions.json` | Product 4.4.5, Windows 4.4.5.0, versioned public/gateway/governed/data contracts | Must match installer, binaries, UI/API/support, SDKs, manifests, and evidence |
 
 Package-manager license metadata is a discovery input, not authoritative legal
 permission. Exact source/license texts, notices, exceptions, linking/distribution
@@ -71,7 +77,7 @@ signed candidate; prior/different-hash candidate data is not final evidence.
 
 ## Material runtime components
 
-The current engineering manifest identifies CPython 3.11, PyInstaller 6.18.0,
+The historical Phase 14 engineering manifest identified CPython 3.11, PyInstaller 6.18.0,
 Electron 43.1.1, electron-builder 26.8.1, Next.js 16.2.7, PostgreSQL 18.4,
 Redis 8.8.0, Neo4j, the Chroma Rust service 1.5.9, Podman 6.0.1, and the selected
 SeaweedFS 4.40-dle.1 object-store build. Exact image versions/digests and license fields are recorded

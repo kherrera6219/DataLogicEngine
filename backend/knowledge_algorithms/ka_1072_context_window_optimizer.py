@@ -13,7 +13,7 @@ class ContextElement(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     element_id: str = Field(min_length=1, max_length=200)
-    token_count: int = Field(ge=1, le=200_000)
+    token_count: int = Field(ge=1, le=1_050_000)
     relevance: float = Field(ge=0, le=1)
     priority: float = Field(default=1, ge=0, le=10)
     required: bool = False
@@ -47,7 +47,7 @@ class KA1072Input(BaseModel):
 
     context_elements: list[ContextElement] = Field(
         min_length=1,
-        max_length=2_000,
+        max_length=1_050_000,
     )
     token_budget: int = Field(ge=1, le=2_000_000)
 

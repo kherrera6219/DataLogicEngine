@@ -47,9 +47,12 @@ export const ingestion = {
       '/ingestion/supported'
     ),
   history: (limit: number = 20) =>
-    request<{ items?: IngestionResult[] }>(`/ingestion/history?limit=${limit}`).then(
-      (data) => data.items || []
-    ),
+    request<{ items?: IngestionResult[] }>(`/ingestion/history?limit=${limit}`).then((data) => {
+      if (!Array.isArray(data.items)) {
+        throw new Error('Invalid ingestion history response');
+      }
+      return data.items;
+    }),
   startLocal: (payload: StartLocalIngestionRequest) =>
     request<IngestionResult>('/ingestion/local', {
       method: 'POST',

@@ -36,15 +36,21 @@ from extensions import db
 ROOT = Path(__file__).resolve().parents[2]
 POSTGRESQL_TARGET_REVISION = CONTRACT_VERSIONS["data_plane_schema"]
 POSTGRESQL_PROVIDER_DEFAULT_SOURCE_REVISION = "0a1b2c3d4e5f"
+POSTGRESQL_PREVIOUS_TARGET_REVISION = "b2c3d4e5f6a7"
 SUPPORTED_RUNTIME_MIGRATION_PATHS = {
     (
         "postgresql",
         POSTGRESQL_PROVIDER_DEFAULT_SOURCE_REVISION,
         POSTGRESQL_TARGET_REVISION,
     ),
+    (
+        "postgresql",
+        POSTGRESQL_PREVIOUS_TARGET_REVISION,
+        POSTGRESQL_TARGET_REVISION,
+    ),
 }
-# This revision only substitutes the two retired provider-default identifiers.
-# Alembic applies it transactionally and its downgrade restores those identifiers,
+# These revisions only substitute retired provider-default identifiers.
+# Alembic applies them transactionally and their downgrades restore those identifiers,
 # so it is authorized as lossless and does not require a coordinated recovery set.
 BACKUP_REQUIRED_RUNTIME_MIGRATION_PATHS: set[tuple[str, str, str]] = set()
 MANAGED_STORE_TARGETS = {

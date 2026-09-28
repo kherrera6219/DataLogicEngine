@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { socketClient, useSocket, type TraceStageUpdate } from '@/lib/socket';
 
 export function useTraceStream(runId: string | null) {
   const [layers, setLayers] = useState<TraceStageUpdate[]>([]);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const seenEventIds = useRef(new Set<string>());
 
   useSocket({
     onConnected: () => {
@@ -21,20 +22,24 @@ export function useTraceStream(runId: string | null) {
     },
     onTraceStageUpdate: (data) => {
       if (!runId || data.run_id !== runId) return;
+      if (seenEventIds.current.has(data.event_id)) return;
+      seenEventIds.current.add(data.event_id);
       setLayers((prev) => {
         const next = [...prev];
-        const idx = next.findIndex((item) => item.stage_id && item.stage_id === data.stage_id);
+        const idx = next.findIndex((item) => item.stage_id === data.stage_id);
         if (idx >= 0) {
-          next[idx] = { ...next[idx], ...data };
+          if (next[idx].sequence >= data.sequence) return prev;
+          next[idx] = data;
         } else {
           next.push(data);
         }
-        return next;
+        return next.sort((left, right) => left.sequence - right.sequence);
       });
     },
   });
 
   useEffect(() => {
+    seenEventIds.current.clear();
     if (!runId) {
       return undefined;
     }

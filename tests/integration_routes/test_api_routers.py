@@ -1,6 +1,6 @@
 
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from flask import Flask, jsonify
 import sys
 
@@ -85,6 +85,9 @@ def test_gateway_chat_stream(mock_curr_user, router_app_client):
     mock_curr_user.return_value = mocks['user']
     
     mock_gw = mocks['gateway_cls'].return_value
+    mock_gw._get_eligible_providers = AsyncMock(return_value=[
+        MagicMock(provider_type='openai', model_id='gpt-6-sol')
+    ])
     
     async def fake_stream(req):
         yield {'content': 'chunk1'}
@@ -93,7 +96,7 @@ def test_gateway_chat_stream(mock_curr_user, router_app_client):
     mock_gw.process_stream = fake_stream
     
     resp = router_app_client.post('/api/v1/gateway/chat/stream', 
-        json={'model': 'gpt-4', 'messages': [{'role': 'user', 'content': 'hi'}]},
+        json={'model': 'gpt-6-sol', 'messages': [{'role': 'user', 'content': 'hi'}]},
         headers={'Authorization': 'Bearer session'} # Fallback to session auth
     )
     

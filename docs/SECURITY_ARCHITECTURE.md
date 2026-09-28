@@ -6,15 +6,15 @@
 |---|---|
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
-| Document version | v1.5.0 |
-| Product version | 4.4.3 |
+| Document version | v1.5.1 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
 | Owner | Security Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented trust boundaries, threat controls, security tests, release policy, and evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Trust boundary, identity, network, provider, connector, data protection, dependency, incident, or release-policy change |
 | Requirements and evidence | Product requirements, source controls, threat tests, security workflows, SBOMs, and Phase 1/3/7/8/11/13/14 evidence |
 
@@ -32,11 +32,14 @@ Release trust correctly remains fail-closed because the candidate is unsigned;
 this checkpoint does not waive publisher, protected-volume, independent review,
 provider/no-egress, update, or signed-artifact acceptance.
 
-The latest pushed commit passed its push-triggered security workflow. A later
-scheduled full-history TruffleHog scan failed on Lob-shaped identifiers in
-historical/generated KA evidence and a test identifier; current-tree credential
-exposure is not established. The result remains an open security-gate finding
-until detector disposition and a clean scheduled rerun are recorded.
+The 2026-08-12 scheduled full-history TruffleHog Lob-detector finding was
+subsequently closed by a clean scheduled full-history scan; that historical
+closure does not replace exact-candidate scans. At the PR #91 source checkpoint
+on 2026-09-27, the Python dependency security scan and `backend-test` fail on
+transitive `nltk==3.10.3` (`PYSEC-2026-3740` / `CVE-2026-81726`). The
+reviewed advisory lists no patched version. This finding is not suppressed or
+waived; an owner-requested source merge does not change the release-blocked
+security disposition.
 
 ## Trust boundaries
 
@@ -167,7 +170,7 @@ disabled. A DSN or other setting cannot authorize egress.
 
 ## Release and update trust
 
-Product 4.4.3, Windows 4.4.3.0, exact Python/Node/Electron locks, immutable
+Product 4.4.5, Windows 4.4.5.0, exact Python/Node/Electron locks, immutable
 workflow actions, SBOMs, manifests, content inventories, attestations, publisher
 identity, signature/timestamp, malware/license review, and release authority form
 one promotion boundary. Candidate mode cannot authorize production.
@@ -204,7 +207,8 @@ replacement build. Vulnerabilities use the private process in root `SECURITY.md`
 Source/contract security gates cover authentication, public errors, trust
 boundaries, provider budgets/privacy, data service identity, gateway scopes,
 MCP consent/containment, diagnostics/support redaction, dependency/release trust,
-and fail-closed update policy. Production remains **NO-GO** pending signed
+and fail-closed update policy. The unsuppressed PR #91 NLTK dependency finding
+remains an additional open security gate. Production remains **NO-GO** pending signed
 installed security/privacy/network/failure matrices, protected-volume/ACL and
 no-egress canaries, penetration and independent review, final legal/object-store
 authority, and Phase 19 KA security/effect qualification. Alert 389 is fixed by

@@ -24,26 +24,33 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const [overview, setOverview] = React.useState<AnalyticsOverview | null>(null);
   const [activity, setActivity] = React.useState<ActivityType[]>([]);
+  const [activityLoaded, setActivityLoaded] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [cloudProviders, setCloudProviders] = React.useState<DashboardProvider[]>([]);
 
   React.useEffect(() => {
     async function fetchData() {
-      try {
-        setLoadError(null);
-        const [overviewData, activityData] = await Promise.all([
-          api.analytics.overview() as Promise<AnalyticsOverview>,
-          api.analytics.activity() as Promise<ActivityType[]>
-        ]);
-        setOverview(overviewData);
-        setActivity(activityData);
-      } catch (err) {
-        console.error("Failed to fetch dashboard data:", err);
-        setLoadError(err instanceof Error ? err.message : 'Dashboard data is unavailable');
-      } finally {
-        setLoading(false);
+      setLoadError(null);
+      const [overviewResult, activityResult] = await Promise.allSettled([
+        api.analytics.overview() as Promise<AnalyticsOverview>,
+        api.analytics.activity() as Promise<ActivityType[]>
+      ]);
+      if (overviewResult.status === 'fulfilled') {
+        setOverview(overviewResult.value);
       }
+      if (activityResult.status === 'fulfilled') {
+        setActivity(activityResult.value);
+        setActivityLoaded(true);
+      }
+      if (overviewResult.status === 'rejected' || activityResult.status === 'rejected') {
+        const failure = overviewResult.status === 'rejected'
+          ? overviewResult.reason
+          : activityResult.status === 'rejected' ? activityResult.reason : null;
+        console.error('Failed to fetch dashboard data:', failure);
+        setLoadError(failure instanceof Error ? failure.message : 'Dashboard data is unavailable');
+      }
+      setLoading(false);
     }
     fetchData();
   }, [toast]);
@@ -106,7 +113,7 @@ export default function DashboardPage() {
               <div className={`flex items-center gap-2 px-3 py-1 border rounded-full backdrop-blur-sm ${loadError ? 'bg-red-900/10 border-red-500/20' : overview ? 'bg-green-900/10 border-green-500/20' : 'bg-amber-900/10 border-amber-500/20'}`}>
                  <div className={`h-2 w-2 rounded-full ${loadError ? 'bg-red-500' : overview ? 'bg-green-500' : 'bg-amber-500 animate-pulse'}`}></div>
                  <span className={`text-xs font-bold tracking-wide ${loadError ? 'text-red-400' : overview ? 'text-green-400' : 'text-amber-400'}`}>
-                     {loadError ? "DATA UNAVAILABLE" : overview ? "DATA CONNECTED" : "INITIALIZING..."}
+                     {loadError ? (overview || activityLoaded ? 'PARTIAL DATA' : 'DATA UNAVAILABLE') : overview ? "DATA CONNECTED" : "INITIALIZING..."}
                  </span>
               </div>
               <div className="text-xs text-gray-400 font-mono opacity-60">
@@ -126,7 +133,7 @@ export default function DashboardPage() {
                     Unified Knowledge Gateway
                  </h2>
                  <p className="text-gray-400 text-lg font-light">
-                   {loading ? "Loading application metrics..." : loadError ? "Application metrics could not be loaded." : "Application metrics are current."}
+                   {loading ? "Loading application metrics..." : loadError ? "Some application metrics could not be loaded." : "Application metrics are current."}
                  </p>
               </div>
               <div className="flex gap-3">
@@ -147,8 +154,8 @@ export default function DashboardPage() {
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                  { 
-                   label: 'Daily API Requests', 
-                   value: overview?.api_requests_24h?.toLocaleString() || '--', 
+                   label: 'Governed Runs (24h)',
+                   value: overview?.api_requests_24h?.toLocaleString() ?? '--',
                    badge: null,
                    icon: Activity, 
                    color: 'text-blue-400', 

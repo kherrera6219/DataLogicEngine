@@ -6,15 +6,15 @@
 |---|---|
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
-| Document version | v1.6.0 |
-| Product version | 4.4.3 |
+| Document version | v1.6.1 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
 | Owner | API Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Registered routes, OpenAPI/schema contracts, gateway/MCP implementation, ADRs, and contract tests |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Route, schema, auth, version, streaming, SDK, gateway profile, MCP, or compatibility change |
 | Requirements and evidence | Product requirements, generated contracts, route inventory, SDK tests, and Phase 5/8/11 evidence |
 
@@ -28,13 +28,18 @@ call model providers or internal data services directly.
 The default listener is loopback-only. Same-host clients are supported at the
 engineering checkpoint. `private_windows_gateway` remains disabled until the
 signed two-machine TLS/firewall qualification passes. Browser/CORS and public-
-internet exposure are outside the 4.4.3 contract.
+internet exposure are outside the 4.4.5 contract.
 
-The current 4.4.3 payload is installed under Program Files and its backend is
-healthy on `127.0.0.1:5000`; core packaged-file hashes match the extracted
-build. Signed same-host/private gateway, provider-chat, authenticated client,
-load, lifecycle, and two-machine acceptance remain open. The narrow loopback
-observation must not be represented as completed installed gateway acceptance.
+The available local unsigned 4.4.5 engineering installer is a physical
+artifact from before the PR #91 dependency/source refresh. It has not been
+installed or gateway/provider-tested and cannot validate the later source
+changes. An earlier 4.4.3 Program Files backend was healthy on
+`127.0.0.1:5000` and its core packaged-file hashes matched that build; those
+observations do not establish 4.4.5 signed same-host/private gateway,
+provider-chat, authenticated-client, load, lifecycle, or two-machine
+acceptance. PR #91's Python dependency scan and backend-test gate remain red
+on the unsuppressed transitive NLTK advisory; production/public release remains
+**NO-GO** even if the source is integrated.
 
 ## Version and route policy
 

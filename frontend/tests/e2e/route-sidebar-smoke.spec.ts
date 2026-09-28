@@ -70,6 +70,9 @@ test.describe('Route And Sidebar Smoke', () => {
         expect(response!.status()).toBeLessThan(400);
         await page.waitForLoadState('networkidle');
         await assertNoNotFound(page);
+        if (route === '/analytics') {
+          await expect(page.getByText('No governed runs match these filters.')).toBeVisible();
+        }
       });
     }
   });

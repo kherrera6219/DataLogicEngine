@@ -2027,6 +2027,12 @@ class TracePersona(db.Model):
                 for item in objections
             ],
             'confidence': self.confidence,
+            'finding': self.draft_text,
+            'measurement_status': consensus.get('measurement_status') or 'not_measured',
+            'profile_coverage': consensus.get('profile_coverage'),
+            'provider_generated': consensus.get('provider_generated') is True,
+            'evidence_ids': list(self.evidence_ids or []),
+            'synthesis_influence': consensus.get('synthesis_influence') or {},
             'persona_type': self.persona_type,
             'persona_name': self.persona_name,
             'status': self.status,

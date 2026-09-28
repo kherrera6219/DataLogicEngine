@@ -192,7 +192,25 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
                         "metadata": {"construction_mode": "deterministic"},
                         "validation": {"valid": True, "errors": []},
                     }
-                }
+                },
+                "persona_contributions": [
+                    {
+                        "persona_type": "knowledge",
+                        "persona_name": "Knowledge Expert",
+                        "finding": "Evaluate the approved control against the recorded evidence.",
+                        "focus": "evidence quality",
+                        "evidence_ids": [str(evidence_id)],
+                        "objections": [{"text": "Confirm the source revision."}],
+                        "measurement_status": "not_measured",
+                        "profile_coverage": 1.0,
+                        "provider_generated": False,
+                        "synthesis_influence": {
+                            "disposition": "included_as_prompt_constraint",
+                            "authority_weight": 0.4,
+                            "reason": "deterministic_review_lens_included",
+                        },
+                    }
+                ],
             },
             "truthcore": {
                 "mode": "standard",
@@ -250,7 +268,13 @@ async def test_trace_transaction_persists_exact_stages_and_governance_artifacts(
         assert TraceCitation.query.filter_by(run_id=run_id).one().evidence_id == evidence_id
         assert TraceValidator.query.filter_by(run_id=run_id).one().status == "passed"
         assert TraceQualityDecision.query.filter_by(run_id=run_id).count() == 2
-        assert TracePersona.query.filter_by(run_id=run_id).one().status == "completed"
+        persona = TracePersona.query.filter_by(run_id=run_id).one()
+        assert persona.status == "completed"
+        assert persona.draft_text == "Evaluate the approved control against the recorded evidence."
+        assert persona.confidence is None
+        assert persona.evidence_ids == [str(evidence_id)]
+        assert persona.consensus_impact["measurement_status"] == "not_measured"
+        assert persona.consensus_impact["synthesis_influence"]["disposition"] == "included_as_prompt_constraint"
         ka = TraceKAInvocation.query.filter_by(run_id=run_id).one()
         assert ka.ka_id == "KA-113"
         assert ka.inputs == {"query": "Assess control"}

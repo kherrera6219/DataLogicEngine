@@ -4,11 +4,11 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.82.0 |
+| Document version | v1.83.1 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
-| Product version | 4.4.3 |
+| Product version | 4.4.5 |
 | Runtime model | Electron control/validation shell plus a Flask backend that is loopback-only by default and may expose an explicitly enabled private gateway mode |
 | Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store services |
 | External runtime dependency | Optional OpenAI or Google model access and explicitly enabled MCP connectors only |
@@ -18,6 +18,24 @@
 | Release authority | `docs/RELEASE_READINESS_RECORD.md` and `docs/VERIFICATION_VALIDATION_REPORT.md` |
 
 ### Current execution checkpoint
+
+On 2026-09-27, the 4.4.5 source gate passed 3,364 Windows backend tests with
+18 skipped and zero setup errors, all 504 frontend tests, and the production
+frontend build. The clean-source Windows installer was built from commit
+`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`; its packaged-payload check
+passes. It is unsigned and has not passed portable smoke or installed
+CHAT-QC-06/provider acceptance. No source or build-only result closes CP19-M,
+signing, accessibility, lifecycle, recovery, independent-review, pilot, or
+soak gates. Production/public release remains **NO-GO**.
+
+Later PR #91 source verification refreshed Node and Python dependencies and
+the Analytics CI fixture. Local npm audit reports zero findings and the
+frontend/Windows packaging checks pass, but the Python dependency scan and
+`backend-test` fail on transitive `nltk==3.10.3` advisory
+`PYSEC-2026-3740` / `CVE-2026-81726`; no patched version is published in the
+reviewed advisory. An owner-requested repository merge of that source does not
+waive the failed gate. The physical 4.4.5 installer above predates the PR
+source and cannot serve as its installed acceptance artifact.
 
 Phase 19 CP19-K closed all 213/213 individual KA qualification rows. CP19-L
 passed on 2026-08-10 after the full source, dependency, security, frontend, SDK,
@@ -230,8 +248,8 @@ release remains **NO-GO**.
 The follow-on documentation/evidence closure is pushed on `main` at
 `43fd86df74f3545b84c0a10702428723611c40d6`; Deploy run `33039993475`,
 Security run `33039993480`, and CI/CD run `33039993472` all pass. The same
-4.4.3 payload is currently installed under Program Files and running
-loopback-only. Its desktop executable, backend executable, and `app.asar`
+4.4.3 payload was observed installed under Program Files and running
+loopback-only at that checkpoint. Its desktop executable, backend executable, and `app.asar`
 hashes match the extracted build, while `/health` and `/ready` report no
 blockers. This is a narrow installed runtime observation, not the elevated
 install/upgrade/repair/uninstall, provider-chat, retained-data, accessibility,
@@ -6502,13 +6520,16 @@ exit gate.
 
 ## 34. Immediate next action
 
-The current overriding CU-2 action is to use only the installed 4.4.3 payload
-bound to exact source commit `171ba1db...` and SHA-256
-`a9c80380...d377c5a`. Prove a normal Google chat invokes the
-configured provider once, releases through Layer 10, and exposes persisted
-validation telemetry. Restore OpenAI quota and rerun the bounded High-reasoning
-check without exposing stored keys. The 4.4.2 artifact is historical
-engineering evidence and must not continue installed acceptance.
+The current overriding action is to disposition the unsuppressed NLTK security
+finding in the post-4.4.5 dependency source and rerun the affected and full
+release gates. Then rebuild an exact-source engineering installer and record
+portable and installed behavior for its own hash. Prove Google
+`gemini-3.8-flash` and OpenAI `gpt-6-sol` High chat each invoke the configured
+provider once, release through Layer 10, and expose persisted validation
+telemetry without exposing stored keys. The existing unsigned 4.4.5 installer
+bound to `8a419f6c...` / `9686f458...ad4941` predates the source refresh;
+it and older 4.4.3/4.4.2 artifacts remain engineering evidence, not current
+installed acceptance or signed release evidence.
 
 CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-43 now truthfully
 qualify all 213 rows, including the causal simulation core, MCP admission/result

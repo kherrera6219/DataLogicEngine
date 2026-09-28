@@ -196,6 +196,12 @@ async def test_cp19g_refinement_accounts_all_steps_and_revalidates_once(
     assert stage.metrics["provider_rewrites"] == 1
     assert stage.metrics["provider_subcalls_used"] == 0
     assert stage.metrics["step_count"] == 12
+    streamed_steps = [
+        stage for stage in result.stages if stage.stage_type == "refinement_step"
+    ]
+    assert len(streamed_steps) == 12
+    assert [stage.inputs["step"] for stage in streamed_steps] == list(range(1, 13))
+    assert all(stage.status.value in {"completed", "skipped"} for stage in streamed_steps)
 
 
 @pytest.mark.asyncio
@@ -234,6 +240,14 @@ async def test_cp19g_required_step_failure_blocks_before_rewrite(
     assert by_id["missing_information"]["status"] == "blocked"
     assert by_id["input_source_evidence_validation"]["status"] == "skipped"
     assert by_id["memory_lifecycle_proposal"]["effects"] == []
+    disposition = result.metadata["refinement_disposition"]
+    assert disposition["status"] == "blocked"
+    assert disposition["step_count"] == 12
+    streamed_steps = [
+        stage for stage in result.stages if stage.stage_type == "refinement_step"
+    ]
+    assert len(streamed_steps) == 12
+    assert [stage.inputs["step"] for stage in streamed_steps] == list(range(1, 13))
 
 
 def test_cp19g_legacy_refinement_variants_are_not_product_entrypoints():

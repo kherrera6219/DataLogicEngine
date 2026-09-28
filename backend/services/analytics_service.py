@@ -1,23 +1,25 @@
 import logging
 from datetime import UTC, datetime, time, timedelta
 from extensions import db
-from models import Node, Edge, KAExecution, UkgSession, MCPServer, MCPTool, TraceRun
+from models import Node, Edge, KAExecution, UkgSession, MCPServer, MCPTool, TraceRun, ChatSession
 from backend.mcp_server.connector_metrics import connector_metrics_snapshot, infer_connector_id
 
 class AnalyticsService:
     @staticmethod
-    def get_dashboard_overview(tenant_id=None):
+    def get_dashboard_overview(tenant_id=None, user_id=None):
         """
         Get high-level metrics for the dashboard.
         """
         try:
-            # 1. API Requests (Last 24 hours)
+            # 1. Governed requests (last 24 hours) from the current trace store.
             yesterday = datetime.now(UTC) - timedelta(days=1)
-            request_count = db.session.query(KAExecution).filter(
-                KAExecution.started_at >= yesterday
+            request_count = db.session.query(TraceRun).filter(
+                TraceRun.created_at >= yesterday
             )
+            if user_id is not None:
+                request_count = request_count.filter(TraceRun.user_id == user_id)
             if tenant_id:
-                request_count = request_count.filter(KAExecution.tenant_id == tenant_id)
+                request_count = request_count.filter(TraceRun.tenant_id == tenant_id)
             request_count = request_count.count()
 
             # 2. Knowledge Graph Size. Prefer the active USKD graph used by the
@@ -44,8 +46,12 @@ class AnalyticsService:
 
             # 3. Trace-derived validation score. Do not report a passing score
             # when no validation runs exist.
-            trace_query = db.session.query(TraceRun).order_by(TraceRun.created_at.desc()).limit(100)
-            traces = trace_query.all()
+            trace_query = db.session.query(TraceRun)
+            if user_id is not None:
+                trace_query = trace_query.filter(TraceRun.user_id == user_id)
+            if tenant_id:
+                trace_query = trace_query.filter(TraceRun.tenant_id == tenant_id)
+            traces = trace_query.order_by(TraceRun.created_at.desc()).limit(100).all()
             confidence_values = [float(run.confidence) for run in traces if run.confidence is not None]
             failed_runs = sum(1 for run in traces if str(run.status or "").lower() in {"fail", "failed"})
             average_confidence = (
@@ -116,25 +122,22 @@ class AnalyticsService:
         }
 
     @staticmethod
-    def get_recent_activity(limit=10, tenant_id=None):
+    def get_recent_activity(limit=10, tenant_id=None, user_id=None):
         """
         Get recent system activity (Chat, Upload, Security events).
         """
         try:
-            # Aggregate from Sessions and KAExecutions
             activities = []
-            
-            # Recent Sessions (Chat)
-            sessions = db.session.query(UkgSession).order_by(UkgSession.started_at.desc())
-            if tenant_id:
-                sessions = sessions.filter(UkgSession.tenant_id == tenant_id)
+            sessions = db.session.query(ChatSession).order_by(ChatSession.updated_at.desc())
+            if user_id is not None:
+                sessions = sessions.filter(ChatSession.user_id == user_id)
             
             for s in sessions.limit(limit).all():
                 activities.append({
                     "type": "chat",
-                    "title": s.user_query or "New Session",
-                    "time": s.started_at.isoformat(),
-                    "id": s.session_id
+                    "title": s.title or "New Session",
+                    "time": s.updated_at.isoformat(),
+                    "id": str(s.id)
                 })
 
             # Sort and return

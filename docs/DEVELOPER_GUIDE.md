@@ -6,15 +6,15 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.8.0 |
-| Product version | 4.4.3 |
+| Document version | v3.8.1 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
 | Owner | Platform Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -22,15 +22,20 @@
 
 Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
 
-The current 4.4.3 source baseline passes 3,317 Python tests with 19 skipped and
-484 frontend tests. It selects OpenAI `gpt-5.6-sol` with High reasoning and
-Google `gemini-3.7-flash`. The current replacement was rebuilt from exact
-source commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`; static packaging,
-the 6,100-file payload, and package-owned portable `/ready` pass. Core files in
-the currently installed Program Files copy match the extracted build and its
-loopback health/readiness checks pass. It remains unsigned, provider chat and
-full lifecycle acceptance remain open, and CP19-M remains the exact signed
-installed acceptance boundary.
+The 4.4.5 Windows source gate passes 3,364 Python tests with 18 skipped and
+zero setup errors, plus 504 frontend tests. It selects OpenAI `gpt-6-sol`
+with High reasoning and Google `gemini-3.8-flash`. The engineering installer
+was rebuilt from clean commit `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`;
+the packaged payload check passes. The installer is unsigned, and this exact
+artifact has not passed portable readiness, installed provider chat, or full
+lifecycle acceptance. CP19-M remains the exact signed installed acceptance
+boundary; previous Program Files observations belong to a different artifact.
+
+The later PR #91 source refresh is not in that installer. The clean sequential
+Windows Python suite and frontend checks pass for the refreshed source, but
+the Python dependency security scan and `backend-test` fail on the unsuppressed
+transitive NLTK advisory `PYSEC-2026-3740`. A source merge does not make the
+older installer current or qualify it for release.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
 
@@ -108,7 +113,7 @@ Set in `.env`:
    - `OPENAI_API_KEY`
    - `GEMINI_API_KEY` / `GOOGLE_API_KEY`
    - `LLM_DEFAULT_PROVIDER=google` when both OpenAI and Google keys are present and Google should be the env fallback default
-   - The app uses one user-selected cloud model (OpenAI `gpt-5.6-sol` or Google `gemini-3.7-flash`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
+   - The app uses one user-selected cloud model (OpenAI `gpt-6-sol` or Google `gemini-3.8-flash`); set `OPENAI_API_KEY` or `GOOGLE_API_KEY`, or save a key in Settings → AI/Model. Reasoning requires an API key + internet.
 3. Runtime mode/storage values only when overriding defaults. The current supported data modes are local, VM, and auto internal service modes.
 
 Do not carry `AUTO_CREATE_SCHEMA=true` into shared or production environments.
@@ -143,9 +148,9 @@ frontend prompt
   -> trace review/export
 ```
 
-### Current build identity
+### Historical 4.4.3 installed qualification identity
 
-The latest engineering installer was built from source commit
+The earlier 4.4.3 engineering installer was built from source commit
 `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. The 359,111,112-byte artifact
 has SHA-256
 `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`.

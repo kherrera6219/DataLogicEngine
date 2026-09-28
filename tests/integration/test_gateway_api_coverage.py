@@ -1,6 +1,7 @@
 # ruff: noqa: E402
 
 import pytest
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch, AsyncMock
 from flask import Flask, jsonify
 from flask_login import LoginManager, UserMixin
@@ -204,6 +205,42 @@ def test_gateway_chat_endpoint(app_client):
     assert resp.json['response'] == "Response"
     assert resp.json['audit_trail']['decision_path'] == "/api/v1/trace/runs/run1"
     assert mock_gw_instance.process.await_args.args[0].mode.value == "standard"
+
+
+@patch('flask_login.utils._get_user')
+def test_desktop_chat_passes_gemini_output_cap_to_governed_request(mock_curr_user, app_client):
+    mock_curr_user.return_value = MockUser()
+    sys.modules['backend.llm_gateway.api'].UserAIPreferences.query.filter_by.return_value.first.return_value = None
+    gateway = app_client.application.mocks['Gateway'].return_value
+    gateway._get_eligible_providers = AsyncMock(return_value=[
+        SimpleNamespace(provider_type='google', model_id='gemini-3.8-flash')
+    ])
+    response = MagicMock()
+    response.content = 'Complete answer'
+    response.run_id = 'run-gemini'
+    response.provider_used = 'google'
+    response.model_used = 'gemini-3.8-flash'
+    response.usage = {}
+    response.trace = []
+    response.ok = True
+    response.coordinate = None
+    response.warnings = []
+    response.contract_version = 'governed.v1'
+    response.status = 'completed'
+    response.failure = None
+    response.completion = None
+    response.mode = 'standard'
+    response.confidence_display = None
+    response.provider_call_budget = None
+    response.meta = {}
+    gateway.process = AsyncMock(return_value=response)
+
+    result = app_client.post('/api/v1/gateway/chat', json={
+        'messages': [{'role': 'user', 'content': 'Explain the ion engine in detail'}],
+    })
+
+    assert result.status_code == 200
+    assert gateway.process.await_args.args[0].max_tokens == 65_536
 
 def test_gateway_chat_no_messages(app_client):
     mocks = app_client.application.mocks
@@ -427,14 +464,14 @@ def test_save_provider_key_normalizes_provider_key_and_model(mock_curr_user, app
     mock_new_provider.to_dict.return_value = {
         'id': 'provider-google-id',
         'provider_type': 'google',
-        'model_id': 'gemini-3.7-flash',
+        'model_id': 'gemini-3.8-flash',
     }
     MockProvider.return_value = mock_new_provider
 
     resp = app_client.post('/api/v1/gateway/keys', json={
         'provider': ' Google ',
         'key': '  test-google-key  ',
-        'model': ' gemini-3.7-flash ',
+        'model': ' gemini-3.8-flash ',
     })
 
     assert resp.status_code == 200
@@ -444,7 +481,7 @@ def test_save_provider_key_normalizes_provider_key_and_model(mock_curr_user, app
     assert kwargs['provider_type'] == 'google'
     assert kwargs['name'] == 'Google'
     assert kwargs['created_by'] == 7
-    assert mock_new_provider.model_id == 'gemini-3.7-flash'
+    assert mock_new_provider.model_id == 'gemini-3.8-flash'
     mock_new_provider.set_api_key.assert_called_once_with('test-google-key')
     mock_db.session.add.assert_called_once_with(mock_new_provider)
     mock_db.session.commit.assert_called()

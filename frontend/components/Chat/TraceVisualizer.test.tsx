@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { TraceVisualizer } from './TraceVisualizer';
 import { TracePipeline } from './types';
@@ -24,9 +24,38 @@ describe('TraceVisualizer', () => {
       ],
     };
 
-    render(<TraceVisualizer trace={trace} hasExecutedQuery />);
-    expect(screen.getAllByText('TruthGate Security')[0]).toBeInTheDocument();
+    const view = render(<TraceVisualizer trace={trace} hasExecutedQuery />);
+    expect(screen.getByText('TruthGate Security')).toBeInTheDocument();
     expect(screen.getAllByText('Coordinate Resolution')[0]).toBeInTheDocument();
     expect(screen.queryByText(/Run a query to populate the trace timeline/i)).not.toBeInTheDocument();
+
+    const treeTab = screen.getByRole('tab', { name: 'Tree view' });
+    const timelineTab = screen.getByRole('tab', { name: 'Timeline view' });
+    treeTab.focus();
+    fireEvent.keyDown(treeTab, { key: 'ArrowRight' });
+    expect(timelineTab).toHaveFocus();
+    expect(timelineTab).toHaveAttribute('aria-selected', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: /Coordinate Resolution/i }));
+    expect(screen.getByText('Selected stage details')).toBeInTheDocument();
+    expect(screen.getByText('current')).toBeInTheDocument();
+
+    view.rerender(<TraceVisualizer trace={{ ...trace, overallProgress: 90 }} hasExecutedQuery />);
+    expect(screen.getByRole('button', { name: /Coordinate Resolution/i })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('keeps long workflows in a scrollable list without truncating stages', () => {
+    const steps = Array.from({ length: 26 }, (_, index) => ({
+      id: `step-${index + 1}`,
+      name: `Workflow stage ${index + 1}`,
+      status: 'completed' as const,
+      percentage: 100,
+      timestamp: `${index + 1}s`,
+    }));
+    render(<TraceVisualizer trace={{ currentStepId: 'step-26', steps, totalDurationMs: 26, estimatedTotalMs: 26, overallProgress: 100 }} hasExecutedQuery />);
+
+    expect(screen.getByText('Workflow stage 1')).toBeInTheDocument();
+    expect(screen.getAllByText('Workflow stage 26')[0]).toBeInTheDocument();
+    expect(screen.getByRole('list', { name: 'Trace stages' })).toHaveClass('overflow-y-auto');
   });
 });

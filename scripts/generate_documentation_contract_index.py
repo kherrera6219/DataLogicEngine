@@ -5,16 +5,19 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Any
 
 import yaml
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ROUTE_REPORT = (
-    ROOT / "reports" / "production-readiness" / "2026" / "phase-17"
+    ROOT
+    / "reports"
+    / "production-readiness"
+    / "2026"
+    / "phase-17"
     / "route-manifest.json"
 )
 DEFAULT_OUTPUT = ROOT / "docs" / "generated" / "PRODUCTION_CONTRACT_INDEX.md"
@@ -36,7 +39,7 @@ def _environment_keys(path: Path) -> list[str]:
 
 def _artifact_name(builder_path: Path) -> str:
     match = re.search(
-        r'''(?m)^\s*artifactName:\s*["']?([^"'\r\n]+)''',
+        r"""(?m)^\s*artifactName:\s*["']?([^"'\r\n]+)""",
         builder_path.read_text(encoding="utf-8"),
     )
     if not match:
@@ -51,7 +54,16 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
     routes = _json(route_report)
     installer_report = _json(root / "reports" / "installer_integrity_report.json")
     packaging_report = _json(root / "reports" / "packaging_smoke_report.json")
-    openapi = yaml.safe_load((root / "docs" / "openapi.yaml").read_text(encoding="utf-8"))
+    documentation_authority_path = root / "config" / "documentation-authority.json"
+    documentation_authority = (
+        _json(documentation_authority_path)
+        if documentation_authority_path.is_file()
+        else {}
+    )
+    candidate = documentation_authority.get("current_engineering_candidate")
+    openapi = yaml.safe_load(
+        (root / "docs" / "openapi.yaml").read_text(encoding="utf-8")
+    )
     environment = _environment_keys(root / ".env.template")
     product = versions["product"]
     route_summary = routes["summary"]
@@ -61,6 +73,44 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
     installer_hash = installer.get("sha256", "not_evaluated")
     packaging_matches = packaging_report.get("installer_sha256") == installer_hash
     backend_readiness = packaging_report.get("backend_readiness", {})
+    if candidate:
+        artifact_name = candidate["installer"]
+        installer_size = candidate["size_bytes"]
+        installer_hash = candidate["sha256"]
+        build_commit = candidate["source_commit"]
+        signature = candidate["signature"]
+        portable_readiness = candidate["portable_smoke"]
+        portable_owner = candidate["portable_smoke"]
+        installed_smoke = candidate["installed_acceptance"]
+    else:
+        artifact_name = installer.get("artifact", "not_evaluated")
+        build_commit = installer_report.get("results", {}).get(
+            "source_commit", "not_evaluated"
+        )
+        signature = (
+            packaging_report.get("installer_signature_status", "not_evaluated")
+            if packaging_matches
+            else "not_evaluated"
+        )
+        portable_readiness = (
+            str(backend_readiness.get("ready", False)).lower()
+            if packaging_matches
+            else "not_evaluated"
+        )
+        portable_owner = (
+            str(
+                backend_readiness.get("owner_verified_as_launch_descendant", False)
+            ).lower()
+            if packaging_matches
+            else "not_evaluated"
+        )
+        installed_smoke = (
+            str(
+                packaging_report.get("installer_mode", {}).get("install_success", False)
+            ).lower()
+            if packaging_matches
+            else "not_evaluated"
+        )
     lines = [
         "# Generated production contract index",
         "",
@@ -76,14 +126,14 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
         f"| Windows file version | `{product['windows_file_version']}` |",
         f"| Release channel | `{product['release_channel']}` |",
         f"| Installer artifact pattern | `{_artifact_name(root / 'frontend' / 'electron-builder.yml')}` |",
-        f"| Current local artifact | `{installer.get('artifact', 'not_evaluated')}` |",
+        f"| Current local artifact | `{artifact_name}` |",
         f"| Current local artifact size | `{installer_size}` bytes |",
         f"| Current local artifact SHA-256 | `{installer_hash}` |",
-        f"| Current build source commit | `{installer_report.get('results', {}).get('source_commit', 'not_evaluated')}` |",
-        f"| Current artifact signature | `{packaging_report.get('installer_signature_status', 'not_evaluated') if packaging_matches else 'not_evaluated'}` |",
-        f"| Portable backend readiness | `{str(backend_readiness.get('ready', False)).lower() if packaging_matches else 'not_evaluated'}` |",
-        f"| Portable readiness listener owned by package | `{str(backend_readiness.get('owner_verified_as_launch_descendant', False)).lower() if packaging_matches else 'not_evaluated'}` |",
-        f"| Installed-mode smoke accepted | `{str(packaging_report.get('installer_mode', {}).get('install_success', False)).lower() if packaging_matches else 'not_evaluated'}` |",
+        f"| Current build source commit | `{build_commit}` |",
+        f"| Current artifact signature | `{signature}` |",
+        f"| Portable backend readiness | `{portable_readiness}` |",
+        f"| Portable readiness listener owned by package | `{portable_owner}` |",
+        f"| Installed-mode smoke accepted | `{installed_smoke}` |",
         "",
         "## Provider and model allowlist",
         "",
@@ -102,8 +152,10 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
             "",
             "## Internal service candidate lock",
             "",
-            f"Status: `{services['status']}`. Runtime: `{services['runtime']['name']} {services['runtime']['version']}`. "
-            f"Production provisioning authorized: `{str(services['production_provisioning_authorized']).lower()}`.",
+            (
+                f"Status: `{services['status']}`. Runtime: `{services['runtime']['name']} {services['runtime']['version']}`. "
+                f"Production provisioning authorized: `{str(services['production_provisioning_authorized']).lower()}`."
+            ),
             "",
             "| Service key | Product | Version | Production approved | Candidate identity |",
             "|---|---|---|---|---|",
@@ -111,7 +163,9 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
     )
     for key, service in services["services"].items():
         product_name = service.get("product", key)
-        identity = service.get("image", service.get("linux_amd64_digest", "not recorded"))
+        identity = service.get(
+            "image", service.get("linux_amd64_digest", "not recorded")
+        )
         lines.append(
             f"| `{key}` | `{product_name}` | `{service['version']}` | "
             f"`{str(service.get('production_approved', False)).lower()}` | `{identity}` |"
@@ -134,8 +188,10 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
             "",
             "## Environment contract",
             "",
-            f"The tracked `.env.template` declares `{len(environment)}` unique keys. "
-            "Presence in this generated list is configuration discoverability, not permission",
+            (
+                f"The tracked `.env.template` declares `{len(environment)}` unique keys. "
+                "Presence in this generated list is configuration discoverability, not permission"
+            ),
             "to use an unsupported deployment or bypass production validation.",
             "",
             "| Environment key |",
@@ -146,6 +202,7 @@ def render(*, root: Path = ROOT, route_report: Path = DEFAULT_ROUTE_REPORT) -> s
             "",
             "- `config/product-versions.json`",
             "- `config/provider_manifest.v1.json`",
+            "- `config/documentation-authority.json`",
             "- `deploy/internal-data-plane.candidate-lock.json`",
             "- `reports/production-readiness/2026/phase-17/route-manifest.json`",
             "- `docs/openapi.yaml`",
@@ -166,7 +223,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     expected = render(route_report=args.route_report)
     if args.check:
-        if not args.output.is_file() or args.output.read_text(encoding="utf-8") != expected:
+        if (
+            not args.output.is_file()
+            or args.output.read_text(encoding="utf-8") != expected
+        ):
             print(f"Generated documentation contract index is stale: {args.output}")
             return 1
         print("Generated documentation contract index matches authorities")

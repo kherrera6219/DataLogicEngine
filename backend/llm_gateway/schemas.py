@@ -68,6 +68,38 @@ class GatewayChatRequest(BaseModel):
         return value
 
 
+class DesktopMessage(BaseModel):
+    """Desktop chat message constrained by the model and request-size guard."""
+
+    model_config = ConfigDict(extra="forbid")
+    role: Literal["user", "system", "assistant"]
+    content: Union[str, List[Dict[str, Any]]]
+
+    @field_validator("content")
+    @classmethod
+    def validate_content(cls, value):
+        if isinstance(value, str) and value.strip():
+            return value
+        if isinstance(value, list) and value:
+            return value
+        raise ValueError("content must not be empty")
+
+
+class DesktopGatewayChatRequest(GatewayChatRequest):
+    """Installed-owner request without public-client transcript truncation."""
+
+    messages: List[DesktopMessage] = Field(..., min_length=1)
+
+
+class GatewaySessionCreateRequest(BaseModel):
+    """Desktop-internal idempotent chat-session create/ensure request."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: Optional[str] = Field(None, min_length=36, max_length=36)
+    mode: Literal["chat", "quad", "standard", "enhanced", "local_review"] = "chat"
+
+
 class GatewayAsyncRunCreate(GatewayChatRequest):
     """A durable job must have an explicit retry identity."""
 

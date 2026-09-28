@@ -62,7 +62,7 @@ async def test_openai_adapter_uses_async_client_and_disables_sdk_retries(monkeyp
     provider = OpenAIProvider(api_key="test-key", timeout_seconds=7)
     result = await provider.complete(
         messages=[{"role": "user", "content": "ping"}],
-        model="gpt-5.6-sol",
+        model="gpt-6-sol",
         max_tokens=16,
     )
     await provider.close()
@@ -71,7 +71,7 @@ async def test_openai_adapter_uses_async_client_and_disables_sdk_retries(monkeyp
     assert result.usage["total_tokens"] == 3
     assert factory.call_args.kwargs["max_retries"] == 0
     assert client.responses.create.await_count == 1
-    assert client.responses.create.await_args.kwargs["model"] == "gpt-5.6-sol"
+    assert client.responses.create.await_args.kwargs["model"] == "gpt-6-sol"
     assert client.responses.create.await_args.kwargs["reasoning"] == {"effort": "high"}
     assert "temperature" not in client.responses.create.await_args.kwargs
 
@@ -96,14 +96,14 @@ async def test_google_adapter_uses_async_generate_content(monkeypatch):
     provider = GoogleProvider(api_key="test-key", timeout_seconds=7)
     result = await provider.complete(
         messages=[{"role": "user", "content": "ping"}],
-        model="gemini-3.7-flash",
+        model="gemini-3.8-flash",
         max_tokens=16,
     )
     await provider.close()
 
     assert result.text == "pong"
     assert aio.models.generate_content.await_count == 1
-    assert aio.models.generate_content.await_args.kwargs["model"] == "gemini-3.7-flash"
+    assert aio.models.generate_content.await_args.kwargs["model"] == "gemini-3.8-flash"
     assert aio.aclose.await_count == 1
 
 

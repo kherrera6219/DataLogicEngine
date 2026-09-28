@@ -45,7 +45,7 @@ def test_gateway_keys_accepts_signed_desktop_request_without_session(app, client
         json={
             "provider": "google",
             "key": "test-google-key",
-            "model": "gemini-3.7-flash",
+            "model": "gemini-3.8-flash",
         },
     )
 
@@ -57,7 +57,7 @@ def test_gateway_keys_accepts_signed_desktop_request_without_session(app, client
     with app.app_context():
         provider = LLMProvider.query.filter_by(provider_type="google").first()
         assert provider is not None
-        assert provider.model_id == "gemini-3.7-flash"
+        assert provider.model_id == "gemini-3.8-flash"
         assert provider.get_api_key() == "test-google-key"
 
 
@@ -78,7 +78,7 @@ def test_gateway_keys_signed_desktop_request_ignores_stale_session_csrf(app, cli
         json={
             "provider": "openai",
             "key": "test-openai-key",
-            "model": "gpt-5.6-sol",
+            "model": "gpt-6-sol",
         },
     )
 

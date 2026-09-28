@@ -189,11 +189,12 @@ jobs:
       env:
         NEXT_TELEMETRY_DISABLED: 1
 
-    - name: Install Playwright system dependencies
+    - name: Install Playwright Chromium and system dependencies
       timeout-minutes: 10
       run: |
         cd frontend
         npx playwright install-deps chromium
+        npx playwright install chromium
 
     - name: Set up ChromeDriver for a11y sweep
       run: |

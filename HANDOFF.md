@@ -6,22 +6,23 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.19.0 |
-| Product version | 4.4.3 |
+| Document version | v1.22.3 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.82.0 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.1 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
+| Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.5 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 CU-2; 4.4.3 exact-source rebuild is installed and healthy with core payload identity matched, while Google chat, OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open |
+| Current phase | Phase 19 installed-chat repair; pre-PR 4.4.5 source/build gates passed. PR #91 Python dependency security and backend checks are red on NLTK; disposition is next, followed by a new exact-source rebuild and installed CHAT-QC-06 acceptance. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -35,13 +36,14 @@ Read these documents in order before changing code or making a readiness claim:
 4. `docs/README.md` — active documentation portal.
 5. `README.md` — public product and repository entry point.
 6. `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` — current supporting work sequence and archived-source disposition.
-7. `AGENTS.md` — agent operating rules and forbidden patterns; **read before changing any code**.
-8. `docs/compliance/REMEDIATION_PLAN.md` — compliance-remediation work orders (CR-A0 … CR-G12) with deterministic exit gates.
-9. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
-10. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
-11. `docs/SECURITY_ARCHITECTURE.md`.
-12. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
-13. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
+7. `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` — code-grounded repair order for the installed chat, trace, analytics, and Knowledge Base findings.
+8. `AGENTS.md` — agent operating rules and forbidden patterns; **read before changing any code**.
+9. `docs/compliance/REMEDIATION_PLAN.md` — compliance-remediation work orders (CR-A0 … CR-G12) with deterministic exit gates.
+10. `reports/production-readiness/2026/phase-18/cp18-d-ka-subsystem-wiring-audit.md`.
+11. `reports/production-readiness/2026/phase-18/phase-18-closeout-and-phase-19-transfer.md`.
+12. `docs/SECURITY_ARCHITECTURE.md`.
+13. `CODEX_WORK_QUEUE_2026-08-10.md` (supporting review input, not authority).
+14. `docs/archive/session-history/ALGORITHMS_PAGE_REMEDIATION_PLAN_2026-08-10.md` (completed historical plan).
 
 Installed behavior and reproducible production-path evidence take precedence
 over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
@@ -49,6 +51,103 @@ over summaries. Root `PRODUCTION_COMPLETION_PLAN_2026.md` is the sole active
 remaining supporting work. Completed slow-audit, QC, coverage, and rejected
 terminology source plans are historical records under `docs/archive/audits/`.
 Phase 5 remains partial/deferred.
+
+## PR #91 engineering integration checkpoint — 2026-09-27
+
+The owner requested source integration of PR #91 with its security gate still
+red. That repository action is not a security waiver, installed acceptance, or
+production/public release approval. The dependency refresh removes all locally
+reported npm advisories and reduces the
+Python audit to one finding: transitive `nltk==3.10.3` has
+`PYSEC-2026-3740` / `CVE-2026-81726`, with no published patched version.
+`llama-index-core` still requires NLTK, including in its 0.14.25 release.
+The finding is not suppressed or waived. Local verification of the proposed
+frontend work passed 504 unit tests, type checking, the desktop export build,
+the five-test route/sidebar browser smoke, the Analytics accessibility scan,
+and lockfile governance. A clean, sequential Windows Python run with the
+updated NLTK, pypdf, and soupsieve packages passed 3,364 tests with 18 skipped,
+zero setup errors, and 35 warnings. At source commit `7e86feae`, GitHub's
+npm audit, frontend build/browser gates, Windows packaging smoke, governance,
+lint, code scans, and SBOM jobs passed. The Python dependency scan and
+`backend-test` failed on the same NLTK advisory. Keep those failures visible
+and release-blocking after any repository merge. Repo-wide Ruff remains non-green on
+pre-existing lint/format debt; the CI-scoped Ruff rule set passes. The 4.4.5
+installer described below predates this dependency refresh and must not be
+presented as containing it.
+
+## Installed governed-chat repair checkpoint — 2026-08-31
+
+Source follow-up (2026-09-27): 4.4.5 source selects Google `gemini-3.8-flash`
+(65,536 output tokens) or OpenAI `gpt-6-sol` with High reasoning (128,000 output
+tokens) for desktop chat. The desktop composer no longer truncates at 8,000
+characters or 64 messages; the local API public-client contract remains
+unchanged. Continued chats reconstruct principal-owned history from saved
+transcripts, and the dashboard reads current governed runs and chat sessions.
+The 4.4.5 Windows suite passed 3,364 tests with 18 skipped and zero setup
+errors; 504 frontend tests, frontend lint/type checking, and the production
+build passed. The local `DataLogicEngine Setup 4.4.5.exe` candidate is
+398,783,115 bytes (SHA-256
+`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`),
+packaged from clean source commit `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`,
+and its packaged backend includes the refreshed provider manifest and
+migration. It is unsigned and has not been installed or provider-tested; the
+CHAT-QC-06 acceptance row remains open. Existing owner/provider token budgets
+remain separate controls pending the product owner's decision on their defaults.
+
+At the 2026-08-31 source checkpoint, CHAT-QC-01 through CHAT-QC-05, TRACE-QC-01 through TRACE-QC-06, and
+DATA-QC-01 through DATA-QC-02 are source-complete. The repair now provides
+durable first-message sessions, typed completion and continuation, truthful
+mode/confidence/budget presentation, safe ordered trace narratives, explicit
+refinement disposition and twelve-step detail, trace-linked analyst findings,
+principal-scoped trace analytics, the authoritative ingestion workspace, and
+a collapsible/resizable accessible Trace Explorer. The integrated source gate
+passed 3,353 backend tests with 18 skipped and zero failures/setup errors, 504
+frontend tests, the production frontend build, frontend lint/type checking,
+documentation references, and requirements traceability.
+
+At that checkpoint the product authority was 4.4.4 and its next action was a
+clean Windows rebuild. The current 4.4.5 candidate is built; artifact-bound
+installed acceptance remains next. The source
+results do not prove Google answer quality in the rebuilt installed app, NVDA,
+contrast, full installer lifecycle, signing, recovery, external review, pilot,
+or soak gates; production/public release remains NO-GO.
+
+## Installed governed-chat review checkpoint — 2026-08-26
+
+Installed run `0779492c-c054-4630-b321-b2e13be7b4ef` completed the governed
+pipeline with Google `gemini-3.7-flash`, but it does not close the CP19-M chat
+acceptance row. Source reconciliation confirmed that the installed findings
+are caused by product binding and presentation defects around the implemented
+governed path:
+
+- the first send can omit `session_id`, so the transcript does not enter Recent
+  Sessions;
+- provider completion metadata is discarded, so an answer ending mid-sentence
+  can appear successful;
+- confidence is not rendered consistently, profile coverage is presented as
+  persona confidence, and assistant messages are inferred as Enhanced;
+- live trace field names and timing do not match the frontend contract, the run
+  ID arrives too late for Governed Chat to subscribe, and internal trace
+  failures can look like empty success;
+- no persistent refinement disposition explains a non-invoked workflow, and
+  the canonical twelve steps have no live progress callback;
+- actual analyst findings are discarded in favor of generic profile prose;
+- Trace & Review Analytics queries pillar definitions rather than trace runs;
+  and
+- Knowledge Base shows pillar/graph counts but not the existing authoritative
+  ingestion, revision, materialization, retrieval, and reconciliation state.
+
+The active supporting implementation plan is
+`docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md`; the matching
+ledger is the **Installed governed-chat findings — 2026-08-26** section in
+`TODO.md`. This historical snapshot is retained as the source of the completed
+repair work. Its former first implementation slice, CHAT-QC-01, is complete.
+
+This plan does not authorize raw chain-of-thought display, extra persona
+provider calls, a new outbound destination, a public metric rename, or an
+external response-schema change. Use deterministic, bounded, redacted public
+execution summaries. The standing major-update rule has now advanced the
+integrated source to 4.4.4 exactly once; installed acceptance remains pending.
 
 ## Phase 19 execution authority
 
@@ -683,8 +782,8 @@ Key results:
   provider matrix, and AI system card are versioned.
 
 CP6-A through CP6-E pass for the engineering checkpoint. CP6-F remains an
-explicit installed-release blocker: current OpenAI `gpt-5.6-sol`, Google
-`gemini-3.7-flash`, the blinded human sample, second reviewer, and owner
+explicit installed-release blocker: the then-current OpenAI `gpt-5.6-sol` and Google
+`gemini-3.7-flash` rows, the blinded human sample, second reviewer, and owner
 release approval are pending. The provider rows remain quarantined and
 `release_ready=false`. Production/public release remains **NO-GO**.
 

@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-005 |
 | Title | Privacy impact assessment and data inventory |
 | Document version | v1.2.0 |
-| Product version | 4.4.3 |
+| Product version | 4.4.5 |
 | Status | not_evaluated |
 | Audience | Product owner, privacy/security, data engineering, operations, legal reviewers, and release authority |
 | Owner | Privacy Engineering |
@@ -26,12 +26,12 @@ legal basis, jurisdiction, provider/connector contracts, retention periods,
 children/high-risk-use restrictions, installed no-egress/deletion/remnant proof,
 and independent privacy/legal review are not complete.
 
-The current 4.4.3 payload is installed under Program Files and running
-loopback-only; its core packaged-file hashes match the extracted build and
-health/readiness report no blockers. That narrow observation does not establish
-installed redaction/no-egress, provider, deletion/remnant,
-retention/legal-basis, lifecycle, or independent privacy review. The
-`not_evaluated` production status is unchanged.
+The 4.4.5 clean-source engineering installer is unsigned and has not been
+installed or provider-tested. The older 4.4.3 Program Files loopback
+health/readiness observation does not establish 4.4.5 installed
+redaction/no-egress, provider, deletion/remnant, retention/legal-basis,
+lifecycle, or independent privacy review. The `not_evaluated` production
+status is unchanged.
 
 The default product owner/vendor does not operate customer data or provider
 accounts as a multi-tenant SaaS. The customer/owner controls the Windows system

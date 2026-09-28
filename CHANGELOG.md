@@ -1,5 +1,27 @@
 # Changelog
 
+## 4.4.5 engineering candidate - 2026-09-27
+
+- A later PR #91 source checkpoint refreshed Node/Python dependencies and the
+  Analytics CI browser fixture. Local npm audit reports zero advisories; the
+  frontend and Windows packaging checks pass. Python dependency security and
+  `backend-test` checks remain red on transitive `nltk==3.10.3`
+  (`PYSEC-2026-3740` / `CVE-2026-81726`), with no published patched version.
+  These changes are not in the installer below. Repository integration is not
+  a security waiver or production/public release approval.
+- Updated the supported owner-selected models to Gemini 3.8 Flash and GPT-6 Sol
+  with High reasoning, with a forward migration for saved provider selections.
+- Removed desktop-only chat truncation below provider capacity, restored
+  principal-owned saved-session context at the server, and connected the
+  dashboard to current governed runs and chat sessions.
+- The Windows suite passed (3,364 passed, 18 skipped, zero setup errors), as
+  did 504 frontend tests and the frontend production build. A 4.4.5 Windows
+  engineering installer was built from clean source commit
+  `8a419f6c8908c541ac13389dd75e9b7bb83bb87f` (398,783,115 bytes;
+  SHA-256 `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`).
+  It is unsigned and has not passed
+  installed-provider acceptance. Production/public release remains blocked.
+
 ## 4.4.0 candidate qualification - 2026-08-11
 
 - Promoted the product and Windows installer identity from 4.3.0/4.3.0.0 to
@@ -51,15 +73,15 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.12.0 |
-| Product version | 4.4.3 |
+| Document version | v1.13.1 |
+| Product version | 4.4.5 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
 | Owner | Release Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
@@ -71,6 +93,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+
+- **Installed governed-chat source repair:** established first-message durable
+  sessions; preserved provider completion disposition; added bounded answer
+  depth and continuation handling; rendered actual governed mode, provider-call
+  budget, and explicit measured/unmeasured confidence; and preserved complete
+  transcript/run correlation.
+- **Trace truth and review:** normalized live events, added bounded public stage
+  narratives, recorded every refinement disposition and all twelve canonical
+  steps when invoked, preserved deterministic analyst findings and synthesis
+  influence, and moved the explorer into a collapsible/resizable accessible
+  pane without truncating long workflows.
+- **Authoritative data workspaces:** connected Trace & Review Analytics to
+  principal-scoped persisted runs and connected Knowledge Base to the existing
+  ingestion, revision, materialization, retrieval, consistency, and lifecycle
+  authorities with explicit unavailable states.
+- **Integrated source gate:** 3,353 backend tests passed with 18 skipped and
+  zero failures or setup errors; all 504 frontend tests, the production frontend
+  build, focused lint/type checks, documentation references, and requirements
+  traceability passed. Repository-wide legacy Python formatting/lint debt and
+  the unavailable local `mypy` executable remain separately open and are not
+  represented as passing.
 
 - Restored the complete Dataset Exporter regression suite and Developer Guide
   after the runtime-capture batch accidentally replaced both files with short
@@ -97,6 +140,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   signing, and retained CP19-M acceptance remain open.
 
 ### Changed
+
+- Applied the standing major-update rule once for this integrated repair,
+  advancing the product from 4.4.3 to 4.4.4 and retaining 4.4.3 as an approved
+  upgrade source. Public API and governed contract versions are unchanged.
 
 - Added optional owner-only, default-off runtime usage capture for committed,
   released governed traces. Staged content is redacted and remains export-only;

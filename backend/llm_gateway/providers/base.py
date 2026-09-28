@@ -6,6 +6,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, AsyncIterator
 
+from backend.llm_gateway.completion import ProviderCompletion
+
 
 @dataclass(frozen=True, slots=True)
 class LLMResponse:
@@ -13,6 +15,7 @@ class LLMResponse:
     raw: dict[str, Any]
     model: str
     usage: dict[str, Any]
+    completion: ProviderCompletion
 
 
 class LLMProvider(ABC):

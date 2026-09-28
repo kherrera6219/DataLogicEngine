@@ -101,7 +101,7 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     # Provider
     mock_prov = MagicMock()
     mock_prov.provider_type = "openai"
-    mock_prov.model_id = "gpt-5.6-sol"
+    mock_prov.model_id = "gpt-6-sol"
     mock_prov.timeout_seconds = 30
     mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
@@ -115,7 +115,7 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     async def mock_complete(**kwargs):
         observed_request.update(kwargs)
         resp = MagicMock()
-        resp.model = "gpt-5.6-sol"
+        resp.model = "gpt-6-sol"
         return resp
         
     mock_adapter.complete = mock_complete
@@ -127,7 +127,7 @@ def test_test_provider_endpoint(mock_curr_user, app_client):
     
     assert resp.status_code == 200
     assert resp.json['success'] is True
-    assert resp.json['model'] == "gpt-5.6-sol"
+    assert resp.json['model'] == "gpt-6-sol"
     assert 'latency_ms' in resp.json
     assert observed_request['max_tokens'] == 256
 
@@ -140,7 +140,7 @@ def test_test_provider_fail(mock_curr_user, app_client):
     mock_curr_user.return_value = MockUser()
     mock_prov = MagicMock()
     mock_prov.provider_type = "openai"
-    mock_prov.model_id = "gpt-5.6-sol"
+    mock_prov.model_id = "gpt-6-sol"
     mock_prov.timeout_seconds = 30
     mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
@@ -165,7 +165,7 @@ def test_test_provider_unauthenticated_error_returns_invalid_api_key(mock_curr_u
     mock_curr_user.return_value = MockUser()
     mock_prov = MagicMock()
     mock_prov.provider_type = "google"
-    mock_prov.model_id = "gemini-3.7-flash"
+    mock_prov.model_id = "gemini-3.8-flash"
     mock_prov.timeout_seconds = 30
     mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov
@@ -199,7 +199,7 @@ def test_test_provider_model_error_remains_invalid_model(mock_curr_user, app_cli
     mock_curr_user.return_value = MockUser()
     mock_prov = MagicMock()
     mock_prov.provider_type = "google"
-    mock_prov.model_id = "gemini-3.7-flash"
+    mock_prov.model_id = "gemini-3.8-flash"
     mock_prov.timeout_seconds = 30
     mock_prov.config = {}
     MockProvider.query.get_or_404.return_value = mock_prov

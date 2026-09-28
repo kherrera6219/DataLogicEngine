@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-08-27T05:21:37.046364+00:00",
+  "generated_at": "2026-09-28T04:22:50.165098+00:00",
   "source": "live Flask app.url_map",
   "allowed_classifications": [
     "authenticated-mutation",
@@ -13,12 +13,12 @@
     "public-health"
   ],
   "summary": {
-    "routes": 352,
+    "routes": 354,
     "classifications": {
       "authenticated-mutation": 88,
-      "authenticated-read": 174,
+      "authenticated-read": 175,
       "desktop-only": 13,
-      "external-client-governed-execution": 5,
+      "external-client-governed-execution": 6,
       "external-client-read": 8,
       "internal-only": 1,
       "owner-admin-mutation": 59,
@@ -1604,6 +1604,21 @@
       ],
       "classification": "external-client-read",
       "required_principal": "external-client-read",
+      "auth_evidence": [
+        "gateway-api-key-or-session"
+      ],
+      "source_module": "backend.llm_gateway.api",
+      "blueprint": "gateway",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/gateway/sessions",
+      "endpoint": "gateway.create_user_session",
+      "methods": [
+        "POST"
+      ],
+      "classification": "external-client-governed-execution",
+      "required_principal": "external-client-governed-execution",
       "auth_evidence": [
         "gateway-api-key-or-session"
       ],
@@ -4560,6 +4575,22 @@
       ],
       "source_module": "app",
       "blueprint": "dle_core",
+      "mutation_without_auth_evidence": false
+    },
+    {
+      "path": "/api/v1/trace/analytics",
+      "endpoint": "trace.get_trace_analytics",
+      "methods": [
+        "GET"
+      ],
+      "classification": "authenticated-read",
+      "required_principal": "authenticated-read",
+      "auth_evidence": [
+        "backend.tracing.api:api_session_login_required_wrapper",
+        "owner-session-or-desktop"
+      ],
+      "source_module": "backend.tracing.api",
+      "blueprint": "trace",
       "mutation_without_auth_evidence": false
     },
     {

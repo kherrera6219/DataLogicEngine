@@ -102,8 +102,9 @@ describe('TraceDetailPage', () => {
     expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('tab', { name: /Expert Analysis/i }));
-    expect(screen.getAllByText('analyst')).toHaveLength(2);
-    expect(screen.getByText('No draft recorded.')).toBeInTheDocument();
+    expect(screen.getByText('analyst')).toBeInTheDocument();
+    expect(screen.getByText('analyst analyst')).toBeInTheDocument();
+    expect(screen.getByText('No governed finding was recorded.')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('tab', { name: /Coordinates/i }));
     expect(screen.getByText('No coordinate vector data found for this run.')).toBeInTheDocument();
@@ -185,5 +186,101 @@ describe('TraceDetailPage', () => {
     expect(screen.getByText(/Selected KAs: KA-018/)).toBeInTheDocument();
     expect(screen.getByText(/Executed KAs: KA-018/)).toBeInTheDocument();
     expect(screen.getByText('Authorized')).toBeInTheDocument();
+  });
+
+  it('renders a not-needed refinement decision even when no refinement stage exists', async () => {
+    searchParamGetMock.mockImplementation((key: string) => (key === 'id' ? 'trace-no-refinement' : null));
+    getBundleMock.mockResolvedValue({
+      run_id: 'trace-no-refinement',
+      status: 'completed',
+      run: {
+        run_id: 'trace-no-refinement',
+        status: 'completed',
+        created_at: '2026-08-18T10:00:00Z',
+        data_snapshot: {
+          refinement_disposition: {
+            schema_version: 'dle.refinement-disposition.v1',
+            status: 'not_needed',
+            reason: 'measured_candidate_met_release_gate',
+            enabled: true,
+            measurement_status: 'measured',
+            convergence_action: 'finalize',
+            workflow_status: null,
+            step_count: 0,
+            rewrite_performed: false,
+          },
+        },
+      },
+      stages: [],
+      frost_layers: [],
+      personas: [],
+      persona_positions: [],
+      evidence_sources: [],
+      evidence: [],
+      ka_invocations: [],
+      kas: [],
+      axes: null,
+      coordinate: null,
+      policy_decisions: [],
+      memory_events: [],
+      metrics: {},
+      export_url: '/trace/export',
+    });
+
+    render(<TraceDetailPage />);
+
+    expect(await screen.findByText('Refinement decision')).toBeInTheDocument();
+    expect(screen.getByText('Not needed')).toBeInTheDocument();
+    expect(screen.getByText(/measured candidate met the release gate/i)).toBeInTheDocument();
+  });
+
+  it('separates governed analyst findings from the released combined answer', async () => {
+    searchParamGetMock.mockImplementation((key: string) => (key === 'id' ? 'trace-personas' : null));
+    getBundleMock.mockResolvedValue({
+      run_id: 'trace-personas',
+      status: 'completed',
+      run: { run_id: 'trace-personas', status: 'completed', created_at: '2026-08-18T10:00:00Z' },
+      stages: [],
+      frost_layers: [],
+      personas: [
+        {
+          persona_id: 'sector-1',
+          run_id: 'trace-personas',
+          persona_type: 'sector',
+          persona_name: 'Sector Analyst',
+          status: 'completed',
+          finding: 'Review sector-specific operational consequences.',
+          measurement_status: 'not_measured',
+          profile_coverage: 0.85,
+          provider_generated: false,
+          evidence_ids: ['evidence-1'],
+          synthesis_influence: {
+            disposition: 'reconciled_with_other_contributions',
+            authority_weight: 0.3,
+            reason: 'conflict_resolution_applied',
+          },
+        },
+      ],
+      persona_positions: [],
+      evidence_sources: [],
+      evidence: [],
+      ka_invocations: [],
+      kas: [],
+      axes: null,
+      coordinate: null,
+      policy_decisions: [],
+      memory_events: [],
+      metrics: {},
+      export_url: '/trace/export',
+    });
+
+    render(<TraceDetailPage />);
+    await screen.findByText('trace-personas');
+    fireEvent.click(screen.getByRole('tab', { name: /Expert Analysis/i }));
+
+    expect(screen.getByText('Governed analyst contributions')).toBeInTheDocument();
+    expect(screen.getByText('Review sector-specific operational consequences.')).toBeInTheDocument();
+    expect(screen.getByText(/Reconciled with other contributions/)).toBeInTheDocument();
+    expect(screen.getByText(/not separate provider-generated answers/i)).toBeInTheDocument();
   });
 });

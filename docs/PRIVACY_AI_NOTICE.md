@@ -6,32 +6,35 @@
 |---|---|
 | Document ID | DLE-USER-005 |
 | Title | Privacy, provider, retention, and AI limitations notice |
-| Document version | v1.2.0 |
-| Product version | 4.4.3 |
+| Document version | v1.2.1 |
+| Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Users, evaluators, administrators, privacy/security reviewers, and release authority |
 | Owner | Privacy Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data paths, provider/connector controls, retention/deletion contracts, and AI evaluation records |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Data category, storage, provider, connector, gateway, telemetry, retention, deletion, AI limitation, or legal change |
 | Requirements and evidence | Product requirements, architecture, privacy/security tests, AI system card, and Phase 7/9/11/13 evidence |
 
 ## Important current status
 
-DataLogicEngine 4.4.3 is not approved for production or public distribution.
+DataLogicEngine 4.4.5 is not approved for production or public distribution.
 This notice describes the implemented and approved local-first contract while
 clearly retaining installed, independent, legal, security, provider, deletion,
 backup/restore, and release evidence that remains open. It is not a claim of
 certification, regulatory approval, or legal suitability for a particular use.
 
-The current 4.4.3 payload is installed under Program Files and running
-loopback-only; its core packaged-file hashes match the extracted engineering
-build and health/readiness report no blockers. This is not installed
-all-output redaction/no-egress, provider, deletion/recovery, independent
-privacy, lifecycle, or exact signed-artifact acceptance; those gates remain
-open.
+The available local 4.4.5 engineering installer is an unsigned physical
+artifact from before the PR #91 dependency/source refresh. It has not been
+installed or provider-tested and cannot validate the later source changes.
+Earlier 4.4.3 Program Files readiness evidence is historical and cannot
+establish 4.4.5 all-output redaction/no-egress, provider, deletion/recovery,
+independent privacy, lifecycle, or exact signed-artifact acceptance; those
+gates remain open. PR #91's Python dependency scan and backend-test gate remain
+red on the unsuppressed transitive NLTK advisory. Source integration does not
+waive that finding or alter the production/public release **NO-GO**.
 
 ## Local-first does not mean air-gapped
 

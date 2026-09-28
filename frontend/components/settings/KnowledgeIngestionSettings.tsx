@@ -192,28 +192,46 @@ export function KnowledgeIngestionSettings() {
   };
 
   const repairIngestion = async (ingestionId: string) => {
-    await api.ingestion.repair(ingestionId);
-    toast('Failed cross-store writes were requeued where repair was safe.', 'success');
-    void loadHistory();
+    try {
+      await api.ingestion.repair(ingestionId);
+      toast('Failed cross-store writes were requeued where repair was safe.', 'success');
+      void loadHistory();
+    } catch (err) {
+      setError(`Knowledge store repair is unavailable: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
   };
 
   const retryIngestion = async (ingestionId: string) => {
-    await api.ingestion.retry(ingestionId);
-    toast('Ingestion retry queued from its retained app staging copy.', 'success');
-    void loadHistory();
+    try {
+      await api.ingestion.retry(ingestionId);
+      toast('Ingestion retry queued from its retained app staging copy.', 'success');
+      void loadHistory();
+    } catch (err) {
+      setError(`Ingestion retry is unavailable: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
   };
 
   const scanConsistency = async () => {
-    const report = await api.ingestion.consistency();
-    setConsistency(report);
-    toast(report.divergence_count ? 'Corpus differences require attention.' : 'Corpus stores are consistent.', report.divergence_count ? 'error' : 'success');
+    try {
+      const report = await api.ingestion.consistency();
+      setConsistency(report);
+      setError(null);
+      toast(report.divergence_count ? 'Corpus differences require attention.' : 'Corpus stores are consistent.', report.divergence_count ? 'error' : 'success');
+    } catch (err) {
+      setConsistency(null);
+      setError(`Knowledge store status is unavailable: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
   };
 
   const deleteIngestion = async (ingestionId: string) => {
     if (!window.confirm('Delete this source revision from PostgreSQL, vector, graph, and object storage?')) return;
-    await api.ingestion.remove(ingestionId);
-    toast('Cross-store deletion started.', 'success');
-    void loadHistory();
+    try {
+      await api.ingestion.remove(ingestionId);
+      toast('Cross-store deletion started.', 'success');
+      void loadHistory();
+    } catch (err) {
+      setError(`Knowledge source deletion is unavailable: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
   };
 
   const chooseIngestionSource = async () => {
@@ -566,42 +584,55 @@ export function KnowledgeIngestionSettings() {
                   </Button>
                 )}
               </div>
-              {item.files?.slice(0, 5).map((file) => (
-                <div key={file.relative_path} className="mt-3 rounded-md border border-slate-200/70 p-3 text-xs dark:border-white/10">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-medium text-slate-800 dark:text-gray-200">{file.relative_path}</span>
-                    <Badge variant="outline">{file.status.replaceAll('_', ' ')}</Badge>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2 text-slate-500 dark:text-gray-400">
-                    <span>Parser: {file.parser_result?.status || file.error_code || 'pending'}</span>
-                    <span>Defense: {file.defense_result?.disposition || 'pending'}</span>
-                    <span>Original: {file.object_status || 'pending'}</span>
-                    <span>Normalized: {file.normalized_object_status || 'pending'}</span>
-                    <span>Vector: {file.vector_status || 'pending'}</span>
-                    <span>Graph: {file.graph_status || 'pending'}</span>
-                    <span>Embedding: {file.embedding_revision || 'not recorded'}</span>
-                    <span>Last retrieval: {file.last_retrieved_at ? new Date(file.last_retrieved_at).toLocaleString() : 'never'}</span>
-                    {file.last_retrieval_trace_id && (
-                      <Link className="text-blue-600 hover:underline dark:text-blue-400" href={`/runs/view?id=${encodeURIComponent(file.last_retrieval_trace_id)}`}>
-                        View last answer trace
-                      </Link>
-                    )}
-                  </div>
-                  {file.source_revision && <div className="mt-2 truncate font-mono text-[10px] text-slate-400">{file.source_revision}</div>}
-                </div>
-              ))}
-              {item.manifest_path && (
-                <div className="mt-2 truncate text-xs text-slate-500 dark:text-gray-400">{item.manifest_path}</div>
-              )}
-              {item.rejected_files?.length > 0 && (
-                <div className="mt-3 space-y-1">
-                  {item.rejected_files.slice(0, 3).map((entry) => (
-                    <div key={`${entry.path}-${entry.reason}`} className="text-xs text-amber-700 dark:text-amber-300">
-                      {entry.reason}: {entry.path}
+              {(item.files?.length || item.manifest_path || item.rejected_files?.length) ? (
+                <details className="mt-3 rounded-lg border border-slate-200/70 p-3 dark:border-white/10">
+                  <summary className="cursor-pointer text-sm font-medium text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-300">
+                    View source and file details
+                  </summary>
+                  <dl className="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2 lg:grid-cols-4">
+                    <div><dt className="text-slate-500">Checkpoint</dt><dd>{item.checkpoint || 'not recorded'}</dd></div>
+                    <div><dt className="text-slate-500">Created</dt><dd>{item.created_at ? new Date(item.created_at).toLocaleString() : 'not recorded'}</dd></div>
+                    <div><dt className="text-slate-500">Completed</dt><dd>{item.completed_at ? new Date(item.completed_at).toLocaleString() : 'not completed'}</dd></div>
+                    <div><dt className="text-slate-500">Files shown</dt><dd>{Math.min(item.files?.length || 0, 100)} of {item.files?.length || 0}</dd></div>
+                  </dl>
+                  {item.files?.slice(0, 100).map((file) => (
+                    <div key={file.relative_path} className="mt-3 rounded-md border border-slate-200/70 p-3 text-xs dark:border-white/10">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-medium text-slate-800 dark:text-gray-200">{file.relative_path}</span>
+                        <Badge variant="outline">{file.status.replaceAll('_', ' ')}</Badge>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2 text-slate-500 dark:text-gray-400">
+                        <span>Parser: {file.parser_result?.status || file.error_code || 'pending'}</span>
+                        <span>Defense: {file.defense_result?.disposition || 'pending'}</span>
+                        <span>Original: {file.object_status || 'pending'}</span>
+                        <span>Normalized: {file.normalized_object_status || 'pending'}</span>
+                        <span>Vector: {file.vector_status || 'pending'}</span>
+                        <span>Graph: {file.graph_status || 'pending'}</span>
+                        <span>Embedding: {file.embedding_revision || 'not recorded'}</span>
+                        <span>Last retrieval: {file.last_retrieved_at ? new Date(file.last_retrieved_at).toLocaleString() : 'never'}</span>
+                        {file.last_retrieval_trace_id && (
+                          <Link className="text-blue-600 hover:underline dark:text-blue-400" href={`/runs/view?trace=${encodeURIComponent(file.last_retrieval_trace_id)}`}>
+                            View last answer trace
+                          </Link>
+                        )}
+                      </div>
+                      {file.source_revision && <div className="mt-2 truncate font-mono text-[10px] text-slate-400">{file.source_revision}</div>}
                     </div>
                   ))}
-                </div>
-              )}
+                  {item.manifest_path && (
+                    <div className="mt-2 truncate text-xs text-slate-500 dark:text-gray-400">{item.manifest_path}</div>
+                  )}
+                  {item.rejected_files?.length > 0 && (
+                    <div className="mt-3 space-y-1">
+                      {item.rejected_files.slice(0, 100).map((entry) => (
+                        <div key={`${entry.path}-${entry.reason}`} className="text-xs text-amber-700 dark:text-amber-300">
+                          {entry.reason}: {entry.path}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </details>
+              ) : null}
             </div>
           ))}
           {!loadingHistory && history.length === 0 && (

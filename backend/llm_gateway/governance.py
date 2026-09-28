@@ -195,14 +195,16 @@ class AIGovernanceEngine:
                 governance_flags.append("routing_policy_applied")
 
         estimated_prompt_tokens = self._estimate_prompt_tokens(normalized_query)
-        estimated_completion_tokens = self._positive_int(request.max_tokens, 1024, minimum=1, maximum=64_000)
+        estimated_completion_tokens = self._positive_int(request.max_tokens, 1024, minimum=1, maximum=128_000)
         estimated_request_tokens = estimated_prompt_tokens + estimated_completion_tokens
 
+        desktop_request = getattr(request, "principal_kind", None) == "desktop"
+        default_request_budget = 1_050_000 if desktop_request else 32_000
         per_request_budget = self._positive_int(
             meta.get("token_budget"),
-            self._positive_int(os.environ.get("AI_TOKEN_BUDGET_PER_REQUEST"), 32_000, minimum=512, maximum=128_000),
+            self._positive_int(os.environ.get("AI_TOKEN_BUDGET_PER_REQUEST"), default_request_budget, minimum=512, maximum=1_050_000),
             minimum=512,
-            maximum=128_000,
+            maximum=1_050_000,
         )
         if estimated_request_tokens > per_request_budget:
             return GovernanceDecision(

@@ -7,12 +7,15 @@ export const PROVIDER_MANIFEST = {
       "id": "openai",
       "label": "OpenAI",
       "aliases": [],
-      "default_model": "gpt-5.6-sol",
+      "default_model": "gpt-6-sol",
       "models": [
         {
-          "id": "gpt-5.6-sol",
-          "label": "GPT-5.6 Sol",
+          "id": "gpt-6-sol",
+          "label": "GPT-6 Sol",
           "minimum_output_tokens": 16,
+          "max_output_tokens": 128000,
+          "max_input_tokens": 1050000,
+          "max_context_tokens": 1050000,
           "reasoning_effort": "high"
         }
       ],
@@ -36,12 +39,14 @@ export const PROVIDER_MANIFEST = {
       "aliases": [
         "gemini"
       ],
-      "default_model": "gemini-3.7-flash",
+      "default_model": "gemini-3.8-flash",
       "models": [
         {
-          "id": "gemini-3.7-flash",
-          "label": "Gemini 3.7 Flash",
+          "id": "gemini-3.8-flash",
+          "label": "Gemini 3.8 Flash",
           "minimum_output_tokens": 1,
+          "max_output_tokens": 65536,
+          "max_input_tokens": 1048576,
           "reasoning_effort": null
         }
       ],

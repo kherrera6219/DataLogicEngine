@@ -5,6 +5,11 @@ from __future__ import annotations
 import os
 from typing import Any, AsyncIterator
 
+from backend.llm_gateway.completion import (
+    CompletionDisposition,
+    ProviderCompletion,
+    native_reason,
+)
 from backend.llm_gateway.provider_manifest import validate_provider_model
 from backend.llm_gateway.providers.base import LLMProvider, LLMResponse
 
@@ -61,8 +66,15 @@ class GoogleProvider(LLMProvider):
     ) -> LLMResponse:
         request = self._request(messages, model, temperature, max_tokens)
         response = await self.client.aio.models.generate_content(**request)
-        text = str(getattr(response, "text", "") or "")
-        if not text:
+        completion = self._completion_metadata(response)
+        try:
+            text = str(getattr(response, "text", "") or "")
+        except (AttributeError, ValueError):
+            text = ""
+        if not text and completion.disposition not in {
+            CompletionDisposition.SAFETY_BLOCKED,
+            CompletionDisposition.FAILED,
+        }:
             raise ValueError("Malformed provider response: missing output text")
         usage_object = getattr(response, "usage_metadata", None)
         usage = {
@@ -70,7 +82,47 @@ class GoogleProvider(LLMProvider):
             "completion_tokens": int(getattr(usage_object, "candidates_token_count", 0) or 0),
             "total_tokens": int(getattr(usage_object, "total_token_count", 0) or 0),
         }
-        return LLMResponse(text=text, raw={}, model=request["model"], usage=usage)
+        return LLMResponse(
+            text=text,
+            raw={"response_id": completion.response_id},
+            model=request["model"],
+            usage=usage,
+            completion=completion,
+        )
+
+    @staticmethod
+    def _completion_metadata(response: Any) -> ProviderCompletion:
+        candidates = getattr(response, "candidates", None) or []
+        finish_reason = native_reason(
+            getattr(candidates[0], "finish_reason", None) if candidates else None
+        )
+        prompt_feedback = getattr(response, "prompt_feedback", None)
+        block_reason = native_reason(
+            getattr(prompt_feedback, "block_reason", None)
+            if prompt_feedback is not None
+            else None
+        )
+        reason = block_reason or finish_reason
+        safety_reasons = {
+            "SAFETY",
+            "BLOCKLIST",
+            "PROHIBITED_CONTENT",
+            "SPII",
+            "RECITATION",
+        }
+        if reason == "STOP":
+            disposition = CompletionDisposition.COMPLETE
+        elif reason in {"MAX_TOKENS", "MAX_OUTPUT_TOKENS"}:
+            disposition = CompletionDisposition.LENGTH_LIMITED
+        elif reason in safety_reasons:
+            disposition = CompletionDisposition.SAFETY_BLOCKED
+        else:
+            disposition = CompletionDisposition.PROVIDER_INCOMPLETE
+        return ProviderCompletion(
+            disposition=disposition,
+            native_reason=reason,
+            response_id=getattr(response, "response_id", None),
+        )
 
     async def stream(
         self,
