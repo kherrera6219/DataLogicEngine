@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.4 |
+| Document version | v1.13.5 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -239,7 +239,9 @@ supported contract and exclusions.
 
 The source repository is an engineering candidate, but the release decision
 remains **NO-GO**. The merged source still has an unresolved Python dependency
-security finding. Before public distribution, the same signed rebuilt
+security finding and a separate Linux refinement-workflow test failure. A
+New Chat / Live Trace session-scoping UI defect is also open in `TODO.md`.
+Before public distribution, the same signed rebuilt
 artifact must pass the remaining clean-installed and retained-data acceptance
 matrix, provider and human review, packaged accessibility checks, upgrade and
 recovery tests, independent professional reviews, pilot operation, and 24/72-

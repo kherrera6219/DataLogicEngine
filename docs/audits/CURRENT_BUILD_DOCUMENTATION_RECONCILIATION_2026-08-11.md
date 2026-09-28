@@ -32,13 +32,13 @@ their dates, counts, findings, and decisions are historical evidence. Current
 documents must identify archives as reference-only and must not use them as live
 product authority.
 
-## Current build truth
+## Historical 2026-08-11 build truth
 
-| Subject | Current evidence |
+| Subject | Then-current evidence |
 |---|---|
 | Product | DataLogicEngine Desktop 4.4.3; Windows file version 4.4.3.0; pre-production channel |
 | Source used for latest build | Exact clean commit `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b` |
-| Current installer | `DataLogicEngine Setup 4.4.3.exe` |
+| Then-current installer | `DataLogicEngine Setup 4.4.3.exe` |
 | Size | 359,111,112 bytes |
 | SHA-256 | `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a` |
 | Integrity | Pass; zero errors/warnings; checksum, block map, NSIS governance, 6,100-file payload, and required packaging resources pass |

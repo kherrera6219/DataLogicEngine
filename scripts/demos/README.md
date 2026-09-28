@@ -1,5 +1,11 @@
 # Demo Scripts
 
+> **Historical developer demonstrations (reviewed 2026-09-27).** These scripts
+> are not the installed governed request path, release qualification, or a
+> supported way to configure provider credentials. Use the product UI and
+> client-gateway examples for current workflows; any demo result is local
+> engineering evidence only.
+
 This directory contains demonstration scripts for the DataLogicEngine Universal Knowledge Graph system.
 
 ## Directory Structure
@@ -43,17 +49,17 @@ All demos should be run from the project root directory:
 
 ```bash
 # Knowledge Algorithm demos
-python demos/ka/run_ka_demo.py
-python demos/ka/run_ka_master_demo.py
+python scripts/demos/ka/run_ka_demo.py
+python scripts/demos/ka/run_ka_master_demo.py
 
 # Layer demos
-python demos/layers/run_layer1_demo.py
+python scripts/demos/layers/run_layer1_demo.py
 
 # Simulation demos
-python demos/simulation/run_quad_demo.py
+python scripts/demos/simulation/run_quad_demo.py
 
 # Compliance demos
-python demos/compliance/run_regulatory_compliance_demo.py
+python scripts/demos/compliance/run_regulatory_compliance_demo.py
 ```
 
 ## Prerequisites
@@ -64,4 +70,5 @@ Ensure all dependencies are installed:
 pip install -r requirements.txt
 ```
 
-Set up environment variables in `.env` file at project root.
+Do not place production provider keys in a demo `.env`; configure owner
+credentials through the installed application's supported settings workflow.

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-005 |
 | Title | Software lifecycle and configuration-management plan |
-| Document version | v1.4.0 |
+| Document version | v1.4.1 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, engineering, quality, security, release, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, production plan, CI/release workflows, locks, documentation authority, and evidence policy |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Lifecycle, branch, review, toolchain, dependency, build, test, documentation, release, or maintenance-policy change |
 | Requirements and evidence | Product requirements, active plan/TODO, CI workflows, exact locks, manifests, tests, and release records |
 
@@ -25,14 +25,17 @@ product from approved requirements through design, implementation, verification,
 signed release, operation, incident response, update, and retirement. Schedule or
 demonstration pressure does not waive an exit gate.
 
-CP19-L passed. The exact 4.4.3 engineering artifact passes source, dependency,
-integrity, packaging, and portable-readiness gates; its core files match the
-currently running Program Files payload and loopback health/readiness pass.
-The lifecycle remains at CP19-M because signing, provider chat, exact-artifact
-install/upgrade/repair/uninstall, retained data/recovery, accessibility,
-external review, pilot, and soak acceptance are mandatory. The prior scheduled
-full-history secret-scan finding is closed by a clean full-history rerun; future
-candidate scans remain required.
+CP19-L passed, but the lifecycle remains at CP19-M. The available unsigned
+4.4.5 installer was built from clean source commit `8a419f6c` before the
+subsequent PR #91 dependency/CI source refresh and PR #92 documentation
+update merged into `main`. It has not passed portable or installed acceptance,
+and no new exact-source installer has been built. The Python security scan
+remains red on an unsuppressed transitive NLTK finding, and a separate
+post-merge Linux refinement-workflow test failed. Signing, provider chat,
+exact-artifact install/upgrade/repair/uninstall, retained data/recovery,
+accessibility, external review, pilot, and soak acceptance also remain open.
+The prior scheduled full-history secret-scan finding was closed by a clean
+full-history rerun; future candidate scans remain required.
 
 ## Authoritative configuration
 
@@ -84,8 +87,11 @@ acceptance.
 
 ## Branch, review, and commit controls
 
-`main` is the production integration authority and must remain protected by
-required status checks and review/owner rules appropriate to the repository.
+`main` is the source integration authority, not an automatic production
+release approval. As checked on 2026-09-27, the GitHub ruleset rejects
+non-fast-forward updates but does not itself require passing status checks;
+the release process must verify the full gates and owner approval separately.
+A normal source merge while checks are red does not waive their failures.
 Changes identify their requirement/defect and validation. Secrets, generated
 local runtime data, caches, unsigned release binaries, and unrelated developer
 artifacts are excluded.
@@ -121,7 +127,12 @@ scope, regression-tested, and closed only against the corrected commit/artifact.
 P0/P1 findings and unaccepted P2 findings block release. Dependabot alert 389
 was fixed by removing the vulnerable ChromaDB Python SDK from both dependency
 authorities and qualifying the restricted replacement client. The replacement
-evidence remains bound to the release record.
+evidence remains bound to the release record. At the 2026-09-27 merged source
+checkpoint, locked transitive `nltk==3.10.3` still triggers
+`PYSEC-2026-3740` / `CVE-2026-81726`; the
+[reviewed advisory](https://github.com/advisories/GHSA-8mgp-746c-j5xp)
+lists no published patched version;
+the finding remains unsuppressed and release-blocking.
 
 Vulnerabilities use private disclosure, coordinated remediation, affected-version
 analysis, secret/key rotation where needed, SBOM/advisory updates, and signed
@@ -176,10 +187,11 @@ eligible for production support.
 
 ## Current status
 
-Product 4.4.4 inherits engineering checkpoints through Phase 15, completed CP16-F
-documentation replacement, and completed CP17-A through CP17-D consolidation.
-CP17-E remains an exact signed clean-installed walkthrough. The unsigned
-candidate, differing independent build hashes, installed/manual/independent
-gates, legal/signing decisions, and installed/independent acceptance of the
-selected object store keep production/public release at **NO-GO**. Alert 389 is
-fixed.
+Product 4.4.5 is `release_blocked`. CP16-F documentation replacement and
+CP17-A through CP17-D consolidation are complete; CP17-E and CP19-M exact
+signed clean-installed acceptance remain open. The physical unsigned 4.4.5
+installer predates merged source and cannot represent it. The NLTK security
+finding, Linux refinement-test failure, exact-source rebuild, differing
+independent build hashes, installed/manual/independent gates, legal/signing
+decisions, and installed/independent acceptance of the selected object store
+keep production/public release at **NO-GO**. Alert 389 remains fixed.

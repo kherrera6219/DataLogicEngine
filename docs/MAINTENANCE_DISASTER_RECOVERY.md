@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-007 |
 | Title | Maintenance and disaster-recovery plan |
-| Document version | v1.2.0 |
+| Document version | v1.2.1 |
 | Product version | 4.4.5 |
 | Status | qualification_only |
 | Audience | Owner/operator, platform and data engineering, support, security, quality, and recovery reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented coordinated backup/restore, migration, service lifecycle, support, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Store, backup, restore, retention, migration, recovery, update, service, or support-policy change |
 | Requirements and evidence | Product/data requirements, recovery implementation/tests, runbooks, and Phase 3/4/13/15 evidence |
 
@@ -28,6 +28,13 @@ object-store final selection, and independent recovery review remain open. The
 2026-08-10 engineering install did verify one-time populated 0.1.1 adoption with
 an immutable recovery copy and retained relational/graph/object counts; that is
 not a clean-machine restore or full rollback qualification.
+
+The available unsigned 4.4.5 engineering installer predates the merged PR #91
+dependency/CI source refresh. No new exact-source build or installed recovery
+qualification has been completed from the merged source. The unresolved
+transitive NLTK security finding and separate post-merge Linux refinement-test
+failure remain source gates; neither an earlier recovery drill nor a source
+merge authorizes production/public release.
 
 ## Recovery objectives
 
@@ -61,8 +68,10 @@ protected recovery mechanism.
   external-telemetry-disabled state.
 - Reconcile ingestion object/graph/vector revisions, memory integrity, simulation
   artifacts, gateway/MCP large-result references, deletion remnants, and exports.
-- Review dependency/security findings, alert 389, Windows/service support,
-  certificates, signing/update authority, and available disk for logs/support.
+- Review dependency/security findings, including the unresolved locked NLTK
+  advisory `PYSEC-2026-3740`, Windows/service support, certificates,
+  signing/update authority, and available disk for logs/support. Historical
+  Dependabot alert 389 is fixed and does not close the current NLTK finding.
 - Apply only approved signed maintenance releases after impact analysis, backup,
   compatibility review, and rollback preparation.
 

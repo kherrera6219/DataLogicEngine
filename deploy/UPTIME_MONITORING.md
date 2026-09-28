@@ -1,57 +1,22 @@
-# Uptime Monitoring Setup
+# Local health monitoring (engineering only)
 
-This guide provides a lightweight setup checklist for uptime monitoring against the DataLogicEngine API.
+DataLogicEngine 4.4.5 is `release_blocked`. It is installed Windows software,
+not a public web service. The historical instructions for UptimeRobot, Pingdom,
+public DNS, and third-party alert delivery are **not approved** for this
+product. Do not expose a health endpoint to the internet or configure a
+third-party monitor to poll it.
 
----
+For engineering qualification on the owner-controlled machine, use the
+installation-bound loopback API and the desktop diagnostics surface:
 
-## ✅ Recommended Health Endpoint
+- `GET /ready` reports whether mandatory startup gates have passed.
+- `GET /health` reports safe aggregate health. A live process can be not ready.
+- Verify that the listener belongs to the launched package process tree before
+  treating either response as evidence for that installation.
 
-Use the REST API health endpoint:
-
-```
-GET /api/v1/health
-```
-
-**Expected Response**
-
-```json
-{
-  "success": true,
-  "data": {
-    "status": "healthy",
-    "service": "UKG REST API",
-    "version": "1.0.0"
-  }
-}
-```
-
----
-
-## ✅ Example Monitors
-
-### UptimeRobot
-- **Monitor Type**: HTTP(s)
-- **URL**: `https://<your-domain>/api/v1/health`
-- **Keyword** (optional): `"status": "healthy"`
-- **Check Interval**: 1–5 minutes
-
-### Pingdom
-- **Check Type**: HTTP
-- **URL**: `https://<your-domain>/api/v1/health`
-- **Response Time Threshold**: 2s
-
----
-
-## ✅ Alerting Recommendations
-
-- Route alerts to Slack, PagerDuty, or OpsGenie.
-- Configure at least **one on-call escalation** target.
-- Add a "maintenance window" during deploys.
-
----
-
-## ✅ Verification Checklist
-
-- [ ] Health endpoint responds with HTTP 200.
-- [ ] Monitor transitions to **UP** state.
-- [ ] Alert is delivered to primary on-call destination.
+The installed candidate must still pass the exact-artifact health, readiness,
+recovery, and sustained-operation gates in
+[`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`](../docs/ADMINISTRATOR_OPERATIONS_GUIDE.md),
+[`docs/VERIFICATION_VALIDATION_REPORT.md`](../docs/VERIFICATION_VALIDATION_REPORT.md),
+and [`docs/RELEASE_READINESS_RECORD.md`](../docs/RELEASE_READINESS_RECORD.md).
+Do not turn a local development probe into a production or release claim.

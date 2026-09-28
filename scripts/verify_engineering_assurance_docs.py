@@ -194,7 +194,7 @@ TARGETS = {
             "Dependency authorities",
             "SBOM and inventory set",
             "81 direct pins",
-            "315 hash-locked packages",
+            "290 hash-locked packages",
             "alert 389",
             "Notice and redistribution approval gate",
         },

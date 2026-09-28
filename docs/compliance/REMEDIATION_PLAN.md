@@ -2,18 +2,24 @@
 
 **Version:** 1.1 *(rev. — US-only market decision applied, 2026-08-18)*
 **Date:** August 17, 2026
-**Target:** `C:\software\DataLogicEngine` @ main, v4.4.4 (`release_blocked`)
+**Original target:** `C:\software\DataLogicEngine` @ main, v4.4.4 (`release_blocked`)
 **Executor:** Codex (autonomous coding agent), reviewed by Kevin Herrera
 **Source findings:** `DataLogicEngine_External_Review_2026-08-16.md`, `UKG_Standards_Compliance_Blueprint_2026-08-17.md`
 **Conventions:** extends `DataLogicEngine_Audit_Sprint_Plan_v2.md` (task IDs, exit gates, one-task-one-commit)
 **Verification update:** the source review was refreshed at `fd24536d`, but the
 2026-08-27 4.4.3 qualification subsequently completed 3,317 Windows tests with
-19 skipped and zero failures or setup errors. CR-A0 must capture a new commit-bound baseline
-before CR-A1 is treated as open work. Other findings retain their task-level
-verify-first requirements; CR-E1 and CR-E4 were found already satisfied.
+19 skipped and zero failures or setup errors. A later 4.4.5 Windows source
+run passed 3,364 tests with 18 skipped and zero setup errors, but the
+post-merge Linux Deploy run independently failed one refinement-workflow test
+and the Python security scan remains red on `nltk==3.10.3`.
+CR-A0 must capture a new commit-bound baseline before CR-A1 is treated as
+open work. Other findings retain their task-level verify-first requirements;
+CR-E1 and CR-E4 were found already satisfied.
 
 **Assumption stated in the open:** this program remains a separate gate to
-unblocking v4.4.4. Phase 19 established substantial pipeline wiring evidence,
+unblocking the current 4.4.5 release. The original v4.4.4 target above is
+historical plan provenance, not a statement that the product is still at
+v4.4.4. Phase 19 established substantial pipeline wiring evidence,
 but CP19-M installed/provider/signing acceptance remains independently open.
 The CR task IDs are namespaced to avoid collision with the release program.
 
@@ -29,7 +35,7 @@ A plan written for a human can say "clean up the simulation tree" and rely on ju
 
 **Every task declares its blast radius.** `ALLOWED PATHS` lists what may be modified. Anything outside is out of bounds; the agent must stop and report rather than widen scope. This is the single most important control in an agent plan — scope creep is the dominant failure mode.
 
-**Discovery precedes modification.** The findings below were observed on August 16, 2026 against commit `d24273ff`. The tree has 91 uncommitted changes and will have moved. Every task therefore begins with a verification step that confirms the finding still exists before acting on it. **If a task's premise no longer holds, the agent records that and closes the task — it does not invent adjacent work.**
+**Discovery precedes modification.** The findings below were observed on August 16, 2026 against commit `d24273ff`. The original review tree had 91 uncommitted changes; the current tree has moved. Every task therefore begins with a verification step that confirms the finding still exists before acting on it. **If a task's premise no longer holds, the agent records that and closes the task — it does not invent adjacent work.**
 
 ### 0.1 The anti-patterns this codebase already has, which the agent must not reproduce
 
@@ -233,7 +239,7 @@ python -m pytest tests/security/test_phase1_anonymous_mutations.py \
 
 ## PHASE B — Prove the egress claim
 
-**Why this phase exists.** DataLogicEngine's compliance position rests on one assertion: the only outbound connection is to the configured model endpoint. That assertion currently lives in a README. Converting it into an enforced, tested, logged property is the highest-value engineering work available — it is simultaneously the answer to HIPAA risk analysis, NIST 800-53 SC-7 and AC-4 for a customer's ATO, EU AI Act Art. 12 logging, and GDPR Art. 30 records. One artifact, five frameworks.
+**Why this phase exists.** DataLogicEngine's compliance position rests on an enforceable boundary around owner-configured model endpoints and explicitly enabled connectors. Converting that boundary from an unproved claim into an enforced, tested, logged property is among the highest-value engineering work available: it supports US buyer security and privacy reviews, including HIPAA risk analysis where applicable and NIST 800-53 SC-7 and AC-4 for a customer's ATO. EU AI Act and GDPR obligations are out of scope under the recorded US-only market decision. Include packaged-renderer URL loads, such as the existing CSP `img-src https:` allowance, in discovery; this document does not approve that destination.
 
 **Depends on:** Phase A complete
 **Branch:** `remediation/phase-b`

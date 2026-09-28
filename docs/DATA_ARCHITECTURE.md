@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-002 |
 | Title | Data architecture and schema specification |
-| Document version | v1.2.2 |
+| Document version | v1.2.3 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Data, platform, security, privacy, quality, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented store adapters/schemas, migration and lifecycle contracts, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-21 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Store, schema, migration, classification, retention, encryption, backup/restore, or object-store decision change |
 | Requirements and evidence | Product requirements, schema/migration tests, lifecycle reports, ADR-0006/0010, and Phase 3/4/9/11 evidence |
 
@@ -193,3 +193,11 @@ qualification, and independent durability/security/license review remain
 release blockers. KA ownership, selector, effect-port, and causal trace source
 integration passed through CP19-L; the exact signed rebuilt-installed data/effect
 matrix remains blocked through CP19-M.
+
+The available unsigned 4.4.5 installer was built from source commit
+`8a419f6c8908c541ac13389dd75e9b7bb83bb87f` before the later PR #91
+dependency/CI refresh. Its packaged checks and older installed observations
+cannot qualify the newer merged source. The NLTK dependency-security finding,
+the separate post-merge Linux refinement-test failure, and the exact-source
+installed data/recovery gates remain open; production/public release is
+**NO-GO**.

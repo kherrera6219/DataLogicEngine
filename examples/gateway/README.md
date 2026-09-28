@@ -13,5 +13,8 @@ an OpenAI or Google provider credential into a client application.
 | `python_background_service.py` | Durable background run, polling, result read, and cancellation pattern. |
 | `python_openai_compat.py` | Bounded OpenAI client shape using a DataLogicEngine virtual model. |
 
-The default endpoint is loopback. Private-network use is not qualified; follow
-`docs/PRIVATE_GATEWAY_RUNBOOK.md` only after a signed release candidate exists.
+The default endpoint is loopback. Private-network use is disabled and not
+qualified; there is no current private-gateway runbook that authorizes turning
+it on. The required signed two-machine TLS/firewall acceptance is listed in
+[`docs/INTERFACE_INTEGRATION.md`](../../docs/INTERFACE_INTEGRATION.md) and
+[`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`](../../docs/ADMINISTRATOR_OPERATIONS_GUIDE.md).

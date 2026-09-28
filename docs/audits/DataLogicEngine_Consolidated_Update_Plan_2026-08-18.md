@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.12.1 |
+| Document version | v1.12.2 |
 | Product version | 4.4.5 |
 | Date | 2026-08-27 |
 | Last reviewed | 2026-09-27 |
@@ -98,13 +98,15 @@ Production/public release remains **NO-GO**.
 
 ### 2026-09-27 PR #91 source-refresh checkpoint
 
-The PR #91 dependency/CI refresh has a local Windows source run of 3,364
+The PR #91 dependency/CI refresh merged into `main` at `39ba7e54` and has a local Windows source run of 3,364
 backend tests passed, 18 skipped, and zero setup errors; 504 frontend tests
 also pass. Its GitHub Python Dependency Security Scan and `backend-test` gates
 remain red on the unsuppressed transitive `nltk==3.10.3` finding
-`PYSEC-2026-3740`. The existing 4.4.5 installer from `8a419f6c...` predates
+`PYSEC-2026-3740` / `CVE-2026-81726`. The post-merge Deploy Linux suite
+separately failed one refinement-workflow test (3,355 passed, 26 skipped).
+The existing 4.4.5 installer from `8a419f6c...` predates
 this source refresh; no installed acceptance of the refreshed source has been
-performed. Repository integration does not waive the failed security gates or
+performed. Repository integration does not waive the failed security/test gates or
 change the production/public release **NO-GO** decision.
 
 ## 3. Locked product and terminology boundaries

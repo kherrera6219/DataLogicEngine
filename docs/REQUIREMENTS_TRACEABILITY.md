@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-001 |
 | Title | Requirements traceability matrix |
-| Document version | v1.4.0 |
+| Document version | v1.4.1 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, quality, assurance, release authority, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Product requirements, implemented architecture/contracts, tests, phase evidence, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Requirement, implementation, test, evidence, finding, risk acceptance, or release-decision change |
 | Requirements and evidence | `docs/PRODUCT_REQUIREMENTS.md`, source/tests, canonical documents, and `reports/production-readiness/2026/` |
 
@@ -27,12 +27,17 @@ implemented/verified evidence exists but one or more named acceptance gates are
 retained. `Open` means required evidence or authority is absent. Only the release
 record can promote the exact artifact to `Pass` for production.
 
-The current evidence baseline includes CP19-K at 213/213, CP19-L passed, and an
-August 10 unsigned installed engineering smoke with retained data. The newer
-August 11 local build has integrity evidence but no installed acceptance. A
-scheduled full-history secret scan is open. Requirements that name the exact
-signed artifact, security closure, manual/external review, providers, lifecycle,
-pilot, or soak remain `Partial` or `Open`.
+Historical evidence includes CP19-K at 213/213, CP19-L clean-source
+qualification, and an August 10 unsigned installed engineering smoke with
+retained data. The local 4.4.5 unsigned installer is bound to source commit
+`8a419f6c` and has integrity evidence, but no installed acceptance; it predates
+the dependency refresh merged through PR #91. The full-history secret-scan
+finding was closed by a clean rerun, but final candidate scans remain required.
+The current Python dependency scan is red on transitive `nltk==3.10.3`
+(`PYSEC-2026-3740` / `CVE-2026-81726`), and the post-merge Linux Deploy run
+has one CP19-G refinement-workflow test failure. Requirements that name the
+exact signed artifact, security and source-test closure, manual/external
+review, providers, lifecycle, pilot, or soak remain `Partial` or `Open`.
 
 ## Functional requirements
 
@@ -48,7 +53,7 @@ pilot, or soak remain `Partial` or `Open`.
 | DLE-FR-008 | Authoritative simulation lifecycle/budget/checkpoint/artifact/result | Simulation contract/failure tests; Phase 10 evidence | Partial: installed provider/restart/UI/artifact acceptance retained |
 | DLE-FR-009 | MCP registry/fingerprint/scope/consent, process loop, Job Object, result governance | MCP policy/lifecycle/hostile fixture tests; Phase 11 evidence | Partial: installed OS containment/Electron lifecycle retained |
 | DLE-FR-010 | Client-key verifier, scopes/limits/jobs/idempotency/trace ownership/SDKs | Gateway auth/isolation/SDK/compatibility tests; Phase 8 evidence | Partial: signed installed same-host/private acceptance retained |
-| DLE-FR-011 | Retained Phase 18 canonical manifest/crosswalk/controller plus Phase 19 owner matrix, selector/DAG, ten-layer/persona/refinement stages, authoritative service ports, API/SDK/desktop workflow, and causal execution records | One named functional test, positive/negative selector fixture, real owner-path assertion, limitation, trace proof, and applicable effect/security/performance evidence per KA; cross-subsystem and rebuilt-installed acceptance | Partial: CP19-A through CP19-J passed owner authority, typed parity, 213 positive/negative fixtures, bounded acyclic execution, typed L1-L10, fail-closed L9/L10, causal axes 8-11 personas, one 12-step workflow, owning-subsystem integration, and the principal-owned product workflow. CP19-K qualified all 213 KAs; the current manifest enables 211 with 112 acyclic edges. CP19-L passed clean-source qualification. CP19-M exact rebuilt-installed qualification remains open |
+| DLE-FR-011 | Retained Phase 18 canonical manifest/crosswalk/controller plus Phase 19 owner matrix, selector/DAG, ten-layer/persona/refinement stages, authoritative service ports, API/SDK/desktop workflow, and causal execution records | One named functional test, positive/negative selector fixture, real owner-path assertion, limitation, trace proof, and applicable effect/security/performance evidence per KA; cross-subsystem and rebuilt-installed acceptance | Partial: CP19-A through CP19-J passed owner authority, typed parity, 213 positive/negative fixtures, bounded acyclic execution, typed L1-L10, fail-closed L9/L10, causal axes 8-11 personas, one 12-step workflow, owning-subsystem integration, and the principal-owned product workflow. CP19-K qualified all 213 KAs; the current manifest enables 211 with 112 acyclic edges. CP19-L passed at its source checkpoint. A post-merge Linux CP19-G refinement test now fails and requires triage/retest; CP19-M exact rebuilt-installed qualification remains open |
 
 ## Data and lifecycle requirements
 
@@ -77,11 +82,11 @@ pilot, or soak remain `Partial` or `Open`.
 | ID | Primary implementation/control | Verification/evidence | Status and retained gate |
 |---|---|---|---|
 | DLE-QR-001 | Accessible component/route patterns, axe and keyboard gates | 28-route automated evidence; Phase 12 | Partial: packaged scaling/contrast/visual and manual NVDA retained |
-| DLE-QR-002 | Product-version authority, exact Python/Node/Electron/workflow locks, SBOM/provenance | Release trust/verifier gates; Phase 14/15 | Partial: final signed artifact evidence retained |
+| DLE-QR-002 | Product-version authority, exact Python/Node/Electron/workflow locks, SBOM/provenance | Release trust/verifier gates; Phase 14/15 | Partial: current Python dependency audit fails on transitive NLTK; final signed exact-source artifact evidence retained |
 | DLE-QR-003 | Isolated candidate build and normalized comparison workflow | Two GitHub candidate builds; Phase 15 | Open: hashes differ and nondeterminism is unresolved |
 | DLE-QR-004 | Publisher/signature, malware/license/legal/redistribution controls | Signature/trust/SBOM/legal registers; Phase 14 | Open: approved publisher, signatures, final scans/legal authority retained |
 | DLE-QR-005 | Lifecycle/Windows/service/provider/failure/load/soak acceptance plans | Phase 15 CP15-A through CP15-H protocols | Open: signed installed matrices, pilot, 24/72-hour soaks retained |
-| DLE-QR-006 | Finding severity policy and go/no-go record | TODO, security alerts, release checklist/evidence | Open: alert 389 and other named authorities/gates keep NO-GO |
+| DLE-QR-006 | Finding severity policy and go/no-go record | TODO, security alerts, release checklist/evidence | Open: alert 389 is fixed, but the NLTK security finding, Linux refinement test, and other named authorities/gates keep NO-GO |
 
 ## Architecture and document coverage
 
@@ -92,7 +97,7 @@ pilot, or soak remain `Partial` or `Open`.
 | Architecture/data/interfaces/security | `docs/ARCHITECTURE.md`, `docs/DATA_ARCHITECTURE.md`, `docs/INTERFACE_INTEGRATION.md`, `docs/SECURITY_ARCHITECTURE.md` |
 | Privacy and AI limitations | `docs/PRIVACY_AI_NOTICE.md`, `docs/evaluation/AI_SYSTEM_CARD.md` |
 | Lifecycle/recovery/V&V | `docs/SOFTWARE_LIFECYCLE_PLAN.md`, `docs/MAINTENANCE_DISASTER_RECOVERY.md`, `docs/VERIFICATION_VALIDATION_REPORT.md` |
-| Release and external review | Planned canonical release-readiness, third-party, accessibility, professional, Microsoft, and independent-review records |
+| Release and external review | `docs/RELEASE_READINESS_RECORD.md`, `docs/THIRD_PARTY_SOFTWARE_INDEX.md`, `docs/ACCESSIBILITY_CONFORMANCE_REPORT.md`, `docs/PROFESSIONAL_REVIEW_INDEX.md`, `docs/MICROSOFT_SUBMISSION_DOSSIER.md`, and `docs/INDEPENDENT_REVIEW_RECORD.md` (records exist; final gates remain open) |
 
 ## Findings and change control
 
@@ -106,5 +111,7 @@ tests, canonical documents, migration/compatibility, and release evidence.
 
 All 29 product requirement IDs have an implementation/control or planned
 Phase 19 control and a named verification path. None may be interpreted as final
-production pass while their retained gates are open. The exact 4.4.0 release
-remains **NO-GO**.
+production pass while their retained gates are open. The post-merge NLTK
+security finding and Linux refinement-test failure are additional open source
+gates; the older 4.4.5 installer does not contain the merged refresh. Product
+4.4.5 remains **NO-GO**.

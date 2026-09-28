@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.4 |
+| Document version | v1.20.5 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-09-27 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.1 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.2 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19 installed-chat repair; PR #91 merged into `main` at `39ba7e54`, but Python dependency security/backend checks remain red on NLTK and post-merge Deploy has one Linux refinement test failure. Security/test disposition, a new exact-source rebuild, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
@@ -26,6 +26,20 @@
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
+
+## Governed-chat UI finding from the 2026-09-27 owner observation
+
+- [ ] Clicking **New Chat** clears the conversation but does not clear the
+      far-right Live Trace panel. `ChatInterface` resets session/messages;
+      `LiveTracePanel` independently selects the newest global run when there
+      is no active request. Make the panel show only the selected session's
+      current/retained run (or an empty state for a fresh draft), and add a
+      regression test covering New Chat and returning to a saved session.
+      Do not treat a visual reset as proof that persisted traces were deleted.
+- [ ] The Truth Engine page currently renders **0.0% Truth Score** when no
+      run has numeric confidence. Treat an unmeasured value as unavailable,
+      not a zero measurement; verify source behavior and add a UI regression
+      test in a separate code task.
 
 ## Merged PR #91 source and open release gates
 
@@ -808,15 +822,17 @@ DORA are out of scope. FedRAMP and SOC 2 do not apply to installed software and
 are removed from the compliance roadmap.
 
 **Phase A blocks Phases B-G until formally dispositioned.** The external review
-reported 40 Windows setup errors, but the 2026-08-20 4.4.1 repair run completed
-3,295 tests with 18 skipped and zero errors. CR-A0 must capture a fresh
-commit-bound baseline before CR-A1 is treated as open work.
+reported 40 Windows setup errors, but a later 4.4.5 Windows source run passed
+3,364 tests with 18 skipped and zero setup errors. The post-merge Linux Deploy
+run separately failed one refinement-workflow test. CR-A0 must capture a fresh
+commit-bound remediation baseline before CR-A1 is treated as open work.
 
 - [ ] **CR-A0 — verified baseline:** capture commit SHA, working-tree state,
       full pytest summary with ERROR separated from FAILED, ruff/mypy counts to
-      `reports/remediation/BASELINE.md`. **Blocked:** the tree carries ~1,090
-      uncommitted changes, nearly all CRLF/LF churn. Add `.gitattributes` and
-      take one renormalization commit first.
+      `reports/remediation/BASELINE.md`. The former ~1,090-change line-ending
+      worktree blocker is historical: `main` was clean at the start of the
+      2026-09-27 documentation audit. Start CR-A0 only from a clean,
+      committed remediation checkout; do not reuse the old blocker claim.
 - [ ] **CR-A1 — conftest database lock premise verification:**
       `tests/_helpers.py:28` still sets
       `TEST_DB_PATH = _ROOT_DIR / "test_suite.sqlite3"`, a shared repo-root
@@ -845,6 +861,8 @@ commit-bound baseline before CR-A1 is treated as open work.
       Nothing implemented; `core/security/` contains only `__init__.py` and
       `integrity.py`. Highest product value in the program — it converts the
       product's central claim from prose into a dated, renewable artifact.
+      Include packaged-renderer image loading: current CSP permits
+      `img-src https:` even while `connect-src` is loopback-limited.
 - [ ] **CR-C1 - CR-C4 — local API hardening:** loopback-default binding,
       authentication on every request including localhost, **audit chain
       verified on read** (not only written), least-privilege runtime check.

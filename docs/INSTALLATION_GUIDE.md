@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
-| Document version | v1.4.1 |
+| Document version | v1.4.2 |
 | Product version | 4.4.5 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
@@ -35,6 +35,8 @@ installer. Its Python dependency security and backend checks are red on
 transitive `nltk==3.10.3` (`PYSEC-2026-3740`), and no exact-source replacement
 installer has been built or installed. A repository merge does not convert the
 older unsigned artifact into release or installed acceptance evidence.
+The separate post-merge Linux Deploy run also failed a refinement-workflow
+test; this source gate is open independently of the NLTK finding.
 
 The older 4.4.3 payload had a narrow Program Files loopback health/readiness
 observation. That evidence does not transfer to the 4.4.5 installer or prove

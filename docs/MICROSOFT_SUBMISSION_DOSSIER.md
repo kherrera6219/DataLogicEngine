@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-EXT-002 |
 | Title | Microsoft distribution and submission dossier |
-| Document version | v1.1.1 |
+| Document version | v1.1.2 |
 | Product version | 4.4.5 |
 | Status | not_evaluated |
 | Audience | Distribution owner, product/release authority, legal/privacy/security, accessibility, operations, and Microsoft submission reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Current official Microsoft Store/Partner Center guidance, exact signed artifact, canonical product records, and submission results |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Microsoft policy/guidance, route/package, Partner Center field, artifact/signature, privacy/legal, certification, or submission-result change |
 | Requirements and evidence | Official Microsoft policy snapshot, Partner Center submission, signed installer, WACK/applicable tests, metadata/assets, and certification correspondence |
 
@@ -26,11 +26,12 @@ Windows App Certification Kit (WACK) result, or Microsoft correspondence is
 recorded. This dossier is `not_evaluated` and production/public distribution is
 **NO-GO**.
 
-An unsigned per-machine NSIS candidate now installs and launches successfully,
-but it is engineering evidence only. Microsoft submission, publisher signing,
-WACK/applicable tests, legal metadata, and certification remain `not_evaluated`.
-The August 11 local build is also unsigned and has not passed installed-mode or
-Microsoft submission acceptance.
+An earlier unsigned per-machine NSIS candidate installed and launched, but it
+is engineering evidence only. The available unsigned 4.4.5 installer was built
+from source `8a419f6c`, before the PR #91 dependency refresh; no exact-current-
+source signed/installed candidate has completed qualification. Microsoft
+submission, publisher signing, WACK/applicable tests, legal metadata, and
+certification remain `not_evaluated`.
 
 ## Selected qualification route
 
@@ -47,7 +48,8 @@ hash/version/support aligned.
 
 ## Official policy snapshot
 
-Reviewed official sources on 2026-07-14:
+The policy references below are a 2026-07-14 snapshot, not a claim of current
+Microsoft policy. They must be rechecked before any submission:
 
 - [Microsoft Store Policies](https://learn.microsoft.com/en-us/windows/apps/publish/store-policies), document version 7.19, published 2025-09-10 and effective 2025-10-14 on the reviewed page.
 - [Create an app submission for an MSI/EXE app](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msi/create-app-submission), including Partner Center availability/listing/package/property/age-rating/submission fields.
@@ -87,7 +89,7 @@ remain open.
 | Privacy policy for Win32/personal information | Canonical privacy notice and PIA exist | Public stable privacy URL, deployment legal review, accurate access/use/store/security/disclosure/control statements |
 | Consent for external personal-information sharing | Provider/connector preflight/control foundations exist | Installed opt-in/withdrawal behavior and legal applicability review |
 | Content/metadata rights | Third-party index and legal actions exist | Final icons/screenshots/text/data/model/provider/trademark/license permissions |
-| Security/safety | Threat/release controls exist; alert 389 is fixed | Signed artifact, final scans, no-egress/penetration, and independent review |
+| Security/safety | Threat/release controls exist; alert 389 is fixed, but the transitive NLTK advisory and Linux refinement-test failure remain open | Resolve current source/security gates; signed artifact, final scans, no-egress/penetration, and independent review |
 | Support | Troubleshooting/operations docs exist | Public support contact/process, response/maintenance policy, data recovery/uninstall guidance |
 | Accessibility | Automated evidence exists | Manual packaged NVDA/scaling/contrast and truthful accessibility disclosure |
 | Updates | Auto-update disabled/fail-closed | Store/direct-channel update ownership, signed metadata, replay/downgrade/rollback evidence |
@@ -131,6 +133,9 @@ basis. No WACK run has been performed for a signed 4.4.5 release candidate.
 ## Submission blockers
 
 - No final signed/timestamped installer or trusted publisher.
+- The available 4.4.5 installer predates the merged PR #91 source; the current
+  Python dependency security scan is red on transitive NLTK and a post-merge
+  Linux refinement-workflow test failed. Neither was waived by repository merge.
 - Reproducibility hashes differ; exact final artifact is not frozen.
 - Signed install/repair/upgrade/rollback/uninstall and silent/offline behavior are
   not accepted.

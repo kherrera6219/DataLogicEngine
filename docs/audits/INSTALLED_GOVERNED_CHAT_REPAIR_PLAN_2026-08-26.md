@@ -5,11 +5,11 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-CHAT-QC-2026-08-26 |
-| Document version | v1.1.1 |
+| Document version | v1.1.2 |
 | Product version | 4.4.5 |
 | Date | 2026-08-26 |
 | Last reviewed | 2026-09-27 |
-| Status | Source implementation through CHAT-QC-05 complete; pre-refresh 4.4.5 engineering installer exists; installed CHAT-QC-06 acceptance and PR #91 security gates open; not release authority |
+| Status | Source implementation through CHAT-QC-05 complete; pre-refresh 4.4.5 engineering installer exists; installed CHAT-QC-06, PR #91 security, Linux refinement, and newly observed trace-panel session-scoping gates open; not release authority |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Evidence run | `0779492c-c054-4630-b321-b2e13be7b4ef` |
@@ -50,14 +50,25 @@ accessibility, and lifecycle evidence.
 
 ### Subsequent PR #91 source-refresh checkpoint — 2026-09-27
 
-The dependency/CI refresh has a local Windows source run of 3,364 backend
+The dependency/CI refresh merged into `main` at `39ba7e54` and has a local Windows source run of 3,364 backend
 tests passed, 18 skipped, and zero setup errors, plus 504 passing frontend
 tests. GitHub's Python Dependency Security Scan and `backend-test` remain red
-on the unsuppressed transitive `nltk==3.10.3` finding `PYSEC-2026-3740`.
+on the unsuppressed transitive `nltk==3.10.3` finding `PYSEC-2026-3740` /
+`CVE-2026-81726`. The separate post-merge Deploy Linux suite failed one
+refinement-workflow test (3,355 passed, 26 skipped).
 The installer above predates this source refresh, so it cannot establish
 CHAT-QC-06 installed acceptance for the refreshed code. Repository integration
 does not waive the security finding; production/public release remains
 **NO-GO**.
+
+### New owner-observed UI finding — 2026-09-27
+
+Clicking **New Chat** clears the conversation while the far-right Live Trace
+panel keeps showing a prior run. Source inspection confirms that
+`ChatInterface` clears the selected session, but `LiveTracePanel` falls back
+to the newest globally listed run when no request is active. The defect is
+open in root `TODO.md` with a selected-session/empty-draft regression test;
+it is not part of the completed CHAT-QC-01 through CHAT-QC-05 claim.
 
 ## 2. Fixed boundaries
 

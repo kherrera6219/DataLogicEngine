@@ -1,5 +1,14 @@
 # Phase 1 Production Deployment Checklist
 
+> **Superseded historical checklist (reviewed 2026-09-27).** Its public
+> domain, hosted Linux, external monitoring, and production-deployment steps
+> are not current DataLogicEngine instructions. The product is owner-operated
+> Windows installed software, remains `release_blocked` / **NO-GO**, and has
+> no approved telemetry or phone-home. This file is preserved for historical
+> context only. Follow the current [installation guide](../docs/INSTALLATION_GUIDE.md),
+> [production completion plan](../PRODUCTION_COMPLETION_PLAN_2026.md), and
+> [release readiness record](../docs/RELEASE_READINESS_RECORD.md).
+
 > Critical tasks that MUST be completed before production deployment
 
 **Status:** 🔴 IN PROGRESS

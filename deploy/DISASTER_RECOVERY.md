@@ -4,10 +4,17 @@
 
 | Field | Value |
 |---|---|
-| Document version | v2.0.0 |
-| Last updated | 2026-07-13 |
+| Document version | v2.0.1 |
+| Last updated | 2026-09-27 |
 | Status | Active engineering runbook; signed clean-machine drill pending |
 | Owner | Platform Operations |
+
+The instructions below describe engineering recovery design and do not mean
+the current 4.4.5 unsigned installer has passed a clean-machine restoration.
+It was packaged from source `8a419f6c` before the PR #91 dependency refresh;
+no installed 4.4.5 recovery or signed-release drill has been completed. Keep
+the current release verdict **NO-GO** until the exact artifact's retained-data,
+restoration, and independent gates pass.
 
 ## Recovery boundary
 

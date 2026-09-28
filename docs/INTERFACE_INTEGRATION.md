@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
-| Document version | v1.6.1 |
+| Document version | v1.6.2 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
@@ -37,9 +37,11 @@ changes. An earlier 4.4.3 Program Files backend was healthy on
 `127.0.0.1:5000` and its core packaged-file hashes matched that build; those
 observations do not establish 4.4.5 signed same-host/private gateway,
 provider-chat, authenticated-client, load, lifecycle, or two-machine
-acceptance. PR #91's Python dependency scan and backend-test gate remain red
-on the unsuppressed transitive NLTK advisory; production/public release remains
-**NO-GO** even if the source is integrated.
+acceptance. PR #91's Python dependency scan and backend-test gate failed on
+the unsuppressed transitive NLTK advisory; the later `main` Security Scan also
+failed. A separate post-merge Linux refinement-workflow test failed. The source
+is integrated, but those gates and installed acceptance remain open;
+production/public release is **NO-GO**.
 
 ## Version and route policy
 
@@ -148,8 +150,8 @@ reported completed merely because a late result arrived.
 
 The `/api/v1/ka` surface is an authenticated canonical catalog plus one durable
 plan/execute lifecycle. Phase 18 closed incomplete after CP18-D failed; Phase
-19 owns the corrected execution model and keeps the signed rebuild blocked
-through CP19-L.
+19 owns the corrected execution model. CP19-L's source gate passed; CP19-M's
+exact signed installed acceptance remains open.
 CP19-A supplies the verified one-primary-owner and governed-consumer authority
 for all 213 KAs through the canonical generated manifest. CP19-B passed after
 migrating every existing production caller to the typed canonical result

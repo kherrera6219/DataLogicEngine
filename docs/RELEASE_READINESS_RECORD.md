@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.2 |
+| Document version | v1.8.3 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -62,6 +62,11 @@ The separate post-merge Deploy run `36378632388` executed the Linux Python
 suite and failed one refinement-workflow test (3,355 passed, 26 skipped). This
 negative result is open for triage and is not erased by the earlier local
 Windows pass.
+
+The owner also observed that **New Chat** does not clear the far-right Live
+Trace panel. Source review confirms a global-recent-run fallback when no
+request is active. A session-scoped fix and regression test remain open in
+`TODO.md`; this UI finding is not an installed CHAT-QC-06 pass.
 
 The source Trace Explorer now expands the persisted canonical 12-step
 refinement receipt with named step governance detail, and focused source tests,

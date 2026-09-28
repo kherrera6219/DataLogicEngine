@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-004 |
 | Title | KA and TruthCore validation dossier |
-| Document version | v1.5.1 |
+| Document version | v1.5.2 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | AI assurance, quality, product owner, architecture, independent reviewers, and evaluators |
@@ -26,18 +26,21 @@ contract does not prove that an answer is factually correct. Production approval
 requires traceable evidence, measured quality inputs, provider/model evaluation,
 human review, and release authority for the exact installed artifact.
 
-CP19-K now qualifies 213/213 KAs through named semantic, selector, owner-path,
-trace, limitation, and applicable effect/security/performance evidence. CP19-L
-passed and representative KAs executed from the installed frozen backend. Live
+At its recorded checkpoint, CP19-K qualified 213/213 KAs through named
+semantic, selector, owner-path, trace, limitation, and applicable
+effect/security/performance evidence. CP19-L passed at its then-current clean
+source, and representative KAs executed from an installed frozen backend. Live
 provider corpus and blinded-human acceptance remain open and release-blocking.
 The earlier 4.4.3 Program Files payload had narrow readiness/core-file
 identity evidence, but that does not prove installed per-KA/provider acceptance
 for the available local unsigned 4.4.5 engineering installer. That physical
 installer predates the PR #91 dependency/source refresh; it cannot validate
 the later source changes. PR #91's Python dependency scan and backend-test
-gate remain red on the unsuppressed transitive NLTK advisory. Repository
-integration is not a waiver or installed acceptance, and production/public
-release remains **NO-GO**. Those rows remain open.
+gate remain red on the unsuppressed transitive NLTK advisory. The post-merge
+Linux Deploy run separately failed the CP19-G refinement-workflow test that
+accounts for all steps and L6-L10 revalidation; it requires triage and retest
+without weakening the test. Repository integration is not a waiver or
+installed acceptance, and production/public release remains **NO-GO**.
 
 ## Registry and classification
 
@@ -233,8 +236,9 @@ L10-gated success persistence. CP19-E through CP19-K subsequently established
 full correct-ID fail-closed L9/L10, the canonical 12-step path, causal KA-backed
 Quad Persona/DSQP, Truth/data/knowledge and extended-subsystem integration,
 API/SDK/desktop workflows, one semantic production test and real call-path/
-effect/trace proof per KA. CP19-L passed clean-source qualification. CP19-M
-exact rebuilt-installed acceptance remains open.
+effect/trace proof per KA. CP19-L passed clean-source qualification at its
+recorded checkpoint, but the later Linux CP19-G regression is an open
+current-source gate. CP19-M exact rebuilt-installed acceptance remains open.
 
 Installed OpenAI and Google rows, the blinded-human sample, independent
 reviewer, exact release-registry binding, packaged interpretation, and owner

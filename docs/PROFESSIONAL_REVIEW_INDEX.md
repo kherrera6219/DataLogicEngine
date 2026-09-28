@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-EXT-001 |
 | Title | Professional review index |
-| Document version | v1.1.1 |
+| Document version | v1.1.2 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Independent reviewers, procurement/evaluation teams, product owner, engineering, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Canonical documentation BOM, requirements/V&V/release records, immutable evidence, and reviewer dispositions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Canonical document/evidence, reviewer scope/assignment, finding/disposition, candidate artifact, or release decision change |
 | Requirements and evidence | Canonical 30-document set, generated BOM/crosswalk, phase evidence, independent review record, and final artifact bundle |
 
@@ -26,16 +26,17 @@ reviewed, endorsed, certified, or approved DataLogicEngine. Named independent
 reviewers, accepted findings, and final signed-artifact review are pending.
 Production/public release is **NO-GO**.
 
-The review subject may now use the 2026-08-10 installed engineering checkpoint,
-but final dispositions must bind the later exact signed artifact and cannot be
-inferred from the local install smoke.
-The separate August 11 local build is not an installed or signed review subject.
+The August 10 installed engineering checkpoint and the later unsigned 4.4.5
+installer are historical engineering evidence only. The 4.4.5 installer is
+bound to source `8a419f6c` and predates the dependency refresh merged in
+PR #91. Neither it nor the post-merge source is a final signed, installed
+review subject; final dispositions must bind a later exact signed artifact.
 
 ## Exact review subject
 
 The final review subject must bind:
 
-- DataLogicEngine Desktop 4.4.4 / Windows file version 4.4.4.0;
+- DataLogicEngine Desktop 4.4.5 / Windows file version 4.4.5.0;
 - one source commit/tag and clean build inputs;
 - canonical signed/timestamped installer filename, size, SHA-256, publisher, and
   timestamp chain;
@@ -54,12 +55,12 @@ The current unsigned qualification candidate is not the final review subject.
 | Product and user experience | `docs/PRODUCT_REQUIREMENTS.md`, `docs/USER_GUIDE.md`, installation/operations/support/privacy set | Unfamiliar-user signed-RC walkthrough, truthful limitations, usability/pilot findings |
 | Architecture and data | `docs/ARCHITECTURE.md`, `docs/DATA_ARCHITECTURE.md`, ADRs | Implemented/runtime parity, service/store identities, migration/recovery/object-store decision |
 | API and integration | `docs/INTERFACE_INTEGRATION.md`, generated OpenAPI/schemas/SDKs | Native/SSE/async/cancel/SDK/auth/scopes/TLS/failure/load acceptance |
-| Security and privacy | root `SECURITY.md`, `docs/SECURITY_ARCHITECTURE.md`, privacy notice/PIA | Threat/control evidence, penetration/no-egress/deletion, alert 389, privacy/legal disposition |
+| Security and privacy | root `SECURITY.md`, `docs/SECURITY_ARCHITECTURE.md`, privacy notice/PIA | Threat/control evidence, penetration/no-egress/deletion, fixed alert 389 history, open NLTK advisory, privacy/legal disposition |
 | AI/KA assurance | AI system card, KA/TruthCore dossier, evaluation corpus/rubric | Provider/model rows, blinded sample, independent reviewer, limitations/risk acceptance |
 | Accessibility | accessibility conformance report and user documents | Packaged visual/scaling/contrast, keyboard/NVDA, criterion findings/alternatives |
 | Operations/recovery | administrator/operations and maintenance/disaster recovery | Signed lifecycle, five services, backup/restore, failure/recovery, 24/72-hour soak |
 | Supply chain/legal | software lifecycle, third-party index, release manifest/SBOMs | Reproducibility, publisher/signatures, scans, notices, redistribution/export/legal approvals |
-| Release/governance | requirements traceability, V&V, release-readiness record | Zero disallowed findings, exact artifact/evidence binding, owner go-no-go |
+| Release/governance | requirements traceability, V&V, release-readiness record | Resolve the post-merge Linux refinement-test failure and security gate; zero disallowed findings, exact artifact/evidence binding, owner go-no-go |
 | Microsoft distribution | Microsoft submission dossier | Current policy/route, Partner Center metadata, installer requirements, applicable certification results |
 
 ## Canonical document set
@@ -125,7 +126,8 @@ content, and unreviewed support/log data are excluded.
 
 ## Current disposition
 
-The canonical content set exists, but signed installed walkthroughs, final
-artifact binding, reviewer assignments, independent findings/dispositions,
-Microsoft submission evidence, and release approval are incomplete. This index
-remains `release_blocked`.
+The canonical content set exists, but the current source has an open NLTK
+security finding and one post-merge Linux refinement-test failure. Signed
+installed walkthroughs, final artifact binding, reviewer assignments,
+independent findings/dispositions, Microsoft submission evidence, and release
+approval are also incomplete. This index remains `release_blocked`.

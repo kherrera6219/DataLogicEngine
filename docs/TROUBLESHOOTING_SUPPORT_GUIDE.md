@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-004 |
 | Title | Troubleshooting and support guide |
-| Document version | v1.3.1 |
+| Document version | v1.3.2 |
 | Product version | 4.4.5 |
 | Status | qualification_only |
 | Audience | Users, evaluators, operators, support engineers, and security reviewers |
@@ -31,7 +31,9 @@ refresh. It is not approved for public installation, has not passed installed
 readiness, and cannot validate the later source changes. PR #91's Python
 dependency scan and backend-test gate remain red on the unsuppressed transitive
 NLTK advisory; repository integration is not a release waiver. Production/public
-release remains **NO-GO**.
+release remains **NO-GO**. A separate post-merge Linux Deploy test failed in
+the refinement workflow; that source gate also needs triage and cannot be
+cleared by an earlier Windows pass.
 The 2026-08-10 installed candidate reached readiness with its managed
 five-service data plane, but that result belongs to a different artifact.
 Do not resolve a startup problem by

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-004 |
 | Title | Security architecture and threat model |
-| Document version | v1.5.2 |
+| Document version | v1.5.3 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Security/privacy engineers, architecture, platform operations, quality, incident responders, and independent reviewers |
@@ -93,6 +93,11 @@ CORS/browser and public-internet gateway use are unsupported.
 The private Windows gateway remains disabled until exact signed-release TLS,
 certificate chain/name/revocation, key ACL, firewall source/interface/profile,
 two-machine, failure/recovery, redaction, update/rollback, and owner approval pass.
+
+The packaged renderer's current CSP allows `img-src https:` even though
+`connect-src` is loopback-restricted. That is a residual outbound-image
+possibility, not proof of a sealed network boundary; see `docs/DESKTOP_CSP.md`.
+CR-B must measure and disposition it in the exact installed egress proof.
 
 MCP supports local stdio only. The backend owns process lifecycle, bounded I/O,
 timeout/cancellation, and a Windows Job Object that terminates the process tree.
