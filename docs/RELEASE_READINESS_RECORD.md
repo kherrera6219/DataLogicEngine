@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.1 |
+| Document version | v1.8.2 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -48,13 +48,20 @@ and zero unverified secrets; three intervening scheduled runs and push Security
 run `32102824942` also pass. This closes that recorded finding without waiving
 future exact-candidate secret scans.
 
-At the later PR #91 source checkpoint, local npm audit reports zero advisories;
+PR #91 merged into public `main` at `39ba7e54`. At that source checkpoint,
+local npm audit reports zero advisories;
 the frontend, Windows packaging, governance, lint, code-scan, and SBOM jobs
 pass. The Python dependency security scan and `backend-test` fail on
 transitive `nltk==3.10.3` (`PYSEC-2026-3740` /
 `CVE-2026-81726`), for which the reviewed advisory lists no patched version.
-The owner requested repository integration despite these red checks. A source
-merge does not waive this finding or move the release verdict from **NO-GO**.
+The post-merge `main` Security Scan also failed at the Python dependency
+audit. The owner-requested source merge did not waive this finding or move
+the release verdict from **NO-GO**.
+
+The separate post-merge Deploy run `36378632388` executed the Linux Python
+suite and failed one refinement-workflow test (3,355 passed, 26 skipped). This
+negative result is open for triage and is not erased by the earlier local
+Windows pass.
 
 The source Trace Explorer now expands the persisted canonical 12-step
 refinement receipt with named step governance detail, and focused source tests,

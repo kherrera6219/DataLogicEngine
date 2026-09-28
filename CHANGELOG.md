@@ -2,13 +2,17 @@
 
 ## 4.4.5 engineering candidate - 2026-09-27
 
-- A later PR #91 source checkpoint refreshed Node/Python dependencies and the
-  Analytics CI browser fixture. Local npm audit reports zero advisories; the
-  frontend and Windows packaging checks pass. Python dependency security and
-  `backend-test` checks remain red on transitive `nltk==3.10.3`
+- [PR #91](https://github.com/kherrera6219/DataLogicEngine/pull/91) merged
+  the Node/Python dependency and Analytics CI browser-fixture refresh into
+  `main` at `39ba7e54`. Local npm audit reports zero advisories; the PR's
+  frontend and Windows packaging checks passed. The post-merge Python
+  dependency security scan and the PR's `backend-test` remain red on
+  transitive `nltk==3.10.3`
   (`PYSEC-2026-3740` / `CVE-2026-81726`), with no published patched version.
-  These changes are not in the installer below. Repository integration is not
-  a security waiver or production/public release approval.
+  These changes are not in the installer below. The source merge is not a
+  security waiver or production/public release approval. The post-merge
+  Deploy test run also reported one failing Linux refinement-workflow test
+  (3,355 passed, 26 skipped); it remains undispositioned.
 - Updated the supported owner-selected models to Gemini 3.8 Flash and GPT-6 Sol
   with High reasoning, with a forward migration for saved provider selections.
 - Removed desktop-only chat truncation below provider capacity, restored
@@ -73,7 +77,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.13.1 |
+| Document version | v1.13.2 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
