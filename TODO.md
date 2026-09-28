@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.2 |
+| Document version | v1.20.3 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,17 +17,17 @@
 | Last reviewed | 2026-09-27 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.0 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.1 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; 4.4.5 Windows source and clean-commit build gates passed, installed acceptance remains next, and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19 installed-chat repair; pre-PR 4.4.5 source/build gates passed, but PR #91 Python dependency security and backend checks are red on NLTK. Security disposition, new exact-source rebuild, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
-## Open PR #91 verification and dependency gate
+## PR #91 engineering integration and open release gates
 
 At source commit `7e86feae`, local npm audit reports zero advisories;
 the frontend build, 504 unit tests, five route/sidebar browser tests, Analytics
@@ -35,21 +35,24 @@ accessibility scan, type checking, lockfile governance, and the sequential
 Windows Python suite (3,364 passed, 18 skipped, zero setup errors) pass.
 GitHub's npm audit, frontend, Windows packaging, governance, lint, code scans,
 and SBOM jobs pass. Its Python dependency scan and `backend-test` fail on the
-same NLTK advisory; PR #91 is open and not merged.
+same NLTK advisory. The owner requested repository integration while these
+checks are red; that does not waive the finding or authorize release.
 
-- [ ] After the NLTK security blocker is resolved, rerun all PR checks and
-      review exact-source Windows packaging before any merge decision.
+- [ ] After the NLTK security blocker is resolved, rerun the affected security
+      and backend checks, then the full current-source release gate. Record an
+      exact-source Windows packaging and installed-acceptance result before a
+      release decision.
 - [ ] Resolve or explicitly disposition `PYSEC-2026-3740` /
       `CVE-2026-81726` in transitive `nltk==3.10.3`. The 2026-09-27 local
       Python audit reports one remaining finding and the upstream advisory
-      lists no patched version. Do not add an audit suppression or merge with
-      the security gate red. Any dependency removal or replacement that changes
+      lists no patched version. Do not add an audit suppression or treat a
+      repository merge as a security disposition. Any dependency removal or replacement that changes
       retrieval behavior requires owner direction and testing.
 - [ ] Track existing repository-wide lint debt through the compliance
       remediation program: the full Ruff check currently reports 58 errors
       and the format check would change 870 files. The CI-scoped Ruff rule set
       passes; this dependency PR does not weaken either full gate.
-- [ ] After a green merge decision, produce a fresh exact-source 4.4.5
+- [ ] After the dependency gate is green, produce a fresh exact-source 4.4.5
       engineering installer and repeat installed acceptance. The existing
       unsigned setup artifact was built before this dependency refresh.
 

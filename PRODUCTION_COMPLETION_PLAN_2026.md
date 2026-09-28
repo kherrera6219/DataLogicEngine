@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.83.0 |
+| Document version | v1.83.1 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -27,6 +27,15 @@ passes. It is unsigned and has not passed portable smoke or installed
 CHAT-QC-06/provider acceptance. No source or build-only result closes CP19-M,
 signing, accessibility, lifecycle, recovery, independent-review, pilot, or
 soak gates. Production/public release remains **NO-GO**.
+
+Later PR #91 source verification refreshed Node and Python dependencies and
+the Analytics CI fixture. Local npm audit reports zero findings and the
+frontend/Windows packaging checks pass, but the Python dependency scan and
+`backend-test` fail on transitive `nltk==3.10.3` advisory
+`PYSEC-2026-3740` / `CVE-2026-81726`; no patched version is published in the
+reviewed advisory. An owner-requested repository merge of that source does not
+waive the failed gate. The physical 4.4.5 installer above predates the PR
+source and cannot serve as its installed acceptance artifact.
 
 Phase 19 CP19-K closed all 213/213 individual KA qualification rows. CP19-L
 passed on 2026-08-10 after the full source, dependency, security, frontend, SDK,
@@ -6511,15 +6520,16 @@ exit gate.
 
 ## 34. Immediate next action
 
-The current overriding CU-2 action is to qualify the 4.4.5 engineering
-installer bound to clean source commit `8a419f6c...` and SHA-256
-`9686f458...ad4941`. It is unsigned, so signed release acceptance remains
-blocked. First record portable and installed behavior for this exact artifact;
-then prove Google `gemini-3.8-flash` and OpenAI `gpt-6-sol` High chat each
-invoke the configured provider once, release through Layer 10, and expose
-persisted validation telemetry without exposing stored keys. Older 4.4.3 and
-4.4.2 artifacts are historical engineering evidence and must not continue
-current installed acceptance.
+The current overriding action is to disposition the unsuppressed NLTK security
+finding in the post-4.4.5 dependency source and rerun the affected and full
+release gates. Then rebuild an exact-source engineering installer and record
+portable and installed behavior for its own hash. Prove Google
+`gemini-3.8-flash` and OpenAI `gpt-6-sol` High chat each invoke the configured
+provider once, release through Layer 10, and expose persisted validation
+telemetry without exposing stored keys. The existing unsigned 4.4.5 installer
+bound to `8a419f6c...` / `9686f458...ad4941` predates the source refresh;
+it and older 4.4.3/4.4.2 artifacts remain engineering evidence, not current
+installed acceptance or signed release evidence.
 
 CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-43 now truthfully
 qualify all 213 rows, including the causal simulation core, MCP admission/result

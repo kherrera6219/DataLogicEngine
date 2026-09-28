@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-004 |
 | Title | KA and TruthCore validation dossier |
-| Document version | v1.5.0 |
+| Document version | v1.5.1 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | AI assurance, quality, product owner, architecture, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Live KA registry/classification, governed orchestration, evidence contracts, evaluation corpus, tests, and Phase 6 evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | KA registry/implementation/classification, TruthCore, evidence/confidence, evaluation, provider/model, or risk change |
 | Requirements and evidence | Product requirements, production catalog, semantic fixtures, golden corpus, Phase 6 reports, and AI system card |
 
@@ -32,7 +32,12 @@ passed and representative KAs executed from the installed frozen backend. Live
 provider corpus and blinded-human acceptance remain open and release-blocking.
 The earlier 4.4.3 Program Files payload had narrow readiness/core-file
 identity evidence, but that does not prove installed per-KA/provider acceptance
-for the current unsigned 4.4.5 engineering installer. Those rows remain open.
+for the available local unsigned 4.4.5 engineering installer. That physical
+installer predates the PR #91 dependency/source refresh; it cannot validate
+the later source changes. PR #91's Python dependency scan and backend-test
+gate remain red on the unsuppressed transitive NLTK advisory. Repository
+integration is not a waiver or installed acceptance, and production/public
+release remains **NO-GO**. Those rows remain open.
 
 ## Registry and classification
 

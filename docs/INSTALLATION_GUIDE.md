@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
-| Document version | v1.4.0 |
+| Document version | v1.4.1 |
 | Product version | 4.4.5 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | NSIS packaging controls, Windows runtime implementation, release trust policy, and installed qualification plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Installer, signing, prerequisite, lifecycle, data-location, update, or supported-Windows change |
 | Requirements and evidence | Product requirements, release manifest, installer verification, Phase 15 evidence, and lifecycle acceptance |
 
@@ -29,6 +29,12 @@ built from clean source commit
 packaged-payload check passes, but portable, installed-mode, provider-chat,
 upgrade, repair, uninstall, and retained-data acceptance have not been run
 for this exact artifact.
+
+The later PR #91 dependency/CI source refresh is not included in this
+installer. Its Python dependency security and backend checks are red on
+transitive `nltk==3.10.3` (`PYSEC-2026-3740`), and no exact-source replacement
+installer has been built or installed. A repository merge does not convert the
+older unsigned artifact into release or installed acceptance evidence.
 
 The older 4.4.3 payload had a narrow Program Files loopback health/readiness
 observation. That evidence does not transfer to the 4.4.5 installer or prove

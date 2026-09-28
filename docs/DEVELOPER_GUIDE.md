@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.8.0 |
+| Document version | v3.8.1 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -30,6 +30,12 @@ the packaged payload check passes. The installer is unsigned, and this exact
 artifact has not passed portable readiness, installed provider chat, or full
 lifecycle acceptance. CP19-M remains the exact signed installed acceptance
 boundary; previous Program Files observations belong to a different artifact.
+
+The later PR #91 source refresh is not in that installer. The clean sequential
+Windows Python suite and frontend checks pass for the refreshed source, but
+the Python dependency security scan and `backend-test` fail on the unsuppressed
+transitive NLTK advisory `PYSEC-2026-3740`. A source merge does not make the
+older installer current or qualify it for release.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
 
@@ -142,9 +148,9 @@ frontend prompt
   -> trace review/export
 ```
 
-### Current build identity
+### Historical 4.4.3 installed qualification identity
 
-The latest engineering installer was built from source commit
+The earlier 4.4.3 engineering installer was built from source commit
 `171ba1db39a915aacc5a2ca1c108d03d4d9cb15b`. The 359,111,112-byte artifact
 has SHA-256
 `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`.

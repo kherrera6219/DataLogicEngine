@@ -2,6 +2,13 @@
 
 ## 4.4.5 engineering candidate - 2026-09-27
 
+- A later PR #91 source checkpoint refreshed Node/Python dependencies and the
+  Analytics CI browser fixture. Local npm audit reports zero advisories; the
+  frontend and Windows packaging checks pass. Python dependency security and
+  `backend-test` checks remain red on transitive `nltk==3.10.3`
+  (`PYSEC-2026-3740` / `CVE-2026-81726`), with no published patched version.
+  These changes are not in the installer below. Repository integration is not
+  a security waiver or production/public release approval.
 - Updated the supported owner-selected models to Gemini 3.8 Flash and GPT-6 Sol
   with High reasoning, with a forward migration for saved provider selections.
 - Removed desktop-only chat truncation below provider capacity, restored
@@ -66,7 +73,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.13.0 |
+| Document version | v1.13.1 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |

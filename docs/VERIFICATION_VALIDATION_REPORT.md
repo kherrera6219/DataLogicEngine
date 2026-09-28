@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.0 |
+| Document version | v1.8.1 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-31 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
@@ -33,6 +33,15 @@ finding is closed: scheduled full-history
 run `32093054806`, job `95578937904`, scanned 1,298 commits and
 2,632,118,047 bytes with zero verified and zero unverified secrets. Future
 exact-candidate secret scans remain required.
+
+At the later PR #91 source checkpoint, a clean sequential Windows run with
+updated Python dependencies passed 3,364 tests with 18 skipped and zero setup
+errors; 504 frontend tests, route/browser checks, and the frontend build pass.
+GitHub's frontend and Windows packaging checks pass, but its Python dependency
+security scan and `backend-test` fail on transitive `nltk==3.10.3`
+(`PYSEC-2026-3740` / `CVE-2026-81726`). No suppression or waiver is in place.
+The existing local 4.4.5 installer was built before this source checkpoint;
+neither source tests nor a repository merge prove installed acceptance or GO.
 
 The source Trace Explorer now renders the existing canonical nested refinement
 receipt as named step detail. Earlier focused trace persistence/bundle tests

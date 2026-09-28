@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.0 |
+| Document version | v1.8.1 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -37,8 +37,9 @@ backend tests plus lint, type, Bandit, lock, and workflow governance gates pass.
 These maintenance results do not substitute for the signed installed release
 evidence. GitHub reports alert 389 fixed as of 2026-07-15.
 
-The latest push-triggered CI, deploy, and security workflows pass at
-documentation/evidence commit `43fd86df74f3545b84c0a10702428723611c40d6`:
+At historical documentation/evidence commit
+`43fd86df74f3545b84c0a10702428723611c40d6`, push-triggered CI, deploy,
+and security workflows passed:
 Deploy run `33039993475`, Security run `33039993480`, and CI/CD run
 `33039993472`. The 2026-08-12 scheduled Lob-detector finding is formally
 closed by later scheduled full-history evidence. Run `32093054806`, job
@@ -46,6 +47,14 @@ closed by later scheduled full-history evidence. Run `32093054806`, job
 and zero unverified secrets; three intervening scheduled runs and push Security
 run `32102824942` also pass. This closes that recorded finding without waiving
 future exact-candidate secret scans.
+
+At the later PR #91 source checkpoint, local npm audit reports zero advisories;
+the frontend, Windows packaging, governance, lint, code-scan, and SBOM jobs
+pass. The Python dependency security scan and `backend-test` fail on
+transitive `nltk==3.10.3` (`PYSEC-2026-3740` /
+`CVE-2026-81726`), for which the reviewed advisory lists no patched version.
+The owner requested repository integration despite these red checks. A source
+merge does not waive this finding or move the release verdict from **NO-GO**.
 
 The source Trace Explorer now expands the persisted canonical 12-step
 refinement receipt with named step governance detail, and focused source tests,
@@ -108,7 +117,8 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 | Installed-mode observation | Not installed or provider-tested; earlier Program Files observations belong to a different artifact |
 | Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
 
-The current build is exact-source-bound but unsigned. No live Google or OpenAI
+This physical local build predates the PR #91 dependency source. It is
+exact-source-bound to its own earlier commit but unsigned. No live Google or OpenAI
 result for the 4.4.5 models, installed, provider-corpus/human, accessibility,
 recovery, independent-review, pilot, or soak result from an earlier hash is
 attributed to this artifact. The next CP19-M release-candidate run must bind every
@@ -129,8 +139,8 @@ result to one exact signed artifact.
 | Observability/support/operations | Correlation/error/diagnostics/support contracts pass | Installed canary/no-egress/support and 24-hour/72-hour soaks |
 | Reproducibility | Two clean builds completed | Approved equality/normalization rule passes; nondeterminism resolved |
 | Signing/update | Trust and fail-closed update controls exist | Approved publisher; all binaries signed/timestamped; adversarial update matrix |
-| Supply chain/legal | Exact locks/SBOM/manifest foundations exist | Final exact SBOM/notices/scans, ten legal actions, redistribution/export approval |
-| Dependency risk | Alert 389 fixed through SDK replacement and adversarial requalification | Re-run exact release scans and retain zero-blocker evidence |
+| Supply chain/legal | Exact locks/SBOM/manifest foundations exist; the PR #91 Python security scan is red | Final exact SBOM/notices/scans, ten legal actions, redistribution/export approval |
+| Dependency risk | Alert 389 fixed through SDK replacement; transitive NLTK finding `PYSEC-2026-3740` remains open without a published patch | Disposition the NLTK finding without scan suppression, rerun exact release scans, and retain zero-blocker evidence |
 | Object store | ADR-0010 capability architecture; SeaweedFS 4.40-dle.1 selected; engineering Replacement Control passed | Rebuilt-installed protected-volume, recovery, independent legal/security, signing, and release acceptance |
 | Documentation/external review | CP16 authority/content construction plus current KA/axis export publication pass; three stale Google Docs remain write-blocked | Stale external archive/de-rank, all canonical records, walkthroughs, link/archive closure, independent reviews |
 | Pilot and owner approval | Protocol exists | Named multi-day two-machine pilot and signed final owner GO decision |

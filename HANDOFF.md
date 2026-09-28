@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.2 |
+| Document version | v1.22.3 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,12 +17,12 @@
 | Last reviewed | 2026-09-27 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.0 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.1 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.5 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; 4.4.5 source and clean-commit Windows build gates passed. Installed CHAT-QC-06 acceptance remains next. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
+| Current phase | Phase 19 installed-chat repair; pre-PR 4.4.5 source/build gates passed. PR #91 Python dependency security and backend checks are red on NLTK; disposition is next, followed by a new exact-source rebuild and installed CHAT-QC-06 acceptance. OpenAI quota, signing, lifecycle, and retained CP19-M acceptance remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -52,10 +52,12 @@ remaining supporting work. Completed slow-audit, QC, coverage, and rejected
 terminology source plans are historical records under `docs/archive/audits/`.
 Phase 5 remains partial/deferred.
 
-## Pull-request verification checkpoint — 2026-09-27
+## PR #91 engineering integration checkpoint — 2026-09-27
 
-PR #91 is open; do not merge it while its security gate is red. A dependency
-refresh in the PR removes all locally reported npm advisories and reduces the
+The owner requested source integration of PR #91 with its security gate still
+red. That repository action is not a security waiver, installed acceptance, or
+production/public release approval. The dependency refresh removes all locally
+reported npm advisories and reduces the
 Python audit to one finding: transitive `nltk==3.10.3` has
 `PYSEC-2026-3740` / `CVE-2026-81726`, with no published patched version.
 `llama-index-core` still requires NLTK, including in its 0.14.25 release.
@@ -67,8 +69,8 @@ updated NLTK, pypdf, and soupsieve packages passed 3,364 tests with 18 skipped,
 zero setup errors, and 35 warnings. At source commit `7e86feae`, GitHub's
 npm audit, frontend build/browser gates, Windows packaging smoke, governance,
 lint, code scans, and SBOM jobs passed. The Python dependency scan and
-`backend-test` failed on the same NLTK advisory, so PR #91 remains open and
-unmerged. Repo-wide Ruff remains non-green on
+`backend-test` failed on the same NLTK advisory. Keep those failures visible
+and release-blocking after any repository merge. Repo-wide Ruff remains non-green on
 pre-existing lint/format debt; the CI-scoped Ruff rule set passes. The 4.4.5
 installer described below predates this dependency refresh and must not be
 presented as containing it.

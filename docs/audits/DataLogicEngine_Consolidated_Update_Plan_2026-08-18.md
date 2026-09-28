@@ -6,9 +6,10 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.12.0 |
+| Document version | v1.12.1 |
 | Product version | 4.4.5 |
 | Date | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Status | Active supporting review input; 4.4.5 clean-source engineering rebuild is complete while installed/provider/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
@@ -50,13 +51,14 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 - Independent coverage gates pass at 80.29% for `backend/`, 80.67% for
   `backend/security/`, 81.07% for `core/`, and 89.54% statements, 80.69%
   branches, 86.11% functions, and 91.36% lines for the frontend.
-- The current 4.4.5 engineering artifact is `DataLogicEngine Setup 4.4.5.exe`,
+- The existing local 4.4.5 engineering artifact is `DataLogicEngine Setup 4.4.5.exe`,
   398,783,115 bytes, SHA-256
   `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`,
   built from clean source commit
   `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`. Its packaged-payload
   check passes; it is unsigned and has not passed portable smoke, installation,
-  or live-provider acceptance.
+  or live-provider acceptance. It predates the later PR #91 source/dependency
+  refresh and is not an exact-source artifact for that checkpoint.
 - The earlier 4.4.3 engineering artifact was `DataLogicEngine Setup 4.4.3.exe`,
   359,111,112 bytes, SHA-256
   `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`,
@@ -93,6 +95,17 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
   CP19-M candidate line without a deliberate source-reopen decision.
 
 Production/public release remains **NO-GO**.
+
+### 2026-09-27 PR #91 source-refresh checkpoint
+
+The PR #91 dependency/CI refresh has a local Windows source run of 3,364
+backend tests passed, 18 skipped, and zero setup errors; 504 frontend tests
+also pass. Its GitHub Python Dependency Security Scan and `backend-test` gates
+remain red on the unsuppressed transitive `nltk==3.10.3` finding
+`PYSEC-2026-3740`. The existing 4.4.5 installer from `8a419f6c...` predates
+this source refresh; no installed acceptance of the refreshed source has been
+performed. Repository integration does not waive the failed security gates or
+change the production/public release **NO-GO** decision.
 
 ## 3. Locked product and terminology boundaries
 

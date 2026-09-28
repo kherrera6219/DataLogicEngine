@@ -5,10 +5,11 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-CHAT-QC-2026-08-26 |
-| Document version | v1.1.0 |
+| Document version | v1.1.1 |
 | Product version | 4.4.5 |
 | Date | 2026-08-26 |
-| Status | Source implementation through CHAT-QC-05 and 4.4.5 clean-source engineering rebuild complete; installed CHAT-QC-06 acceptance open; not release authority |
+| Last reviewed | 2026-09-27 |
+| Status | Source implementation through CHAT-QC-05 complete; pre-refresh 4.4.5 engineering installer exists; installed CHAT-QC-06 acceptance and PR #91 security gates open; not release authority |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Evidence run | `0779492c-c054-4630-b321-b2e13be7b4ef` |
@@ -46,6 +47,17 @@ engineering installer was built from commit
 check passes. The installer is unsigned; CHAT-QC-06 remains open until the
 exact artifact completes installed visual, functional, provider,
 accessibility, and lifecycle evidence.
+
+### Subsequent PR #91 source-refresh checkpoint — 2026-09-27
+
+The dependency/CI refresh has a local Windows source run of 3,364 backend
+tests passed, 18 skipped, and zero setup errors, plus 504 passing frontend
+tests. GitHub's Python Dependency Security Scan and `backend-test` remain red
+on the unsuppressed transitive `nltk==3.10.3` finding `PYSEC-2026-3740`.
+The installer above predates this source refresh, so it cannot establish
+CHAT-QC-06 installed acceptance for the refreshed code. Repository integration
+does not waive the security finding; production/public release remains
+**NO-GO**.
 
 ## 2. Fixed boundaries
 

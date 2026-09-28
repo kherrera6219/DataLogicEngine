@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-004 |
 | Title | Troubleshooting and support guide |
-| Document version | v1.3.0 |
+| Document version | v1.3.1 |
 | Product version | 4.4.5 |
 | Status | qualification_only |
 | Audience | Users, evaluators, operators, support engineers, and security reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented error taxonomy, diagnostics/support controls, lifecycle runbooks, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | User-visible error, diagnostics, support-bundle, recovery, reporting-channel, or release-status change |
 | Requirements and evidence | Product requirements, runtime/error contracts, support tests, operational procedures, and Phase 13/15 evidence |
 
@@ -25,8 +25,13 @@ around an error by disabling storage protection, ACLs, authentication, signature
 migration, readiness, provider, scope, or required-service checks. Record the
 safe error code and fix the underlying condition.
 
-The current 4.4.5 engineering installer is unsigned, qualification-only, and
-not approved for public installation. It has not passed installed readiness.
+The available local 4.4.5 engineering installer is an unsigned,
+qualification-only physical artifact from before the PR #91 dependency/source
+refresh. It is not approved for public installation, has not passed installed
+readiness, and cannot validate the later source changes. PR #91's Python
+dependency scan and backend-test gate remain red on the unsuppressed transitive
+NLTK advisory; repository integration is not a release waiver. Production/public
+release remains **NO-GO**.
 The 2026-08-10 installed candidate reached readiness with its managed
 five-service data plane, but that result belongs to a different artifact.
 Do not resolve a startup problem by
@@ -34,7 +39,7 @@ creating another database, switching to SQLite/memory/filesystem fallbacks, or
 restarting superseded legacy service containers.
 
 Always record the exact SHA-256 before applying troubleshooting evidence from
-another build. The current 4.4.5 installer has SHA-256
+another build. That pre-PR #91 4.4.5 installer has SHA-256
 `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`.
 
 On Windows, the backend may log that signal-based request timeout is unavailable

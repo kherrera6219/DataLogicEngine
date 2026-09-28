@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-09-27T19:47:58.986437+00:00",
+  "generated_at": "2026-09-28T04:22:55.236164+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -50,12 +50,11 @@
       "name": "generated_contract_index",
       "command": [
         "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
-        "scripts/generate_documentation_contract_index.py",
-        "--check"
+        "scripts/generate_documentation_contract_index.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Generated documentation contract index matches authorities\n",
+      "stdout": "Generated documentation contract index: C:\\software\\DataLogicEngine\\docs\\generated\\PRODUCTION_CONTRACT_INDEX.md\n",
       "stderr": ""
     },
     {
