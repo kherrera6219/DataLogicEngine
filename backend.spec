@@ -3,7 +3,7 @@
 import os
 import sys
 
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules, copy_metadata
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 block_cipher = None
 
@@ -56,7 +56,7 @@ a = Analysis(
         ('backend/knowledge_algorithms/ka_manifest.v1.generated.json', 'backend/knowledge_algorithms'),
         ('core/persona/quad/config', 'core/persona/quad/config'),
         ('docs/evaluation', 'docs/evaluation'),
-    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('chromadb', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']) + collect_data_files('llama_index', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']) + copy_metadata('tiktoken'),
+    ] + collect_data_files('rfc3987_syntax') + collect_data_files('ukg_sdk') + collect_data_files('chromadb', excludes=['test/**', 'tests/**', '**/test/**', '**/tests/**']),
     hiddenimports=[
         # Alembic loads migrations/env.py dynamically after freeze analysis;
         # keep its standard-library configuration module in the executable.
@@ -94,12 +94,6 @@ a = Analysis(
         'pypdf',
         'docx',
         'openai',
-        'tiktoken',
-        # tiktoken registers encodings (e.g. cl100k_base) through the tiktoken_ext
-        # namespace-package plugin mechanism, which PyInstaller does not auto-detect.
-        # Without these the frozen app raises "Unknown encoding cl100k_base".
-        'tiktoken_ext',
-        'tiktoken_ext.openai_public',
         'langchain_openai',
         'langchain_community',
         'dotenv',

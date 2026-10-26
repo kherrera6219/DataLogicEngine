@@ -1202,7 +1202,6 @@ function startBackend() {
     LOG_FILE: path.join(runtimeDir, 'logs', 'app.log'),
     DATALOGIC_STORAGE_SETTINGS_PATH: path.join(runtimeDir, 'settings.json'),
     AUTO_CREATE_SCHEMA: 'False',
-    LLAMA_INDEX_CACHE_DIR: path.join(runtimeDir, 'cache', 'llama_index'),
     HF_HOME: path.join(runtimeDir, 'cache', 'huggingface'),
     TRANSFORMERS_CACHE: path.join(runtimeDir, 'cache', 'huggingface'),
     NLTK_DATA: path.join(runtimeDir, 'cache', 'nltk_data'),
@@ -1218,7 +1217,6 @@ function startBackend() {
   
   // Ensure cache directories exist
   secureDirectoryBestEffort(path.join(runtimeDir, 'cache'));
-  secureDirectoryBestEffort(path.join(runtimeDir, 'cache', 'llama_index'));
   secureDirectoryBestEffort(path.join(runtimeDir, 'cache', 'huggingface'));
   secureDirectoryBestEffort(path.join(runtimeDir, 'cache', 'nltk_data'));
 
