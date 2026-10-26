@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   test: {
+    maxWorkers: 4,
     globals: true,
     environment: 'jsdom',
     include: ['**/*.test.{ts,tsx}'],

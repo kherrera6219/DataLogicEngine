@@ -363,6 +363,11 @@ class LocalKnowledgeIngestionService:
                 result.files_rejected = 1
 
             rag = self._get_rag_service()
+            chunking_revision = (
+                f"{getattr(rag, 'chunking_revision', 'configured-chunker-v1')}"
+                f":size={self.chunk_size}:overlap={min(50, self.chunk_size // 10)}"
+                if rag else "whole-document-v1"
+            )
             for acquired_file in acquired.files:
                 self._raise_if_controlled(control_check)
                 self._publish_progress(progress_callback, "parsing", result)
@@ -379,15 +384,11 @@ class LocalKnowledgeIngestionService:
                     source_sha256=acquired_file.sha256,
                     size_bytes=acquired_file.size_bytes,
                     detected_type=acquired_file.detected_type,
+                    parser_result={"chunking_revision": chunking_revision},
                     status="processing",
                 )
                 db.session.add(file_record)
                 db.session.flush()
-                result.materializations_pending += self._supersede_prior_revisions(
-                    file_record,
-                    replacement_revision=f"sha256:{acquired_file.sha256}",
-                    correlation_id=result.ingestion_id,
-                )
                 text, rejection = self._extract_text(staged_path)
                 if rejection:
                     result.files_rejected += 1
@@ -406,6 +407,7 @@ class LocalKnowledgeIngestionService:
                 file_record.parser_result = {
                     "status": "passed",
                     "detected_type": acquired_file.detected_type,
+                    "chunking_revision": chunking_revision,
                 }
                 if not defense_result.safe_for_retrieval:
                     result.files_rejected += 1
@@ -432,6 +434,12 @@ class LocalKnowledgeIngestionService:
                     file_record.status = "rejected"
                     file_record.error_code = "no_text_after_normalization"
                     continue
+
+                result.materializations_pending += self._supersede_prior_revisions(
+                    file_record,
+                    replacement_revision=f"sha256:{acquired_file.sha256}:{chunking_revision}",
+                    correlation_id=result.ingestion_id,
+                )
 
                 from backend.storage.artifact_materialization import (
                     persist_object_artifact,
@@ -534,6 +542,7 @@ class LocalKnowledgeIngestionService:
                                 tenant_id or "owner",
                                 acquired_file.relative_path,
                                 acquired_file.sha256,
+                                chunking_revision,
                                 str(index),
                                 chunk_hash,
                             )
@@ -544,7 +553,7 @@ class LocalKnowledgeIngestionService:
                     node_id = f"KI-{document_chunk_hash[:16]}"
                     title = f"{source_label or original_path.name} [{index + 1}/{len(chunks)}]"
                     source_revision = (
-                        f"sha256:{acquired_file.sha256}:{content_hash}:{chunk_hash}"
+                        f"sha256:{acquired_file.sha256}:{content_hash}:{chunk_hash}:{chunking_revision}"
                     )
                     node_metadata = {
                         **(metadata or {}),
@@ -564,6 +573,7 @@ class LocalKnowledgeIngestionService:
                         "chunk_hash": chunk_hash,
                         "chunk_index": index,
                         "chunk_count": len(chunks),
+                        "chunking_revision": chunking_revision,
                         "prompt_injection_markers_removed": injection_hits,
                         "content_defense": defense_result.to_dict(),
                         "embedding_revision": file_record.embedding_revision,
@@ -1219,7 +1229,11 @@ class LocalKnowledgeIngestionService:
 
         outbox = CrossStoreOutbox(db.session)
         for prior in prior_files:
-            if prior.source_sha256 == current_file.source_sha256:
+            if (
+                prior.source_sha256 == current_file.source_sha256
+                and (prior.parser_result or {}).get("chunking_revision")
+                == (current_file.parser_result or {}).get("chunking_revision")
+            ):
                 continue
             delete_revision = f"delete:{replacement_revision}"
             for chunk in IngestionChunk.query.filter_by(job_id=prior.job_id, file_id=prior.id):

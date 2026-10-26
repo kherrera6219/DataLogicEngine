@@ -158,10 +158,10 @@ describe('frontend app surfaces', () => {
     expect(reset).toHaveBeenCalled();
 
     vi.advanceTimersByTime(500);
-    expect(window.location.href).toBe('/dashboard');
+    expect(new URL(window.location.href).pathname).toBe('/dashboard');
 
     fireEvent.click(screen.getByRole('button', { name: /return home/i }));
-    expect(window.location.href).toBe('/');
+    expect(new URL(window.location.href).pathname).toBe('/');
 
     window.location = originalLocation;
   });

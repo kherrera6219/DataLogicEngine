@@ -37,17 +37,8 @@ jobs:
         python -m pip install --require-hashes -r requirements.lock
 
     - name: Security Audit
-      # CVE-2025-3000 (torch.jit.script memory corruption, local-host only, no
-      # patched release) is suppressed: torch is transitive and the app never
-      # calls torch.jit.script. Keep in sync with security.yml. See TODO.md.
-      # CVE-2026-12243 (nltk path traversal, no patch available for 3.9.x yet)
-      # PYSEC-2026-311 / GHSA-f4j7-r4q5-qw2c has no patched ChromaDB release;
-      # constrained deployment is documented and production remains blocked.
       run: |
-        pip-audit -r requirements.lock --desc \
-          --ignore-vuln CVE-2025-3000 \
-          --ignore-vuln CVE-2026-12243 \
-          --ignore-vuln PYSEC-2026-311
+        pip-audit -r requirements.lock --desc
 
     - name: Run smoke bootstrap check
       run: |
@@ -143,7 +134,7 @@ jobs:
 
   # Frontend Build
   frontend-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     
@@ -195,25 +186,6 @@ jobs:
         cd frontend
         npx playwright install-deps chromium
         npx playwright install chromium
-
-    - name: Set up ChromeDriver for a11y sweep
-      run: |
-        SYSTEM_CD=$(which chromedriver 2>/dev/null || echo "")
-        if [ -z "$SYSTEM_CD" ]; then
-          echo "System ChromeDriver not found; installing via npm postinstall"
-          cd frontend && node node_modules/chromedriver/install.js
-        else
-          echo "Using system ChromeDriver: $SYSTEM_CD ($(chromedriver --version))"
-          mkdir -p frontend/node_modules/chromedriver/lib/chromedriver
-          ln -sf "$SYSTEM_CD" frontend/node_modules/chromedriver/lib/chromedriver/chromedriver
-        fi
-        CHROME_BIN=$(which google-chrome google-chrome-stable chromium-browser chromium 2>/dev/null | head -1)
-        if [ -n "$CHROME_BIN" ]; then
-          echo "Found Chrome at $CHROME_BIN"
-          echo "CHROME_TEST_PATH=$CHROME_BIN" >> $GITHUB_ENV
-        else
-          echo "::warning::No Chrome binary found; a11y sweep may fail"
-        fi
 
     # Soft gate: see docs/CI_QUALITY_POLICY.md (hard fail only when release claims a11y).
     - name: Run Frontend Accessibility Sweep
