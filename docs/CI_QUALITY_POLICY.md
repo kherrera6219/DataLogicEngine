@@ -10,8 +10,9 @@
 October 26 repair checkpoint: the refreshed local Python and NPM audits report
 zero findings without exceptions. Both Python CI jobs now audit the full lock
 without the historical ignore list. The frontend browser job is pinned to
-Ubuntu 24.04 for the locked Playwright version. Replacement GitHub results are
-pending; see `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`.
+Ubuntu 24.04 for the locked Playwright version. Replacement GitHub security
+scans pass on PR #94; final CI/build evidence is tracked in
+`docs/audits/CI_CHAT_REPAIR_2026-10-26.md`.
 
 | Context | Policy |
 |---|---|

@@ -194,10 +194,9 @@ release blockers. KA ownership, selector, effect-port, and causal trace source
 integration passed through CP19-L; the exact signed rebuilt-installed data/effect
 matrix remains blocked through CP19-M.
 
-The available unsigned 4.4.5 installer was built from source commit
-`8a419f6c8908c541ac13389dd75e9b7bb83bb87f` before the later PR #91
-dependency/CI refresh. Its packaged checks and older installed observations
-cannot qualify the newer merged source. The NLTK dependency-security finding,
-the separate post-merge Linux refinement-test failure, and the exact-source
-installed data/recovery gates remain open; production/public release is
-**NO-GO**.
+The unsigned 4.4.6 installer was built from clean source commit
+`0f0d51d1fea7aadfb1f739c98c1b1565063b880c` including the October 26 dependency
+and chat repair. Payload checks and local/GitHub dependency scans pass; the
+replacement Linux suite passes the refinement module. Exact-source installed
+data/recovery gates remain open. See `audits/CI_CHAT_REPAIR_2026-10-26.md`;
+production/public release remains **NO-GO**.

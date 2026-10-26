@@ -39,8 +39,9 @@ The local 4.4.5 engineering artifact predates PR #91 source and has a different
 hash from the installed qualification artifact. A later exact-source candidate
 requires its own final SBOM/notices and scan binding. The October 26 4.4.6 repair
 removes LlamaIndex/NLTK and updates the Python/NPM locks; fresh local audits
-report zero findings without exceptions. Replacement CI and exact-artifact
-qualification remain required.
+report zero findings without exceptions, as do PR #94's GitHub dependency
+scans. A 4.4.6 engineering installer is built and payload-verified; final
+exact-artifact qualification, notices, and installed acceptance remain required.
 Prior scheduled secret-scan evidence does not replace final exact-candidate
 scans.
 

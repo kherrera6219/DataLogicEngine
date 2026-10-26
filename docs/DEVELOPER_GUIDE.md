@@ -22,25 +22,21 @@
 
 Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
 
-The PR #91 refreshed 4.4.5 source passed a clean sequential Windows run of
-3,364 Python tests with 18 skipped and zero setup errors, plus 504 frontend
+The October 26 4.4.6 source passed a full Windows coverage run of
+3,373 Python tests with 19 skipped and zero test/setup/collection errors, plus 506 frontend
 tests. It selects OpenAI `gpt-6-sol`
 with High reasoning and Google `gemini-3.8-flash`. The engineering installer
-was rebuilt from clean commit `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`;
+was rebuilt from clean commit `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`;
 the packaged payload check passes. The installer is unsigned, and this exact
 artifact has not passed portable readiness, installed provider chat, or full
 lifecycle acceptance. CP19-M remains the exact signed installed acceptance
 boundary; previous Program Files observations belong to a different artifact.
 
-The later PR #91 source refresh is not in that installer. The clean sequential
-Windows Python suite and frontend checks pass for the refreshed source, but
-the PR Python dependency security scan and `backend-test` failed on the
-unsuppressed transitive NLTK advisory `PYSEC-2026-3740`. The later `main`
-Security Scan remained red, and a separate post-merge Linux run failed
-`test_cp19g_refinement_accounts_all_steps_and_revalidates_once` (one failure,
-3,355 passed, 26 skipped). That failure requires triage, not a skipped or
-weakened test. A source merge does not make the older installer current or
-qualify it for release.
+This installer includes the October 26 repair. Local and GitHub Python/NPM
+scans pass without exceptions; the replacement Linux backend suite passes
+3,366 tests with 26 skipped, including the previously failing refinement
+module. The tests were not weakened. Exact evidence and remaining acceptance
+are tracked in `audits/CI_CHAT_REPAIR_2026-10-26.md`.
 
 This version aligns onboarding with the current local-first architecture, DMRF control plane, Truth Engine v7.3, canonical `/api/v1/*` route policy, multi-store data architecture, testing/release gates, and versioned documentation standard.
 

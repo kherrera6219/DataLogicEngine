@@ -86,13 +86,17 @@ revision data uses the existing extensible ingestion metadata.
   GitHub Python/NPM security scans, code scans, secret scan, SBOM, governance,
   lint, backend tests, and frontend build at its first repair checkpoint. Packaging and the
   final pushed head must finish before merge. No installed acceptance is claimed.
+- The first repair Linux backend job `121691827783` passes **3,366 tests,
+  26 skipped**, including all three tests in the previously failing refinement
+  workflow module. That historical failure does not reproduce under the
+  refreshed source/lock; its original individual cause was not isolated.
 - The 4.4.6 bump also required updating the version/upgrade-lineage assertions
   and dependency-count documentation verifier. After those updates and complete
   fixture-owned runtime shutdown, the affected 61-test group passes with zero
   setup errors. The final full run used the same `FLASK_ENV=testing` profile as CI.
 - The first 4.4.6 installer attempt failed because `public/icon.png` contains
   JPEG bytes. Packaging now selects the existing valid 512-pixel PNG icon;
-  this does not alter the image asset. A clean-source rebuild is pending.
+  this does not alter the image asset. The second clean-source rebuild passed.
 - Full Ruff has the previously recorded **58 errors** in unchanged files;
   full format check reports **862 files** requiring formatting. Changed Python
   code passes scoped Ruff. Repository-wide mypy reports **972 errors** and is
@@ -108,3 +112,22 @@ Production/public release remains **NO-GO** pending the existing release program
 clean-source CI, rebuilt-installed acceptance, signing, and provider/lifecycle
 evidence. The dashboard findings and session-scoped Live Trace reset remain
 separate open work; this owner-approved chat scope does not claim to fix them.
+
+## Rebuilt engineering artifact
+
+- Clean build source: `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`.
+- Installer: `DataLogicEngine Setup 4.4.6.exe`, **350,186,546 bytes**.
+- SHA-256: `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`.
+- `npm run electron:dist`: pass. Packaged product authority declares 4.4.6.
+- Packaging resources and NSIS governance: pass. Payload verification: pass,
+  **5,029 backend files**, zero issues. Generated records:
+  `reports/packaging_resources_report.json`, `reports/nsis_governance_report.json`,
+  and `reports/release-payload-4.4.6.json`.
+- Signature: **NotSigned**. Local portable launch, installed acceptance, and live
+  provider acceptance: **not run**. Existing installed application/profile was
+  not used for a packaging smoke test. CI's isolated Windows runner retains its
+  own portable-launch evidence; that does not establish installed acceptance.
+- Source checkpoint `0f0d51d1` passes GitHub security scans, backend tests,
+  frontend build/browser checks, governance, lint, and Windows packaging/portable
+  smoke (CI run `40358828347`, Security run `40358828401`). Docker verification
+  and the final documentation-head checks/merge remain pending at this checkpoint.

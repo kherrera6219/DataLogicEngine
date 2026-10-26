@@ -25,15 +25,12 @@ around an error by disabling storage protection, ACLs, authentication, signature
 migration, readiness, provider, scope, or required-service checks. Record the
 safe error code and fix the underlying condition.
 
-The available local 4.4.5 engineering installer is an unsigned,
-qualification-only physical artifact from before the PR #91 dependency/source
-refresh. It is not approved for public installation, has not passed installed
-readiness, and cannot validate the later source changes. PR #91's Python
-dependency scan and backend-test gate remain red on the unsuppressed transitive
-NLTK advisory; repository integration is not a release waiver. Production/public
-release remains **NO-GO**. A separate post-merge Linux Deploy test failed in
-the refinement workflow; that source gate also needs triage and cannot be
-cleared by an earlier Windows pass.
+The available 4.4.6 engineering installer includes the October 26 dependency
+and chat repair. Payload/resources/NSIS checks pass and local/GitHub dependency
+scans pass without exceptions. It is unsigned and has not passed installed
+readiness or live-provider acceptance. The replacement Linux suite also passes
+the refinement module. Exact evidence is in
+`audits/CI_CHAT_REPAIR_2026-10-26.md`. Production/public release remains **NO-GO**.
 The 2026-08-10 installed candidate reached readiness with its managed
 five-service data plane, but that result belongs to a different artifact.
 Do not resolve a startup problem by

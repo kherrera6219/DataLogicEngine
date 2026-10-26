@@ -19,6 +19,13 @@
 
 ### Current execution checkpoint
 
+The October 26 owner-approved 4.4.6 repair passes 3,373 Windows tests with
+19 skipped and zero test/setup/collection errors, all 506 frontend tests, and
+independent Python/frontend coverage gates. Refreshed Python and NPM audits
+pass locally and on GitHub without exceptions. Exact rebuild/CI evidence is
+recorded in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. This fast-track does not
+disposition compliance Phase A or close installed/provider/signing acceptance.
+
 On 2026-09-27, the 4.4.5 source gate passed 3,364 Windows backend tests with
 18 skipped and zero setup errors, all 504 frontend tests, and the production
 frontend build. The clean-source Windows installer was built from commit

@@ -50,35 +50,28 @@ update check, crash-reporting egress, or phone-home.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The public `main` branch includes documentation [PR #93](https://github.com/kherrera6219/DataLogicEngine/pull/93)
-at `9911280f`. Its October 26 checks found 93 Python advisories and 26
-vulnerable NPM packages. The 4.4.6 repair branch refreshes both locks and
-removes the LlamaIndex/NLTK path; current local audits report **zero findings
-without exceptions**. Final repair-branch CI and rebuilt-installed acceptance
-are still required. See the [repair checkpoint](docs/audits/CI_CHAT_REPAIR_2026-10-26.md).
+The October 26 [4.4.6 repair](https://github.com/kherrera6219/DataLogicEngine/pull/94)
+refreshes the Python and NPM locks and removes the LlamaIndex/NLTK path.
+Local audits and GitHub dependency scans report **zero findings without
+exceptions**. The full Windows suite passes **3,373 tests** with 19 skipped
+and zero test/setup/collection errors; all **506 frontend tests** pass.
+Installed acceptance remains required. See the
+[repair checkpoint](docs/audits/CI_CHAT_REPAIR_2026-10-26.md).
 Production/public release remains **NO-GO**. Separately, the historical
 [post-merge Deploy test run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632388)
-failed one Linux refinement-workflow test; that result has not been
-dispositioned.
+failed one Linux refinement-workflow test. The replacement PR #94 backend job
+passes the full Linux suite (3,366 passed, 26 skipped), including all three
+refinement-workflow tests; the historical failure is retained for comparison.
 
-The preceding locally built engineering candidate is `DataLogicEngine Setup 4.4.5.exe`
-(398,783,115 bytes; SHA-256
-`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`).
+The locally built engineering candidate is `DataLogicEngine Setup 4.4.6.exe`
+(350,186,546 bytes; SHA-256
+`303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`).
 It was packaged from clean source commit
-`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`.
-The copied installer matches the packaging output byte-for-byte, and its frozen
-backend contains the 4.4.5 provider manifest and forward migration. The
-Windows source suite passed with 3,364 tests, 18 skipped, and zero setup errors;
-504 frontend tests and the production frontend build passed. This candidate is
-unsigned and has not been installed or provider-tested, so it is not release
-acceptance evidence. It predates the merged `main` dependency refresh and does
-not contain those changes.
-
-For the refreshed source, a sequential local Windows suite passed 3,364 tests
-with 18 skipped and zero setup errors. The PR's frontend, npm audit, and
-Windows packaging checks passed; its Python dependency scan and backend job
-failed on the NLTK advisory. A new installer must be built from a
-security-dispositioned source commit before installed verification resumes.
+`0f0d51d1fea7aadfb1f739c98c1b1565063b880c`.
+Its frozen backend declares 4.4.6, required packaging resources and NSIS policy
+checks pass, and payload verification reports zero issues across 5,029 backend
+files. This installer is unsigned and has not passed installed or live-provider
+acceptance. Source, build, and merge results do not establish release approval.
 
 The 4.4.6 chat UI explains that Standard mode disables the 12-step rewrite
 workflow and that this is not a measured-confidence decision. Enhanced mode
@@ -142,7 +135,7 @@ control plane.
 | Software developers and integrators | A versioned API, generated Python and TypeScript SDKs, asynchronous jobs, streaming responses, and provider-key separation |
 | Operators, reviewers, and pilot users | A desktop experience for configuration, governed chat, monitoring, trace review, privacy, diagnostics, and support |
 
-The current 4.4.5 product boundary is a single owner/operator on Windows 11 or
+The current 4.4.6 product boundary is a single owner/operator on Windows 11 or
 an owner-controlled Windows VM. It is not a public web service or a multi-tenant
 identity platform.
 
@@ -517,14 +510,12 @@ npm --prefix frontend audit --audit-level=high
 ```
 
 Coverage is measured separately for Python and TypeScript; the repository does
-not claim one blended whole-app percentage. The merged 4.4.5 source passed a
-sequential local Windows run of 3,364 Python tests with 18 skipped and zero
-setup errors, plus 504 frontend tests. These are source results, not an
-installed acceptance or a passing security audit. The 2026-08-27 4.4.3 qualification
-measured `backend/` at **80.29%**, `backend/security/` at **80.67%**, and
-`core/` at **81.07%**. Frontend V8 coverage remains **89.54% statements**,
-**80.69% branches**, **86.11% functions**, and **91.36% lines**. All 3,317
-Python tests and 484 frontend tests passed (19 Python tests skipped). CI
+not claim one blended whole-app percentage. The October 26 Windows 4.4.6 run
+passes 3,373 Python tests with 19 skipped and zero test/setup/collection errors.
+Coverage measures `backend/` at **80.45%**, `backend/security/` at **80.67%**,
+and `core/` at **81.08%**. All 506 frontend tests pass; V8 coverage is
+**89.65% statements**, **80.36% branches**, **86.68% functions**, and
+**91.49% lines**. These are source results, not installed acceptance. CI
 enforces 80.00% independently for every named Python scope and frontend metric;
 see `docs/CI_QUALITY_POLICY.md`.
 

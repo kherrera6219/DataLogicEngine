@@ -20,18 +20,15 @@
 
 ## Operating boundary
 
-The available local 4.4.5 engineering installer is an unsigned physical artifact
-from before the PR #91 dependency/source refresh. It has not been installed or
-run through portable, provider-chat, or lifecycle acceptance, and it cannot
-validate the later source changes. Earlier 4.4.3 Program Files loopback
-health/readiness evidence belongs to another artifact and must not be
-transferred to this one. PR #91's Python dependency scan and backend-test gate
-remain red on the unsuppressed transitive NLTK advisory. Repository integration
-does not waive that finding. The separate post-merge Linux Deploy run failed a
-refinement-workflow test; the earlier clean Windows run does not close it.
+The available 4.4.6 engineering installer includes the October 26 dependency
+and chat repair. Its payload/resources/NSIS checks pass; local and GitHub
+dependency scans pass without exceptions. It is unsigned and has not passed
+local portable, installed, provider, or lifecycle acceptance. Exact source,
+size, hash, and CI evidence are in `audits/CI_CHAT_REPAIR_2026-10-26.md`.
+Earlier Program Files readiness evidence belongs to another artifact.
 Production/public release remains **NO-GO**.
 
-DataLogicEngine 4.4.5 is a single-owner local-first Windows application. The
+DataLogicEngine 4.4.6 is a single-owner local-first Windows application. The
 normal desktop profile binds the backend and internal services to installation-
 specific local boundaries. The application owns PostgreSQL, Redis, Neo4j,
 ChromaDB, and app-owned S3-compatible object-store production responsibilities; externally managed databases

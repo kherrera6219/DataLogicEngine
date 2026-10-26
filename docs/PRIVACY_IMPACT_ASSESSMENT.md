@@ -26,11 +26,10 @@ legal basis, jurisdiction, provider/connector contracts, retention periods,
 children/high-risk-use restrictions, installed no-egress/deletion/remnant proof,
 and independent privacy/legal review are not complete.
 
-The available 4.4.5 engineering installer is unsigned, built from source
-`8a419f6c`, and predates the PR #91 dependency refresh. It has not completed
-installed or provider acceptance, and no new exact-source installer has been
-qualified. The older 4.4.3 Program Files loopback health/readiness
-observation does not establish 4.4.5 installed
+The available 4.4.6 engineering installer is unsigned, built from source
+`0f0d51d1`, and includes the October 26 dependency/chat repair. Its payload
+checks pass, but installed and provider acceptance have not run. The older
+4.4.3 Program Files loopback health/readiness observation does not establish 4.4.6 installed
 redaction/no-egress, provider, deletion/remnant, retention/legal-basis,
 lifecycle, or independent privacy review. The `not_evaluated` production
 status is unchanged.
