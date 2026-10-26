@@ -1,5 +1,18 @@
 # DataLogicEngine Production Deployment Checklist
 
+> **Superseded historical checklist (reviewed 2026-09-27).** This document
+> describes an earlier public Linux/Nginx deployment concept and is retained
+> only for provenance. It is **not** a current installation or release
+> procedure. DataLogicEngine 4.4.5 is Windows installed software and remains
+> `release_blocked` / **NO-GO**. Do not execute the public-domain, reverse-proxy,
+> hosted-monitoring, or external-service steps below. Use the current
+> [installation guide](../docs/INSTALLATION_GUIDE.md),
+> [administrator operations guide](../docs/ADMINISTRATOR_OPERATIONS_GUIDE.md),
+> [V&V report](../docs/VERIFICATION_VALIDATION_REPORT.md), and
+> [release record](../docs/RELEASE_READINESS_RECORD.md) instead. The current
+> unsigned 4.4.5 installer predates merged dependency source, and installed
+> acceptance plus security/test disposition remain open.
+
 ## Pre-Deployment
 
 ### Environment Setup

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-007 |
 | Title | SBOM, licensing, redistribution, and notices index |
-| Document version | v1.1.2 |
+| Document version | v1.1.3 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Release/legal/security engineering, procurement, operators, independent reviewers, and release authority |
@@ -45,8 +45,8 @@ scans.
 
 | Ecosystem | Reviewed input | Exact release authority | Build/runtime boundary |
 |---|---|---|---|
-| Python | `requirements.txt` (81 direct pins at Phase 14) | `requirements.lock` (315 hash-locked packages at Phase 14) | CPython 3.11; hashes required; no implicit `pyproject` runtime authority |
-| Node/Electron | `frontend/package.json` | `frontend/package-lock.json` v3 via `npm ci` | Node major 24; Electron 43.1.1, Chromium 150.0.7871.114, embedded Node 24.18.0 |
+| Python | `requirements.txt` (81 direct pins at this review) | `requirements.lock` (290 hash-locked packages at this review) | CPython 3.11; hashes required; no implicit `pyproject` runtime authority |
+| Node/Electron | `frontend/package.json` | `frontend/package-lock.json` v3 via `npm ci` | Node major 24; locked Electron 43.1.1, Next.js 16.3.6, and electron-builder 26.15.3 |
 | Internal services | `deploy/internal-data-plane.candidate-lock.json` | Exact image/runtime digests and platform selection | Engineering candidates only until redistribution/security/license approval |
 | Product/contracts | `config/product-versions.json` | Product 4.4.5, Windows 4.4.5.0, versioned public/gateway/governed/data contracts | Must match installer, binaries, UI/API/support, SDKs, manifests, and evidence |
 
@@ -77,11 +77,15 @@ signed candidate; prior/different-hash candidate data is not final evidence.
 
 ## Material runtime components
 
-The historical Phase 14 engineering manifest identified CPython 3.11, PyInstaller 6.18.0,
-Electron 43.1.1, electron-builder 26.8.1, Next.js 16.2.7, PostgreSQL 18.4,
-Redis 8.8.0, Neo4j, the Chroma Rust service 1.5.9, Podman 6.0.1, and the selected
-SeaweedFS 4.40-dle.1 object-store build. Exact image versions/digests and license fields are recorded
-in the service candidate lock and release manifest.
+The historical Phase 14 engineering manifest identified CPython 3.11,
+PyInstaller 6.18.0, Electron 43.1.1, electron-builder 26.8.1,
+Next.js 16.2.7, PostgreSQL 18.4, Redis 8.8.0, Neo4j, the Chroma Rust service
+1.5.9, Podman 6.0.1, and the selected SeaweedFS 4.40-dle.1 object-store
+build. The current Node lock instead records Next.js 16.3.6 and
+electron-builder 26.15.3; the later source also locks `pypdf==6.19.0`,
+`soupsieve==2.10`, and transitive `nltk==3.10.3`. Exact service image
+versions/digests and license fields are recorded in the service candidate lock
+and release manifest. The historical manifest does not attest the later source.
 
 Redis is recorded as an AGPL-3.0 selection from a tri-license and explicitly
 requires redistribution review. Podman redistribution review is pending. Every
@@ -131,10 +135,12 @@ build uses the upstream-fixed 1.82.1 dependency. Its exact-image Trivy report
 contains zero High or Critical findings and retains one unscored
 `GO-2026-5932` OpenPGP maintenance notice without suppression.
 
-The 2026-07-15 lock refresh includes Flask async support plus Pillow 12.3.0,
-Starlette 1.3.1, and Transformers 5.13.0. The post-replacement lock contains 290
-packages and no Chroma Python SDK. An isolated audit examined 266 applicable
-dependencies and found zero vulnerabilities. Installed exact-artifact review,
+The 2026-07-15 lock refresh included Flask async support plus Pillow 12.3.0,
+Starlette 1.3.1, and Transformers 5.13.0. Its post-replacement lock contained
+290 packages and no Chroma Python SDK. An isolated audit then examined 266
+applicable dependencies and found zero vulnerabilities. That historical result
+does not supersede the current PR #91 Python audit failure on NLTK or qualify
+the older installer for the later source. Installed exact-artifact review,
 legal approval, and release authorization remain separate gates.
 
 ## Notice and redistribution approval gate

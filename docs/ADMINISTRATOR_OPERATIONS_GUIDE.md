@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-003 |
 | Title | Administrator and operations guide |
-| Document version | v1.3.1 |
+| Document version | v1.3.2 |
 | Product version | 4.4.5 |
 | Status | qualification_only |
 | Audience | Single owner/operator, Windows administrators, support engineers, and release reviewers |
@@ -27,7 +27,9 @@ validate the later source changes. Earlier 4.4.3 Program Files loopback
 health/readiness evidence belongs to another artifact and must not be
 transferred to this one. PR #91's Python dependency scan and backend-test gate
 remain red on the unsuppressed transitive NLTK advisory. Repository integration
-does not waive that finding or change the production/public release **NO-GO**.
+does not waive that finding. The separate post-merge Linux Deploy run failed a
+refinement-workflow test; the earlier clean Windows run does not close it.
+Production/public release remains **NO-GO**.
 
 DataLogicEngine 4.4.5 is a single-owner local-first Windows application. The
 normal desktop profile binds the backend and internal services to installation-
@@ -217,8 +219,10 @@ in `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`.
   simulation/MCP/gateway operations.
 - Review client keys, connector consent, external-telemetry-disabled state, firewall, and
   update-disabled state.
-- Review security findings, dependency alert 389, legal/signing authority, and
-  retained Phase 15 qualification gates before any release claim.
+- Review the open NLTK finding and Linux refinement-workflow test failure, as
+  well as legal/signing authority and retained Phase 15 qualification gates,
+  before any release claim. Dependabot alert 389 was fixed at an earlier
+  checkpoint; it does not resolve the later NLTK finding.
 
 ## Shutdown and maintenance
 

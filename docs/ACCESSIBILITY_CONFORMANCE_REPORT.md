@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-006 |
 | Title | Accessibility conformance report |
-| Document version | v1.1.1 |
+| Document version | v1.1.2 |
 | Product version | 4.4.5 |
 | Status | not_evaluated |
 | Audience | Users, accessibility specialists, product/quality engineering, procurement, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | UI implementation, automated accessibility/keyboard evidence, manual checklist, and retained packaged validation plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-11 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | UI route/control/content/theme, framework, accessibility test, assistive technology, finding, or release change |
 | Requirements and evidence | Product requirement DLE-QR-001, app-readiness reports, Phase 12/13 evidence, manual NVDA record, and independent review |
 
@@ -25,17 +25,19 @@ attestation. Product 4.4.5 remains `not_evaluated` for final accessibility
 conformance because the exact signed installed candidate has not completed
 packaged visual/scaling/high-contrast checks, manual keyboard and NVDA testing,
 unfamiliar-user documentation walkthrough, or independent accessibility review.
-The rebuilt Electron application launches and the automated source/browser
-accessibility baseline remains green; this does not replace packaged scaling,
-high-contrast, manual keyboard/NVDA, or independent acceptance.
-The 4.4.5 clean-source engineering artifact has not completed installed
-visual, scaling, high-contrast, keyboard, or NVDA acceptance.
+The Electron launch and automated source/browser accessibility results are
+recorded checkpoints, not exact-current-source or installed conformance. A
+targeted Analytics accessibility scan passed during PR #91 source verification;
+the available 4.4.5 clean-source engineering installer predates that merge and
+has not completed installed visual, scaling, high-contrast, keyboard, or NVDA
+acceptance. None of these results replaces manual or independent review.
 
 ## Product and evaluation scope
 
 The scope is the Windows 11 x64 Electron desktop application, including public/
 disclosure routes, Dashboard, Chat, Session Library, Runs/Trace Explorer,
-Graph/Knowledge, Simulations, Truth Engine, MCP, Settings/Privacy, Diagnostics,
+Analytics, Graph/Knowledge, Simulations, Truth Engine, the owner-visible
+Algorithms and Tool Execution History views, MCP, Settings/Privacy, Diagnostics,
 and single-owner Admin surfaces. It includes normal, empty, loading, unavailable,
 blocked, failed, validation, confirmation, progress, success, and recovery states.
 
@@ -50,6 +52,7 @@ mobile, macOS, and Linux surfaces are outside the 4.4.5 product scope.
 | Axe route sweep | Phase 13 records 28 production routes with zero detected axe violations | Automated rules do not prove conformance or assistive-technology usability |
 | Browser readiness/keyboard workflows | 10/10 workflows passed | Covers named paths, not every control/state or native Electron behavior |
 | Production control inventory | Source inventory reports zero enabled controls without an obvious action | Does not prove accessible name, focus order, effect, or durable outcome |
+| Targeted Analytics scan | Passed during PR #91 source verification | Does not replace a current full route sweep, installed review, or assistive-technology testing |
 | Type/lint/unit/build | Passing at recorded checkpoints | Does not replace visual/manual/AT review |
 
 The evidence is source/browser checkpoint evidence. It must be regenerated and

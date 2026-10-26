@@ -1,5 +1,16 @@
 # UKG DataLogicEngine — Standards & Compliance Blueprint
 
+> **Historical August 2026 planning input; reviewed 2026-09-27.** The
+> air-gap-capable and single-outbound-flow wording below is an original target
+> assumption, **not a verified current capability**. DataLogicEngine 4.4.5
+> remains `release_blocked`. CR-B must prove egress enforcement and any
+> air-gapped mode; the current approved boundary permits only owner-configured
+> model endpoints and explicitly enabled connectors, with no telemetry or
+> phone-home. Use the current
+> [remediation plan](REMEDIATION_PLAN.md),
+> [security architecture](../SECURITY_ARCHITECTURE.md), and
+> [release record](../RELEASE_READINESS_RECORD.md) for present disposition.
+
 **Prepared for:** Kevin Herrera
 **Date:** August 17, 2026 *(rev. 3 — EU market excluded per Kevin, 2026-08-18)*
 **Scope:** DataLogicEngine v4.4.0 (`release_blocked`), UKG/USKD platform

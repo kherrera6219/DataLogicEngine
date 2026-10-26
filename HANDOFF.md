@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.4 |
+| Document version | v1.22.5 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-09-27 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.1 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.2 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.5 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
@@ -27,6 +27,14 @@
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
 ## Required first read
+
+Documentation review on 2026-09-27 reconciled active user, engineering,
+assurance, and operator guidance to the 4.4.5 source and evidence boundary.
+The audit record is `docs/audits/ACTIVE_DOCUMENTATION_AUDIT_2026-09-27.md`.
+It also identified a governed-chat UI defect: **New Chat clears the conversation
+but leaves the far-right Live Trace panel showing an earlier run.** The code
+currently queries global recent runs when no request is active; this is an
+open session-scoping issue, not a verified fix. See `TODO.md`.
 
 Read these documents in order before changing code or making a readiness claim:
 

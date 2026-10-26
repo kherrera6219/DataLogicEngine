@@ -1,6 +1,8 @@
 # DataLogicEngine Frontend
 
-Modern Next.js 16 frontend application for the Universal Knowledge Graph (UKG) system.
+Next.js 16 renderer for the local-first DataLogicEngine desktop application.
+Product 4.4.5 remains `release_blocked`; a frontend build is not an installed
+release qualification.
 
 ## Tech Stack
 
@@ -12,7 +14,7 @@ Modern Next.js 16 frontend application for the Universal Knowledge Graph (UKG) s
 - **Icons**: Lucide React
 - **Data Fetching**: SWR 2.x for caching and revalidation
 - **API Communication**: Fetch API with Next.js rewrites
-- **Desktop Shell**: Electron 40 (optional, Windows)
+- **Desktop Shell**: Electron 43.1.1 (Windows packaging target)
 - **Charts**: Recharts 3.x
 - **3D Graph**: Three.js + react-force-graph-3d
 
@@ -39,12 +41,17 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Build for Production
+### Local development server build
 
 ```bash
 npm run build
 npm start
 ```
+
+This serves the frontend for engineering checks. It does not authorize a
+public web deployment or substitute for the Windows installer, exact-source
+packaging, and installed acceptance described in the repository root
+[README](../README.md) and [installation guide](../docs/INSTALLATION_GUIDE.md).
 
 ### Electron Desktop Build
 

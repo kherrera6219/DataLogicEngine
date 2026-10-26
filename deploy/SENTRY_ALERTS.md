@@ -1,32 +1,15 @@
-# Sentry Alert Verification
+# Sentry alert guide — retired
 
-Use this guide to validate that Sentry alerts reach the correct team or on-call rotation.
+**Status (2026-09-27): unsupported historical deployment guidance.**
 
----
+DataLogicEngine is owner-operated installed software. There is no approved
+Sentry DSN, crash-reporting or telemetry egress, or third-party alert
+destination in the current product boundary. Do not configure Sentry, send
+test events, or treat a remote alert receipt as release evidence.
 
-## ✅ Prerequisites
-
-- `SENTRY_DSN` configured in `.env`
-- Sentry project alert rules configured (email, Slack, PagerDuty, OpsGenie, etc.)
-
----
-
-## ✅ Send a Test Event
-
-Run the helper script to send a warning-level test event:
-
-```bash
-python scripts/send_sentry_test_event.py \
-  --message "DataLogicEngine alert validation" \
-  --tag service=ukg \
-  --tag environment=production
-```
-
----
-
-## ✅ Verification Checklist
-
-- [ ] Event appears in the Sentry project.
-- [ ] Alert rule triggers correctly.
-- [ ] Notification reaches the expected team/channel.
-- [ ] Incident response runbook is updated with the Sentry link.
+Use the desktop's local diagnostics and the owner-controlled support-bundle
+process described in
+[`docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`](../docs/ADMINISTRATOR_OPERATIONS_GUIDE.md)
+and [`docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`](../docs/TROUBLESHOOTING_SUPPORT_GUIDE.md).
+Any proposal to add remote telemetry or alerting requires an explicit owner
+decision and a revised data-handling/egress review before implementation.

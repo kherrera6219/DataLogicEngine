@@ -54,6 +54,12 @@ these red gates to green, waive the finding, or approve an installed release.
 Production/public release remains **NO-GO** pending a resolved security gate
 and exact-source installed qualification.
 
+The post-merge `main` [Deploy run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632388)
+is a separate negative test result: its Linux Python suite reported one
+failing refinement-workflow test (3,355 passed, 26 skipped). The local Windows
+pass does not close that result. Diagnose and retest the current source without
+skipping or weakening the test before treating the source gate as green.
+
 ## Accessibility (a11y)
 
 | Context | Policy |

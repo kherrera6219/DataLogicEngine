@@ -1,4 +1,4 @@
-# Universal Knowledge Graph (UKG) System Architecture
+# DataLogicEngine system architecture
 
 ## Document control
 
@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
-| Document version | v5.2.0 |
+| Document version | v5.2.1 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, implemented runtime, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-16 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Runtime boundary, service, interface, data-flow, or deployment-architecture change |
 | Requirements and evidence | Root plan, source tree, ADRs, diagrams, and production-readiness reports |
 
@@ -33,6 +33,13 @@ The clean-source Windows build at `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`
 produced an unsigned engineering installer. That build has not been installed
 or tested against live providers; prior 4.4.3 portable/installed observations
 do not transfer to it. CP19-M installed acceptance remains open.
+
+The later PR #91 dependency/CI source refresh and PR #92 documentation update
+are integrated into `main`, but no exact-source installer or installed
+acceptance was produced from them. The Python dependency security scan remains
+red on the unsuppressed transitive NLTK advisory, and the post-merge Linux
+refinement-workflow test also failed. These are separate open source gates;
+repository integration does not authorize production/public release.
 
 Define the current logical and runtime architecture of DataLogicEngine for engineering, security, operations, and technical-review stakeholders.
 
@@ -54,13 +61,11 @@ provider execution/privacy accounting, and release-governed validation.
 ## Related documents
 
 1. `docs/INTERFACE_INTEGRATION.md`
-2. `docs/ADMINISTRATOR_OPERATIONS_GUIDE.md`
-3. `docs/VERIFICATION_VALIDATION_REPORT.md`
-4. `docs/VERIFICATION_VALIDATION_REPORT.md`
-5. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
-6. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
-7. `docs/ARCHITECTURE.md`
-8. `docs/ARCHITECTURE.md`
+2. `docs/DATA_ARCHITECTURE.md`
+3. `docs/SECURITY_ARCHITECTURE.md`
+4. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+5. `docs/VERIFICATION_VALIDATION_REPORT.md`
+6. `docs/RELEASE_READINESS_RECORD.md`
 
 ## Architecture overview
 
@@ -954,17 +959,15 @@ The current validation architecture includes:
 
 ## Reviewer architecture path
 
-A technical reviewer should inspect these diagrams first:
+A technical reviewer should inspect these controlled documents first:
 
 1. `docs/ARCHITECTURE.md`
-2. `docs/ARCHITECTURE.md`
-3. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
-4. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
+2. `docs/DATA_ARCHITECTURE.md`
+3. `docs/SECURITY_ARCHITECTURE.md`
+4. `docs/PRODUCT_REQUIREMENTS.md`
 5. `docs/KA_TRUTHCORE_VALIDATION_DOSSIER.md`
-6. `docs/DATA_ARCHITECTURE.md`
-7. `docs/SECURITY_ARCHITECTURE.md`
-8. `docs/PRODUCT_REQUIREMENTS.md`
-9. `docs/VERIFICATION_VALIDATION_REPORT.md`
+6. `docs/VERIFICATION_VALIDATION_REPORT.md`
+7. `docs/RELEASE_READINESS_RECORD.md`
 
 Then inspect these implementation files:
 

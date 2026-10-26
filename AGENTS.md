@@ -31,7 +31,7 @@ An active remediation program governs most work in this repo. **Read these befor
 
 **Picking work:** read `remediation_tasks.json`, find a task whose `depends_on` are all complete and whose `human_gate` is false, and execute it exactly as written in `REMEDIATION_PLAN.md`. Do not invent tasks.
 
-**Phase A blocks the remediation phases.** The external review reported 40 Windows setup errors, but the 2026-08-20 4.4.1 repair run executed the full Windows suite with 3,295 passed, 18 skipped, and zero errors. CR-A0 must capture a fresh baseline before deciding whether CR-A1 still has work; do not treat the historical count as current or start Phases B–G before Phase A is formally dispositioned.
+**Phase A blocks the remediation phases.** The external review reported 40 Windows setup errors, but a later 4.4.5 Windows source run passed 3,364 tests with 18 skipped and zero setup errors. A separate post-merge Linux Deploy run failed one refinement-workflow test, and the Python dependency security scan remains red on transitive NLTK. CR-A0 must capture a fresh commit-bound remediation baseline before deciding whether CR-A1 still has work; do not treat the historical setup-error count as current or start Phases B–G before Phase A is formally dispositioned.
 
 ---
 

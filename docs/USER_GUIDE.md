@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v4.2.0 |
+| Document version | v4.2.2 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -25,13 +25,16 @@ Provide task-focused instructions for day-to-day use of DataLogicEngine by analy
 This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, Diagnostics, and admin workflows.
 
 The 4.4.5 source selects OpenAI `gpt-6-sol` with High reasoning and Google
-`gemini-3.8-flash`. The clean-source engineering installer contains that
-refresh and a migration for known retired saved defaults; those rows have not
-been verified after installing this artifact. The installer is unsigned and
-has not passed installed provider chat or lifecycle acceptance. Production
-release remains blocked by a signed installed artifact plus provider,
-accessibility, independent, pilot, and soak gates. Earlier 4.4.3 installed
-observations do not transfer to 4.4.5.
+`gemini-3.8-flash`. The available clean-source engineering installer contains
+that model refresh and a migration for known retired saved defaults, but those
+rows have not been verified after installation. The installer is unsigned and
+predates the later PR #91 dependency/CI source changes; no replacement from
+merged source has been installed or provider-tested. The Python dependency
+scan remains red on transitive NLTK, and a separate post-merge Linux
+refinement-workflow test failed. Production/public release is **NO-GO** pending
+security/test disposition, exact-source installed provider and lifecycle
+acceptance, signing, accessibility, independent, pilot, and soak gates. Earlier
+4.4.3 installed observations do not transfer to 4.4.5.
 
 ## Audience
 
@@ -70,14 +73,17 @@ the local desktop trust boundary.
 | `/simulations` | Simulation runs and scenario status. |
 | `/runs` | Trace/run history. |
 | `/runs/view?id=<run_id>` | Trace detail, evidence, stages, and export path. |
+| `/analytics` | Trace and run analytics where data is available. |
 | `/graph` | Knowledge graph exploration. |
 | `/knowledge` | Knowledge records and graph-related review. |
 | `/truth-engine` | Truth Engine status and monitoring. |
 | `/mcp` | MCP connector hub where enabled. |
+| `/algorithms` | Owner-visible Knowledge Algorithm catalog and execution plan. |
+| `/tools/history` | Owner-visible durable algorithm execution history. |
 | `/settings` | API, storage, AI model, preferences, Dataset Exporter, and local configuration. |
 | `/settings/privacy` | Export/delete profile data and manage privacy controls. |
-| `/admin` | Admin telemetry/provider/compliance views (single owner; no user management). |
 | `/admin/diagnostics` | Content-free runtime diagnostics and previewed support-bundle export. |
+| `/admin/compliance` | Owner-visible compliance status. |
 | `/admin/mcp/servers` | MCP server registry management. |
 | `/legal/privacy` | Privacy policy surface. |
 
@@ -350,8 +356,9 @@ Data may leave the machine when:
 1. cloud AI providers are configured;
 2. MCP connectors or external APIs are configured;
 3. users export/share trace bundles or data archives;
-4. web/cloud deployment is used;
-5. logs/reports are manually shared for support.
+4. logs/reports are manually shared for support.
+
+Public web/cloud deployment is outside the approved product boundary.
 
 Review `docs/PRIVACY_AI_NOTICE.md` for details.
 
@@ -379,13 +386,21 @@ Review `docs/PRIVACY_AI_NOTICE.md` for details.
 3. Release builds require trusted production code-signing evidence before public distribution.
 4. Provider-backed features require valid provider credentials and network access.
 5. Some graph/vector/object-store features require local data services to be started or initialized.
+6. The merged-source NLTK security finding and Linux refinement-workflow test
+   failure are unresolved; the available 4.4.5 installer predates those source
+   changes and cannot prove their installed acceptance.
+7. In current source, **New Chat** clears the conversation but the far-right
+   Live Trace panel can still show a run from another session. Treat that
+   panel as historical run telemetry, not evidence for the empty draft; the
+   session-scoping defect is tracked in root `TODO.md`.
 
 ## Change notes for v3.5.0
 
 1. Added the owner-authenticated Diagnostics workflow and the preview-before-
    export support-bundle contract.
-2. Clarified that external crash reporting requires an explicit opt-in and that
-   a configured DSN alone does not authorize egress.
+2. At that checkpoint, external crash reporting was described as opt-in. This
+   is superseded by the current policy: external crash-reporting egress is not
+   approved and must remain disabled; a configured DSN does not authorize it.
 3. Updated the automated accessibility baseline to 28 routes while preserving
    installed NVDA acceptance as open.
 
@@ -422,8 +437,9 @@ Review `docs/PRIVACY_AI_NOTICE.md` for details.
 1. Open Settings -> AI Providers or AI Models.
 2. Confirm at least one provider is saved and active.
 3. Confirm the running desktop/backend is using the same local database.
-4. Set provider key in `.env` as fallback.
-5. Restart local stack or desktop app.
+4. Run the bounded live provider test; a stored key alone is not availability.
+5. Restart the desktop app if configuration is still not reflected, then
+   inspect the safe error and Diagnostics state.
 
 ### Desktop shows login unexpectedly
 
@@ -448,13 +464,6 @@ Review `docs/PRIVACY_AI_NOTICE.md` for details.
 3. Confirm run ID exists.
 4. Confirm backend trace API is reachable.
 5. Confirm user/session permissions.
-
-### Route redirects incorrectly in web mode
-
-1. Re-authenticate.
-2. Verify session cookie state.
-3. Confirm canonical `/api/v1/*` endpoints return JSON auth errors.
-4. Check deployment mode configuration.
 
 ## Related documents
 

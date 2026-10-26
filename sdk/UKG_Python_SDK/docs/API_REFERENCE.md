@@ -1,4 +1,18 @@
-# Python SDK API reference — v0.6
+# Python SDK API reference — v0.7.0
+
+This describes thin clients for the installed governed service, not a second
+client-side reasoning engine. The package version is defined in
+`sdk/UKG_Python_SDK/pyproject.toml`; production/public release of the current
+application remains blocked.
+
+## `UKGClient.gateway` / `UKGAsyncClient.gateway`
+
+The supported `dle-gateway.v1` client contract offers `chat()`, governed
+`stream()`, durable `create_run()`/`runs()`/`run()`/`run_result()`/`cancel_run()`,
+active-request `cancel()`, `capabilities()`, and client-owned `trace()` reads.
+Requests use the installed service's scoped client key; provider credentials
+never belong in the SDK process. See the package
+[`README.md`](../README.md) for the reviewed KA plan/execute pattern.
 
 ## `UKGOverlay`
 

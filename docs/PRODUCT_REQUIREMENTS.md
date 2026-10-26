@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PROD-001 |
 | Title | Product requirements and acceptance specification |
-| Document version | v1.5.0 |
+| Document version | v1.5.1 |
 | Product version | 4.4.5 |
 | Status | active |
 | Audience | Product owner, engineering, quality, assurance, operators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, production completion plan, implemented runtime, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Product scope, supported workflow, architecture, interface, risk, or release-gate change |
 | Requirements and evidence | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, architecture records, tests, and `reports/production-readiness/2026/` |
 
@@ -30,6 +30,13 @@ engineering build is a different, unsigned artifact whose packaged-payload
 check passes but which has not been installed or provider-tested. CP19-M signed
 installed and all retained acceptance requirements remain binding for the
 exact final artifact.
+
+The later PR #91 dependency/CI changes were merged into `main` after that
+engineering installer was built. No installer from the merged source has been
+qualified. Its Python dependency scan is red on transitive `nltk==3.10.3`
+(`PYSEC-2026-3740`), and the post-merge Linux Deploy run has a separate
+refinement-workflow test failure. Source integration is not an installed
+acceptance result, security disposition, or release approval.
 
 ## Product definition
 
@@ -156,7 +163,8 @@ and false receipts block. CP19-F causal Quad Persona/DSQP also passed:
 `KA-012` -> `KA-013` -> `KA-030` consumes the four axes 8-11 profiles once,
 preserves dissent and explicit sufficiency without fabricated confidence, and
 causally changes the single provider prompt. The CP19-F corrected graph was
-132 edges/zero cycles. CP19-G canonical 12-step refinement also passed: all
+132 edges/zero cycles. CP19-G canonical 12-step refinement passed at its
+recorded checkpoint: all
 steps are trace-accounted, zero step-level provider subcalls occur, at most one
 rewrite is allowed, L6-L10 revalidation is mandatory, and lifecycle output is
 proposal-only. The CP19-G graph was 131 edges/zero cycles with 29
@@ -171,7 +179,9 @@ workflow. CP19-K then qualified 213/213 KAs and the current manifest
 `2026.08.11-al10.2` production-enables 211 capabilities with 112 acyclic
 dependency edges. CP19-L passed; CP19-M exact installed acceptance remains
 open.
-Dependabot alert 389 is fixed.
+Dependabot alert 389 is fixed. The later NLTK dependency finding and Linux
+refinement-workflow test failure remain open at the merged-source checkpoint;
+the earlier CP19-G and Windows results do not override those negative results.
 Production/public release is **NO-GO**.
 
 ## Change control

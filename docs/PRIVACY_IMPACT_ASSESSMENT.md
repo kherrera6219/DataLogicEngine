@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-005 |
 | Title | Privacy impact assessment and data inventory |
-| Document version | v1.2.0 |
+| Document version | v1.2.1 |
 | Product version | 4.4.5 |
 | Status | not_evaluated |
 | Audience | Product owner, privacy/security, data engineering, operations, legal reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented data flows, privacy/provider/connector controls, retention/deletion contracts, and current evidence gaps |
 | Confidentiality | Public |
-| Last reviewed | 2026-08-27 |
+| Last reviewed | 2026-09-27 |
 | Next-review trigger | Purpose, data category, subject group, store, provider/connector, retention, deletion, telemetry, region, or legal basis change |
 | Requirements and evidence | Product requirements, privacy notice, data/security architecture, tests, provider/connector records, and independent review |
 
@@ -26,9 +26,11 @@ legal basis, jurisdiction, provider/connector contracts, retention periods,
 children/high-risk-use restrictions, installed no-egress/deletion/remnant proof,
 and independent privacy/legal review are not complete.
 
-The 4.4.5 clean-source engineering installer is unsigned and has not been
-installed or provider-tested. The older 4.4.3 Program Files loopback
-health/readiness observation does not establish 4.4.5 installed
+The available 4.4.5 engineering installer is unsigned, built from source
+`8a419f6c`, and predates the PR #91 dependency refresh. It has not completed
+installed or provider acceptance, and no new exact-source installer has been
+qualified. The older 4.4.3 Program Files loopback health/readiness
+observation does not establish 4.4.5 installed
 redaction/no-egress, provider, deletion/remnant, retention/legal-basis,
 lifecycle, or independent privacy review. The `not_evaluated` production
 status is unchanged.

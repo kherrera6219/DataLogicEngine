@@ -12,7 +12,7 @@
       "DataLogicEngine_External_Review_2026-08-16.md",
       "UKG_Standards_Compliance_Blueprint_2026-08-17.md"
     ],
-    "revision_note": "US-only market decision applied 2026-08-18. On 2026-08-31 the 4.4.4 installed-chat repair source gate completed 3,353 Windows tests, 18 skipped, zero failures or setup errors; CR-A0 must still refresh the commit-bound remediation baseline before CR-A1 disposition. HD-3 resolved; release remains blocked.",
+    "revision_note": "US-only market decision applied 2026-08-18. Original target_version 4.4.4 is plan provenance; current product 4.4.5 remains release_blocked. The current Windows source suite passed 3,364 tests with 18 skipped and zero setup errors, but the post-merge Linux Deploy refinement test and the Python dependency security scan remain red. CR-A0 must still refresh the commit-bound remediation baseline before CR-A1 disposition. HD-3 resolved.",
     "market": "United States only. Product is NOT placed on the EU market (decision 2026-08-18)."
   },
   "out_of_scope": {

@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.83.1 |
+| Document version | v1.83.2 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -29,13 +29,16 @@ signing, accessibility, lifecycle, recovery, independent-review, pilot, or
 soak gates. Production/public release remains **NO-GO**.
 
 Later PR #91 source verification refreshed Node and Python dependencies and
-the Analytics CI fixture. Local npm audit reports zero findings and the
-frontend/Windows packaging checks pass, but the Python dependency scan and
-`backend-test` fail on transitive `nltk==3.10.3` advisory
+the Analytics CI fixture. It merged into `main` at
+`39ba7e54e5e403dbb704ed49ad87b5cf8db3fa26`. Local npm audit reports zero
+findings and the frontend/Windows packaging checks pass, but the Python
+dependency scan and `backend-test` fail on transitive `nltk==3.10.3` advisory
 `PYSEC-2026-3740` / `CVE-2026-81726`; no patched version is published in the
-reviewed advisory. An owner-requested repository merge of that source does not
-waive the failed gate. The physical 4.4.5 installer above predates the PR
-source and cannot serve as its installed acceptance artifact.
+reviewed advisory. The post-merge Deploy Linux suite separately failed one
+refinement-workflow test (3,355 passed, 26 skipped) in run `36378632388`.
+Both negative gates remain open. The owner-requested repository merge did not
+waive either gate. The physical 4.4.5 installer above predates the PR source
+and cannot serve as its installed acceptance artifact.
 
 Phase 19 CP19-K closed all 213/213 individual KA qualification rows. CP19-L
 passed on 2026-08-10 after the full source, dependency, security, frontend, SDK,

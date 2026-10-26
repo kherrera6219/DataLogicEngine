@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.2 |
+| Document version | v1.8.3 |
 | Product version | 4.4.5 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -49,6 +49,11 @@ The post-merge Deploy Linux suite independently reported one failing
 refinement-workflow test, 3,355 passed, and 26 skipped in run `36378632388`.
 The failure remains undispositioned; the earlier Windows pass does not
 supersede this negative evidence.
+
+The newly observed **New Chat** / Live Trace session-scoping defect has source
+evidence but no corrected code or regression pass. Verification must cover a
+fresh draft's empty trace state and restoring the selected saved session's
+trace without deleting persisted run history.
 
 The source Trace Explorer now renders the existing canonical nested refinement
 receipt as named step detail. Earlier focused trace persistence/bundle tests

@@ -1,5 +1,15 @@
 # MCP (Model Context Protocol) Module
 
+> **Internal module notes, reviewed 2026-09-27.** The examples and protocol
+> checklist below describe this library's historical shape; they are not the
+> installed product's approved connector contract or proof of current MCP
+> conformance. The product candidate is MCP `2025-11-25` over owner-approved
+> **local stdio only**, with backend-owned process, consent, scope, and result
+> governance. Network targets, subscriptions, sampling, shell/package runners,
+> and automatic default UKG/KA/graph exposure are not supported product
+> claims. See [`docs/INTERFACE_INTEGRATION.md`](../../docs/INTERFACE_INTEGRATION.md)
+> and [`docs/SECURITY_ARCHITECTURE.md`](../../docs/SECURITY_ARCHITECTURE.md).
+
 This module implements the Model Context Protocol for DataLogicEngine, enabling standardized communication between LLM applications and the Universal Knowledge Graph system.
 
 ## Module Structure
@@ -259,7 +269,7 @@ except MCPError as e:
 
 ## Dependencies
 
-- Python 3.7+
+- Python 3.11+ for the current repository/runtime
 - asyncio (built-in)
 - dataclasses (built-in)
 - typing (built-in)

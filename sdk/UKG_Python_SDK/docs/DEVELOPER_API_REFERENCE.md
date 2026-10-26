@@ -1,7 +1,10 @@
-# SDK developer contract — v0.6
+# SDK developer contract — v0.7.0
 
 The Python package is a client boundary. The installed backend is the sole owner
-of the `governed.v1` request lifecycle and its trace transaction.
+of the `governed.v1` request lifecycle and its trace transaction. The current
+public SDK also exposes `dle-gateway.v1` chat, governed streaming, durable
+jobs, cancellation, capabilities, and client-owned trace reads through
+`UKGClient.gateway` and `UKGAsyncClient.gateway`.
 
 ## Supported architecture
 
@@ -27,5 +30,5 @@ The SDK suite uses an HTTP mock transport and asserts:
 - legacy `TruthEngine` names use the same service boundary;
 - the overlay has no KA-061 or DSQP execution hooks.
 
-Installed OpenAI/Gemini qualification belongs to CP5-E and is not satisfied by
-SDK unit tests.
+Installed OpenAI/Google qualification remains an open exact-artifact release
+gate and is not satisfied by SDK unit tests.
