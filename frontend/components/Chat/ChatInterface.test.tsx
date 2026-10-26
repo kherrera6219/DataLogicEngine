@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ChatInterface } from './ChatInterface';
 import { FeatureFlagProvider } from '@/contexts/FeatureFlagContext';
@@ -209,6 +209,18 @@ describe('ChatInterface', () => {
     expect(screen.getByText('84.0%')).toBeInTheDocument();
     expect(screen.getByText(/not correctness probability/i)).toBeInTheDocument();
     expect(screen.getByText(/1 of 1 provider attempts used/i)).toBeInTheDocument();
+    const response = within(screen.getByText('Measured response').closest('[data-testid="message-item"]') as HTMLElement);
+    expect(response.getByText(/Standard mode does not enable the 12-step refinement workflow/i)).toBeInTheDocument();
+    expect(response.getByText(/does not indicate that the answer met a measured confidence threshold/i)).toBeInTheDocument();
+  });
+
+  it('makes the conditional Enhanced budget visible before sending', async () => {
+    renderChatInterface();
+    const toggle = await screen.findByRole('button', { name: 'Toggle Quad Persona Mode' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/Enhanced mode permits one conditional refinement cycle and at most 2 counted provider attempts/i)).toBeInTheDocument();
   });
 
   it('renders unmeasured confidence with its reason and Enhanced mode', async () => {

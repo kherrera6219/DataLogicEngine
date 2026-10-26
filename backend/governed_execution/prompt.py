@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from backend.governed_execution.contracts import ConvergenceDecision, GovernedContext
@@ -122,7 +123,14 @@ def select_response_depth(context: GovernedContext) -> dict[str, Any]:
             "all ",
         )
         concise_markers = ("what is", "who is", "when did", "where is")
-        if any(marker in query for marker in comprehensive_markers) or len(query) > 240:
+        mechanism_question = (
+            re.search(r"\bhow\s+(?:does|do)\b.+\bwork\b", query) is not None
+        )
+        if (
+            mechanism_question
+            or any(marker in query for marker in comprehensive_markers)
+            or len(query) > 240
+        ):
             profile = "comprehensive"
             reason = "breadth_or_analysis_intent"
         elif len(query) <= 100 and query.startswith(concise_markers):
