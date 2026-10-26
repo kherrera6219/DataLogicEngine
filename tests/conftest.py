@@ -3,6 +3,7 @@ import os
 import sys
 import gc
 import tempfile
+import atexit
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -46,6 +47,7 @@ from flask import has_app_context
 from app import create_app, db
 from extensions import limiter, login_manager
 from sqlalchemy.engine import Engine
+from backend.runtime import ApplicationRuntime
 
 # Shared helpers live in a regular importable module (not this conftest) so test
 # modules can import them by a collision-free name. Re-exported here for
@@ -73,6 +75,18 @@ flask_app = create_app(
     },
     start_runtime=True,
 )
+
+
+def _cleanup_test_runtime():
+    """Release every runtime owned by this fixture root before removing it."""
+    owned_root = Path(_TEST_RUNTIME.name).resolve()
+    for candidate in gc.get_objects():
+        if isinstance(candidate, ApplicationRuntime) and candidate.runtime_root.resolve().is_relative_to(owned_root):
+            candidate.shutdown()
+    _TEST_RUNTIME.cleanup()
+
+
+atexit.register(_cleanup_test_runtime)
 
 
 def _dispose_sqlalchemy_engines() -> None:
@@ -176,7 +190,7 @@ def _final_engine_cleanup():
     compatibility_app = app_module._default_app
     if compatibility_app is not None:
         compatibility_app.extensions["dle_runtime"].shutdown()
-    _TEST_RUNTIME.cleanup()
+    _cleanup_test_runtime()
 
 @pytest.fixture
 def client(app):
