@@ -31,6 +31,7 @@ os.environ.setdefault(
 # Ensure repository root is on the Python path for tests
 ROOT_DIR = Path(__file__).resolve().parent.parent
 _TEST_RUNTIME = tempfile.TemporaryDirectory(prefix="dle-tests-")
+_TEST_RUNTIME_CLEANED = False
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
@@ -79,11 +80,15 @@ flask_app = create_app(
 
 def _cleanup_test_runtime():
     """Release every runtime owned by this fixture root before removing it."""
+    global _TEST_RUNTIME_CLEANED
+    if _TEST_RUNTIME_CLEANED:
+        return
     owned_root = Path(_TEST_RUNTIME.name).resolve()
     for candidate in gc.get_objects():
         if isinstance(candidate, ApplicationRuntime) and candidate.runtime_root.resolve().is_relative_to(owned_root):
             candidate.shutdown()
     _TEST_RUNTIME.cleanup()
+    _TEST_RUNTIME_CLEANED = True
 
 
 atexit.register(_cleanup_test_runtime)
