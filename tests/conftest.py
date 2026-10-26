@@ -2,6 +2,7 @@
 import os
 import sys
 import gc
+import tempfile
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -28,6 +29,7 @@ os.environ.setdefault(
 
 # Ensure repository root is on the Python path for tests
 ROOT_DIR = Path(__file__).resolve().parent.parent
+_TEST_RUNTIME = tempfile.TemporaryDirectory(prefix="dle-tests-")
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
@@ -36,7 +38,7 @@ if str(ROOT_DIR) not in sys.path:
 # process-scoped disposable root as explicit test app factories.
 os.environ.setdefault(
     'DLE_RUNTIME_ROOT',
-    str(ROOT_DIR / '.pytest_cache' / f'default-runtime-{os.getpid()}'),
+    str(Path(_TEST_RUNTIME.name) / 'default'),
 )
 
 import pytest
@@ -62,7 +64,7 @@ flask_app = create_app(
     {
         "SQLALCHEMY_DATABASE_URI": TEST_DATABASE_URL,
         "DLE_RUNTIME_ROOT": str(
-            ROOT_DIR / ".pytest_cache" / f"runtime-{os.getpid()}-{__name__.replace('.', '-')}"
+            Path(_TEST_RUNTIME.name) / "app"
         ),
         "DLE_INITIALIZE_SCHEMA": False,
         "DLE_INITIALIZE_STORES": False,
@@ -169,6 +171,12 @@ def _final_engine_cleanup():
         _dispose_sqlalchemy_engines()
         _dispose_stray_sqlalchemy_engines()
     flask_app.extensions["dle_runtime"].shutdown()
+    import app as app_module
+
+    compatibility_app = app_module._default_app
+    if compatibility_app is not None:
+        compatibility_app.extensions["dle_runtime"].shutdown()
+    _TEST_RUNTIME.cleanup()
 
 @pytest.fixture
 def client(app):

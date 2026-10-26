@@ -123,14 +123,11 @@ def test_rag_basic_chunking():
     assert len(chunks) > 1
     assert "Hello" in chunks[0]
 
-@patch('backend.services.rag_service.LLAMAINDEX_AVAILABLE', False)
-def test_rag_chunk_text_fallback():
+def test_rag_chunk_text_uses_local_sentence_boundaries():
     service = RAGService()
-    text = "Detailed text content here."
-    # With LlamaIndex disabled, should hit basic chunker
-    with patch.object(service, '_basic_chunk_text') as mock_basic:
-        service.chunk_text(text)
-        mock_basic.assert_called_with(text, 512, 50)
+    assert service.chunk_text("First sentence. Second sentence.", chunk_size=4, overlap=0) == [
+        "First sentence.", "Second sentence."
+    ]
 
 def test_rag_default_embedding_is_deterministic_and_has_no_hidden_clients():
     service = RAGService()
