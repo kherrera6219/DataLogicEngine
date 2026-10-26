@@ -6,15 +6,15 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.5 |
-| Product version | 4.4.5 |
+| Document version | v1.13.6 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
 | Owner | Product Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -45,25 +45,23 @@ open remediation gate. There is no approved telemetry, license check-in,
 update check, crash-reporting egress, or phone-home.
 
 > [!WARNING]
-> **Engineering evaluation only. DataLogicEngine 4.4.5 is not approved for a
+> **Engineering evaluation only. DataLogicEngine 4.4.6 is not approved for a
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The public `main` branch includes [PR #91](https://github.com/kherrera6219/DataLogicEngine/pull/91)
-at merge commit `39ba7e54e5e403dbb704ed49ad87b5cf8db3fa26`. This merged
-source is an engineering checkpoint, not an approved release. Its
-[post-merge Security Scan](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632416)
-failed the Python dependency audit on transitive `nltk==3.10.3`
-(`PYSEC-2026-3740` / `CVE-2026-81726`); the
-[advisory](https://github.com/advisories/GHSA-8mgp-746c-j5xp) lists no
-patched version. The finding is not suppressed or waived. Production/public
-release remains **NO-GO**. Separately, the
+The public `main` branch includes documentation [PR #93](https://github.com/kherrera6219/DataLogicEngine/pull/93)
+at `9911280f`. Its October 26 checks found 93 Python advisories and 26
+vulnerable NPM packages. The 4.4.6 repair branch refreshes both locks and
+removes the LlamaIndex/NLTK path; current local audits report **zero findings
+without exceptions**. Final repair-branch CI and rebuilt-installed acceptance
+are still required. See the [repair checkpoint](docs/audits/CI_CHAT_REPAIR_2026-10-26.md).
+Production/public release remains **NO-GO**. Separately, the historical
 [post-merge Deploy test run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632388)
 failed one Linux refinement-workflow test; that result has not been
 dispositioned.
 
-The current locally built engineering candidate is `DataLogicEngine Setup 4.4.5.exe`
+The preceding locally built engineering candidate is `DataLogicEngine Setup 4.4.5.exe`
 (398,783,115 bytes; SHA-256
 `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`).
 It was packaged from clean source commit
@@ -81,6 +79,13 @@ with 18 skipped and zero setup errors. The PR's frontend, npm audit, and
 Windows packaging checks passed; its Python dependency scan and backend job
 failed on the NLTK advisory. A new installer must be built from a
 security-dispositioned source commit before installed verification resumes.
+
+The 4.4.6 chat UI explains that Standard mode disables the 12-step rewrite
+workflow and that this is not a measured-confidence decision. Enhanced mode
+allows one conditional cycle within two provider attempts. Questions phrased
+“how does … work” request a fuller explanation within the existing call budget.
+Standard answers without governed sources remain permitted by owner policy;
+an answer's release or completed stages do not prove its claims were verified.
 
 In 4.4.5, desktop chat uses the selected model's declared input/output
 capacity and can continue from the owner's saved local session transcript.

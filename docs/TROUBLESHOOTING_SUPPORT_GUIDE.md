@@ -7,7 +7,7 @@
 | Document ID | DLE-USER-004 |
 | Title | Troubleshooting and support guide |
 | Document version | v1.3.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | qualification_only |
 | Audience | Users, evaluators, operators, support engineers, and security reviewers |
 | Owner | Support Engineering |

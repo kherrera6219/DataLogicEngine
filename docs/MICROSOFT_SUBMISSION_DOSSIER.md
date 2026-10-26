@@ -7,7 +7,7 @@
 | Document ID | DLE-EXT-002 |
 | Title | Microsoft distribution and submission dossier |
 | Document version | v1.1.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | not_evaluated |
 | Audience | Distribution owner, product/release authority, legal/privacy/security, accessibility, operations, and Microsoft submission reviewers |
 | Owner | Distribution Owner |

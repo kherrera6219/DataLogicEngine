@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
 | Document version | v1.6.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
 | Owner | API Engineering |

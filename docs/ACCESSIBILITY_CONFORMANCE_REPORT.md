@@ -7,7 +7,7 @@
 | Document ID | DLE-ASR-006 |
 | Title | Accessibility conformance report |
 | Document version | v1.1.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | not_evaluated |
 | Audience | Users, accessibility specialists, product/quality engineering, procurement, and release authority |
 | Owner | Accessibility Review |

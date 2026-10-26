@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-002 |
 | Title | Data architecture and schema specification |
 | Document version | v1.2.3 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | active |
 | Audience | Data, platform, security, privacy, quality, operations, and professional reviewers |
 | Owner | Data Engineering |

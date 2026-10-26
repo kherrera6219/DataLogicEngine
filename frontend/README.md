@@ -14,7 +14,7 @@ release qualification.
 - **Icons**: Lucide React
 - **Data Fetching**: SWR 2.x for caching and revalidation
 - **API Communication**: Fetch API with Next.js rewrites
-- **Desktop Shell**: Electron 43.1.1 (Windows packaging target)
+- **Desktop Shell**: Electron 43.8.3 (Windows packaging target)
 - **Charts**: Recharts 3.x
 - **3D Graph**: Three.js + react-force-graph-3d
 

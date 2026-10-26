@@ -6,26 +6,38 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.5 |
-| Product version | 4.4.5 |
+| Document version | v1.20.6 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.2 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; PR #91 merged into `main` at `39ba7e54`, but Python dependency security/backend checks remain red on NLTK and post-merge Deploy has one Linux refinement test failure. Security/test disposition, a new exact-source rebuild, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19; owner-approved 4.4.6 security/chat repair pending final Windows coverage, CI, clean-source rebuild, installed acceptance, and signing/lifecycle/provider CP19-M rows |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
+
+## October 26 owner-approved repair
+
+- [ ] Complete the current repair's full Windows suite, frontend coverage, and
+      GitHub CI checks, then package from a clean commit. Local refreshed Python
+      and NPM audits report zero findings without exceptions. LlamaIndex/NLTK
+      have been removed and PyJWT upgraded with claim-verification regressions.
+      See `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`; earlier red September jobs
+      below remain historical negative evidence until replacement CI is retained.
+- [ ] Validate the new chat refinement explanation and comprehensive mechanism
+      answers in a rebuilt installation. Standard no-evidence answer behavior
+      remains owner-approved; no extra provider call is implicit.
 
 ## Governed-chat UI finding from the 2026-09-27 owner observation
 
@@ -66,17 +78,15 @@ source gate; the earlier Windows pass does not close it.
       and backend checks, then the full current-source release gate. Record an
       exact-source Windows packaging and installed-acceptance result before a
       release decision.
-- [ ] Resolve or explicitly disposition `PYSEC-2026-3740` /
-      `CVE-2026-81726` in transitive `nltk==3.10.3`. The 2026-09-27 local
-      Python audit reports one remaining finding and the upstream advisory
-      lists no patched version. Do not add an audit suppression or treat a
-      repository merge as a security disposition. Any dependency removal or replacement that changes
-      retrieval behavior requires owner direction and testing.
+- [x] Remove the transitive NLTK path under Kevin's October 26 fast-track
+      approval. The replacement splitter is versioned and tested; refreshed
+      local Python/NPM audits report zero findings without exceptions. Retain
+      replacement GitHub and rebuilt-artifact evidence before release.
 - [ ] Track existing repository-wide lint debt through the compliance
       remediation program: the full Ruff check currently reports 58 errors
-      and the format check would change 870 files. The CI-scoped Ruff rule set
+      and the format check would change 862 files. The CI-scoped Ruff rule set
       passes; this dependency merge does not weaken either full gate.
-- [ ] After the dependency gate is green, produce a fresh exact-source 4.4.5
+- [ ] After the dependency gate is green, produce a fresh exact-source 4.4.6
       engineering installer and repeat installed acceptance. The existing
       unsigned setup artifact was built before this dependency refresh.
 

@@ -7,7 +7,7 @@
 | Document ID | DLE-USER-005 |
 | Title | Privacy, provider, retention, and AI limitations notice |
 | Document version | v1.2.1 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, administrators, privacy/security reviewers, and release authority |
 | Owner | Privacy Engineering |

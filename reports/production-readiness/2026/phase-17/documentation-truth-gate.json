@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-09-28T05:10:01.786858+00:00",
+  "generated_at": "2026-10-26T16:09:45.532223+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -11,10 +11,10 @@
     {
       "name": "live_route_manifest",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_route_manifest.py",
         "--output",
-        "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\route-manifest.json",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\route-manifest.json",
         "--fail-unclassified"
       ],
       "passed": true,
@@ -25,20 +25,20 @@
     {
       "name": "product_version_parity",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_product_versions.py",
         "--report",
-        "C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json"
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "[PASS] pyproject: 4.4.5\n[PASS] frontend-package: 4.4.5\n[PASS] frontend-lock: 4.4.5\n[PASS] frontend-lock-root: 4.4.5\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: c3d4e5f6a7b8\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.4.5\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\software\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
+      "stdout": "[PASS] pyproject: 4.4.6\n[PASS] frontend-package: 4.4.6\n[PASS] frontend-lock: 4.4.6\n[PASS] frontend-lock-root: 4.4.6\n[PASS] python-sdk: 0.7.0\n[PASS] typescript-sdk: 0.1.0\n[PASS] provider-manifest: provider-manifest.v1\n[PASS] data-plane-schema: c3d4e5f6a7b8\n[PASS] electron-artifact-name: present\n[PASS] electron-update-signature: true\n[PASS] changelog-lineage: 4.4.6\n[PASS] next-build-injection: present\n[PASS] about-ui: present\n[PASS] frozen-bundle: present\n[PASS] backend-file-version: present\n[PASS] backend-runtime: present\n[PASS] gateway-contract: present\n[PASS] virtual-model-manifest: present\nReport: C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\reports\\production-readiness\\2026\\phase-17\\product-version-parity.json\n",
       "stderr": ""
     },
     {
       "name": "openapi_compatibility",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/check_gateway_openapi_compatibility.py"
       ],
       "passed": true,
@@ -49,19 +49,18 @@
     {
       "name": "generated_contract_index",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
-        "scripts/generate_documentation_contract_index.py",
-        "--check"
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
+        "scripts/generate_documentation_contract_index.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Generated documentation contract index matches authorities\n",
+      "stdout": "Generated documentation contract index: C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\docs\\generated\\PRODUCTION_CONTRACT_INDEX.md\n",
       "stderr": ""
     },
     {
       "name": "documentation_authority",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_doc_authority.py"
       ],
       "passed": true,
@@ -72,18 +71,18 @@
     {
       "name": "documentation_bom",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_documentation_bom.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=183 errors=0\n",
+      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=184 errors=0\n",
       "stderr": ""
     },
     {
       "name": "phase16_replacement",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_document_replacement_closure.py"
       ],
       "passed": true,
@@ -94,7 +93,7 @@
     {
       "name": "phase17_history",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/consolidate_phase17_history.py"
       ],
       "passed": true,
@@ -105,7 +104,7 @@
     {
       "name": "requirements_traceability",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_requirements_traceability.py"
       ],
       "passed": true,
@@ -116,12 +115,12 @@
     {
       "name": "documentation_references",
       "command": [
-        "C:\\Users\\kevin\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\python.exe",
+        "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\.venv\\Scripts\\python.exe",
         "scripts/verify_docs_references.py"
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Discovered 58 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
+      "stdout": "Discovered 59 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
       "stderr": ""
     }
   ]

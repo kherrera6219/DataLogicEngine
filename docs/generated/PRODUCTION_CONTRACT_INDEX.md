@@ -8,8 +8,8 @@
 | Field | Authority value |
 |---|---|
 | Product | `DataLogicEngine Desktop` |
-| Product version | `4.4.5` |
-| Windows file version | `4.4.5.0` |
+| Product version | `4.4.6` |
+| Windows file version | `4.4.6.0` |
 | Release channel | `pre-production` |
 | Installer artifact pattern | `DataLogicEngine Setup ${version}.${ext}` |
 | Current local artifact | `DataLogicEngine Setup 4.4.5.exe` |

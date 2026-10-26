@@ -193,8 +193,8 @@ TARGETS = {
         "markers": {
             "Dependency authorities",
             "SBOM and inventory set",
-            "81 direct pins",
-            "290 hash-locked packages",
+            "82 direct pins",
+            "274 universal hash-locked packages",
             "alert 389",
             "Notice and redistribution approval gate",
         },

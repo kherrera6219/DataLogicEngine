@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-09-28T05:09:56.910969+00:00",
+  "generated_at": "2026-10-26T16:09:39.002647+00:00",
   "source": "live Flask app.url_map",
   "allowed_classifications": [
     "authenticated-mutation",

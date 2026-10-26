@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PLAN-CHAT-QC-2026-08-26 |
 | Document version | v1.1.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Date | 2026-08-26 |
 | Last reviewed | 2026-09-27 |
 | Status | Source implementation through CHAT-QC-05 complete; pre-refresh 4.4.5 engineering installer exists; installed CHAT-QC-06, PR #91 security, Linux refinement, and newly observed trace-panel session-scoping gates open; not release authority |

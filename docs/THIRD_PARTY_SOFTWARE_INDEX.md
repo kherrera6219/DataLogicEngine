@@ -6,22 +6,22 @@
 |---|---|
 | Document ID | DLE-ASR-007 |
 | Title | SBOM, licensing, redistribution, and notices index |
-| Document version | v1.1.3 |
-| Product version | 4.4.5 |
+| Document version | v1.1.4 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Release/legal/security engineering, procurement, operators, independent reviewers, and release authority |
 | Owner | Release Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Exact dependency locks, service candidate lock, SBOMs, release manifest, ownership/legal registers, and review evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Dependency/service/artifact, license, notice, vulnerability, provider/model, asset, redistribution, region, or release change |
 | Requirements and evidence | Product requirement DLE-QR-002/004/006, exact locks, SBOMs, manifests, scans, legal actions, and approved notice bundle |
 
 ## Current disposition
 
 This index is an engineering inventory, not legal advice, redistribution
-approval, a complete notice bundle, or a SLSA conformance claim. Product 4.4.5
+approval, a complete notice bundle, or a SLSA conformance claim. Product 4.4.6
 remains release-blocked: ten legal/distribution actions, final exact-artifact
 SBOM/notices reconciliation, publisher/signing, vulnerability/malware scans,
 service redistribution, installed object-store acceptance, export/region review,
@@ -30,14 +30,17 @@ and owner/independent approvals remain open.
 At the historical CP19-L checkpoint, the governed Python and Node locks passed
 local vulnerability audits and the candidate passed payload/integrity checks.
 That finding does not apply to the later PR #91 dependency refresh: local npm
-audit reports zero advisories, while the Python audit and GitHub dependency
+audit reported zero advisories, while the September Python audit and GitHub dependency
 security scan report transitive `nltk==3.10.3` advisory `PYSEC-2026-3740` /
 `CVE-2026-81726`, with no published patched version in the reviewed advisory.
 No suppression or waiver is in place. Exact signed-artifact SBOM,
 malware scan, redistribution/notices, publisher, and legal approval remain open.
 The local 4.4.5 engineering artifact predates PR #91 source and has a different
 hash from the installed qualification artifact. A later exact-source candidate
-requires its own final SBOM/notices and scan binding.
+requires its own final SBOM/notices and scan binding. The October 26 4.4.6 repair
+removes LlamaIndex/NLTK and updates the Python/NPM locks; fresh local audits
+report zero findings without exceptions. Replacement CI and exact-artifact
+qualification remain required.
 Prior scheduled secret-scan evidence does not replace final exact-candidate
 scans.
 
@@ -45,8 +48,8 @@ scans.
 
 | Ecosystem | Reviewed input | Exact release authority | Build/runtime boundary |
 |---|---|---|---|
-| Python | `requirements.txt` (81 direct pins at this review) | `requirements.lock` (290 hash-locked packages at this review) | CPython 3.11; hashes required; no implicit `pyproject` runtime authority |
-| Node/Electron | `frontend/package.json` | `frontend/package-lock.json` v3 via `npm ci` | Node major 24; locked Electron 43.1.1, Next.js 16.3.6, and electron-builder 26.15.3 |
+| Python | `requirements.txt` (82 direct pins at the October repair) | `requirements.lock` (274 universal hash-locked packages) | CPython 3.11; hashes required; no implicit `pyproject` runtime authority |
+| Node/Electron | `frontend/package.json` | `frontend/package-lock.json` v3 via `npm ci` | Node major 24; locked Electron 43.8.3 and Next.js 16.4.3 |
 | Internal services | `deploy/internal-data-plane.candidate-lock.json` | Exact image/runtime digests and platform selection | Engineering candidates only until redistribution/security/license approval |
 | Product/contracts | `config/product-versions.json` | Product 4.4.5, Windows 4.4.5.0, versioned public/gateway/governed/data contracts | Must match installer, binaries, UI/API/support, SDKs, manifests, and evidence |
 
@@ -86,6 +89,9 @@ electron-builder 26.15.3; the later source also locks `pypdf==6.19.0`,
 `soupsieve==2.10`, and transitive `nltk==3.10.3`. Exact service image
 versions/digests and license fields are recorded in the service candidate lock
 and release manifest. The historical manifest does not attest the later source.
+The October 26 owner-approved repair removes LlamaIndex/NLTK, refreshes the
+Python/NPM locks, and records zero findings in local audits without exceptions.
+See `docs/audits/CI_CHAT_REPAIR_2026-10-26.md` for the current verification boundary.
 
 Redis is recorded as an AGPL-3.0 selection from a tri-license and explicitly
 requires redistribution review. Podman redistribution review is pending. Every

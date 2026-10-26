@@ -1,9 +1,9 @@
 {
   "schema_version": "dle.documentation-bom-verification.v1",
-  "generated_at": "2026-09-28T05:09:58.030577+00:00",
+  "generated_at": "2026-10-26T16:09:40.481392+00:00",
   "status": "pass",
   "canonical_count": 30,
   "canonical_limit": 30,
-  "inventory_count": 183,
+  "inventory_count": 184,
   "errors": []
 }

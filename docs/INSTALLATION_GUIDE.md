@@ -7,7 +7,7 @@
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
 | Document version | v1.4.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
 | Owner | Platform Operations |
