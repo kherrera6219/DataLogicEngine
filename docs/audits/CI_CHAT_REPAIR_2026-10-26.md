@@ -76,12 +76,23 @@ revision data uses the existing extensible ingestion metadata.
   exceeded Windows path length in the managed worktree; fixtures now own a short
   temporary root and explicitly shut down the compatibility runtime before
   cleanup. All 20 affected authority/simulation tests pass after correction.
-- Final full Windows coverage suite and GitHub repair-branch checks are pending
-  at this checkpoint. No installed acceptance is claimed.
+- Final full Windows coverage suite: **3,373 passed, 19 skipped**, zero test,
+  setup, or collection errors. Coverage passes backend **80.45%**,
+  backend/security **80.67%**, and core **81.08%**. The suite reported 35 existing
+  deprecation warnings. A repeated post-pytest cleanup log was corrected with an
+  idempotency guard; the 61-test cleanup group passes without a logging/lock
+  exception after that correction.
+- [PR #94](https://github.com/kherrera6219/DataLogicEngine/pull/94) has passing
+  GitHub Python/NPM security scans, code scans, secret scan, SBOM, governance,
+  lint, backend tests, and frontend build at its first repair checkpoint. Packaging and the
+  final pushed head must finish before merge. No installed acceptance is claimed.
 - The 4.4.6 bump also required updating the version/upgrade-lineage assertions
   and dependency-count documentation verifier. After those updates and complete
   fixture-owned runtime shutdown, the affected 61-test group passes with zero
-  setup errors. The next full run uses the same `FLASK_ENV=testing` profile as CI.
+  setup errors. The final full run used the same `FLASK_ENV=testing` profile as CI.
+- The first 4.4.6 installer attempt failed because `public/icon.png` contains
+  JPEG bytes. Packaging now selects the existing valid 512-pixel PNG icon;
+  this does not alter the image asset. A clean-source rebuild is pending.
 - Full Ruff has the previously recorded **58 errors** in unchanged files;
   full format check reports **862 files** requiring formatting. Changed Python
   code passes scoped Ruff. Repository-wide mypy reports **972 errors** and is
