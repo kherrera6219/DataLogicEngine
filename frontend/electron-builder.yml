@@ -25,7 +25,7 @@ extraResources:
 win:
   target:
     - nsis
-  icon: public/icon.png
+  icon: public/icons/icon-512.png
   verifyUpdateCodeSignature: true
 nsis:
   oneClick: false
