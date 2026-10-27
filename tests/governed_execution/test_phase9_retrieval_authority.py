@@ -3,6 +3,7 @@ from hashlib import sha256
 
 from backend.governed_execution.contracts import GovernedRequest
 from backend.governed_execution.retrieval import retrieve_evidence
+from backend.services.rag_service import RAGService
 from extensions import db
 from models import IngestionChunk, IngestionFile, IngestionJob
 
@@ -21,6 +22,31 @@ class IngestionRag:
 
     def search_user_chat_history(self, **kwargs):
         return []
+
+
+def test_failed_vector_search_is_distinct_from_empty_results():
+    class FailedStore:
+        def search(self, **kwargs):
+            raise RuntimeError("private connection details")
+
+    request = _request()
+    service = RAGService(vector_store=FailedStore(), embedding_provider=lambda _text: [0.1])
+    evidence, warnings = retrieve_evidence(request, "policy", rag_service=service)
+    assert evidence == []
+    assert any(item.startswith("document_retrieval_failed:") for item in warnings)
+    assert any(item.startswith("knowledge_retrieval_failed:") for item in warnings)
+    assert all("private connection details" not in item for item in warnings)
+
+
+def test_empty_vector_search_has_no_failure_warning():
+    class EmptyStore:
+        def search(self, **kwargs):
+            return []
+
+    service = RAGService(vector_store=EmptyStore(), embedding_provider=lambda _text: [0.1])
+    evidence, warnings = retrieve_evidence(_request(), "policy", rag_service=service)
+    assert evidence == []
+    assert warnings == []
 
 
 def _request(**metadata):
