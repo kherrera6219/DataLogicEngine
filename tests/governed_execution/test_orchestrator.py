@@ -829,6 +829,10 @@ async def test_changing_retrieved_evidence_changes_final_result(monkeypatch):
     current["text"] = "beta evidence"
     second = await _orchestrator(_Gateway()).execute(_request())
 
+    assert first.ok, first.to_dict()
+    assert second.ok, second.to_dict()
+    assert first.claims and first.evidence, first.to_dict()
+    assert second.claims and second.evidence, second.to_dict()
     assert first.answer != second.answer
     assert first.claims[0].evidence_ids == [first.evidence[0].evidence_id]
     assert second.claims[0].evidence_ids == [second.evidence[0].evidence_id]
