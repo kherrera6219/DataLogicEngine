@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-006 |
 | Title | Accessibility conformance report |
-| Document version | v1.1.2 |
+| Document version | v1.1.3 |
 | Product version | 4.4.6 |
 | Status | not_evaluated |
 | Audience | Users, accessibility specialists, product/quality engineering, procurement, and release authority |
@@ -14,22 +14,22 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | UI implementation, automated accessibility/keyboard evidence, manual checklist, and retained packaged validation plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | UI route/control/content/theme, framework, accessibility test, assistive technology, finding, or release change |
 | Requirements and evidence | Product requirement DLE-QR-001, app-readiness reports, Phase 12/13 evidence, manual NVDA record, and independent review |
 
 ## Report status
 
 This is not a VPAT, ACR certification, WCAG conformance claim, or procurement
-attestation. Product 4.4.5 remains `not_evaluated` for final accessibility
+attestation. Product 4.4.6 remains `not_evaluated` for final accessibility
 conformance because the exact signed installed candidate has not completed
 packaged visual/scaling/high-contrast checks, manual keyboard and NVDA testing,
 unfamiliar-user documentation walkthrough, or independent accessibility review.
 The Electron launch and automated source/browser accessibility results are
 recorded checkpoints, not exact-current-source or installed conformance. A
 targeted Analytics accessibility scan passed during PR #91 source verification;
-the available 4.4.5 clean-source engineering installer predates that merge and
-has not completed installed visual, scaling, high-contrast, keyboard, or NVDA
+the available 4.4.6 engineering installer has not completed installed visual,
+scaling, high-contrast, keyboard, or NVDA
 acceptance. None of these results replaces manual or independent review.
 
 ## Product and evaluation scope
@@ -43,7 +43,7 @@ blocked, failed, validation, confirmation, progress, success, and recovery state
 
 The backend/API and generated/exported documents are assessed where their output
 is presented to a user or accessibility professional. Unsupported public web,
-mobile, macOS, and Linux surfaces are outside the 4.4.5 product scope.
+mobile, macOS, and Linux surfaces are outside the 4.4.6 product scope.
 
 ## Current automated evidence
 

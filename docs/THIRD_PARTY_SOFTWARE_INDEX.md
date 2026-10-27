@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-007 |
 | Title | SBOM, licensing, redistribution, and notices index |
-| Document version | v1.1.4 |
+| Document version | v1.1.5 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Release/legal/security engineering, procurement, operators, independent reviewers, and release authority |
@@ -52,7 +52,7 @@ scans.
 | Python | `requirements.txt` (82 direct pins at the October repair) | `requirements.lock` (274 universal hash-locked packages) | CPython 3.11; hashes required; no implicit `pyproject` runtime authority |
 | Node/Electron | `frontend/package.json` | `frontend/package-lock.json` v3 via `npm ci` | Node major 24; locked Electron 43.8.3 and Next.js 16.4.3 |
 | Internal services | `deploy/internal-data-plane.candidate-lock.json` | Exact image/runtime digests and platform selection | Engineering candidates only until redistribution/security/license approval |
-| Product/contracts | `config/product-versions.json` | Product 4.4.5, Windows 4.4.5.0, versioned public/gateway/governed/data contracts | Must match installer, binaries, UI/API/support, SDKs, manifests, and evidence |
+| Product/contracts | `config/product-versions.json` | Product 4.4.6, Windows 4.4.6.0, versioned public/gateway/governed/data contracts | Must match installer, binaries, UI/API/support, SDKs, manifests, and evidence |
 
 Package-manager license metadata is a discovery input, not authoritative legal
 permission. Exact source/license texts, notices, exceptions, linking/distribution
@@ -146,8 +146,9 @@ The 2026-07-15 lock refresh included Flask async support plus Pillow 12.3.0,
 Starlette 1.3.1, and Transformers 5.13.0. Its post-replacement lock contained
 290 packages and no Chroma Python SDK. An isolated audit then examined 266
 applicable dependencies and found zero vulnerabilities. That historical result
-does not supersede the current PR #91 Python audit failure on NLTK or qualify
-the older installer for the later source. Installed exact-artifact review,
+does not supersede the historical PR #91 Python audit failure on NLTK or qualify
+the older installer for later source. The 4.4.6 repair subsequently removed the
+NLTK path and passed replacement audits. Installed exact-artifact review,
 legal approval, and release authorization remain separate gates.
 
 ## Notice and redistribution approval gate

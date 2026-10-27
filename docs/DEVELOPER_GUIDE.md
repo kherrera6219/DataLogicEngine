@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.8.2 |
+| Document version | v3.8.3 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -391,11 +391,9 @@ npm --prefix frontend run electron:build
 
 ### Desktop installer
 
-Rebuild the backend first, then build the Electron/NSIS installer:
+The installer command rebuilds the backend before Electron/NSIS packaging:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\build_backend.py
-$env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 

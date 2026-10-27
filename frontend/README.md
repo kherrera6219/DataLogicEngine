@@ -1,7 +1,7 @@
 # DataLogicEngine Frontend
 
 Next.js 16 renderer for the local-first DataLogicEngine desktop application.
-Product 4.4.5 remains `release_blocked`; a frontend build is not an installed
+Product 4.4.6 remains `release_blocked`; a frontend build is not an installed
 release qualification.
 
 ## Tech Stack
@@ -22,7 +22,7 @@ release qualification.
 
 ### Prerequisites
 
-- Node.js 24+
+- Node.js 24
 - npm 11+
 - Backend running on `http://localhost:5000`
 

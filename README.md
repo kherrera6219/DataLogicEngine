@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.6 |
+| Document version | v1.13.7 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -21,8 +21,8 @@
 [![CI](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/ci.yml)
 [![Security](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/security.yml)
 [![Deploy](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/deploy.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/deploy.yml)
-[![Python](https://img.shields.io/badge/python-3.11%2B-3776AB)](requirements.txt)
-[![Node](https://img.shields.io/badge/node-24%2B-339933)](frontend/package.json)
+[![Python](https://img.shields.io/badge/python-3.11-3776AB)](requirements.txt)
+[![Node](https://img.shields.io/badge/node-24-339933)](frontend/package.json)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
 
 **Governed AI for organizations that need evidence, control, and
@@ -59,8 +59,10 @@ and zero test/setup/collection errors; all **506 frontend tests** pass.
 Installed acceptance remains required. See the
 [repair checkpoint](docs/audits/CI_CHAT_REPAIR_2026-10-26.md).
 The subsequent [test timing correction](https://github.com/kherrera6219/DataLogicEngine/pull/96)
-passes a full Windows run of 3,374 tests with 19 skipped and zero test/setup/
-collection errors. Its current GitHub validation is tracked on the PR.
+merged at `73187a8d` and passes a full Windows run of 3,374 tests with 19 skipped
+and zero test/setup/collection errors. Its PR checks and post-merge CI/CD,
+Deploy, and Security workflows pass at that commit. Current workflow status is
+available on [GitHub Actions](https://github.com/kherrera6219/DataLogicEngine/actions).
 Production/public release remains **NO-GO**. Separately, the historical
 [post-merge Deploy test run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632388)
 failed one Linux refinement-workflow test. The replacement PR #94 backend job
@@ -74,7 +76,9 @@ It was packaged from clean source commit
 `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`.
 Its frozen backend declares 4.4.6, required packaging resources and NSIS policy
 checks pass, and payload verification reports zero issues across 5,029 backend
-files. This installer is unsigned and has not passed installed or live-provider
+files. The installer predates subsequent test and documentation changes,
+including the bundled system card; a new build is needed to include them.
+This installer is unsigned and has not passed installed or live-provider
 acceptance. Source, build, and merge results do not establish release approval.
 
 The 4.4.6 chat UI explains that Standard mode disables the 12-step rewrite
@@ -84,7 +88,7 @@ allows one conditional cycle within two provider attempts. Questions phrased
 Standard answers without governed sources remain permitted by owner policy;
 an answer's release or completed stages do not prove its claims were verified.
 
-In 4.4.5, desktop chat uses the selected model's declared input/output
+Since 4.4.5, desktop chat uses the selected model's declared input/output
 capacity and can continue from the owner's saved local session transcript.
 The app selects retrieved context from its internal stores; the provider does
 not receive direct database access. The dashboard reads governed-run and chat-
@@ -104,7 +108,7 @@ executable, backend executable, and `app.asar` hashes match the extracted build,
 and `/health` and `/ready` report healthy/ready with no blockers. This is a
 narrow installed observation, not completed install/upgrade/repair/uninstall or
 provider-chat acceptance. The artifact remains unsigned, is superseded by the
-integrated 4.4.5 source, and is not the next acceptance target. Fresh-installed
+integrated 4.4.6 source, and is not the next acceptance target. Fresh-installed
 Google chat, provider,
 accessibility, recovery, independent-review, pilot, and soak acceptance remain
 open.
@@ -229,7 +233,7 @@ certifications.
 - Providers: owner-configured OpenAI or Google credentials and approved models
 - Connectors: owner-approved local MCP processes with recorded scope and consent
 - Data: app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible storage
-- Excluded from 4.4.5: public-internet exposure, public self-registration,
+- Excluded from 4.4.6: public-internet exposure, public self-registration,
   multi-tenancy, vendor-hosted customer data or API spend, Kubernetes, managed
   cloud databases as production authorities, mobile clients, and macOS/Linux
   packaging
@@ -240,9 +244,11 @@ supported contract and exclusions.
 ## Release status
 
 The source repository is an engineering candidate, but the release decision
-remains **NO-GO**. The merged source still has an unresolved Python dependency
-security finding and a separate Linux refinement-workflow test failure. A
-New Chat / Live Trace session-scoping UI defect is also open in `TODO.md`.
+remains **NO-GO**. The historical NLTK dependency path was removed and the
+replacement security and backend checks pass; the earlier Linux refinement test
+also passes in the replacement suite. A New Chat / Live Trace session-scoping
+UI defect and the earlier intermittent privacy-response failure remain open in
+`TODO.md`.
 Before public distribution, the same signed rebuilt
 artifact must pass the remaining clean-installed and retained-data acceptance
 matrix, provider and human review, packaged accessibility checks, upgrade and
@@ -363,7 +369,7 @@ in the [Developer Guide](docs/DEVELOPER_GUIDE.md) and
 
 - Windows 11
 - Python 3.11
-- Node.js 24 or newer with npm
+- Node.js 24 with npm
 - WSL2 with Podman Machine for the intended production container profile
 - Docker Desktop with Compose v2 for developer integration
 - Internet access for package restore, container pulls, and cloud inference
@@ -398,7 +404,7 @@ credentials. Model-provider keys can be stored after installation through
 ```powershell
 py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install --require-hashes -r requirements.lock
 npm --prefix frontend ci
 ```
 
@@ -427,17 +433,16 @@ npm --prefix frontend run dev
 
 ## Build the Windows installer
 
-Build the packaged backend before building the Electron/NSIS installer:
+The installer command rebuilds the packaged backend before Electron/NSIS:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\build_backend.py
-$env:CSC_SKIP = "true"
 npm --prefix frontend run electron:dist
 ```
 
-`CSC_SKIP=true` produces an unsigned local engineering build. It is not a
+Without a configured signing certificate, the recorded local engineering build
+was unsigned. Verify the signature of each artifact; an unsigned build is not a
 public release artifact. Installer output is generated as
-`DataLogicEngine Setup 4.4.5.exe` with its checksum and block map when the
+`DataLogicEngine Setup 4.4.6.exe` with its checksum and block map when the
 standard copy step completes. That step removes older root installer copies;
 preserve any historical artifacts separately before running it.
 
@@ -456,7 +461,8 @@ and [Administrator Operations Guide](docs/ADMINISTRATOR_OPERATIONS_GUIDE.md).
 ## API
 
 The versioned API is the supported integration surface. Swagger UI is available
-at `http://localhost:5000/api/docs` while the backend is running.
+at `http://localhost:5000/api/docs` when its OpenAPI asset is available and the
+backend registers the documentation route.
 
 Health and readiness probes:
 
@@ -503,7 +509,7 @@ in a public issue.
 Run the primary source checks from the repository root:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest tests
+.\.venv\Scripts\python.exe -m pytest tests/ --no-cov -q --tb=short -rE
 .\.venv\Scripts\python.exe -m ruff check . --select E9,F63,F7
 .\.venv\Scripts\python.exe -m pip_audit -r requirements.lock --desc
 npm --prefix frontend run lint
@@ -514,9 +520,10 @@ npm --prefix frontend audit --audit-level=high
 ```
 
 Coverage is measured separately for Python and TypeScript; the repository does
-not claim one blended whole-app percentage. The October 26 Windows 4.4.6 run
-passes 3,373 Python tests with 19 skipped and zero test/setup/collection errors.
-Coverage measures `backend/` at **80.45%**, `backend/security/` at **80.67%**,
+not claim one blended whole-app percentage. The latest October 26 Windows
+4.4.6 test-only follow-up passes 3,374 Python tests with 19 skipped and zero
+test/setup/collection errors. The preceding 3,373-test coverage run measures
+`backend/` at **80.45%**, `backend/security/` at **80.67%**,
 and `core/` at **81.07%**. All 506 frontend tests pass; V8 coverage is
 **89.65% statements**, **80.36% branches**, **86.68% functions**, and
 **91.49% lines**. These are source results, not installed acceptance. CI
@@ -536,6 +543,10 @@ Earlier Deploy run `33039993475`, Security run `33039993480`, and CI/CD run
 the merged source.
 
 ## Documentation
+
+Archived whitepapers are historical research and may contain unverified
+performance, compliance, or deployment claims. Use the active documents and
+artifact-bound evidence below for the current product and release status.
 
 - [Documentation portal](docs/README.md)
 - [Production completion plan](PRODUCTION_COMPLETION_PLAN_2026.md)

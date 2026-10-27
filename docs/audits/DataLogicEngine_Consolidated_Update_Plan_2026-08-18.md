@@ -6,11 +6,11 @@
 |---|---|
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
-| Document version | v1.12.2 |
+| Document version | v1.12.3 |
 | Product version | 4.4.6 |
 | Date | 2026-08-27 |
-| Last reviewed | 2026-09-27 |
-| Status | Active supporting review input; 4.4.5 clean-source engineering rebuild is complete while installed/provider/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred, and CU-5 source/publication is partial |
+| Last reviewed | 2026-10-26 |
+| Status | Active supporting review input; 4.4.6 clean-source engineering rebuild is complete while installed/provider/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred, and CU-5 source/publication is partial |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
@@ -108,7 +108,7 @@ Production/public release remains **NO-GO**.
 The PR #91 dependency/CI refresh merged into `main` at `39ba7e54` and has a local Windows source run of 3,364
 backend tests passed, 18 skipped, and zero setup errors; 504 frontend tests
 also pass. Its GitHub Python Dependency Security Scan and `backend-test` gates
-remain red on the unsuppressed transitive `nltk==3.10.3` finding
+were red at that checkpoint on the unsuppressed transitive `nltk==3.10.3` finding
 `PYSEC-2026-3740` / `CVE-2026-81726`. The post-merge Deploy Linux suite
 separately failed one refinement-workflow test (3,355 passed, 26 skipped).
 The existing 4.4.5 installer from `8a419f6c...` predates

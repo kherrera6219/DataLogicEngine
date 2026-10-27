@@ -11,7 +11,7 @@
 19 skipped and zero failures or setup errors. A later 4.4.5 Windows source
 run passed 3,364 tests with 18 skipped and zero setup errors, but the
 post-merge Linux Deploy run independently failed one refinement-workflow test
-and the Python security scan remains red on `nltk==3.10.3`.
+and the Python security scan was red on `nltk==3.10.3` at that checkpoint.
 CR-A0 must capture a new commit-bound baseline before CR-A1 is treated as
 open work. Other findings retain their task-level verify-first requirements;
 CR-E1 and CR-E4 were found already satisfied.

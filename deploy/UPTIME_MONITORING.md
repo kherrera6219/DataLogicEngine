@@ -1,6 +1,6 @@
 # Local health monitoring (engineering only)
 
-DataLogicEngine 4.4.5 is `release_blocked`. It is installed Windows software,
+DataLogicEngine 4.4.6 is `release_blocked`. It is installed Windows software,
 not a public web service. The historical instructions for UptimeRobot, Pingdom,
 public DNS, and third-party alert delivery are **not approved** for this
 product. Do not expose a health endpoint to the internet or configure a

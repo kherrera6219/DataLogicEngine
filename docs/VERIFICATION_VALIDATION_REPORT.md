@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.4 |
+| Document version | v1.8.5 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -21,7 +21,9 @@
 ## Purpose
 
 The October 26 owner-approved 4.4.6 repair passes the full Windows coverage
-suite: **3,373 passed, 19 skipped**, zero test/setup/collection errors.
+suite: **3,373 passed, 19 skipped**, zero test/setup/collection errors. The
+later PR #96 test-only correction passes **3,374 Windows tests**, 19 skipped,
+with zero test/setup/collection errors (no coverage collected in that run).
 Independent coverage is backend **80.45%**, backend/security **80.67%**, core
 **81.07%** after fixture de-duplication. All **506 frontend tests** pass; statements **89.65%**, branches
 **80.36%**, functions **86.68%**, lines **91.49%**. Local and GitHub Python/NPM
@@ -38,7 +40,7 @@ zero setup errors, and 504 frontend tests passed. Independent Python
 coverage remains recorded from an earlier checkpoint at 80.29%
 `backend/`, 80.67% `backend/security/`, and 81.07% `core/`; these percentages
 were not refreshed for 4.4.5. Frontend lint, typecheck, production build, and
-packaged-payload checks pass for the current source. At historical commit
+packaged-payload checks passed for that source. At historical commit
 `43fd86df...`, Deploy run `33039993475`, Security run
 `33039993480`, and CI/CD run `33039993472` all pass. The later Lob-detector
 finding is closed: scheduled full-history
@@ -80,11 +82,11 @@ readback. These results do not replace packaged accessibility validation; stale
 external analysis cleanup remains blocked on Google file-scoped write access.
 
 An older unsigned 4.4.3 payload had a narrow Program Files loopback
-health/readiness observation. It cannot prove the 4.4.5 artifact's install,
+health/readiness observation. It cannot prove the 4.4.6 artifact's install,
 upgrade, repair, uninstall, retained-data lifecycle, provider chat, or other
 installed acceptance. CP19-M remains partial and release-blocking.
 
-Define how DataLogicEngine 4.4.5 is verified against specifications and validated
+Define how DataLogicEngine 4.4.6 is verified against specifications and validated
 for intended Windows use, summarize current evidence, and keep engineering/source
 results distinct from signed installed, human, independent, and long-duration
 acceptance. This report is not a production approval.
@@ -135,8 +137,8 @@ acceptance. This report is not a production approval.
 ## Current candidate evidence
 
 This checkpoint retains the last completed installed qualification artifact as
-historical evidence and separately records the 4.4.5 clean-source engineering
-build. The new installer is unsigned and has not been installed, run through
+historical evidence and separately records the 4.4.6 clean-source engineering
+build. The engineering installer is unsigned and has not been installed, run through
 portable smoke, or live-provider tested.
 
 The last installed qualification artifact, built on 2026-08-10, is 283,890,413 bytes with SHA-256

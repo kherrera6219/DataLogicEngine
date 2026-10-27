@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-EXT-003 |
 | Title | Independent review record |
-| Document version | v1.1.2 |
+| Document version | v1.1.3 |
 | Product version | 4.4.6 |
 | Status | not_evaluated |
 | Audience | Independent reviewers, product/release authority, engineering, procurement/evaluation teams, and auditors |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Reviewer scope/independence records, exact artifact/evidence, findings, retests, and signed dispositions |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Reviewer assignment/conflict, scope, artifact/evidence, finding/remediation, retest, disposition, or release decision change |
 | Requirements and evidence | Professional review index, canonical documents, immutable evidence bundle, reviewer workpapers, and final release record |
 
@@ -23,13 +23,12 @@
 No independent reviewer is assigned and no independent architecture, security,
 privacy, API, accessibility, usability, operations/recovery, AI assurance,
 licensing/supply-chain, or documentation review has been completed for the exact
-signed DataLogicEngine 4.4.5 release candidate. This record is `not_evaluated`.
+signed DataLogicEngine 4.4.6 release candidate. This record is `not_evaluated`.
 It does not claim endorsement, certification, audit opinion, or approval.
 
-The unsigned August 10 installed engineering candidate and later 4.4.5
-installer are pre-review evidence only. The 4.4.5 installer was built from
-`8a419f6c` and predates the PR #91 source refresh; no new exact-source
-candidate has passed installed-mode acceptance. No independent gate is closed
+The unsigned August 10 installed engineering candidate and the 4.4.6
+installer are pre-review evidence only. The 4.4.6 installer was built from
+`0f0d51d1` and has not passed installed-mode acceptance. No independent gate is closed
 until a reviewer binds work, findings, retests, and disposition to the exact
 signed candidate.
 
@@ -39,7 +38,7 @@ Populate only after the review coordinator verifies:
 
 | Field | Required value | Current value |
 |---|---|---|
-| Product/version | DataLogicEngine Desktop 4.4.5 / Windows 4.4.5.0 | Engineering target only |
+| Product/version | DataLogicEngine Desktop 4.4.6 / Windows 4.4.6.0 | Engineering target only |
 | Source commit/tag | Clean immutable release source | Not established |
 | Installer | Filename, size, SHA-256 | Unsigned qualification candidate is not final subject |
 | Signature | Publisher, chain, timestamp, revocation result | Not established |
@@ -80,7 +79,8 @@ and reliance on other work. Minimum coverage includes:
 - requirement-to-architecture/code/test/evidence samples and unsupported-claim scan;
 - trust boundaries, auth/scopes, secrets/content, providers/connectors/clients,
   threat model, penetration, redaction/no-egress, fixed dependency alert 389
-  history and open transitive NLTK advisory;
+  history, the historical NLTK finding and its dependency-path removal, and
+  current exact-artifact advisory disposition;
 - store identities, migrations, backup/restore/deletion, object-store decision,
   failure/recovery, resource/load/soak and operational support;
 - API/SDK native/SSE/async/cancel/idempotency/compatibility and private gateway
@@ -138,6 +138,7 @@ analysis and may require review rerun.
 
 All reviewer, finding, workpaper, retest, and signature fields remain open.
 The canonical content set exists, but independent review acceptance has not
-occurred. The open NLTK security finding and post-merge Linux refinement-test
-failure also require disposition before any exact-artifact release review can
-approve production. Production/public release remains **NO-GO**.
+occurred. Historical NLTK and Linux refinement-test failures are retained;
+the later dependency-path removal and replacement source checks passed. Exact-
+artifact security, installed, and independent review remain required before
+production can be approved. Production/public release remains **NO-GO**.

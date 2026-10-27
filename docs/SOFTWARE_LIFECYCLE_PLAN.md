@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-005 |
 | Title | Software lifecycle and configuration-management plan |
-| Document version | v1.4.1 |
+| Document version | v1.4.2 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, engineering, quality, security, release, operations, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, production plan, CI/release workflows, locks, documentation authority, and evidence policy |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Lifecycle, branch, review, toolchain, dependency, build, test, documentation, release, or maintenance-policy change |
 | Requirements and evidence | Product requirements, active plan/TODO, CI workflows, exact locks, manifests, tests, and release records |
 
@@ -26,12 +26,11 @@ signed release, operation, incident response, update, and retirement. Schedule o
 demonstration pressure does not waive an exit gate.
 
 CP19-L passed, but the lifecycle remains at CP19-M. The available unsigned
-4.4.5 installer was built from clean source commit `8a419f6c` before the
-subsequent PR #91 dependency/CI source refresh and PR #92 documentation
-update merged into `main`. It has not passed portable or installed acceptance,
-and no new exact-source installer has been built. The Python security scan
-remains red on an unsuppressed transitive NLTK finding, and a separate
-post-merge Linux refinement-workflow test failed. Signing, provider chat,
+4.4.6 installer was built from clean source commit `0f0d51d1` and passes
+payload checks. Local portable and installed acceptance have not been run for
+that artifact. The 4.4.6 repair removed the NLTK dependency path; replacement
+dependency scans and the Linux refinement module pass. Historical negative
+results remain retained. Signing, provider chat,
 exact-artifact install/upgrade/repair/uninstall, retained data/recovery,
 accessibility, external review, pilot, and soak acceptance also remain open.
 The prior scheduled full-history secret-scan finding was closed by a clean
@@ -127,12 +126,11 @@ scope, regression-tested, and closed only against the corrected commit/artifact.
 P0/P1 findings and unaccepted P2 findings block release. Dependabot alert 389
 was fixed by removing the vulnerable ChromaDB Python SDK from both dependency
 authorities and qualifying the restricted replacement client. The replacement
-evidence remains bound to the release record. At the 2026-09-27 merged source
-checkpoint, locked transitive `nltk==3.10.3` still triggers
-`PYSEC-2026-3740` / `CVE-2026-81726`; the
-[reviewed advisory](https://github.com/advisories/GHSA-8mgp-746c-j5xp)
-lists no published patched version;
-the finding remains unsuppressed and release-blocking.
+evidence remains bound to the release record. At the historical 2026-09-27
+checkpoint, locked transitive `nltk==3.10.3` triggered `PYSEC-2026-3740` /
+`CVE-2026-81726`. The later 4.4.6 repair removed its dependency path and the
+replacement audits passed without suppression; exact-artifact scans remain
+required for a release.
 
 Vulnerabilities use private disclosure, coordinated remediation, affected-version
 analysis, secret/key rotation where needed, SBOM/advisory updates, and signed
@@ -187,11 +185,10 @@ eligible for production support.
 
 ## Current status
 
-Product 4.4.5 is `release_blocked`. CP16-F documentation replacement and
+Product 4.4.6 is `release_blocked`. CP16-F documentation replacement and
 CP17-A through CP17-D consolidation are complete; CP17-E and CP19-M exact
-signed clean-installed acceptance remain open. The physical unsigned 4.4.5
-installer predates merged source and cannot represent it. The NLTK security
-finding, Linux refinement-test failure, exact-source rebuild, differing
+signed clean-installed acceptance remain open. The unsigned 4.4.6 engineering
+installer exists, but its installed acceptance remains open. Differing
 independent build hashes, installed/manual/independent gates, legal/signing
 decisions, and installed/independent acceptance of the selected object store
 keep production/public release at **NO-GO**. Alert 389 remains fixed.
