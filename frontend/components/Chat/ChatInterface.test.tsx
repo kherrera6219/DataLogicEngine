@@ -119,6 +119,7 @@ describe('ChatInterface', () => {
   it('should load sessions and initial messages on mount', async () => {
     renderChatInterface();
     await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
+    expect(screen.getByText(/Graph relationships are used only when graph context is explicitly enabled/i)).toBeInTheDocument();
   });
 
   it('should handle switching sessions', async () => {

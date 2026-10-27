@@ -885,6 +885,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
               External data preflight: this request sends your prompt and may include attachments, selected retrieved text, persona context, and tool results. {mode === 'quad' ? 'Enhanced mode permits one conditional refinement cycle and at most 2 counted provider attempts.' : 'Standard chat permits 1 counted provider attempt; refinement is not enabled.'}
             </p>
             <p className="max-w-4xl mx-auto mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
+              Graph relationships are used only when graph context is explicitly enabled and an eligible local source is retrieved. Saved chats are not automatically verified graph facts.
+            </p>
+            <p className="max-w-4xl mx-auto mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
               {providerBudget
                 ? `Today: ${providerBudget.daily.calls}/${providerBudget.limits.daily_calls} calls and ${providerBudget.daily.tokens_total.toLocaleString()}/${providerBudget.limits.daily_tokens.toLocaleString()} tokens. ${providerBudget.remaining.daily_calls} calls remain. Pricing is ${providerBudget.pricing_status}; unknown price is never represented as zero.`
                 : 'Usage budget is unavailable in the renderer; the server still fails closed if its durable budget ledger cannot be read.'}
