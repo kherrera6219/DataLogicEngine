@@ -29,6 +29,28 @@ async def test_transcript_survives_but_index_failure_is_reported(app, monkeypatc
         assert db.session.get(ChatMessage, uuid.UUID(result.message_id)).content == 'Persist this message'
 
 
+@pytest.mark.asyncio
+async def test_index_exception_keeps_transcript_and_redacts_exception(app, monkeypatch, caplog):
+    sensitive_marker = "synthetic-sensitive-index-detail"
+
+    def fail_to_open_index():
+        raise RuntimeError(sensitive_marker)
+
+    monkeypatch.setattr('backend.services.rag_service.get_rag_service', fail_to_open_index)
+    with app.app_context():
+        user_id = create_test_user(username='index-redaction', email='index-redaction@example.com', password='SecureTest789$#@')
+        session_id = uuid.uuid4()
+        db.session.add(ChatSession(id=session_id, user_id=user_id, mode='chat'))
+        db.session.commit()
+        result = await LLMGateway(db_session=db.session)._save_chat_message(
+            str(session_id), user_id, 'user', 'Keep the transcript',
+        )
+        assert result.ok is True
+        assert result.rag_status == 'failed'
+        assert db.session.get(ChatMessage, uuid.UUID(result.message_id)).content == 'Keep the transcript'
+        assert sensitive_marker not in caplog.text
+
+
 def _authenticated_user_id(app) -> int:
     with app.app_context():
         user = User.query.filter_by(username="testuser").one()
