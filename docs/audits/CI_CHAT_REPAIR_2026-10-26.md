@@ -152,9 +152,20 @@ separate open work; this owner-approved chat scope does not claim to fix them.
   750 ms with 599 ms remaining, so the plan was rejected before the provider
   began. A privacy-response test independently returned an internal failure;
   the evidence does not establish that it shared the same cause. Both results
-  remain negative evidence; an owner decision is pending on correcting timing
-  assumptions without removing the security or deadline controls.
+  remain negative evidence. Kevin approved correcting the test timing while
+  retaining the security and deadline controls.
 - PR #94 merged into `main` at `57c7b4b04b89510fe115e0eb7b339ecebe85b9f0`.
   Final PR head `e5aab7b7` passes security, backend, frontend, governance, lint,
   and Windows portable packaging; its Docker job and the new main-branch
   CI/CD, Deploy, and Security workflows were still running at this checkpoint.
+- Main commit `bc245bf3` subsequently passed CI/CD, Deploy, and Security
+  (runs `40433850148`, `40433850156`, and `40433850255`). Owner-approved
+  [PR #96](https://github.com/kherrera6219/DataLogicEngine/pull/96) corrects
+  the test timing: an event signals provider start, a five-second real request
+  deadline allows planning time, and a separate test rejects insufficient
+  critical-path budgets. The original cancellation, timeout, persistence, and
+  one-provider-call controls remain. The affected 36 Windows tests pass, and
+  the cancellation/timeout pair passes four consecutive runs. The subsequent
+  full Windows suite passes **3,374 tests**, 19 skipped, and zero test/setup/
+  collection errors. See PR #96 for GitHub verification. The earlier privacy failure remains a
+  separate open finding; this change does not claim to identify its cause.

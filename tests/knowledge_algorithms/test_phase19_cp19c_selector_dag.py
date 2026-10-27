@@ -479,6 +479,21 @@ async def test_cp19c_invalid_plan_cannot_execute():
 
 
 @pytest.mark.asyncio
+async def test_cp19c_critical_path_exceeding_deadline_cannot_execute():
+    context = _wide_budget_context()
+    context["budget"]["deadline_ms"] = 1
+    request = KASelectionRequest.model_validate(
+        {"mode": "evaluation", "requested_ids": ["KA-004"], "context": context}
+    )
+    plan = ManifestKASelector().plan(request)
+
+    assert not plan.valid
+    assert any("critical path deadline budget exceeded" in error for error in plan.validation_errors)
+    with pytest.raises(KAPlanValidationError, match="critical path deadline budget exceeded"):
+        await KAPlanExecutor(RecordingController()).execute(plan, request)
+
+
+@pytest.mark.asyncio
 async def test_cp19c_parent_cancellation_is_re_raised():
     request = KASelectionRequest.model_validate(
         {

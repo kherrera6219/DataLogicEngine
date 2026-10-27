@@ -176,10 +176,19 @@ class _RefinementGateway(_Gateway):
 
 
 class _SlowGateway(_Gateway):
+    def __init__(self):
+        super().__init__()
+        self.provider_started = asyncio.Event()
+
+    @staticmethod
+    def _provider_timeout_seconds(provider):
+        return 30
+
     async def _direct_llm_call(
         self, provider, model, messages, temperature, max_tokens
     ):
         self.provider_calls += 1
+        self.provider_started.set()
         await asyncio.sleep(30)
         return {
             "ok": True,
@@ -1009,10 +1018,7 @@ async def test_active_request_cancellation_stops_provider_and_finalizes_trace(
     gateway = _SlowGateway()
     request = _request(mode=GovernedMode.STANDARD, request_id="cancel-request-123")
     task = asyncio.create_task(_orchestrator(gateway).execute(request))
-    for _ in range(200):
-        if gateway.provider_calls:
-            break
-        await asyncio.sleep(0.005)
+    await asyncio.wait_for(gateway.provider_started.wait(), timeout=10)
 
     assert CANCELLATION_REGISTRY.cancel(request.request_id) is True
     result = await asyncio.wait_for(task, timeout=2)
@@ -1028,12 +1034,14 @@ async def test_request_wide_deadline_cancels_slow_provider_and_finalizes(monkeyp
     import backend.governed_execution.orchestrator as module
 
     monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: ([], []))
-    monkeypatch.setenv("GOVERNED_REQUEST_DEADLINE_SECONDS", "1")
+    monkeypatch.setenv("GOVERNED_REQUEST_DEADLINE_SECONDS", "10")
     gateway = _SlowGateway()
     result = await _orchestrator(gateway).execute(
-        _request(mode=GovernedMode.STANDARD, constraints={"deadline_seconds": 1})
+        _request(mode=GovernedMode.STANDARD, constraints={"deadline_seconds": 5})
     )
 
+    assert gateway.provider_started.is_set()
+    assert gateway.provider_calls == 1
     assert result.failure.kind is GovernedFailureKind.TIMEOUT
     assert result.failure.code == "REQUEST_DEADLINE_EXCEEDED"
     assert gateway.persisted[-1]["failure"]["kind"] == "timeout"

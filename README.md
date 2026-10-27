@@ -58,6 +58,9 @@ exceptions**. The full Windows suite passes **3,373 tests** with 19 skipped
 and zero test/setup/collection errors; all **506 frontend tests** pass.
 Installed acceptance remains required. See the
 [repair checkpoint](docs/audits/CI_CHAT_REPAIR_2026-10-26.md).
+The subsequent [test timing correction](https://github.com/kherrera6219/DataLogicEngine/pull/96)
+passes a full Windows run of 3,374 tests with 19 skipped and zero test/setup/
+collection errors. Its current GitHub validation is tracked on the PR.
 Production/public release remains **NO-GO**. Separately, the historical
 [post-merge Deploy test run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632388)
 failed one Linux refinement-workflow test. The replacement PR #94 backend job
