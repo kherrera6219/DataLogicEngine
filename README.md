@@ -68,8 +68,10 @@ open. No existing user data has been migrated by this work.
 The October 26 [4.4.6 repair](https://github.com/kherrera6219/DataLogicEngine/pull/94)
 merged into `main` at `57c7b4b0`. It refreshes the Python and NPM locks and
 removes the LlamaIndex/NLTK path.
-Local audits and GitHub dependency scans report **zero findings without
-exceptions**. The full Windows suite passes **3,373 tests** with 19 skipped
+At that checkpoint, local audits and GitHub dependency scans reported **zero
+findings without exceptions**. A later October 27 scan of the review-repair
+branch reports seven advisories for Authlib 1.7.2; remediation remains open.
+The full Windows suite passed **3,373 tests** with 19 skipped
 and zero test/setup/collection errors; all **506 frontend tests** pass.
 Installed acceptance remains required. See the
 [repair checkpoint](docs/audits/CI_CHAT_REPAIR_2026-10-26.md).

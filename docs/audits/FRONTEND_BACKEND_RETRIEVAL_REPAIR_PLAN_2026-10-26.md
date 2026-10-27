@@ -45,6 +45,9 @@ frontend suite passed 520 tests across 93 files, and frontend lint and type
 checking passed. The unrestricted Python lint and format
 gates have existing failures on both main and the repair branch, and `mypy` is
 not installed in either checked environment.
+The October 27 PR #98 dependency security scan subsequently reported seven
+advisories for Authlib 1.7.2. The finding is open and was not part of the
+previously passing October 26 dependency audit.
 
 A browser smoke check using simulated local API responses verified session
 filtering, New Chat trace clearing and unmeasured confidence display. It also
