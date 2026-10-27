@@ -2,7 +2,7 @@
 
 > **Historical August 2026 planning input; reviewed 2026-09-27.** The
 > air-gap-capable and single-outbound-flow wording below is an original target
-> assumption, **not a verified current capability**. DataLogicEngine 4.4.5
+> assumption, **not a verified current capability**. DataLogicEngine 4.4.6
 > remains `release_blocked`. CR-B must prove egress enforcement and any
 > air-gapped mode; the current approved boundary permits only owner-configured
 > model endpoints and explicitly enabled connectors, with no telemetry or

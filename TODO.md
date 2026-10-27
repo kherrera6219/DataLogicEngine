@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.6 |
+| Document version | v1.20.7 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,10 +17,10 @@
 | Last reviewed | 2026-10-26 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.2 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.3 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; 4.4.6 repair PR #94 merged; main CI/CD, Deploy, and Security pass at `bc245bf3`. Test timing correction is tracked in PR #96; installed acceptance and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19; 4.4.6 repair PR #94 and timing PR #96 merged. Main CI/CD, Deploy, and Security pass at `73187a8d`. Installed acceptance and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -47,7 +47,8 @@ conditions, and exit gates remain authoritative in the active root plan.
       time, and explicitly test rejection of an insufficient planning budget.
       Cancellation, timeout, trace, and provider-call assertions remain intact.
       The full Windows suite passes 3,374 tests with 19 skipped and zero
-      test/setup/collection errors after this correction.
+      test/setup/collection errors after this correction. PR #96 merged at
+      `73187a8d`, and its GitHub checks pass.
 - [ ] Investigate the previously observed privacy-response failure and the
       original cancellation failure's unproven cause. The full Windows and
       GitHub validation and merge status of the timing correction are tracked
@@ -93,10 +94,11 @@ refreshed source/lock; this does not independently isolate its original cause.
 - [x] Recheck the Linux refinement-workflow failure against current source and
       rerun the full suite. PR #94's Linux backend suite passes without skipped
       or weakened refinement controls. Retain the historical failure above.
-- [ ] After the NLTK security blocker is resolved, rerun the affected security
-      and backend checks, then the full current-source release gate. Record an
-      exact-source Windows packaging and installed-acceptance result before a
-      release decision.
+- [x] Remove the NLTK path and rerun the affected source security and backend
+      checks. The owner-approved 4.4.6 repair records replacement passing scans,
+      backend tests, and a clean-source engineering package.
+- [ ] Record exact-artifact installed acceptance and complete the retained
+      release gates before a release decision.
 - [x] Remove the transitive NLTK path under Kevin's October 26 fast-track
       approval. The replacement splitter is versioned and tested; refreshed
       local Python/NPM audits report zero findings without exceptions. Retain
@@ -590,7 +592,7 @@ TRACE-QC-01 through TRACE-QC-06, and DATA-QC-01 through DATA-QC-02 are
 implemented. The integrated gate passes 3,353 backend tests with 18 skipped
 and zero failures/setup errors, 504 frontend tests, the production frontend
 build, frontend lint/type checking, documentation references, and requirements
-traceability. Product source is now 4.4.4. Installed artifact-bound CHAT-QC-06
+traceability. Product source was 4.4.4 at that checkpoint. Installed artifact-bound CHAT-QC-06
 acceptance remains open and none of these source results closes CP19-M.
 
 ### A. Chat durability and answer quality
@@ -705,14 +707,11 @@ acceptance remains open and none of these source results closes CP19-M.
       installed builds, verify a continued answer after leaving and returning
       to chat, and retain provider usage and completion evidence. A source test
       pass is not installed proof.
-      The 2026-09-27 4.4.5 engineering installer has been built after the
-      Windows source suite passed (3,364 passed, 18 skipped, zero setup errors)
-      and after 504 frontend tests passed. Its root copy matches the packaging
-      output (398,783,115 bytes; SHA-256
-      `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`),
-      packaged from clean source commit
-      `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`.
-      It is unsigned and not yet installed or provider-tested; do not close
+      The 4.4.6 engineering installer is 350,186,546 bytes, SHA-256
+      `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`,
+      packaged from clean source `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`.
+      It is unsigned and has not passed installed or provider acceptance. It
+      predates the later test and documentation-only changes; do not close
       this acceptance item from source/build evidence alone.
 
 Execution order: CHAT-QC-01 through CHAT-QC-04; TRACE-QC-01 through

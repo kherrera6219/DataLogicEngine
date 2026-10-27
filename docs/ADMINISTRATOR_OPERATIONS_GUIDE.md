@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-003 |
 | Title | Administrator and operations guide |
-| Document version | v1.3.2 |
+| Document version | v1.3.3 |
 | Product version | 4.4.6 |
 | Status | qualification_only |
 | Audience | Single owner/operator, Windows administrators, support engineers, and release reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented runtime supervision, data lifecycle, gateway, diagnostics, and operational controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Service, readiness, migration, backup, recovery, gateway, connector, diagnostics, or incident-control change |
 | Requirements and evidence | Product requirements, architecture, runbook sources, tests, and installed qualification evidence |
 
@@ -216,10 +216,10 @@ in `docs/TROUBLESHOOTING_SUPPORT_GUIDE.md`.
   simulation/MCP/gateway operations.
 - Review client keys, connector consent, external-telemetry-disabled state, firewall, and
   update-disabled state.
-- Review the open NLTK finding and Linux refinement-workflow test failure, as
-  well as legal/signing authority and retained Phase 15 qualification gates,
-  before any release claim. Dependabot alert 389 was fixed at an earlier
-  checkpoint; it does not resolve the later NLTK finding.
+- Review current dependency and test findings, legal/signing authority, and
+  retained Phase 15 qualification gates before any release claim. Historical
+  alert 389 was fixed, the NLTK path was removed, and replacement dependency
+  scans and the Linux refinement module pass; exact-artifact review remains open.
 
 ## Shutdown and maintenance
 

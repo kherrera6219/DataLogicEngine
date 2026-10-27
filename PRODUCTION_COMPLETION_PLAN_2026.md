@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.83.2 |
+| Document version | v1.83.3 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -21,7 +21,9 @@
 
 The October 26 owner-approved 4.4.6 repair passes 3,373 Windows tests with
 19 skipped and zero test/setup/collection errors, all 506 frontend tests, and
-independent Python/frontend coverage gates. Refreshed Python and NPM audits
+independent Python/frontend coverage gates. The test-only timing correction
+in PR #96 merged at `73187a8d` and passes 3,374 Windows tests with 19 skipped
+and zero test/setup/collection errors. Refreshed Python and NPM audits
 pass locally and on GitHub without exceptions. Exact rebuild/CI evidence is
 recorded in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. This fast-track does not
 disposition compliance Phase A or close installed/provider/signing acceptance.
@@ -43,9 +45,10 @@ dependency scan and `backend-test` fail on transitive `nltk==3.10.3` advisory
 `PYSEC-2026-3740` / `CVE-2026-81726`; no patched version is published in the
 reviewed advisory. The post-merge Deploy Linux suite separately failed one
 refinement-workflow test (3,355 passed, 26 skipped) in run `36378632388`.
-Both negative gates remain open. The owner-requested repository merge did not
-waive either gate. The physical 4.4.5 installer above predates the PR source
-and cannot serve as its installed acceptance artifact.
+Those are historical negative results, not a waiver: the later 4.4.6 repair
+removed the NLTK path and replacement source scans and backend tests pass. The
+physical 4.4.5 installer above predates the PR #91 source and cannot serve as
+its installed acceptance artifact; a separate 4.4.6 engineering build exists.
 
 Phase 19 CP19-K closed all 213/213 individual KA qualification rows. CP19-L
 passed on 2026-08-10 after the full source, dependency, security, frontend, SDK,
@@ -6530,16 +6533,18 @@ exit gate.
 
 ## 34. Immediate next action
 
-The current overriding action is to disposition the unsuppressed NLTK security
-finding in the post-4.4.5 dependency source and rerun the affected and full
-release gates. Then rebuild an exact-source engineering installer and record
-portable and installed behavior for its own hash. Prove Google
+The current overriding action is to continue the retained CP19-M and compliance
+gates using the unsigned 4.4.6 engineering build as a candidate for scoped
+evaluation, without treating its source checks as signed-release acceptance.
+The historical NLTK dependency path was removed; replacement scans and source
+tests pass. Record portable and installed behavior for the exact candidate hash.
+Prove Google
 `gemini-3.8-flash` and OpenAI `gpt-6-sol` High chat each invoke the configured
 provider once, release through Layer 10, and expose persisted validation
-telemetry without exposing stored keys. The existing unsigned 4.4.5 installer
-bound to `8a419f6c...` / `9686f458...ad4941` predates the source refresh;
-it and older 4.4.3/4.4.2 artifacts remain engineering evidence, not current
-installed acceptance or signed release evidence.
+telemetry without exposing stored keys. The unsigned 4.4.6 installer is bound
+to `0f0d51d1...` / `303148bf...4f9b763e`; it has not passed installed/provider
+acceptance. Older 4.4.5/4.4.3/4.4.2 artifacts remain historical engineering
+evidence, not current installed acceptance or signed release evidence.
 
 CP19-A through CP19-J passed by 2026-08-01. CP19-K batches 01-43 now truthfully
 qualify all 213 rows, including the causal simulation core, MCP admission/result

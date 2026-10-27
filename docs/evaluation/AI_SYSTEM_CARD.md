@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-003 |
 | Title | AI system card and evaluation report |
-| Document version | v1.4.1 |
+| Document version | v1.4.2 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, AI assurance reviewers, risk reviewers, and release authority |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented governed request path, evaluation protocol, model records, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Model/provider, evaluation method, risk, limitation, metric, or release-status change |
 | Requirements and evidence | Evaluation suite, golden corpus, model manifest, risk records, and Phase 12 evidence |
 
@@ -34,10 +34,10 @@ Installed OpenAI/Google corpus rows, blinded-human review, and owner approval
 remain open. The current source manifest selects OpenAI `gpt-6-sol` with
 explicit High reasoning and Google `gemini-3.8-flash`. A forward migration
 advances known retained provider rows when the new build is installed. The
-available unsigned 4.4.5 engineering installer was built from `8a419f6c`,
-before the PR #91 dependency refresh. It has not passed installed-provider or
-corpus acceptance and does not prove the merged source; a new exact-source
-build and evaluation are required.
+available unsigned 4.4.6 engineering installer was built from `0f0d51d1` and
+includes the October dependency/chat repair. Its payload checks pass, but it
+has not passed installed-provider or corpus acceptance. Exact-artifact
+evaluation remains required.
 
 The supported product is the local Windows desktop application and its approved
 private client-gateway profile. Public multi-user web/cloud hosting, implicit
@@ -174,12 +174,11 @@ output or a numeric score as truth.
 
 ## Current assurance disposition
 
-The deterministic local contract suite and corpus schema are automated, but
-the post-merge Linux Deploy run failed one CP19-G refinement-workflow test.
-The Python dependency security/backend checks also remain red on transitive
-`nltk==3.10.3` (`PYSEC-2026-3740` / `CVE-2026-81726`), without a waiver or
-suppression. Rebuilt-installed OpenAI and Google rows, representative-corpus
+The deterministic local contract suite and corpus schema are automated. The
+historical Linux refinement failure and NLTK audit failure are retained as
+negative evidence; the replacement refinement suite and dependency scans pass
+after the NLTK path was removed. Rebuilt-installed OpenAI and Google rows, representative-corpus
 results, provider quota/latency/cancellation/restart reconciliation, and the
 blinded human acceptance sample are retained release gates. Until the source
-and security findings, exact-artifact results, and final independent/owner
+and remaining security findings, exact-artifact results, and final independent/owner
 dispositions pass, production/public release is **NO-GO**.

@@ -169,3 +169,19 @@ separate open work; this owner-approved chat scope does not claim to fix them.
   full Windows suite passes **3,374 tests**, 19 skipped, and zero test/setup/
   collection errors. See PR #96 for GitHub verification. The earlier privacy failure remains a
   separate open finding; this change does not claim to identify its cause.
+- PR #96 merged at `73187a8debc7213a099f5b3e8008acc1fe840640`. All PR checks,
+  including Docker, pass. At the merged commit, CI/CD, Deploy, and Security
+  pass (runs `40440095348`, `40440095441`, and `40440095414`).
+
+## Documentation review
+
+The October 26 review inventoried 356 tracked Markdown documents and 35 PDF or
+Word documents. It inspected active current-status claims and preserved archived
+and generated evidence. All archived binary documents were opened for text
+extraction; one 14-page image-only historical whitepaper was also visually
+reviewed. Historical research includes unverified performance, compliance, and
+deployment claims and is not current product or certification evidence.
+Active public, user, operations, security, lifecycle, traceability, release,
+and review documents were reconciled with the 4.4.6 source, recorded build,
+test results, and open acceptance gates. The 4.4.6 installer predates this
+documentation update, including the system card bundled in its backend.

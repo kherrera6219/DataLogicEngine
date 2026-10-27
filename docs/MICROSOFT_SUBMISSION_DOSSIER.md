@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-EXT-002 |
 | Title | Microsoft distribution and submission dossier |
-| Document version | v1.1.2 |
+| Document version | v1.1.3 |
 | Product version | 4.4.6 |
 | Status | not_evaluated |
 | Audience | Distribution owner, product/release authority, legal/privacy/security, accessibility, operations, and Microsoft submission reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Current official Microsoft Store/Partner Center guidance, exact signed artifact, canonical product records, and submission results |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Microsoft policy/guidance, route/package, Partner Center field, artifact/signature, privacy/legal, certification, or submission-result change |
 | Requirements and evidence | Official Microsoft policy snapshot, Partner Center submission, signed installer, WACK/applicable tests, metadata/assets, and certification correspondence |
 
@@ -27,9 +27,8 @@ recorded. This dossier is `not_evaluated` and production/public distribution is
 **NO-GO**.
 
 An earlier unsigned per-machine NSIS candidate installed and launched, but it
-is engineering evidence only. The available unsigned 4.4.5 installer was built
-from source `8a419f6c`, before the PR #91 dependency refresh; no exact-current-
-source signed/installed candidate has completed qualification. Microsoft
+is engineering evidence only. The available unsigned 4.4.6 installer was built
+from source `0f0d51d1`; no signed/installed candidate has completed qualification. Microsoft
 submission, publisher signing, WACK/applicable tests, legal metadata, and
 certification remain `not_evaluated`.
 
@@ -72,7 +71,7 @@ App Developer Agreement, Partner Center terms, legal advice, or certification.
 | Silent install; UAC prompt allowed | Candidate `/S` syntax documented only | Signed clean install logs/exit code and Store-compatible unattended behavior |
 | Standalone installer, not downloader stub | Current payload is intended standalone | Network capture/offline install and complete component/payload proof |
 | Updated binary uses updated versioned URL | Not established | Release/update publishing procedure and rollback/support record |
-| Version managed by installer for Win32 route | Product authority is 4.4.5/4.4.5.0 | Installer/file/UI/API version parity and upgrade ordering |
+| Version managed by installer for Win32 route | Product authority is 4.4.6/4.4.6.0 | Installer/file/UI/API version parity and upgrade ordering |
 
 The app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and object-store delivery must
 not turn the installer into an undocumented downloader or install prohibited/
@@ -89,7 +88,7 @@ remain open.
 | Privacy policy for Win32/personal information | Canonical privacy notice and PIA exist | Public stable privacy URL, deployment legal review, accurate access/use/store/security/disclosure/control statements |
 | Consent for external personal-information sharing | Provider/connector preflight/control foundations exist | Installed opt-in/withdrawal behavior and legal applicability review |
 | Content/metadata rights | Third-party index and legal actions exist | Final icons/screenshots/text/data/model/provider/trademark/license permissions |
-| Security/safety | Threat/release controls exist; alert 389 is fixed, but the transitive NLTK advisory and Linux refinement-test failure remain open | Resolve current source/security gates; signed artifact, final scans, no-egress/penetration, and independent review |
+| Security/safety | Threat/release controls exist; alert 389 is fixed, the NLTK path is removed, and replacement scans/refinement tests pass | Signed artifact, final scans, no-egress/penetration, and independent review |
 | Support | Troubleshooting/operations docs exist | Public support contact/process, response/maintenance policy, data recovery/uninstall guidance |
 | Accessibility | Automated evidence exists | Manual packaged NVDA/scaling/contrast and truthful accessibility disclosure |
 | Updates | Auto-update disabled/fail-closed | Store/direct-channel update ownership, signed metadata, replay/downgrade/rollback evidence |
@@ -128,14 +127,14 @@ The reviewed WACK guidance notes that an active user session is required and
 that environment/performance can affect results. Applicability and Store-side
 testing can differ by app/package type; do not mark a test `pass` merely because
 it was unavailable or grayed out. Use `not_applicable` only with policy/reviewer
-basis. No WACK run has been performed for a signed 4.4.5 release candidate.
+basis. No WACK run has been performed for a signed 4.4.6 release candidate.
 
 ## Submission blockers
 
 - No final signed/timestamped installer or trusted publisher.
-- The available 4.4.5 installer predates the merged PR #91 source; the current
-  Python dependency security scan is red on transitive NLTK and a post-merge
-  Linux refinement-workflow test failed. Neither was waived by repository merge.
+- The 4.4.6 engineering installer is unsigned and lacks installed/provider
+  acceptance. Historical NLTK and refinement-test failures remain retained;
+  the replacement dependency scans and refinement tests pass.
 - Reproducibility hashes differ; exact final artifact is not frozen.
 - Signed install/repair/upgrade/rollback/uninstall and silent/offline behavior are
   not accepted.

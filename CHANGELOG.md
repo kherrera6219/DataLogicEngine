@@ -12,6 +12,10 @@
   existing provider budget. The owner retained Standard no-evidence answers.
 - Pinned the browser CI job to Ubuntu 24.04, removed obsolete audit ignores,
   and corrected Windows verification hash/path handling.
+- The owner-approved PR #96 test-only follow-up waits for provider start before
+  cancellation, allows the timeout test sufficient planning time, and retains
+  explicit rejection of insufficient planning budgets. The full Windows suite
+  passes 3,374 tests with 19 skipped and zero test/setup/collection errors.
 - Validation and rebuild status: `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`.
   This remains a release-blocked engineering candidate.
 
@@ -92,7 +96,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.13.2 |
+| Document version | v1.13.3 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -100,7 +104,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 

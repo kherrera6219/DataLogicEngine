@@ -58,14 +58,17 @@ also failed. Both found locked transitive `nltk==3.10.3` affected by
 [advisory](https://github.com/advisories/GHSA-8mgp-746c-j5xp) lists no patched
 version as of this checkpoint. A repository-source merge does not convert
 these red gates to green, waive the finding, or approve an installed release.
-Production/public release remains **NO-GO** pending a resolved security gate
-and exact-source installed qualification.
+The 4.4.6 repair removed the NLTK path and the replacement Python/NPM audits
+pass without exceptions; the historical failures remain recorded. Production/
+public release remains **NO-GO** pending exact-artifact installed qualification
+and the other retained release gates.
 
 The post-merge `main` [Deploy run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632388)
 is a separate negative test result: its Linux Python suite reported one
 failing refinement-workflow test (3,355 passed, 26 skipped). The local Windows
-pass does not close that result. Diagnose and retest the current source without
-skipping or weakening the test before treating the source gate as green.
+pass alone did not close that result. PR #94's replacement Linux suite passes
+the affected module without skipping or weakening it; the original individual
+failure cause was not isolated.
 
 ## Accessibility (a11y)
 

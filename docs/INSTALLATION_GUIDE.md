@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
-| Document version | v1.4.2 |
+| Document version | v1.4.3 |
 | Product version | 4.4.6 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | NSIS packaging controls, Windows runtime implementation, release trust policy, and installed qualification plan |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Installer, signing, prerequisite, lifecycle, data-location, update, or supported-Windows change |
 | Requirements and evidence | Product requirements, release manifest, installer verification, Phase 15 evidence, and lifecycle acceptance |
 
@@ -124,7 +124,7 @@ otherwise, restore only approved binaries/configuration, rerun readiness and
 migrations, and leave unrelated applications and ports untouched. Record the
 repair log and rerun the first-use acceptance steps.
 
-Repair behavior remains an open installed qualification gate for 4.4.5.
+Repair behavior remains an open installed qualification gate for 4.4.6.
 
 ## Upgrade
 

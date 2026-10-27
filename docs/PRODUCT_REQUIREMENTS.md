@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PROD-001 |
 | Title | Product requirements and acceptance specification |
-| Document version | v1.5.1 |
+| Document version | v1.5.2 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, engineering, quality, assurance, operators, and professional reviewers |
@@ -14,29 +14,27 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, production completion plan, implemented runtime, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Product scope, supported workflow, architecture, interface, risk, or release-gate change |
 | Requirements and evidence | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, architecture records, tests, and `reports/production-readiness/2026/` |
 
 ## Purpose
 
-Define the approved product contract for DataLogicEngine 4.4.5 and the evidence
+Define the approved product contract for DataLogicEngine 4.4.6 and the evidence
 needed to claim that contract is satisfied. This document states requirements;
 it does not convert an engineering checkpoint into production approval.
 
 CP19-L passed on 2026-08-10 and an older clean unsigned candidate installed and
-reached readiness with retained app-owned data. The 4.4.5 clean-source
+reached readiness with retained app-owned data. The 4.4.6 clean-source
 engineering build is a different, unsigned artifact whose packaged-payload
 check passes but which has not been installed or provider-tested. CP19-M signed
 installed and all retained acceptance requirements remain binding for the
 exact final artifact.
 
-The later PR #91 dependency/CI changes were merged into `main` after that
-engineering installer was built. No installer from the merged source has been
-qualified. Its Python dependency scan is red on transitive `nltk==3.10.3`
-(`PYSEC-2026-3740`), and the post-merge Linux Deploy run has a separate
-refinement-workflow test failure. Source integration is not an installed
-acceptance result, security disposition, or release approval.
+The 4.4.6 engineering installer includes the October dependency/chat repair.
+The historical NLTK path was removed and replacement scans and Linux tests
+pass. Installed and provider acceptance have not been completed for this
+artifact; source integration does not authorize release.
 
 ## Product definition
 
@@ -73,7 +71,7 @@ acceptance passes.
 
 ## Explicit exclusions
 
-The 4.4.5 contract excludes public-internet gateway exposure, public
+The 4.4.6 contract excludes public-internet gateway exposure, public
 self-registration, multi-tenancy, vendor-hosted customer data or API spend,
 Kubernetes, managed cloud databases as production authorities, mobile clients,
 and macOS or Linux packaging. CORS/browser gateway use and network MCP
@@ -179,9 +177,10 @@ workflow. CP19-K then qualified 213/213 KAs and the current manifest
 `2026.08.11-al10.2` production-enables 211 capabilities with 112 acyclic
 dependency edges. CP19-L passed; CP19-M exact installed acceptance remains
 open.
-Dependabot alert 389 is fixed. The later NLTK dependency finding and Linux
-refinement-workflow test failure remain open at the merged-source checkpoint;
-the earlier CP19-G and Windows results do not override those negative results.
+Dependabot alert 389 is fixed. The historical NLTK dependency and Linux
+refinement-workflow failures are retained as negative evidence. The 4.4.6
+repair removed the NLTK path and the replacement scans and refinement module
+pass; those source results do not close installed acceptance.
 Production/public release is **NO-GO**.
 
 ## Change control

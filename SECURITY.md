@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-003 |
 | Title | Vulnerability reporting and disclosure policy |
-| Document version | v2.8.1 |
+| Document version | v2.8.2 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Security researchers, users, maintainers, and release reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Security policy, supported-version authority, and release-risk records |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Supported-version, reporting, threat, or disclosure-process change |
 | Requirements and evidence | `docs/SECURITY_ARCHITECTURE.md`, `docs/RELEASE_READINESS_RECORD.md`, and security workflow evidence |
 
@@ -33,7 +33,7 @@ maintained line is not necessarily an approved production release.
 
 | Version | Supported | Notes |
 |---|---|---|
-| Current 4.x line | Source maintenance | Version 4.4.5 remains an engineering candidate with production/public release **NO-GO**. |
+| Current 4.x line | Source maintenance | Version 4.4.6 remains an engineering candidate with production/public release **NO-GO**. |
 | Older lines | No, unless separately announced | Upgrade to the current maintained line. |
 
 ---
@@ -132,12 +132,12 @@ Current documentation may include mappings, roadmaps, and evidence-guided contro
 
 ## Known release caveats
 
-The merged 4.4.5 engineering source has an unsuppressed transitive
-`nltk==3.10.3` finding (`PYSEC-2026-3740` / `CVE-2026-81726`). The
-[post-merge dependency security scan](https://github.com/kherrera6219/DataLogicEngine/actions/runs/36378632416)
-failed; the [advisory](https://github.com/advisories/GHSA-8mgp-746c-j5xp)
-lists no patched version. Merging source does not waive this finding or
-qualify an installer. Production/public release remains **NO-GO**.
+The 4.4.5 source checkpoint had an unsuppressed transitive NLTK finding and a
+failed dependency scan. The owner-approved 4.4.6 repair removed the LlamaIndex/
+NLTK dependency path, and its Python and NPM audits passed without exceptions.
+See `docs/audits/CI_CHAT_REPAIR_2026-10-26.md` for the historical failure and
+replacement evidence. Future exact-artifact scans and signed-installed
+qualification remain required; production/public release remains **NO-GO**.
 
 Other release caveats include:
 

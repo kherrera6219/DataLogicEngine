@@ -5,11 +5,11 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-CHAT-QC-2026-08-26 |
-| Document version | v1.1.2 |
+| Document version | v1.1.3 |
 | Product version | 4.4.6 |
 | Date | 2026-08-26 |
-| Last reviewed | 2026-09-27 |
-| Status | Source implementation through CHAT-QC-05 complete; pre-refresh 4.4.5 engineering installer exists; installed CHAT-QC-06, PR #91 security, Linux refinement, and newly observed trace-panel session-scoping gates open; not release authority |
+| Last reviewed | 2026-10-26 |
+| Status | Source implementation through CHAT-QC-05 complete; unsigned 4.4.6 engineering installer exists; installed CHAT-QC-06 and trace-panel session-scoping remain open; historical PR #91 security and refinement failures have passing replacement source checks; not release authority |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Evidence run | `0779492c-c054-4630-b321-b2e13be7b4ef` |
@@ -61,7 +61,7 @@ accessibility, and lifecycle evidence.
 
 The dependency/CI refresh merged into `main` at `39ba7e54` and has a local Windows source run of 3,364 backend
 tests passed, 18 skipped, and zero setup errors, plus 504 passing frontend
-tests. GitHub's Python Dependency Security Scan and `backend-test` remain red
+tests. GitHub's Python Dependency Security Scan and `backend-test` were red at that checkpoint
 on the unsuppressed transitive `nltk==3.10.3` finding `PYSEC-2026-3740` /
 `CVE-2026-81726`. The separate post-merge Deploy Linux suite failed one
 refinement-workflow test (3,355 passed, 26 skipped).

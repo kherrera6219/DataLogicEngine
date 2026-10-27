@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.6 |
+| Document version | v1.22.7 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,12 +17,12 @@
 | Last reviewed | 2026-10-26 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.2 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.3 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
-| Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.5 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
+| Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; 4.4.6 repair PR #94 merged at `57c7b4b0`. CI/CD, Deploy, and Security pass on main at `bc245bf3`. Owner-approved test timing correction is tracked in PR #96; installed acceptance, signing, lifecycle, and retained CP19-M gates remain open. |
+| Current phase | Phase 19; 4.4.6 repair PR #94 and test timing PR #96 are merged. At main `73187a8d`, CI/CD, Deploy, and Security pass. Installed acceptance, signing, lifecycle, and retained CP19-M gates remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -38,14 +38,15 @@ frontend tests and independent coverage gates pass. The clean-source 4.4.6
 installer from `0f0d51d1` is 350,186,546 bytes, SHA-256
 `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`.
 Payload/resources/NSIS verification passes. PR #94's complete CI and security
-checks pass; CI/CD, Deploy, and Security also pass on main at `bc245bf3`. Installed/provider
+checks pass; CI/CD, Deploy, and Security pass on main at `73187a8d`.
+Installed/provider
 acceptance remains open; the artifact is unsigned and release verdict unchanged.
 The `f636573e` GitHub backend run reported an intermittent cancellation-test
 failure; its rerun also found a one-second planning-budget conflict and a
 separate privacy-response failure. A fresh full Windows suite after the fixture
 change passes 3,373 tests with 19 skipped and zero test/setup/collection errors.
 Kevin approved correcting the timeout and cancellation test timing; PR #96
-tracks that test-only work and its validation. The full Windows suite with the
+merged that test-only work at `73187a8d` and its PR checks pass. The full Windows suite with the
 correction passes 3,374 tests with 19 skipped and zero test/setup/collection
 errors. A separate
 duplicate fixture-runtime cleanup issue was corrected in `8046c5f9` without
@@ -102,8 +103,9 @@ zero setup errors, and 35 warnings. At source commit `7e86feae`, GitHub's
 npm audit, frontend build/browser gates, Windows packaging smoke, governance,
 lint, code scans, and SBOM jobs passed. The Python dependency scan and
 `backend-test` failed on the same NLTK advisory. The post-merge `main` Security
-Scan also failed at the dependency audit. Keep those failures visible and
-release-blocking. Repo-wide Ruff remains non-green on
+Scan also failed at the dependency audit. Retain those historical failures;
+the later 4.4.6 replacement removed that dependency path and passed its scans.
+Repo-wide Ruff remains non-green on
 pre-existing lint/format debt; the CI-scoped Ruff rule set passes. The 4.4.5
 installer described below predates this dependency refresh and must not be
 presented as containing it.
@@ -112,8 +114,8 @@ The post-merge Deploy run `36378632388` independently executed the Linux
 Python suite and reported one failed refinement-workflow test
 (`test_cp19g_refinement_accounts_all_steps_and_revalidates_once`), 3,355
 passed, and 26 skipped. That failure is not explained by the dependency
-security scan and remains open for triage; the earlier clean Windows run does
-not override it.
+security scan. The later replacement Linux suite passes the affected module;
+the historical failure remains retained and its original cause was not isolated.
 
 ## Installed governed-chat repair checkpoint — 2026-08-31
 

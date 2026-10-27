@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.4 |
+| Document version | v1.8.5 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -66,8 +66,8 @@ the release verdict from **NO-GO**.
 
 The separate post-merge Deploy run `36378632388` executed the Linux Python
 suite and failed one refinement-workflow test (3,355 passed, 26 skipped). This
-negative result is open for triage and is not erased by the earlier local
-Windows pass.
+negative result is retained. The later replacement Linux suite passes the
+affected module; the original individual failure cause was not isolated.
 
 The owner also observed that **New Chat** does not clear the far-right Live
 Trace panel. Source review confirms a global-recent-run fallback when no
@@ -157,8 +157,8 @@ result to one exact signed artifact.
 | Observability/support/operations | Correlation/error/diagnostics/support contracts pass | Installed canary/no-egress/support and 24-hour/72-hour soaks |
 | Reproducibility | Two clean builds completed | Approved equality/normalization rule passes; nondeterminism resolved |
 | Signing/update | Trust and fail-closed update controls exist | Approved publisher; all binaries signed/timestamped; adversarial update matrix |
-| Supply chain/legal | Exact locks/SBOM/manifest foundations exist; the PR #91 Python security scan is red | Final exact SBOM/notices/scans, ten legal actions, redistribution/export approval |
-| Dependency risk | Alert 389 fixed through SDK replacement; transitive NLTK finding `PYSEC-2026-3740` remains open without a published patch | Disposition the NLTK finding without scan suppression, rerun exact release scans, and retain zero-blocker evidence |
+| Supply chain/legal | Exact locks/SBOM/manifest foundations exist; replacement source dependency scans pass | Final exact SBOM/notices/scans, ten legal actions, redistribution/export approval |
+| Dependency risk | Alert 389 fixed; the historical NLTK dependency path was removed and replacement audits pass without exceptions | Rerun exact release-artifact scans and retain zero-blocker evidence |
 | Object store | ADR-0010 capability architecture; SeaweedFS 4.40-dle.1 selected; engineering Replacement Control passed | Rebuilt-installed protected-volume, recovery, independent legal/security, signing, and release acceptance |
 | Documentation/external review | CP16 authority/content construction plus current KA/axis export publication pass; three stale Google Docs remain write-blocked | Stale external archive/de-rank, all canonical records, walkthroughs, link/archive closure, independent reviews |
 | Pilot and owner approval | Protocol exists | Named multi-day two-machine pilot and signed final owner GO decision |

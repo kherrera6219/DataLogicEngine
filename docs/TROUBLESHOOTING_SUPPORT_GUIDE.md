@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-004 |
 | Title | Troubleshooting and support guide |
-| Document version | v1.3.2 |
+| Document version | v1.3.3 |
 | Product version | 4.4.6 |
 | Status | qualification_only |
 | Audience | Users, evaluators, operators, support engineers, and security reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented error taxonomy, diagnostics/support controls, lifecycle runbooks, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | User-visible error, diagnostics, support-bundle, recovery, reporting-channel, or release-status change |
 | Requirements and evidence | Product requirements, runtime/error contracts, support tests, operational procedures, and Phase 13/15 evidence |
 
@@ -38,8 +38,8 @@ creating another database, switching to SQLite/memory/filesystem fallbacks, or
 restarting superseded legacy service containers.
 
 Always record the exact SHA-256 before applying troubleshooting evidence from
-another build. That pre-PR #91 4.4.5 installer has SHA-256
-`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`.
+another build. The 4.4.6 engineering installer has SHA-256
+`303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`.
 
 On Windows, the backend may log that signal-based request timeout is unavailable
 and that the packaged server timeout should be used. This is a non-blocking

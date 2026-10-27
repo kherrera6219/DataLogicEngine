@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v4.2.3 |
+| Document version | v4.2.4 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
@@ -33,22 +33,16 @@ Mechanism questions (“how does … work”) request comprehensive breadth with
 adding an attempt. Answers without governed sources remain allowed; review
 the evidence-support disclosure before relying on their factual claims.
 
-The October dependency repair passes local Python/NPM audits without exceptions;
-final CI and rebuilt-installed acceptance are tracked in
-`docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. The following 4.4.5 installer record
-is historical and does not establish 4.4.6 acceptance.
-
-The 4.4.5 source selects OpenAI `gpt-6-sol` with High reasoning and Google
-`gemini-3.8-flash`. The available clean-source engineering installer contains
-that model refresh and a migration for known retired saved defaults, but those
-rows have not been verified after installation. The installer is unsigned and
-predates the later PR #91 dependency/CI source changes; no replacement from
-merged source has been installed or provider-tested. The Python dependency
-scan remains red on transitive NLTK, and a separate post-merge Linux
-refinement-workflow test failed. Production/public release is **NO-GO** pending
-security/test disposition, exact-source installed provider and lifecycle
-acceptance, signing, accessibility, independent, pilot, and soak gates. Earlier
-4.4.3 installed observations do not transfer to 4.4.5.
+The 4.4.6 source selects OpenAI `gpt-6-sol` with High reasoning and Google
+`gemini-3.8-flash`. The unsigned 4.4.6 engineering installer includes the
+provider migration and October dependency/chat repair; its payload checks pass.
+Local and GitHub Python/NPM audits and replacement backend tests pass without
+exceptions. The installer has not passed installed or live-provider acceptance.
+Production/public release is **NO-GO** pending exact-artifact provider and
+lifecycle acceptance, signing, accessibility, independent, pilot, and soak gates.
+Earlier 4.4.3 installed observations do not transfer to 4.4.6. See
+`docs/audits/CI_CHAT_REPAIR_2026-10-26.md` for exact evidence and historical
+negative results.
 
 ## Audience
 
@@ -400,9 +394,8 @@ Review `docs/PRIVACY_AI_NOTICE.md` for details.
 3. Release builds require trusted production code-signing evidence before public distribution.
 4. Provider-backed features require valid provider credentials and network access.
 5. Some graph/vector/object-store features require local data services to be started or initialized.
-6. The merged-source NLTK security finding and Linux refinement-workflow test
-   failure are unresolved; the available 4.4.5 installer predates those source
-   changes and cannot prove their installed acceptance.
+6. The 4.4.6 installer is unsigned and has not passed installed or live-provider
+   acceptance. Replacement source scans and tests do not establish those gates.
 7. In current source, **New Chat** clears the conversation but the far-right
    Live Trace panel can still show a run from another session. Treat that
    panel as historical run telemetry, not evidence for the empty draft; the
