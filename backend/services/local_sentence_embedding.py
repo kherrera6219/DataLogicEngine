@@ -23,7 +23,10 @@ def model_manifest_sha256(path: Path) -> str:
     root = Path(path)
     if not root.is_dir():
         raise LocalEmbeddingError("local_embedding_model_missing")
-    files = sorted((item for item in root.rglob("*") if item.is_file()), key=lambda item: item.relative_to(root).as_posix())
+    files = sorted(
+        (item for item in root.rglob("*") if item.is_file()),
+        key=lambda item: item.relative_to(root).as_posix(),
+    )
     if not files or len(files) > 1_000:
         raise LocalEmbeddingError("local_embedding_file_inventory_invalid")
     inventory = hashlib.sha256()
@@ -108,6 +111,8 @@ class LocalSentenceEmbedding:
             raise
         except Exception as exc:
             raise LocalEmbeddingError("local_embedding_inference_failed") from exc
-        if len(result) != self.dimensions or not all(math.isfinite(value) for value in result):
+        if len(result) != self.dimensions or not all(
+            math.isfinite(value) for value in result
+        ):
             raise LocalEmbeddingError("local_embedding_vector_invalid")
         return result
