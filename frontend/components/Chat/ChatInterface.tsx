@@ -154,6 +154,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [sessionSearch, setSessionSearch] = useState('');
   const [tracePaneOpen, setTracePaneOpen] = useState(true);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const draftSessionIdRef = useRef<string | null>(null);
@@ -161,6 +162,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const freshSessionIdsRef = useRef<Set<string>>(new Set());
 
   const strictInputSanitization = isEnabled('strictInputSanitization');
+  const filteredSessions = sessions.filter((session) =>
+    (session.title || 'Untitled Session').toLocaleLowerCase().includes(sessionSearch.trim().toLocaleLowerCase()),
+  );
 
   // WebSocket Integration
   useSocket({
@@ -566,6 +570,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                <Input
                  placeholder="Search..."
                  aria-label="Search chat sessions"
+                  value={sessionSearch}
+                  onChange={(event) => setSessionSearch(event.target.value)}
                  className="pl-8 bg-white/80 dark:bg-black/20 border-slate-300/70 dark:border-white/5 h-9 focus:bg-white dark:focus:bg-black/40 transition-colors"
                />
             </div>
@@ -578,8 +584,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                      <Calendar className="h-3 w-3" /> Recent Sessions
                   </h3>
                   <div className="space-y-1">
-                     {sessions.length > 0 ? (
-                       sessions.map((s) => (
+                     {filteredSessions.length > 0 ? (
+                       filteredSessions.map((s) => (
                         <Button 
                           key={s.id} 
                           variant="ghost" 
@@ -593,7 +599,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                         </Button>
                        ))
                      ) : (
-                       <div className="text-xs text-slate-500 dark:text-gray-600 px-2 italic py-4">No recent sessions found</div>
+                       <div className="text-xs text-slate-500 dark:text-gray-600 px-2 italic py-4">{sessions.length ? 'No matching sessions' : 'No recent sessions found'}</div>
                      )}
                   </div>
                </div>

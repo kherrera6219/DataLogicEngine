@@ -128,6 +128,19 @@ describe('ChatInterface', () => {
     expect(socketClient.joinRoom).toHaveBeenCalled();
   });
 
+  it('filters recent sessions by title and restores them when the search is cleared', async () => {
+    renderChatInterface();
+    await screen.findByRole('button', { name: 'Session 1' });
+    const search = screen.getByRole('textbox', { name: 'Search chat sessions' });
+    fireEvent.change(search, { target: { value: 'SESSION 2' } });
+    expect(screen.queryByRole('button', { name: 'Session 1' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Session 2' })).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: 'missing' } });
+    expect(screen.getByText('No matching sessions')).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: '' } });
+    expect(screen.getByRole('button', { name: 'Session 1' })).toBeInTheDocument();
+  });
+
   it('should handle sending a message and displaying direct response', async () => {
     (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       response: 'Core Response',
