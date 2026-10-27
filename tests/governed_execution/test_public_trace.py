@@ -62,6 +62,15 @@ def test_public_stage_event_is_stable_ordered_bounded_and_redacted():
     assert "metrics" not in event
 
 
+def test_public_retrieval_receipt_distinguishes_failed_search_from_no_matches():
+    stage = GovernedStage(name="layer_2_retrieve_context", stage_type="reasoning_layer", inputs={"layer_id": "L2"})
+    stage.finish(GovernedStageStatus.COMPLETED, outputs={"evidence_ids": [], "warnings": ["document_retrieval_failed:PrivateDetail"]})
+    event = present_stage_event("run-1", stage, sequence=1)
+    assert "0 evidence records" in event["narrative"]
+    assert "Some local searches were unavailable" in event["narrative"]
+    assert "PrivateDetail" not in str(event)
+
+
 def test_public_stage_event_preserves_allowlisted_refinement_receipt_only():
     stage = GovernedStage(
         name="refinement_1",
