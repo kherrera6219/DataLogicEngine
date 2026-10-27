@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.2 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; 4.4.6 Windows/frontend/coverage gates and clean-source rebuild pass; final repair-head CI/merge, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19; 4.4.6 repair PR #94 merged at `57c7b4b0`; post-merge CI, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -36,16 +36,18 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [x] Build 4.4.6 from clean commit `0f0d51d1` and verify payload, resources,
       NSIS policy, version, and checksum. The unsigned installer is 350,186,546
       bytes; exact SHA-256 is in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`.
-- [ ] Finish final repair-head CI and merge PR #94. Earlier red September jobs
-      remain retained historical negative evidence; replacement scan/backend
-      jobs pass at the first repair checkpoint.
+- [x] Merge repair PR #94 at `57c7b4b0`. Final-head security, backend,
+      frontend, governance, lint, and Windows portable packaging checks pass;
+      the preceding source checkpoint also passed both Docker builds.
+- [ ] Retain final-head Docker and post-merge CI/Deploy/Security results.
+      Earlier red September and October jobs remain historical evidence.
 - [ ] Resolve the intermittent Linux governed-execution failures seen at
       `f636573e`. A rerun exposed a one-second timeout test whose plan needed
       750 ms with 599 ms left, and a separate privacy-response failure; the
       cancellation assertion's cause remains unproven. The cancellation controls
       remain unchanged. After fixture de-duplication (`8046c5f9`), the fresh
       Windows suite passes 3,373 tests with 19 skipped and zero test/setup/
-      collection errors; final GitHub verification remains pending.
+      collection errors; post-merge GitHub verification remains pending.
 - [ ] Validate the new chat refinement explanation and comprehensive mechanism
       answers in a rebuilt installation. Standard no-evidence answer behavior
       remains owner-approved; no extra provider call is implicit.

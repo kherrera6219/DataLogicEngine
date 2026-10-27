@@ -22,7 +22,7 @@
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.5 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; documentation PR #93 merged at `9911280f`. Owner-approved 4.4.6 repair passes 3,373 Windows tests, 506 frontend tests, coverage, and local/GitHub dependency scans. Clean-source 4.4.6 installer built from `0f0d51d1`; final repair-head CI/merge and installed acceptance remain open. Existing OpenAI quota, signing, lifecycle, and retained CP19-M gates remain open. |
+| Current phase | Phase 19; 4.4.6 repair PR #94 merged at `57c7b4b0`. Windows/frontend/coverage and repair-branch security, backend, frontend, and packaging checks pass. Clean-source installer built from `0f0d51d1`; post-merge CI, installed acceptance, signing, lifecycle, and retained CP19-M gates remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
@@ -30,20 +30,22 @@
 
 October 26 owner-approved repairs are recorded in
 `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. Documentation PR #93 is merged at
-`9911280f`. The repair branch refreshes dependency locks (local Python/NPM audits
+`9911280f`. Repair PR #94 merged at `57c7b4b0`. The repair refreshes dependency locks (local Python/NPM audits
 are zero without exceptions), replaces LlamaIndex chunking with a versioned local
 splitter, and clarifies conditional refinement in chat. The full Windows suite
 passes 3,373 tests with 19 skipped and zero test/setup/collection errors; all 506
 frontend tests and independent coverage gates pass. The clean-source 4.4.6
 installer from `0f0d51d1` is 350,186,546 bytes, SHA-256
 `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`.
-Payload/resources/NSIS verification passes. Final-head CI and installed/provider
-acceptance remain open; the artifact is unsigned and release verdict unchanged.
+Payload/resources/NSIS verification passes. PR #94's final-head security,
+backend, frontend, governance, lint, and Windows portable packaging checks pass;
+its Docker recheck and post-merge workflows are in progress. Installed/provider
+acceptance remains open; the artifact is unsigned and release verdict unchanged.
 The `f636573e` GitHub backend run reported an intermittent cancellation-test
 failure; its rerun also found a one-second planning-budget conflict and a
 separate privacy-response failure. A fresh full Windows suite after the fixture
 change passes 3,373 tests with 19 skipped and zero test/setup/collection errors;
-final GitHub verification remains pending. A separate
+post-merge GitHub verification remains pending. A separate
 duplicate fixture-runtime cleanup issue was corrected in `8046c5f9` without
 changing or weakening the cancellation assertions. Details are in the repair
 checkpoint; a causal link between the two findings is not established.

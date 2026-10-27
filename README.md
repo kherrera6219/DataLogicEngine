@@ -51,7 +51,8 @@ update check, crash-reporting egress, or phone-home.
 > pilot, and soak acceptance remain release gates.
 
 The October 26 [4.4.6 repair](https://github.com/kherrera6219/DataLogicEngine/pull/94)
-refreshes the Python and NPM locks and removes the LlamaIndex/NLTK path.
+merged into `main` at `57c7b4b0`. It refreshes the Python and NPM locks and
+removes the LlamaIndex/NLTK path.
 Local audits and GitHub dependency scans report **zero findings without
 exceptions**. The full Windows suite passes **3,373 tests** with 19 skipped
 and zero test/setup/collection errors; all **506 frontend tests** pass.
