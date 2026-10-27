@@ -209,6 +209,7 @@ def test_get_context_for_query():
 
 def test_rag_chat_history():
     mock_store = MagicMock()
+    mock_store.add_embeddings.side_effect = lambda **kwargs: kwargs['ids']
     service = RAGService(vector_store=mock_store)
     service.set_embedding_provider(lambda x: [0.1])
     
@@ -227,6 +228,16 @@ def test_rag_chat_history():
     service.search_chat_history("sess1", "query")
     mock_store.search.assert_called()
 
+
+def test_rag_chat_history_requires_the_written_id_acknowledgment():
+    store = MagicMock()
+    store.add_embeddings.return_value = []
+    service = RAGService(vector_store=store, embedding_provider=lambda _text: [0.1])
+    assert service.store_chat_message("session", "message", "user", "content") is False
+    store.add_embeddings.return_value = ["different-message"]
+    assert service.store_chat_message("session", "message", "user", "content") is False
+    store.add_embeddings.return_value = ["message"]
+    assert service.store_chat_message("session", "message", "user", "content") is True
 def test_rag_knowledge_node():
     mock_store = MagicMock()
     service = RAGService(vector_store=mock_store)

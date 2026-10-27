@@ -10,7 +10,7 @@ class TestRAGService:
     @pytest.fixture
     def mock_vector_store(self):
         store = MagicMock()
-        store.add_embeddings = MagicMock()
+        store.add_embeddings = MagicMock(side_effect=lambda **kwargs: kwargs['ids'])
         store.search = MagicMock(return_value=[
             MagicMock(id="1", text="match", score=0.9, metadata={})
         ])
