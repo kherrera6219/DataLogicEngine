@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.2 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; 4.4.6 repair PR #94 merged at `57c7b4b0`; post-merge CI, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19; 4.4.6 repair PR #94 merged; main CI/CD, Deploy, and Security pass at `bc245bf3`. Test timing correction is tracked in PR #96; installed acceptance and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -39,15 +39,17 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [x] Merge repair PR #94 at `57c7b4b0`. Final-head security, backend,
       frontend, governance, lint, and Windows portable packaging checks pass;
       the preceding source checkpoint also passed both Docker builds.
-- [ ] Retain final-head Docker and post-merge CI/Deploy/Security results.
-      Earlier red September and October jobs remain historical evidence.
-- [ ] Resolve the intermittent Linux governed-execution failures seen at
-      `f636573e`. A rerun exposed a one-second timeout test whose plan needed
-      750 ms with 599 ms left, and a separate privacy-response failure; the
-      cancellation assertion's cause remains unproven. The cancellation controls
-      remain unchanged. After fixture de-duplication (`8046c5f9`), the fresh
-      Windows suite passes 3,373 tests with 19 skipped and zero test/setup/
-      collection errors; post-merge GitHub verification remains pending.
+- [x] Retain final-head Docker and post-merge CI/Deploy/Security results. All
+      pass at main commit `bc245bf3` (runs `40433850148`, `40433850156`, and
+      `40433850255`). Earlier red jobs remain historical evidence.
+- [x] Apply the owner-approved test timing correction in PR #96: wait for a
+      provider-start signal, allow the real request deadline enough planning
+      time, and explicitly test rejection of an insufficient planning budget.
+      Cancellation, timeout, trace, and provider-call assertions remain intact.
+- [ ] Investigate the previously observed privacy-response failure and the
+      original cancellation failure's unproven cause. The full Windows and
+      GitHub validation and merge status of the timing correction are tracked
+      in PR #96.
 - [ ] Validate the new chat refinement explanation and comprehensive mechanism
       answers in a rebuilt installation. Standard no-evidence answer behavior
       remains owner-approved; no extra provider call is implicit.
