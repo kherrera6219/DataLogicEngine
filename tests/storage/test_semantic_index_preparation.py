@@ -11,7 +11,9 @@ from backend.storage.semantic_index_preparation import (
 class MemoryCollection:
     def __init__(self, collection_id, records=(), revision=None):
         self.id = collection_id
-        self.metadata = {"dle_embedding_revision": revision} if revision else {}
+        self.metadata = {"dle_disposable_test_data": True}
+        if revision:
+            self.metadata["dle_embedding_revision"] = revision
         self.records = {record["id"]: deepcopy(record) for record in records}
         self.vectors = {}
 
@@ -152,6 +154,19 @@ def test_record_limit_refuses_preparation_before_writing():
             lambda _text: [0.6, 0.8],
             embedding_revision="semantic-v1",
             max_records=1,
+        )
+    assert target.records == {}
+
+
+def test_live_or_unmarked_collections_are_rejected_before_writing():
+    source = MemoryCollection("old", _sources())
+    target = MemoryCollection("new", revision="semantic-v1")
+    source.metadata.clear()
+    with pytest.raises(
+        SemanticIndexPreparationError, match="disposable_test_data_required"
+    ):
+        prepare_semantic_index(
+            source, target, lambda _text: [0.6, 0.8], embedding_revision="semantic-v1"
         )
     assert target.records == {}
 
