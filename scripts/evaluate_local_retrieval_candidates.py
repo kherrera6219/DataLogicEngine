@@ -109,6 +109,7 @@ def main() -> None:
         "lexical": [],
         "local_semantic": [],
     }
+    threshold_matches = {"hash_projection": [], "local_semantic": []}
     for index, (query, _) in enumerate(all_queries):
         query_vector = baseline._deterministic_embedding(query)
         scores = {
@@ -122,15 +123,37 @@ def main() -> None:
             ranking_sets[name].append(
                 sorted(range(len(values)), key=lambda item: (-values[item], item))
             )
+        for name, query_embedding, document_embeddings in (
+            ("hash_projection", query_vector, baseline_docs),
+            ("local_semantic", semantic_queries[index], semantic_docs),
+        ):
+            scores_l2 = [
+                1.0
+                - sum((left - right) ** 2 for left, right in zip(query_embedding, doc))
+                for doc in document_embeddings
+            ]
+            ordered = sorted(
+                range(len(scores_l2)), key=lambda item: (-scores_l2[item], item)
+            )
+            target = all_queries[index][1]
+            threshold_matches[name].append(
+                target in ordered[:4] and scores_l2[target] >= 0.15
+            )
     print(f"Synthetic corpus: {len(DOCUMENTS)} documents")
     print(
-        "Metric: cosine or token-frequency cosine; ranking only; no Chroma or threshold test"
+        "Ranking uses cosine or token-frequency cosine; threshold uses simulated squared-L2, not a live Chroma query"
     )
     for name, rankings in ranking_sets.items():
         screen_top1, screen_top4 = metrics(rankings[: len(QUERIES)], QUERIES)
         held_top1, held_top4 = metrics(rankings[len(QUERIES) :], HELD_OUT_QUERIES)
         print(
             f"{name}: screening top1={screen_top1}/{len(QUERIES)}, recall_at_4={screen_top4}/{len(QUERIES)}; held-out top1={held_top1}/{len(HELD_OUT_QUERIES)}, recall_at_4={held_top4}/{len(HELD_OUT_QUERIES)}"
+        )
+    for name, matches in threshold_matches.items():
+        print(
+            f"{name} simulated squared-L2 0.15 threshold: "
+            f"screening={sum(matches[: len(QUERIES)])}/{len(QUERIES)}; "
+            f"held-out={sum(matches[len(QUERIES) :])}/{len(HELD_OUT_QUERIES)}"
         )
     print(
         f"Local semantic model load={model_load_seconds:.2f}s; encode {len(DOCUMENTS) + len(all_queries)} texts={model_encode_seconds:.2f}s"

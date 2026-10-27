@@ -34,7 +34,11 @@ failure warnings, chat-index acknowledgments, filtering the active session
 before the recall limit, and per-run graph-status narratives. Focused frontend
 and backend tests passed. A Windows full backend run passed 3,395 tests, 19
 skipped, zero failures or setup errors, and 35 warnings before the later graph
-status changes; final-commit verification remains open. The frontend suite
+status changes. A subsequent full run passed 3,400 tests but reported one
+setup or teardown error in `test_durable_runner_fails_interrupted_work_without_replay`;
+the captured summary did not retain the error detail. The test and its full
+six-test module pass when rerun independently. The cause is not established;
+a sequential full rerun with a complete retained log remains necessary. The frontend suite
 passed 517 tests before the latest chat and trace changes; their focused tests
 passed. The unrestricted Python lint and format
 gates have existing failures on both main and the repair branch, and `mypy` is
@@ -45,6 +49,14 @@ questions, and twelve later synthetic questions. With cosine ranking, hash
 projection had top-1 0/8 and 2/12; token overlap 7/8 and 9/12; offline MiniLM
 8/8 and 12/12. These small synthetic results do not establish production
 accuracy, threshold suitability, installed behavior or customer-data quality.
+With a simulated squared-L2 score of `1 - distance` and the current `0.15`
+threshold, the intended source passed within the top four for 0/8 and 0/12
+hash queries, and 5/8 and 6/12 MiniLM queries. This is a simulation, not a live
+Chroma threshold qualification; it shows that good ranking alone is not enough.
+A subsequent isolated Chroma 1.5.9 query using the same synthetic corpus and
+threshold reproduced those counts, including MiniLM ranking 8/8 and 12/12 first.
+The disposable container was removed. Neither experiment qualifies a threshold
+on representative customer data or authorizes a cutover.
 Cached model revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`, weights
 SHA-256 `53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db`,
 and complete local file inventory SHA-256
