@@ -44,7 +44,8 @@ A simulated-API browser check found and verified a source fix for repeated
 socket connections while the backend is unavailable. These checks do not
 replace an exact-source rebuilt installer or installed/provider acceptance.
 The review-repair PR #98 dependency scan on October 27 found seven advisories
-for Authlib 1.7.2. The scan failure remains open; see the run at
+for Authlib 1.7.2. Authlib was updated to 1.9.1 and the local locked-dependency
+audit passed; final GitHub verification remains open. The earlier failure is at
 https://github.com/kherrera6219/DataLogicEngine/actions/runs/40569900702.
 
 October 26 owner-approved repairs are recorded in

@@ -70,7 +70,8 @@ merged into `main` at `57c7b4b0`. It refreshes the Python and NPM locks and
 removes the LlamaIndex/NLTK path.
 At that checkpoint, local audits and GitHub dependency scans reported **zero
 findings without exceptions**. A later October 27 scan of the review-repair
-branch reports seven advisories for Authlib 1.7.2; remediation remains open.
+branch reported seven advisories for Authlib 1.7.2. The source lock was updated
+to 1.9.1 and the local dependency audit passed; GitHub verification is pending.
 The full Windows suite passed **3,373 tests** with 19 skipped
 and zero test/setup/collection errors; all **506 frontend tests** pass.
 Installed acceptance remains required. See the

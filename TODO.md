@@ -47,8 +47,9 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Disposition the unchanged main-branch unrestricted Ruff and formatting
       findings and unavailable `mypy` separately from this repair. The existing
       Phase A and CP19-M release gates remain open.
-- [ ] Investigate and remediate the seven Authlib 1.7.2 advisories reported by
-      the October 27 PR #98 dependency security scan, then rerun its checks.
+- [ ] Verify PR #98 checks after the Authlib 1.9.1 update. The local locked
+      dependency audit passes; the October 27 scan reported seven advisories
+      for the prior 1.7.2 version.
 - [ ] Verify the owner-approved Chroma deletion-error repair in installed,
       cross-store, failure/retry and concurrent-deletion scenarios. Source tests
       pass and an isolated synthetic Chroma deletion preserved the other owner.
