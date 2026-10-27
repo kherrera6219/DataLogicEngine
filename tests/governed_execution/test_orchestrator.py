@@ -375,6 +375,22 @@ async def test_index_failure_is_visible_while_transcript_remains_available(monke
 
 
 @pytest.mark.asyncio
+async def test_graph_status_reaches_the_recorded_layer_and_public_receipt(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+    from backend.governed_execution.public_trace import present_stage_event
+
+    def retrieve(request, *_args, **_kwargs):
+        request.metadata["_graph_context_status"] = "relationships_included"
+        return ([EvidenceRecord(source_id="source-alpha", citation_label="S1", text="alpha evidence", metadata={"graph_context": [{"neighbor_uid": "x"}]})], [])
+
+    monkeypatch.setattr(module, "retrieve_evidence", retrieve)
+    result = await _orchestrator(_Gateway()).execute(_request())
+    stage = next(item for item in result.stages if item.name == "layer_2_retrieve_context")
+    assert stage.outputs["graph_context_status"] == "relationships_included"
+    assert "Graph relationships were included" in present_stage_event(result.trace_id, stage, sequence=1)["narrative"]
+
+
+@pytest.mark.asyncio
 async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monkeypatch):
     import backend.governed_execution.orchestrator as module
 
