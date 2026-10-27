@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from backend.services.local_sentence_embedding import LocalEmbeddingError, LocalSentenceEmbedding
+from backend.services.local_sentence_embedding import LocalEmbeddingError, LocalSentenceEmbedding, model_manifest_sha256
 
 
 def test_loads_fingerprinted_model_locally_and_reuses_it(tmp_path):
@@ -17,6 +17,7 @@ def test_loads_fingerprinted_model_locally_and_reuses_it(tmp_path):
     embedding = LocalSentenceEmbedding(
         tmp_path,
         expected_weights_sha256=sha256(b"local weights").hexdigest(),
+        expected_manifest_sha256=model_manifest_sha256(tmp_path),
         dimensions=2,
         loader=loader,
     )
@@ -28,7 +29,7 @@ def test_loads_fingerprinted_model_locally_and_reuses_it(tmp_path):
 
 def test_missing_and_tampered_model_fail_without_loading(tmp_path):
     calls = []
-    embedding = LocalSentenceEmbedding(tmp_path, expected_weights_sha256="0" * 64, loader=lambda *args, **kwargs: calls.append(args))
+    embedding = LocalSentenceEmbedding(tmp_path, expected_weights_sha256="0" * 64, expected_manifest_sha256="1" * 64, loader=lambda *args, **kwargs: calls.append(args))
     with pytest.raises(LocalEmbeddingError, match="model_missing"):
         embedding("question")
     (tmp_path / "model.safetensors").write_bytes(b"unexpected")
@@ -43,8 +44,24 @@ def test_bad_embedding_vectors_fail_explicitly(tmp_path, vector):
     embedding = LocalSentenceEmbedding(
         tmp_path,
         expected_weights_sha256=sha256(b"weights").hexdigest(),
+        expected_manifest_sha256=model_manifest_sha256(tmp_path),
         dimensions=2,
         loader=lambda *args, **kwargs: SimpleNamespace(encode=lambda *args, **kwargs: vector),
     )
     with pytest.raises(LocalEmbeddingError, match="vector_invalid"):
+        embedding("question")
+
+
+def test_changed_model_configuration_fails_manifest_check(tmp_path):
+    (tmp_path / "model.safetensors").write_bytes(b"weights")
+    (tmp_path / "config.json").write_text('{"model": "original"}', encoding="utf-8")
+    expected_manifest = model_manifest_sha256(tmp_path)
+    (tmp_path / "config.json").write_text('{"model": "changed"}', encoding="utf-8")
+    embedding = LocalSentenceEmbedding(
+        tmp_path,
+        expected_weights_sha256=sha256(b"weights").hexdigest(),
+        expected_manifest_sha256=expected_manifest,
+        loader=lambda *args, **kwargs: pytest.fail("must not load a modified model"),
+    )
+    with pytest.raises(LocalEmbeddingError, match="manifest_mismatch"):
         embedding("question")
