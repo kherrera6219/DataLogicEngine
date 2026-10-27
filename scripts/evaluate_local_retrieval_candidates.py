@@ -36,6 +36,20 @@ QUERIES = [
     ("Who must authorize a holiday request?", 6),
     ("Who handles an urgent system failure?", 7),
 ]
+HELD_OUT_QUERIES = [
+    ("Can I return a purchase after two weeks?", 0),
+    ("A fake login link arrived in my inbox; who should I tell?", 1),
+    ("When are stored disaster recovery copies deleted?", 2),
+    ("Where did the French king's government sit in medieval France?", 3),
+    ("Is a supervisor's permission needed for working remotely?", 4),
+    ("Which database is used by the local application?", 5),
+    ("What must be done before reserving time off?", 6),
+    ("Where is an infrastructure incident escalated?", 7),
+    ("What proof is needed when requesting a refund?", 0),
+    ("How many days can an employee work from home?", 4),
+    ("How often are protected backups produced?", 2),
+    ("What place was France's capital during the 1300s?", 3),
+]
 
 
 def cosine(left: list[float], right: list[float]) -> float:
@@ -54,10 +68,12 @@ def lexical_similarity(left: str, right: str) -> float:
     )
 
 
-def metrics(rankings: list[list[int]]) -> tuple[int, int]:
+def metrics(
+    rankings: list[list[int]], queries: list[tuple[str, int]]
+) -> tuple[int, int]:
     return (
-        sum(ranking[0] == target for ranking, (_, target) in zip(rankings, QUERIES)),
-        sum(target in ranking[:4] for ranking, (_, target) in zip(rankings, QUERIES)),
+        sum(ranking[0] == target for ranking, (_, target) in zip(rankings, queries)),
+        sum(target in ranking[:4] for ranking, (_, target) in zip(rankings, queries)),
     )
 
 
@@ -77,8 +93,9 @@ def main() -> None:
     )
     model_load_seconds = perf_counter() - started
     started = perf_counter()
+    all_queries = QUERIES + HELD_OUT_QUERIES
     embeddings = model.encode(
-        DOCUMENTS + [query for query, _ in QUERIES],
+        DOCUMENTS + [query for query, _ in all_queries],
         normalize_embeddings=True,
         show_progress_bar=False,
     )
@@ -92,7 +109,7 @@ def main() -> None:
         "lexical": [],
         "local_semantic": [],
     }
-    for index, (query, _) in enumerate(QUERIES):
+    for index, (query, _) in enumerate(all_queries):
         query_vector = baseline._deterministic_embedding(query)
         scores = {
             "hash_projection": [cosine(query_vector, doc) for doc in baseline_docs],
@@ -105,17 +122,18 @@ def main() -> None:
             ranking_sets[name].append(
                 sorted(range(len(values)), key=lambda item: (-values[item], item))
             )
-    print(
-        f"Synthetic screening set: {len(DOCUMENTS)} documents, {len(QUERIES)} queries"
-    )
+    print(f"Synthetic corpus: {len(DOCUMENTS)} documents")
     print(
         "Metric: cosine or token-frequency cosine; ranking only; no Chroma or threshold test"
     )
     for name, rankings in ranking_sets.items():
-        top1, top4 = metrics(rankings)
-        print(f"{name}: top1={top1}/{len(QUERIES)}, recall_at_4={top4}/{len(QUERIES)}")
+        screen_top1, screen_top4 = metrics(rankings[: len(QUERIES)], QUERIES)
+        held_top1, held_top4 = metrics(rankings[len(QUERIES) :], HELD_OUT_QUERIES)
+        print(
+            f"{name}: screening top1={screen_top1}/{len(QUERIES)}, recall_at_4={screen_top4}/{len(QUERIES)}; held-out top1={held_top1}/{len(HELD_OUT_QUERIES)}, recall_at_4={held_top4}/{len(HELD_OUT_QUERIES)}"
+        )
     print(
-        f"Local semantic model load={model_load_seconds:.2f}s; encode 16 texts={model_encode_seconds:.2f}s"
+        f"Local semantic model load={model_load_seconds:.2f}s; encode {len(DOCUMENTS) + len(all_queries)} texts={model_encode_seconds:.2f}s"
     )
     print(
         "Synthetic screening only; not production accuracy, security, latency, or migration evidence."
