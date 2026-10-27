@@ -1,8 +1,9 @@
-"""Prepare an existing local shadow collection; never activate or delete it.
+"""Prepare existing disposable-test collections; never activate or delete them.
 
 Example: python -m scripts.prepare_semantic_index --help
-The operator must provision a distinct target with matching revision metadata
-and quiesce the source first. This is not an installed migration or cutover.
+The operator must provision a distinct target with matching revision metadata,
+mark both collections as disposable test data, and quiesce the source first.
+This is not a live-data migration or cutover.
 """
 
 from __future__ import annotations

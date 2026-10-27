@@ -1,7 +1,7 @@
-"""Prepare a separate semantic collection without activating or deleting data.
+"""Prepare a separate disposable-test semantic collection without activating data.
 
-The caller must provide a quiescent source and an explicitly provisioned target
-whose collection metadata pins the embedding revision. This utility never
+The caller must provide a quiescent disposable-test source and an explicitly
+provisioned disposable-test target whose metadata pins the embedding revision. This utility never
 changes which collection the app reads. Activation still requires coordinated
 writes/deletes, full model qualification, and installed verification.
 """
@@ -93,6 +93,11 @@ def prepare_semantic_index(
         raise SemanticIndexPreparationError("semantic_preparation_bounds_invalid")
     if not embedding_revision or source.id == target.id:
         raise SemanticIndexPreparationError("semantic_target_not_distinct")
+    if (
+        source.metadata.get("dle_disposable_test_data") is not True
+        or target.metadata.get("dle_disposable_test_data") is not True
+    ):
+        raise SemanticIndexPreparationError("semantic_disposable_test_data_required")
     if target.metadata.get("dle_embedding_revision") != embedding_revision:
         raise SemanticIndexPreparationError("semantic_target_revision_mismatch")
     before = _snapshot(source, batch_size=batch_size, max_records=max_records)
