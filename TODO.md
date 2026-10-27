@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.7 |
+| Document version | v1.20.8 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-26 |
+| Last reviewed | 2026-10-27 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.3 |
@@ -26,6 +26,27 @@
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
+
+## October 27 frontend and retrieval fast-track
+
+- [ ] Complete and validate the owner-approved
+      `docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md`.
+      Session/trace scoping, recent-session search, metric display and explicit
+      retrieval/index warnings have source changes and focused tests; installed
+      acceptance remains open. Keep the two older UI entries below open until
+      their full regression and installed evidence is recorded.
+- [ ] Complete offline MiniLM qualification, packaging and safe index lifecycle,
+      including write/delete/retention reconciliation, concurrent cutover and
+      rollback. The prepared separate-index tool does not activate an index;
+      existing retrieval remains hash-based. Add bounded chat-index recovery,
+      verify per-run graph-use visibility in the installed app, then rerun final
+      gates and rebuild.
+- [ ] Disposition the unchanged main-branch unrestricted Ruff and formatting
+      findings and unavailable `mypy` separately from this repair. The existing
+      Phase A and CP19-M release gates remain open.
+- [ ] Verify the owner-approved Chroma deletion-error repair in installed,
+      cross-store, failure/retry and concurrent-deletion scenarios. Source tests
+      pass and an isolated synthetic Chroma deletion preserved the other owner.
 
 ## October 26 owner-approved repair
 

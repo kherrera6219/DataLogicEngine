@@ -1,6 +1,6 @@
 {
   "schema_version": "dle.documentation-truth-gate.v1",
-  "generated_at": "2026-10-27T03:06:19.484093+00:00",
+  "generated_at": "2026-10-27T18:21:09.784445+00:00",
   "status": "pass",
   "summary": {
     "check_count": 10,
@@ -76,7 +76,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=184 errors=0\n",
+      "stdout": "Documentation BOM verification: pass canonical=30/30 inventory=185 errors=0\n",
       "stderr": ""
     },
     {
@@ -120,7 +120,7 @@
       ],
       "passed": true,
       "returncode": 0,
-      "stdout": "Discovered 59 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
+      "stdout": "Discovered 60 active markdown files for validation.\n\nDocumentation validation passed: 0 errors, 0 warnings.\n",
       "stderr": ""
     }
   ]
