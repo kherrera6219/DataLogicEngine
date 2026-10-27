@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.8 |
+| Document version | v1.22.9 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -38,6 +38,11 @@ open. No new installer has been built for this work.
 The owner also approved a newly discovered Chroma deletion-error repair;
 source failure tests and an isolated synthetic deletion test pass, while the
 installed and concurrent cross-store deletion checks remain open.
+The later sequential Windows backend run passed 3,401 tests with 19 skipped;
+the frontend suite passed 520 tests, and frontend lint and type checking passed.
+A simulated-API browser check found and verified a source fix for repeated
+socket connections while the backend is unavailable. These checks do not
+replace an exact-source rebuilt installer or installed/provider acceptance.
 
 October 26 owner-approved repairs are recorded in
 `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. Documentation PR #93 is merged at

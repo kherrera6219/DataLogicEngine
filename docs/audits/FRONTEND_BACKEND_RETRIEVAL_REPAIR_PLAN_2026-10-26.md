@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-REVIEW-2026-10-26 |
-| Document version | v1.1.0 |
+| Document version | v1.1.1 |
 | Product version | 4.4.6 at review |
 | Review baseline | main `f91dd4919c6a5c3265c9fc82bdbb388f15a3b5aa` |
 | Date | 2026-10-26 |
@@ -37,12 +37,22 @@ skipped, zero failures or setup errors, and 35 warnings before the later graph
 status changes. A subsequent full run passed 3,400 tests but reported one
 setup or teardown error in `test_durable_runner_fails_interrupted_work_without_replay`;
 the captured summary did not retain the error detail. The test and its full
-six-test module pass when rerun independently. The cause is not established;
-a sequential full rerun with a complete retained log remains necessary. The frontend suite
-passed 517 tests before the latest chat and trace changes; their focused tests
-passed. The unrestricted Python lint and format
+six-test module pass when rerun independently. The cause is not established.
+A subsequent sequential Windows backend run at `04885301` passed 3,401 tests,
+with 19 skipped, 35 warnings and zero failures, setup or collection errors. The
+backend and backend tests are unchanged since that run. At `1767a887` the full
+frontend suite passed 520 tests across 93 files, and frontend lint and type
+checking passed. The unrestricted Python lint and format
 gates have existing failures on both main and the repair branch, and `mypy` is
 not installed in either checked environment.
+
+A browser smoke check using simulated local API responses verified session
+filtering, New Chat trace clearing and unmeasured confidence display. It also
+exposed repeated socket connections while the backend was unavailable; the
+client now reuses its pending connection, with focused test coverage and a
+repeat browser check. This was not a test of an installed application or a live
+provider. The Electron-mode frontend build passed before that socket change;
+an exact-source installer and installed acceptance remain open.
 
 The isolated retrieval screening used eight synthetic documents, eight initial
 questions, and twelve later synthetic questions. With cosine ranking, hash
@@ -94,13 +104,13 @@ remain open.
 
 | Review finding | Source checkpoint | Remaining qualification |
 |---|---|---|
-| A reply can appear in another conversation | Session and request guards added; delayed-reply and revisit tests pass | Full current frontend suite and installed switch/background-run checks |
+| A reply can appear in another conversation | Session and request guards added; delayed-reply and revisit tests and full frontend suite pass | Installed switch/background-run checks |
 | Late history can overwrite the selected conversation; history failure looks empty | Stale loads ignored; error and retry shown; targeted tests pass | Installed history failure and recovery |
 | New Chat can retain another run's trace | Chat panel scoped to the selected run; fresh-draft and saved-run tests pass | Installed live streaming, saved history and trace isolation |
 | Truth Engine shows unavailable confidence as zero and labels recent runs active | Unmeasured/error/zero are distinguished and metric labeled **Average Run Confidence**, approved by Kevin; targeted tests pass | Installed display and accessibility |
 | Recent-session search does not filter | Title filter and no-match state added; targeted tests pass | Installed keyboard and session-selection checks |
 | Default hash projection does not provide semantic search | Offline MiniLM screened and test-only separate-index preparation implemented; active app is unchanged | Packaged model, broader evaluation, live-data migration, lifecycle and safe cutover |
-| Vector query failure looks like an empty search | Typed failure, existing warning path and trace narrative added; targeted tests pass | Installed outage/recovery and final suite |
+| Vector query failure looks like an empty search | Typed failure, existing warning path and trace narrative added; backend suite passes | Installed outage/recovery and final exact-source suite |
 | Failed chat index writes can appear successful | Write acknowledgment, backend status and current-answer warning added; targeted tests pass | Durable bounded retry/reconciliation, deletion safety, and installed verification |
 | Active-session results crowd out earlier chat recall | Owner/session filter applied before limit; focused tests and isolated Chroma synthetic check pass | Installed retained-data and authorization coverage |
 | Graph use and limitations are unclear | Conditions explained in chat; per-run status narrative added with Kevin's approval and focused tests | Installed graph-enabled, disabled, missing-source and outage checks |

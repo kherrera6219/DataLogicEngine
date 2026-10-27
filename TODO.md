@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.8 |
+| Document version | v1.20.9 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -33,7 +33,10 @@ conditions, and exit gates remain authoritative in the active root plan.
       `docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md`.
       Session/trace scoping, recent-session search, metric display and explicit
       retrieval/index warnings have source changes and focused tests; installed
-      acceptance remains open. Keep the two older UI entries below open until
+      acceptance remains open. The sequential Windows backend suite passed
+      3,401 tests with 19 skipped; the latest frontend suite passed 520 tests.
+      A simulated-API browser check verified key UI states and the socket
+      connection repair; installed testing remains open. Keep the two older UI entries below open until
       their full regression and installed evidence is recorded.
 - [ ] Complete offline MiniLM qualification, packaging and safe index lifecycle,
       including write/delete/retention reconciliation, concurrent cutover and
