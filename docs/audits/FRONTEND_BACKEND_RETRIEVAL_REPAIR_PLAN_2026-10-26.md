@@ -47,7 +47,9 @@ gates have existing failures on both main and the repair branch, and `mypy` is
 not installed in either checked environment.
 The October 27 PR #98 dependency security scan subsequently reported seven
 advisories for Authlib 1.7.2. The reviewed pin and lock were updated to 1.9.1
-and the local locked-dependency audit passed; GitHub verification remains open.
+and the local locked-dependency audit and GitHub scan at `453bd415` passed.
+The full Windows backend suite with Authlib 1.9.1 subsequently passed 3,401
+tests, with 19 skipped, 35 warnings, and no failures, setup or collection errors.
 
 A browser smoke check using simulated local API responses verified session
 filtering, New Chat trace clearing and unmeasured confidence display. It also
