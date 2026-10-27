@@ -66,17 +66,18 @@ export default function TruthEnginePage() {
   const metrics = useMemo(() => {
     const confidenceValues = runs
       .map((entry) => entry.scores?.confidence)
-      .filter((value): value is number => typeof value === 'number');
+      .filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
     const avgConfidence = confidenceValues.length
       ? confidenceValues.reduce((sum, value) => sum + value, 0) / confidenceValues.length
-      : 0;
+      : null;
 
     const failCount = runs.filter((entry) => entry.status === 'fail' || entry.status === 'failed').length;
-    const conflictRate = runs.length > 0 ? (failCount / runs.length) * 100 : 0;
+    const conflictRate = runs.length > 0 ? (failCount / runs.length) * 100 : null;
 
     return {
-      truthScore: avgConfidence * 100,
-      activeRuns: runs.length,
+      truthScore: avgConfidence === null ? null : avgConfidence * 100,
+      measuredRuns: confidenceValues.length,
+      recentRuns: runs.length,
       conflictRate,
     };
   }, [runs]);
@@ -98,27 +99,27 @@ export default function TruthEnginePage() {
           <Card className="fluent-acrylic border-none bg-blue-600/90 text-white shadow-[0_8px_32px_rgba(37,99,235,0.3)] overflow-hidden relative group">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
             <CardHeader className="relative z-10">
-              <CardTitle className="text-white/90 text-sm font-bold tracking-wider uppercase">Truth Score</CardTitle>
-              <CardDescription className="text-blue-100/70">Average run confidence across available traces.</CardDescription>
+              <CardTitle className="text-white/90 text-sm font-bold tracking-wider uppercase">Average Run Confidence</CardTitle>
+              <CardDescription className="text-blue-100/70">Measured confidence in up to 30 recent traces; not a measure of factual accuracy.</CardDescription>
             </CardHeader>
             <CardContent className="relative z-10">
               <div className="text-6xl font-bold mb-4 tracking-tighter">
-                {loading ? '--' : `${metrics.truthScore.toFixed(1)}%`}
+                {loading ? '--' : error ? 'Unavailable' : metrics.truthScore === null ? 'Not measured' : `${metrics.truthScore.toFixed(1)}%`}
               </div>
               <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 w-fit text-xs font-bold backdrop-blur-md border border-white/10">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
-                LIVE_CALCULATION
+                {error ? 'Trace data unavailable' : `${metrics.measuredRuns} measured of ${metrics.recentRuns} recent runs`}
               </div>
             </CardContent>
           </Card>
 
           <Card className="fluent-acrylic border-white/10 shadow-xl hover:bg-white/5 transition-all">
             <CardHeader>
-              <CardTitle className="text-gray-100 text-sm font-bold tracking-wider uppercase">Active Trace Runs</CardTitle>
-              <CardDescription className="text-gray-500">Run records available in trace storage.</CardDescription>
+              <CardTitle className="text-gray-100 text-sm font-bold tracking-wider uppercase">Recent Trace Records</CardTitle>
+              <CardDescription className="text-gray-500">Up to 30 recent run records, including completed runs.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold mb-2 text-white">{loading ? '--' : metrics.activeRuns}</div>
+              <div className="text-4xl font-bold mb-2 text-white">{loading ? '--' : error ? 'Unavailable' : metrics.recentRuns}</div>
               <div className="flex items-center gap-2 text-xs text-blue-400 font-mono">
                 <span className="animate-pulse">●</span>
                 trace/run inventory
@@ -132,9 +133,9 @@ export default function TruthEnginePage() {
               <CardDescription className="text-gray-500">Runs that ended with an operational failure status.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold mb-2 text-yellow-500">{loading ? '--' : `${metrics.conflictRate.toFixed(1)}%`}</div>
+              <div className="text-4xl font-bold mb-2 text-yellow-500">{loading ? '--' : error ? 'Unavailable' : metrics.conflictRate === null ? 'Not measured' : `${metrics.conflictRate.toFixed(1)}%`}</div>
               <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
-                computed from status distribution
+                {error ? 'Trace data unavailable' : `${metrics.recentRuns} recent run records in denominator`}
               </div>
             </CardContent>
           </Card>
@@ -159,7 +160,7 @@ export default function TruthEnginePage() {
               <TableBody>
                 {!loading && runs.slice(0, 20).map((entry) => {
                   const verdict = gateDecisionLabel(entry.audit_bundle?.truthgate_decision);
-                  const confidence = typeof entry.scores?.confidence === 'number' ? `${(entry.scores.confidence * 100).toFixed(1)}%` : '--';
+                  const confidence = typeof entry.scores?.confidence === 'number' && Number.isFinite(entry.scores.confidence) ? `${(entry.scores.confidence * 100).toFixed(1)}%` : '--';
                   return (
                     <TableRow key={entry.run_id} className="border-white/5 hover:bg-white/5 transition-colors group">
                       <TableCell className="font-mono text-[10px] text-gray-500">
@@ -188,7 +189,7 @@ export default function TruthEnginePage() {
                     </TableRow>
                   );
                 })}
-                {!loading && runs.length === 0 && (
+                {!loading && !error && runs.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={5} className="text-sm text-gray-500 p-6">
                       No trace runs available yet.
