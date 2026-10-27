@@ -153,6 +153,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [providerBudget, setProviderBudget] = useState<ProviderBudgetSnapshot | null>(null);
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
+  const [historyError, setHistoryError] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [sessionSearch, setSessionSearch] = useState('');
   const [tracePaneOpen, setTracePaneOpen] = useState(true);
@@ -160,6 +162,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const draftSessionIdRef = useRef<string | null>(null);
   const sessionCreationRef = useRef<Promise<ChatSession> | null>(null);
   const freshSessionIdsRef = useRef<Set<string>>(new Set());
+  const viewGenerationRef = useRef(0);
 
   const strictInputSanitization = isEnabled('strictInputSanitization');
   const filteredSessions = sessions.filter((session) =>
@@ -195,11 +198,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   // Load User Sessions on mount
   useEffect(() => {
     const fetchSessions = async () => {
+      const generation = viewGenerationRef.current;
       try {
         const data = await api.chat.listSessions();
         const loadedSessions = data.sessions || [];
         setSessions(loadedSessions);
-        setCurrentSessionId((selected) => selected ?? loadedSessions[0]?.id ?? null);
+        if (generation === viewGenerationRef.current) {
+          setCurrentSessionId((selected) => selected ?? loadedSessions[0]?.id ?? null);
+        }
       } catch (err) {
         reportClientError(err, {
           module: 'ChatInterface',
@@ -223,6 +229,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   // Hydrate history when session changes
   useEffect(() => {
     if (!currentSessionId) return;
+    let cancelled = false;
     
     // Join WebSocket room for this session
     socketClient.joinRoom(`chat_${currentSessionId}`);
@@ -232,44 +239,52 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (isFreshSession) return;
       try {
         const data = await api.chat.getSessionMessages(currentSessionId);
+        if (cancelled) return;
+        setHistoryError(false);
         if (data.messages?.length) {
           setMessages(data.messages.map(normalizeApiMessage));
         } else {
           setMessages([]);
         }
       } catch (err) {
-        console.warn("Failed to load history, starting fresh.", err);
-        setMessages([]);
+        if (cancelled) return;
+        setHistoryError(true);
+        reportClientError(err, { module: 'ChatInterface', action: 'getSessionMessages' });
+        toast('Could not load this conversation. Select it again to retry.', 'warning', 5000);
       }
     };
     fetchHistory();
 
     return () => {
+      cancelled = true;
       socketClient.leaveRoom(`chat_${currentSessionId}`);
     };
-  }, [currentSessionId]);
+  }, [currentSessionId, historyRefresh, toast]);
 
-  const ensureCurrentSession = async (): Promise<string> => {
+  const ensureCurrentSession = async (generation: number): Promise<string> => {
     if (currentSessionId) return currentSessionId;
 
     if (!draftSessionIdRef.current) {
       draftSessionIdRef.current = crypto.randomUUID();
     }
     if (!sessionCreationRef.current) {
-      sessionCreationRef.current = api.chat.createSession({
+      const creation = api.chat.createSession({
         session_id: draftSessionIdRef.current,
         mode,
       }).then(({ session }) => {
-        freshSessionIdsRef.current.add(session.id);
-        setCurrentSessionId(session.id);
+        if (generation === viewGenerationRef.current) {
+          freshSessionIdsRef.current.add(session.id);
+          setCurrentSessionId(session.id);
+        }
         setSessions((existing) => [
           session,
           ...existing.filter((item) => item.id !== session.id),
         ]);
         return session;
       }).finally(() => {
-        sessionCreationRef.current = null;
+        if (sessionCreationRef.current === creation) sessionCreationRef.current = null;
       });
+      sessionCreationRef.current = creation;
     }
     return (await sessionCreationRef.current).id;
   };
@@ -306,12 +321,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     setInputValue("");
     setIsLoading(true);
     const requestId = crypto.randomUUID();
+    const generation = viewGenerationRef.current;
+    const isCurrentView = () => viewGenerationRef.current === generation;
     setActiveRequestId(requestId);
     let sessionId = currentSessionId ?? undefined;
     const gatewayMessages = buildGatewayMessages(messages, userMsg);
 
     try {
-      sessionId = await ensureCurrentSession();
+      sessionId = await ensureCurrentSession(generation);
       // Use the centralized API
       const data = await api.chat.sendMessage({
         messages: gatewayMessages,
@@ -338,8 +355,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           confidenceDisplay: data.confidence_display,
           providerCallBudget: data.provider_call_budget,
         };
-        setMessages(prev => [...prev, assistantMsg]);
-        setIsLoading(false);
+        if (isCurrentView()) {
+          setMessages(prev => [...prev, assistantMsg]);
+          setIsLoading(false);
+        }
       } else if ((data as { queued?: boolean }).queued) {
         const traceFields = extractGatewayTraceFields(data as GatewayTracePayload);
         const queuedMsg: ChatMessage = {
@@ -350,8 +369,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           ...traceFields,
         };
-        setMessages(prev => [...prev, queuedMsg]);
-        setIsLoading(false);
+        if (isCurrentView()) {
+          setMessages(prev => [...prev, queuedMsg]);
+          setIsLoading(false);
+        }
       }
       
       // Refresh session list in case a new session was created
@@ -359,7 +380,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (sessionData) {
         setSessions(sessionData.sessions || []);
       }
-      setActiveRequestId(null);
+      if (isCurrentView()) setActiveRequestId(null);
 
     } catch (error) {
       reportClientError(error, {
@@ -381,9 +402,11 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           ...extractGatewayTraceFields(errorPayload),
         };
-        setMessages(prev => [...prev, rateLimitMsg]);
-        setIsLoading(false);
-        setActiveRequestId(null);
+        if (isCurrentView()) {
+          setMessages(prev => [...prev, rateLimitMsg]);
+          setIsLoading(false);
+          setActiveRequestId(null);
+        }
         return;
       }
 
@@ -419,9 +442,11 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         ...extractGatewayTraceFields(errorPayload),
       };
-      setMessages(prev => [...prev, errorMsg]);
-      setIsLoading(false);
-      setActiveRequestId(null);
+      if (isCurrentView()) {
+        setMessages(prev => [...prev, errorMsg]);
+        setIsLoading(false);
+        setActiveRequestId(null);
+      }
     }
   };
 
@@ -433,10 +458,25 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   };
 
   const handleNewChat = () => {
+    viewGenerationRef.current += 1;
     setCurrentSessionId(null);
     draftSessionIdRef.current = null;
     sessionCreationRef.current = null;
     setMessages([]);
+    setIsLoading(false);
+    setActiveRequestId(null);
+  };
+
+  const selectSession = (id: string) => {
+    if (id === currentSessionId) {
+      if (historyError) setHistoryRefresh((value) => value + 1);
+      return;
+    }
+    viewGenerationRef.current += 1;
+    setMessages([]);
+    setIsLoading(false);
+    setActiveRequestId(null);
+    setCurrentSessionId(id);
   };
 
   const prepareContinuation = () => {
@@ -488,6 +528,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     }
 
     const safeFileName = sanitizeFileName(file.name);
+    const generation = viewGenerationRef.current;
     setIsLoading(true);
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
@@ -518,7 +559,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isEnhanced: false
       };
-      setMessages(prev => [...prev, assistantMsg]);
+      if (generation === viewGenerationRef.current) setMessages(prev => [...prev, assistantMsg]);
     } catch (error) {
       reportClientError(error, {
         module: 'ChatInterface',
@@ -530,9 +571,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         content: 'Failed to process the uploaded file.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, errorMsg]);
+      if (generation === viewGenerationRef.current) setMessages(prev => [...prev, errorMsg]);
     } finally {
-      setIsLoading(false);
+      if (generation === viewGenerationRef.current) setIsLoading(false);
       event.target.value = '';
     }
   };
@@ -551,6 +592,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     () => messages.some((message) => message.role === 'user'),
     [messages]
   );
+  const selectedTraceId = activeRequestId || [...messages].reverse().find((message) => message.runId)?.runId || null;
 
   return (
     <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
@@ -593,7 +635,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                             "w-full justify-start text-sm h-10 px-2 font-normal hover:bg-slate-200/70 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white rounded-md truncate",
                             currentSessionId === s.id ? "bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white font-medium border border-slate-300/70 dark:border-white/5" : "text-slate-600 dark:text-gray-400"
                           )}
-                          onClick={() => setCurrentSessionId(s.id)}
+                          onClick={() => selectSession(s.id)}
                         >
                            {s.title || "Untitled Session"}
                         </Button>
@@ -843,7 +885,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
           </div>
           <div className="min-h-[32rem] flex-1">
-            <LiveTracePanel activeRunId={activeRequestId} />
+            <LiveTracePanel key={selectedTraceId || 'empty'} activeRunId={selectedTraceId} scopeToRun />
           </div>
         </aside>
       )}
