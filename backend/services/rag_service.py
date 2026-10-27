@@ -15,6 +15,11 @@ from backend.services.text_chunking import CHUNKING_REVISION, split_text
 
 logger = logging.getLogger(__name__)
 
+
+class RetrievalError(RuntimeError):
+    """A retrieval dependency failed instead of returning an empty result."""
+
+
 @dataclass
 class DocumentChunk:
     """A chunk of a document for embedding."""
@@ -289,13 +294,13 @@ class RAGService:
         store = self._get_vector_store()
         if store is None:
             logger.warning("VectorStore not available")
-            return []
+            raise RetrievalError("vector_store_unavailable")
 
         try:
             query_embedding = self._embedding_provider(query)
         except Exception as e:
-            logger.error(f"Embedding generation failed for retrieval query: {e}")
-            return []
+            logger.error("Embedding generation failed for retrieval query")
+            raise RetrievalError("query_embedding_unavailable") from e
         target_collection = collection or self.COLLECTION_DOCUMENTS
         
         try:
@@ -316,8 +321,8 @@ class RAGService:
                 for r in results
             ]
         except Exception as e:
-            logger.error(f"Search failed: {e}")
-            return []
+            logger.error("Vector retrieval failed")
+            raise RetrievalError("vector_search_unavailable") from e
     
     def get_context_for_query(
         self,

@@ -1036,6 +1036,8 @@ class GovernedExecutionOrchestrator:
                         )
                     ),
                 )
+            elif getattr(persistence_result, "rag_status", None) == "failed":
+                context.warnings.append("assistant_chat_index_unavailable")
         return result
 
     async def _evaluate_candidate(
@@ -1929,6 +1931,8 @@ class GovernedExecutionOrchestrator:
                         "replayable": False,
                     },
                 }
+            if getattr(persistence_result, "rag_status", None) == "failed":
+                context.warnings.append("user_chat_index_unavailable")
 
         budget_policy = ProviderBudgetPolicy(getattr(self.gateway, "db", None))
         max_calls = budget_policy.request_call_limit(request.mode, request.constraints)

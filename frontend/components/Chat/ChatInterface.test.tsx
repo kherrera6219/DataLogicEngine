@@ -308,6 +308,20 @@ describe('ChatInterface', () => {
     expect(screen.queryByText('100.0%')).not.toBeInTheDocument();
   });
 
+  it('shows retrieval and indexing failures without exposing internal error details', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'Answer without available local evidence',
+      warnings: ['document_retrieval_failed:RetrievalError', 'user_chat_index_unavailable'],
+    });
+    renderChatInterface();
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Find local evidence' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    expect(await screen.findByText(/Some local knowledge could not be searched/i)).toBeInTheDocument();
+    expect(screen.getByText(/conversation was saved, but its search index was unavailable/i)).toBeInTheDocument();
+    expect(screen.queryByText(/document_retrieval_failed/)).not.toBeInTheDocument();
+  });
+
   it('creates a durable session before the first message is sent', async () => {
     const createdSession = {
       id: 'created-session-1',

@@ -47,6 +47,7 @@ export interface ChatMessage {
   isEnhanced?: boolean;
   providerUsed?: string;
   modelUsed?: string;
+  warnings?: string[];
   completion?: import('@/lib/api/types').ProviderCompletion | null;
   governedMode?: import('@/lib/api/types').GovernedMode;
   confidenceDisplay?: import('@/lib/api/types').ConfidenceDisplay | null;

@@ -354,6 +354,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           completion: data.completion,
           confidenceDisplay: data.confidence_display,
           providerCallBudget: data.provider_call_budget,
+          warnings: data.warnings,
         };
         if (isCurrentView()) {
           setMessages(prev => [...prev, assistantMsg]);
@@ -728,6 +729,17 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          {msg.role === 'assistant' ? (
                             <div className="space-y-4">
                                <div>{msg.finalAnswer || msg.content}</div>
+
+                               {msg.warnings?.some((warning) => /^(?:document|knowledge|chat_memory|truth_memory)_retrieval_failed:|^retrieval_unavailable:/.test(warning)) && (
+                                 <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
+                                   Some local knowledge could not be searched for this answer. Check the trace and storage connection before relying on the absence of sources.
+                                 </p>
+                               )}
+                               {msg.warnings?.some((warning) => /^(?:user|assistant)_chat_index_unavailable$/.test(warning)) && (
+                                 <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
+                                   This conversation was saved, but its search index was unavailable. It may not appear in later cross-session recall.
+                                 </p>
+                               )}
 
                                {msg.governedMode && (
                                  <div className="text-xs text-slate-500 dark:text-slate-400">
