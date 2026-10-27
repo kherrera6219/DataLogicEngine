@@ -40,7 +40,10 @@ installer from `0f0d51d1` is 350,186,546 bytes, SHA-256
 Payload/resources/NSIS verification passes. Final-head CI and installed/provider
 acceptance remain open; the artifact is unsigned and release verdict unchanged.
 The `f636573e` GitHub backend run reported an intermittent cancellation-test
-failure; rerun and fresh full Windows/CI verification are pending. A separate
+failure; its rerun also found a one-second planning-budget conflict and a
+separate privacy-response failure. A fresh full Windows suite after the fixture
+change passes 3,373 tests with 19 skipped and zero test/setup/collection errors;
+final GitHub verification remains pending. A separate
 duplicate fixture-runtime cleanup issue was corrected in `8046c5f9` without
 changing or weakening the cancellation assertions. Details are in the repair
 checkpoint; a causal link between the two findings is not established.

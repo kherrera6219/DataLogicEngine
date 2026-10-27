@@ -513,7 +513,7 @@ Coverage is measured separately for Python and TypeScript; the repository does
 not claim one blended whole-app percentage. The October 26 Windows 4.4.6 run
 passes 3,373 Python tests with 19 skipped and zero test/setup/collection errors.
 Coverage measures `backend/` at **80.45%**, `backend/security/` at **80.67%**,
-and `core/` at **81.08%**. All 506 frontend tests pass; V8 coverage is
+and `core/` at **81.07%**. All 506 frontend tests pass; V8 coverage is
 **89.65% statements**, **80.36% branches**, **86.68% functions**, and
 **91.49% lines**. These are source results, not installed acceptance. CI
 enforces 80.00% independently for every named Python scope and frontend metric;

@@ -39,11 +39,13 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Finish final repair-head CI and merge PR #94. Earlier red September jobs
       remain retained historical negative evidence; replacement scan/backend
       jobs pass at the first repair checkpoint.
-- [ ] Resolve the intermittent Linux cancellation-test failure seen at
-      `f636573e`, retain the rerun result, and complete the fresh Windows suite
-      after test-only fixture de-duplication (`8046c5f9`). The duplicate-runtime
-      cleanup diagnosis is established; its relationship to the cancellation
-      failure is not. The cancellation assertions remain unchanged.
+- [ ] Resolve the intermittent Linux governed-execution failures seen at
+      `f636573e`. A rerun exposed a one-second timeout test whose plan needed
+      750 ms with 599 ms left, and a separate privacy-response failure; the
+      cancellation assertion's cause remains unproven. The cancellation controls
+      remain unchanged. After fixture de-duplication (`8046c5f9`), the fresh
+      Windows suite passes 3,373 tests with 19 skipped and zero test/setup/
+      collection errors; final GitHub verification remains pending.
 - [ ] Validate the new chat refinement explanation and comprehensive mechanism
       answers in a rebuilt installation. Standard no-evidence answer behavior
       remains owner-approved; no extra provider call is implicit.

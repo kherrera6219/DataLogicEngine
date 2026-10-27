@@ -23,7 +23,7 @@
 The October 26 owner-approved 4.4.6 repair passes the full Windows coverage
 suite: **3,373 passed, 19 skipped**, zero test/setup/collection errors.
 Independent coverage is backend **80.45%**, backend/security **80.67%**, core
-**81.08%**. All **506 frontend tests** pass; statements **89.65%**, branches
+**81.07%** after fixture de-duplication. All **506 frontend tests** pass; statements **89.65%**, branches
 **80.36%**, functions **86.68%**, lines **91.49%**. Local and GitHub Python/NPM
 audits pass without exceptions. The affected 61-test group also passes after
 the fixture cleanup idempotency correction. Build and final CI evidence are

@@ -141,6 +141,15 @@ separate open work; this owner-approved chat scope does not claim to fix them.
   twice as `conftest` and `tests.conftest`, creating two application runtimes and
   an extra late shutdown handler. The test-only change in `8046c5f9` aliases
   both names to the same module. A full-collection diagnostic confirms one
-  object and completed cleanup; 36 focused tests pass. A fresh full Windows
-  suite and GitHub checks are pending for that change. The duplicate fixture is
+  object and completed cleanup; 36 focused tests pass. The fresh full Windows
+  coverage suite also passes: **3,373 passed, 19 skipped**, zero test/setup/
+  collection errors; backend **80.45%**, backend/security **80.67%**, and core
+  **81.07%**. Final GitHub checks are pending for that change. The duplicate fixture is
   not claimed as the established cause of the cancellation assertion failure.
+- A rerun of the `f636573e` Linux job failed two different tests (3,364 passed,
+  26 skipped). In the one-second timeout test, the L5 plan required an estimated
+  750 ms with 599 ms remaining, so the plan was rejected before the provider
+  began. A privacy-response test independently returned an internal failure;
+  the evidence does not establish that it shared the same cause. Both results
+  remain negative evidence; an owner decision is pending on correcting timing
+  assumptions without removing the security or deadline controls.

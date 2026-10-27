@@ -6,7 +6,7 @@
 
 ## Authority and release status
 
-- Generated: `2026-10-26`
+- Generated: `2026-10-27`
 - Documentation authority: `2026.08.10-cp19l-installed-evidence` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
