@@ -144,7 +144,8 @@ separate open work; this owner-approved chat scope does not claim to fix them.
   object and completed cleanup; 36 focused tests pass. The fresh full Windows
   coverage suite also passes: **3,373 passed, 19 skipped**, zero test/setup/
   collection errors; backend **80.45%**, backend/security **80.67%**, and core
-  **81.07%**. Final GitHub checks are pending for that change. The duplicate fixture is
+  **81.07%**. Repair source `784701af` passes all GitHub CI and security checks,
+  including Docker. The duplicate fixture is
   not claimed as the established cause of the cancellation assertion failure.
 - A rerun of the `f636573e` Linux job failed two different tests (3,364 passed,
   26 skipped). In the one-second timeout test, the L5 plan required an estimated
@@ -153,3 +154,7 @@ separate open work; this owner-approved chat scope does not claim to fix them.
   the evidence does not establish that it shared the same cause. Both results
   remain negative evidence; an owner decision is pending on correcting timing
   assumptions without removing the security or deadline controls.
+- PR #94 merged into `main` at `57c7b4b04b89510fe115e0eb7b339ecebe85b9f0`.
+  Final PR head `e5aab7b7` passes security, backend, frontend, governance, lint,
+  and Windows portable packaging; its Docker job and the new main-branch
+  CI/CD, Deploy, and Security workflows were still running at this checkpoint.
