@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.5 |
+| Document version | v1.8.6 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-26 |
+| Last reviewed | 2026-10-27 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
@@ -69,10 +69,9 @@ suite and failed one refinement-workflow test (3,355 passed, 26 skipped). This
 negative result is retained. The later replacement Linux suite passes the
 affected module; the original individual failure cause was not isolated.
 
-The owner also observed that **New Chat** does not clear the far-right Live
-Trace panel. Source review confirms a global-recent-run fallback when no
-request is active. A session-scoped fix and regression test remain open in
-`TODO.md`; this UI finding is not an installed CHAT-QC-06 pass.
+The owner observed that **New Chat** left the far-right Live Trace panel on a
+previous run. PR #98 contains a session-scoped source fix and regression tests;
+installed verification remains open in `TODO.md` and is not a CHAT-QC-06 pass.
 
 The source Trace Explorer now expands the persisted canonical 12-step
 refinement receipt with named step governance detail, and focused source tests,

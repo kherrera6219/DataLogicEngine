@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Date | 2026-09-27 |
-| Status | Code-aligned product language; one display defect open |
+| Date | 2026-10-27 |
+| Status | Source display corrected; installed verification open |
 
 ## Live path
 
@@ -18,12 +18,11 @@
 | Label in UI | Honest meaning |
 |---|---|
 | Truth Engine page | Gate/decision telemetry and scores from stored runs |
-| Truth score | Average numeric confidence among available traces — not a separate AGI core or a calibrated probability of truth |
+| Average Run Confidence | Average numeric confidence among available traces — not a separate AGI core or a calibrated probability of truth |
 
-The current `frontend/app/truth-engine/page.tsx` display uses `0.0%` when no
-trace has numeric confidence. That is an unmeasured state, not a measured zero;
-the UI defect is open in root `TODO.md`. Do not interpret this placeholder as
-evidence that a run failed TruthGate.
+The source display distinguishes unavailable confidence from a measured zero.
+The owner approved the label above. Installed verification remains open in root
+`TODO.md`; the earlier 4.4.6 installer predates the source change.
 
 Public TruthCore entry points that process user queries must route through the **gateway / governed path** (enforced by `tests/governed_execution/test_single_path.py`).
 

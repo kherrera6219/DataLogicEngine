@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.9 |
+| Document version | v1.20.10 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-10-27 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.3 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.4 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; 4.4.6 repair PR #94 and timing PR #96 merged. Main CI/CD, Deploy, and Security pass at `73187a8d`. Installed acceptance and signing/lifecycle/provider CP19-M rows remain open |
@@ -47,9 +47,12 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Disposition the unchanged main-branch unrestricted Ruff and formatting
       findings and unavailable `mypy` separately from this repair. The existing
       Phase A and CP19-M release gates remain open.
-- [ ] Verify PR #98 checks after the Authlib 1.9.1 update. The local locked
-      dependency audit passes; the October 27 scan reported seven advisories
-      for the prior 1.7.2 version.
+- [x] Verify PR #98 checks after the Authlib 1.9.1 update. The local audit and
+      final PR checks pass; main security, CI/CD, and Deploy also pass at
+      `f82e0a86`.
+- [ ] Investigate the unconfirmed cause of the evidence-change test failing
+      twice in Deploy run `40575335328`; its third attempt and later run pass.
+      PR #99 added diagnostics without changing the existing assertions.
 - [ ] Verify the owner-approved Chroma deletion-error repair in installed,
       cross-store, failure/retry and concurrent-deletion scenarios. Source tests
       pass and an isolated synthetic Chroma deletion preserved the other owner.
@@ -86,17 +89,12 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## Governed-chat UI finding from the 2026-09-27 owner observation
 
-- [ ] Clicking **New Chat** clears the conversation but does not clear the
-      far-right Live Trace panel. `ChatInterface` resets session/messages;
-      `LiveTracePanel` independently selects the newest global run when there
-      is no active request. Make the panel show only the selected session's
-      current/retained run (or an empty state for a fresh draft), and add a
-      regression test covering New Chat and returning to a saved session.
-      Do not treat a visual reset as proof that persisted traces were deleted.
-- [ ] The Truth Engine page currently renders **0.0% Truth Score** when no
-      run has numeric confidence. Treat an unmeasured value as unavailable,
-      not a zero measurement; verify source behavior and add a UI regression
-      test in a separate code task.
+- [ ] Verify the PR #98 source fix in the installed app: a fresh chat shows an
+      empty trace, and returning to a saved session restores its own trace.
+      Visual reset does not mean persisted traces were deleted.
+- [ ] Verify the PR #98 Truth Engine fix in the installed app: unavailable
+      confidence is distinguished from a measured zero, and the owner-approved
+      label is **Average Run Confidence**.
 
 ## Merged PR #91 source and open release gates
 

@@ -26,6 +26,7 @@ root `HANDOFF.md`, and the current supporting work sequence is
 | `DataLogicEngine_80_Percent_Coverage_Execution_Plan_2026-08-16.md` | 80 percent coverage closure plan | Completed; current thresholds remain in CI policy |
 | `PHASE5_GODFILE_SPLIT_NOTES.md` | Restored package-split experiment | Historical design evidence; residual work transferred |
 | `TERMINOLOGY_MODERNIZATION_PLAN_2026-08-18.md` | Unapproved terminology and local-AI draft | Superseded; compatible terminology work transferred to CU-4 |
+| `ACTIVE_DOCUMENTATION_AUDIT_2026-09-27.md` | Completed 4.4.5 documentation audit | Historical review; remaining work is tracked in the current plans and TODO |
 
 Validate any historical statement against the current code, the July 12 design
 versus implementation audit, and the active production completion plan before

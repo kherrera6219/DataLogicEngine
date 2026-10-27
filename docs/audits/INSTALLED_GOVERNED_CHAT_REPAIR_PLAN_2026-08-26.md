@@ -5,11 +5,11 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-CHAT-QC-2026-08-26 |
-| Document version | v1.1.3 |
+| Document version | v1.1.4 |
 | Product version | 4.4.6 |
 | Date | 2026-08-26 |
-| Last reviewed | 2026-10-26 |
-| Status | Source implementation through CHAT-QC-05 complete; unsigned 4.4.6 engineering installer exists; installed CHAT-QC-06 and trace-panel session-scoping remain open; historical PR #91 security and refinement failures have passing replacement source checks; not release authority |
+| Last reviewed | 2026-10-27 |
+| Status | Source implementation through CHAT-QC-05 and trace-panel session scoping complete; unsigned 4.4.6 engineering installer predates newer fixes; installed CHAT-QC-06 and trace verification remain open; not release authority |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Evidence run | `0779492c-c054-4630-b321-b2e13be7b4ef` |
@@ -72,12 +72,10 @@ does not waive the security finding; production/public release remains
 
 ### New owner-observed UI finding — 2026-09-27
 
-Clicking **New Chat** clears the conversation while the far-right Live Trace
-panel keeps showing a prior run. Source inspection confirms that
-`ChatInterface` clears the selected session, but `LiveTracePanel` falls back
-to the newest globally listed run when no request is active. The defect is
-open in root `TODO.md` with a selected-session/empty-draft regression test;
-it is not part of the completed CHAT-QC-01 through CHAT-QC-05 claim.
+The owner observed a prior run remaining in Live Trace after **New Chat**.
+PR #98 corrected session scoping in source and added selected-session and
+empty-draft regression tests. Installed verification remains open in root
+`TODO.md` and is not a completed CHAT-QC-06 claim.
 
 ## 2. Fixed boundaries
 

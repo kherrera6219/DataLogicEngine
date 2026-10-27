@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.9 |
+| Document version | v1.22.10 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-10-27 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.3 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.4 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
@@ -28,8 +28,8 @@
 
 ## Required first read
 
-October 27 owner-approved frontend/retrieval fast-track is in progress on
-`codex/review-repair-20261026`; see
+October 27 owner-approved frontend/retrieval fast-track source work was merged
+to main in PR #98; see
 `docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md` for exact
 scope, source tests and remaining work. MiniLM was evaluated offline and a
 separate-index preparation tool was tested, but active retrieval still uses
@@ -49,6 +49,11 @@ audit and GitHub dependency scan at `453bd415` passed. The earlier failure is at
 https://github.com/kherrera6219/DataLogicEngine/actions/runs/40569900702.
 With Authlib 1.9.1 installed, the full Windows backend suite passed 3,401
 tests with 19 skipped, 35 warnings, and zero failure, setup, or collection errors.
+PR #99 added diagnostic assertions for an evidence test that failed twice in
+post-merge Deploy run `40575335328`; the third attempt passed, but the original
+cause is unconfirmed. At main `f82e0a86`, CI/CD `40582155532`, Deploy
+`40582155489`, and Security `40582155648` passed. These are source and CI
+results, not installed acceptance.
 
 October 26 owner-approved repairs are recorded in
 `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. Documentation PR #93 is merged at
@@ -77,11 +82,10 @@ checkpoint; a causal link between the two findings is not established.
 
 Documentation review on 2026-09-27 reconciled active user, engineering,
 assurance, and operator guidance to the 4.4.5 source and evidence boundary.
-The audit record is `docs/audits/ACTIVE_DOCUMENTATION_AUDIT_2026-09-27.md`.
-It also identified a governed-chat UI defect: **New Chat clears the conversation
-but leaves the far-right Live Trace panel showing an earlier run.** The code
-currently queries global recent runs when no request is active; this is an
-open session-scoping issue, not a verified fix. See `TODO.md`.
+The completed historical audit is
+`docs/archive/audits/ACTIVE_DOCUMENTATION_AUDIT_2026-09-27.md`. Its New Chat
+trace and unmeasured-confidence findings received source fixes in PR #98;
+installed-app verification remains open in `TODO.md`.
 
 Read these documents in order before changing code or making a readiness claim:
 

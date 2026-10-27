@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.5 |
+| Document version | v1.8.6 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-26 |
+| Last reviewed | 2026-10-27 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
@@ -67,10 +67,10 @@ The original failure does not reproduce with the refreshed source/lock; its
 individual root cause was not isolated. Historical negative evidence remains
 retained, and the exact post-merge Deploy check must still run.
 
-The newly observed **New Chat** / Live Trace session-scoping defect has source
-evidence but no corrected code or regression pass. Verification must cover a
-fresh draft's empty trace state and restoring the selected saved session's
-trace without deleting persisted run history.
+PR #98 contains the **New Chat** / Live Trace session-scoping fix and passing
+source regression tests. Installed verification must still cover a fresh draft's
+empty trace state and restoration of the selected saved session's trace without
+deleting persisted run history.
 
 The source Trace Explorer now renders the existing canonical nested refinement
 receipt as named step detail. Earlier focused trace persistence/bundle tests
