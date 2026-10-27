@@ -174,6 +174,19 @@ def _narrative(
             for warning in warnings
         ):
             text += " Some local searches were unavailable."
+        graph_status = outputs.get("graph_context_status")
+        graph_messages = {
+            "not_enabled": "Graph context was not enabled for this request.",
+            "retrieval_disabled": "Graph context was not evaluated because retrieval was disabled.",
+            "retrieval_unavailable": "Graph context was not evaluated because retrieval was unavailable.",
+            "no_eligible_source": "No eligible source was available for graph lookup.",
+            "no_selected_relationships": "No graph relationships were included in the selected evidence.",
+            "relationships_included": "Graph relationships were included in selected evidence.",
+            "unavailable": "Graph context was unavailable.",
+            "partial": "Some graph relationships were included, but another graph lookup failed.",
+        }
+        if isinstance(graph_status, str) and graph_status in graph_messages:
+            text += " " + graph_messages[graph_status]
     elif layer_index == 4:
         profiles = outputs.get("profiles") or outputs.get("persona_profiles")
         count = len(profiles) if isinstance(profiles, dict) else 0
