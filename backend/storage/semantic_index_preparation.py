@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from typing import Any, Callable
 
 
@@ -68,13 +69,19 @@ def prepare_semantic_index(
         raise SemanticIndexPreparationError("semantic_target_revision_mismatch")
     before = _snapshot(source, batch_size=batch_size, max_records=max_records)
     source_digest = _digest(before)
+    expected_vectors: dict[str, list[float]] = {}
     for offset in range(0, len(before), batch_size):
         batch = before[offset : offset + batch_size]
+        vectors = [embed(record["text"]) for record in batch]
+        for record, vector in zip(batch, vectors):
+            if not vector or not all(isinstance(value, (int, float)) and math.isfinite(value) for value in vector):
+                raise SemanticIndexPreparationError("semantic_embedding_invalid")
+            expected_vectors[record["id"]] = [float(value) for value in vector]
         target.upsert(
             ids=[record["id"] for record in batch],
             documents=[record["text"] for record in batch],
             metadatas=[record["metadata"] for record in batch],
-            embeddings=[embed(record["text"]) for record in batch],
+            embeddings=vectors,
         )
     after = _snapshot(source, batch_size=batch_size, max_records=max_records)
     if _digest(after) != source_digest:
@@ -82,6 +89,19 @@ def prepare_semantic_index(
     copied = _snapshot(target, batch_size=batch_size, max_records=max_records)
     if _digest(copied) != source_digest:
         raise SemanticIndexPreparationError("semantic_target_verification_failed")
+    for offset in range(0, len(before), batch_size):
+        batch_ids = [record["id"] for record in before[offset : offset + batch_size]]
+        page = target.get(ids=batch_ids, include=["embeddings"])
+        ids, vectors = page.get("ids"), page.get("embeddings")
+        if not isinstance(ids, list) or not isinstance(vectors, list) or len(ids) != len(vectors) or len(ids) != len(batch_ids) or set(ids) != set(batch_ids):
+            raise SemanticIndexPreparationError("semantic_target_vectors_invalid")
+        for item_id, vector in zip(ids, vectors):
+            expected = expected_vectors[item_id]
+            if not isinstance(vector, list) or len(vector) != len(expected) or any(
+                not isinstance(value, (int, float)) or not math.isfinite(value) or abs(value - wanted) > 1e-5
+                for value, wanted in zip(vector, expected)
+            ):
+                raise SemanticIndexPreparationError("semantic_target_vector_mismatch")
     return {
         "status": "prepared_not_activated",
         "embedding_revision": embedding_revision,
