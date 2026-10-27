@@ -190,6 +190,27 @@ describe('ChatInterface', () => {
     await act(async () => finishSecond({ response: 'Second answer' }));
   });
 
+  it('refreshes a session revisited before its background answer completes', async () => {
+    let finish!: (value: unknown) => void;
+    let saved = false;
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockImplementation(async (id: string) => ({
+      messages: id === 'session-1' && saved ? [{ id: 'saved', role: 'assistant', content: 'Saved background answer' }] : [],
+    }));
+    renderChatInterface();
+    await screen.findByRole('button', { name: 'Session 1' });
+    await waitFor(() => expect(api.chat.getSessionMessages).toHaveBeenCalledWith('session-1'));
+    fireEvent.change(screen.getByRole('textbox', { name: /message composer/i }), { target: { value: 'Question' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    await waitFor(() => expect(api.chat.sendMessage).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Session 2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Session 1' }));
+    await waitFor(() => expect(api.chat.getSessionMessages).toHaveBeenCalledTimes(3));
+    saved = true;
+    await act(async () => finish({ response: 'Saved background answer' }));
+    expect(await screen.findByText('Saved background answer')).toBeInTheDocument();
+  });
+
   it('reports a history load failure and allows selecting the session to retry', async () => {
     (api.chat.getSessionMessages as ReturnType<typeof vi.fn>)
       .mockRejectedValueOnce(new Error('unavailable'))

@@ -164,6 +164,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const freshSessionIdsRef = useRef<Set<string>>(new Set());
   const viewGenerationRef = useRef(0);
   const activeRequestRef = useRef<string | null>(null);
+  const visibleSessionRef = useRef<string | null>(null);
+  const pendingHistoryRefreshRef = useRef<Set<string>>(new Set());
 
   const strictInputSanitization = isEnabled('strictInputSanitization');
   const filteredSessions = sessions.filter((session) =>
@@ -241,6 +243,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       try {
         const data = await api.chat.getSessionMessages(currentSessionId);
         if (cancelled) return;
+        pendingHistoryRefreshRef.current.delete(currentSessionId);
         setHistoryError(false);
         if (data.messages?.length) {
           setMessages(data.messages.map(normalizeApiMessage));
@@ -261,6 +264,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       socketClient.leaveRoom(`chat_${currentSessionId}`);
     };
   }, [currentSessionId, historyRefresh, toast]);
+
+  useEffect(() => {
+    visibleSessionRef.current = currentSessionId;
+  }, [currentSessionId]);
 
   const ensureCurrentSession = async (generation: number): Promise<string> => {
     if (currentSessionId) return currentSessionId;
@@ -386,6 +393,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (isCurrentView()) {
         activeRequestRef.current = null;
         setActiveRequestId(null);
+        if (sessionId && pendingHistoryRefreshRef.current.has(sessionId)) {
+          setHistoryRefresh((value) => value + 1);
+        }
+      } else if (data?.response && sessionId) {
+        pendingHistoryRefreshRef.current.add(sessionId);
+        if (visibleSessionRef.current === sessionId && !activeRequestRef.current) {
+          setHistoryRefresh((value) => value + 1);
+        }
       }
 
     } catch (error) {
