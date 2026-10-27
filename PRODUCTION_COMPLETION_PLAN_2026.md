@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.83.3 |
+| Document version | v1.83.4 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,6 +18,15 @@
 | Release authority | `docs/RELEASE_READINESS_RECORD.md` and `docs/VERIFICATION_VALIDATION_REPORT.md` |
 
 ### Current execution checkpoint
+
+The October 27 owner-approved review repairs and evidence-test diagnostics
+merged in PRs #98 and #99. At main `f82e0a86`, CI/CD, Deploy, and Security
+workflows passed. The Windows backend suite with the Authlib 1.9.1 update
+passed 3,401 tests with 19 skipped; 520 frontend tests passed at the prior
+source checkpoint. An evidence test failed twice in an earlier Deploy run and
+passed on rerun; its original cause remains unconfirmed. Installed acceptance,
+safe search migration, Phase A, and CP19-M remain open. See
+`docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md` and `TODO.md`.
 
 The October 26 owner-approved 4.4.6 repair passes 3,373 Windows tests with
 19 skipped and zero test/setup/collection errors, all 506 frontend tests, and

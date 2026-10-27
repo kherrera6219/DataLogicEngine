@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v4.2.4 |
+| Document version | v4.2.5 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-26 |
+| Last reviewed | 2026-10-27 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -396,10 +396,10 @@ Review `docs/PRIVACY_AI_NOTICE.md` for details.
 5. Some graph/vector/object-store features require local data services to be started or initialized.
 6. The 4.4.6 installer is unsigned and has not passed installed or live-provider
    acceptance. Replacement source scans and tests do not establish those gates.
-7. In current source, **New Chat** clears the conversation but the far-right
-   Live Trace panel can still show a run from another session. Treat that
-   panel as historical run telemetry, not evidence for the empty draft; the
-   session-scoping defect is tracked in root `TODO.md`.
+7. The newer source scopes Live Trace to the selected session and clears it
+   for a fresh draft. This change has not been verified in a rebuilt installed
+   app; the existing 4.4.6 installer predates the fix. Installed verification
+   remains in root `TODO.md`.
 
 ## Change notes for v3.5.0
 

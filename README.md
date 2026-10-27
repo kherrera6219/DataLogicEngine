@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.8 |
+| Document version | v1.13.9 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -53,7 +53,10 @@ update check, crash-reporting egress, or phone-home.
 The October 27 frontend and retrieval review repairs are in progress. Source
 changes address chat-session and trace isolation, session search, confidence
 display, search and indexing failure reporting, per-run graph-context status,
-and a deletion lookup failure. The latest sequential Windows backend run passed
+and a deletion lookup failure. PR #98 merged these source changes; PR #99
+added diagnostics for an evidence test that failed twice in an earlier Deploy
+run before passing on rerun. Its original failure cause is not established.
+At main `f82e0a86`, CI/CD, Deploy, and Security workflows passed. The latest sequential Windows backend run passed
 3,401 tests with 19 skipped; the frontend suite passed 520 tests. These are
 source results, not installed-app or live-provider acceptance. The
 [review repair plan](docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md)
@@ -265,9 +268,9 @@ supported contract and exclusions.
 The source repository is an engineering candidate, but the release decision
 remains **NO-GO**. The historical NLTK dependency path was removed and the
 replacement security and backend checks pass; the earlier Linux refinement test
-also passes in the replacement suite. A New Chat / Live Trace session-scoping
-UI defect and the earlier intermittent privacy-response failure remain open in
-`TODO.md`.
+also passes in the replacement suite. The New Chat / Live Trace source fix is
+merged; installed validation remains open. Earlier intermittent privacy and
+evidence-test failures remain under investigation in `TODO.md`.
 Before public distribution, the same signed rebuilt
 artifact must pass the remaining clean-installed and retained-data acceptance
 matrix, provider and human review, packaged accessibility checks, upgrade and
