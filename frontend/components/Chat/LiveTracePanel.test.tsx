@@ -92,6 +92,13 @@ describe('LiveTracePanel', () => {
     expect(requestMock).not.toHaveBeenCalled();
   });
 
+  it('does not describe an unavailable saved run as actively running', async () => {
+    getMock.mockRejectedValueOnce(new Error('Saved trace unavailable'));
+    render(<LiveTracePanel scopeToRun activeRunId="saved-run" isRequestActive={false} />);
+    await waitFor(() => expect(screen.getByText('Saved trace unavailable')).toBeInTheDocument());
+    expect(screen.queryByText('RUNNING')).not.toBeInTheDocument();
+  });
+
   it('should render run message and confidence metrics', async () => {
     render(<LiveTracePanel />);
     await screen.findByText('Active Run');

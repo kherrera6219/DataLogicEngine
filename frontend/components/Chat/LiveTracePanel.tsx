@@ -112,9 +112,10 @@ function kaFeedItemKey(item: KAExecutionFeedItem): string {
 interface LiveTracePanelProps {
   activeRunId?: string | null;
   scopeToRun?: boolean;
+  isRequestActive?: boolean;
 }
 
-export function LiveTracePanel({ activeRunId = null, scopeToRun = false }: LiveTracePanelProps) {
+export function LiveTracePanel({ activeRunId = null, scopeToRun = false, isRequestActive = true }: LiveTracePanelProps) {
   const [runs, setRuns] = useState<TraceRunRecord[]>([]);
   const [stages, setStages] = useState<TraceStageRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -122,7 +123,7 @@ export function LiveTracePanel({ activeRunId = null, scopeToRun = false }: LiveT
   const [error, setError] = useState<string | null>(null);
   const [reasoningProgress, setReasoningProgress] = useState<ReasoningLayerProgress | null>(null);
   const [kaFeed, setKaFeed] = useState<KAExecutionFeed | null>(null);
-  const traceStream = useTraceStream(activeRunId);
+  const traceStream = useTraceStream(isRequestActive ? activeRunId : null);
 
   const loadTraceData = useCallback(async () => {
     setError(null);
@@ -212,14 +213,14 @@ export function LiveTracePanel({ activeRunId = null, scopeToRun = false }: LiveT
         status: 'running',
         input_message: 'The governed request is running. Stage receipts will appear below.',
       };
-      return runs.find((run) => run.run_id === activeRunId) || virtualRun;
+      return runs.find((run) => run.run_id === activeRunId) || (isRequestActive ? virtualRun : undefined);
     }
     return scopeToRun ? undefined : runs.find((run) => run.status === 'running') || runs[0];
-  }, [activeRunId, runs, scopeToRun]);
+  }, [activeRunId, isRequestActive, runs, scopeToRun]);
 
   const displayedStages = useMemo<TraceStageRecord[]>(
-    () => activeRunId && traceStream.layers.length ? traceStream.layers : stages,
-    [activeRunId, stages, traceStream.layers],
+    () => isRequestActive && activeRunId && traceStream.layers.length ? traceStream.layers : stages,
+    [activeRunId, isRequestActive, stages, traceStream.layers],
   );
 
   const currentStage = useMemo(

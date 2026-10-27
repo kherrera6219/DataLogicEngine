@@ -924,7 +924,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
           </div>
           <div className="min-h-[32rem] flex-1">
-            <LiveTracePanel key={selectedTraceId || 'empty'} activeRunId={selectedTraceId} scopeToRun />
+            <LiveTracePanel key={selectedTraceId || 'empty'} activeRunId={selectedTraceId} scopeToRun isRequestActive={!!activeRequestId} />
           </div>
         </aside>
       )}
