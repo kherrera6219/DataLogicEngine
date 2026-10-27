@@ -410,8 +410,8 @@ class RAGService:
                 }]
             )
             return message_id in stored_ids
-        except Exception as e:
-            logger.error(f"Failed to store chat message: {e}")
+        except Exception:
+            logger.error("Failed to store chat message")
             return False
     
     def search_chat_history(

@@ -1219,9 +1219,9 @@ class LLMGateway:
                 if not indexed:
                     rag_status = "failed"
                     logger.warning("Chat message RAG synchronization was not acknowledged")
-            except Exception as exc:
+            except Exception:
                 rag_status = "failed"
-                logger.warning("Chat message RAG synchronization failed: %s", exc)
+                logger.warning("Chat message RAG synchronization failed")
 
         return ChatMessagePersistenceResult(
             ok=True,
