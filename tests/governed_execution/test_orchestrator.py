@@ -355,6 +355,26 @@ def _request(**kwargs):
 
 
 @pytest.mark.asyncio
+async def test_index_failure_is_visible_while_transcript_remains_available(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: (
+        [EvidenceRecord(source_id="source-alpha", citation_label="S1", text="alpha evidence")],
+        [],
+    ))
+    gateway = _Gateway()
+
+    async def save(*args, **kwargs):
+        return SimpleNamespace(ok=True, rag_status="failed")
+
+    gateway._save_chat_message = save
+    result = await _orchestrator(gateway).execute(_request(session_id="session-1", user_id=1))
+    assert result.ok is True
+    assert "user_chat_index_unavailable" in result.warnings
+    assert "assistant_chat_index_unavailable" in result.warnings
+
+
+@pytest.mark.asyncio
 async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monkeypatch):
     import backend.governed_execution.orchestrator as module
 

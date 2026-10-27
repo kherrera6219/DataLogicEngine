@@ -13,11 +13,15 @@ class MemoryCollection:
         self.id = collection_id
         self.metadata = {"dle_embedding_revision": revision} if revision else {}
         self.records = {record["id"]: deepcopy(record) for record in records}
+        self.vectors = {}
 
     def count(self):
         return len(self.records)
 
-    def get(self, *, limit, offset, include):
+    def get(self, *, limit=None, offset=0, ids=None, include):
+        if ids is not None:
+            assert include == ["embeddings"]
+            return {"ids": ids, "embeddings": [self.vectors[item_id] for item_id in ids]}
         assert include == ["documents", "metadatas"]
         items = sorted(self.records.values(), key=lambda item: item["id"])[offset : offset + limit]
         return {
@@ -30,6 +34,7 @@ class MemoryCollection:
         for item_id, text, metadata, vector in zip(ids, documents, metadatas, embeddings):
             assert vector == [0.6, 0.8]
             self.records[item_id] = {"id": item_id, "text": text, "metadata": deepcopy(metadata)}
+            self.vectors[item_id] = list(vector)
 
 
 def _sources():
@@ -100,3 +105,17 @@ def test_record_limit_refuses_preparation_before_writing():
     with pytest.raises(SemanticIndexPreparationError, match="over_limit"):
         prepare_semantic_index(source, target, lambda _text: [0.6, 0.8], embedding_revision="semantic-v1", max_records=1)
     assert target.records == {}
+
+
+def test_incorrect_stored_vectors_fail_verification():
+    source = MemoryCollection("old", _sources())
+    target = MemoryCollection("new", revision="semantic-v1")
+    original = target.upsert
+
+    def corrupt_vector(**kwargs):
+        original(**kwargs)
+        target.vectors["a"] = [0.0, 1.0]
+
+    target.upsert = corrupt_vector
+    with pytest.raises(SemanticIndexPreparationError, match="vector_mismatch"):
+        prepare_semantic_index(source, target, lambda _text: [0.6, 0.8], embedding_revision="semantic-v1")
