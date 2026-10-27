@@ -436,10 +436,16 @@ class RAGService:
         exclude_session_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """Search semantically relevant chat history across all sessions for a user."""
+        filters: Dict[str, Any] = {"user_id": user_id}
+        if exclude_session_id:
+            filters = {"$and": [
+                {"user_id": {"$eq": user_id}},
+                {"session_id": {"$ne": exclude_session_id}},
+            ]}
         results = self.search_documents(
             query,
             k=k,
-            filters={"user_id": user_id},
+            filters=filters,
             collection=self.COLLECTION_CHAT_HISTORY
         )
         if not exclude_session_id:
