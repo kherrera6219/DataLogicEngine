@@ -3,7 +3,11 @@ from types import SimpleNamespace
 
 import pytest
 
-from backend.services.local_sentence_embedding import LocalEmbeddingError, LocalSentenceEmbedding, model_manifest_sha256
+from backend.services.local_sentence_embedding import (
+    LocalEmbeddingError,
+    LocalSentenceEmbedding,
+    model_manifest_sha256,
+)
 
 
 def test_loads_fingerprinted_model_locally_and_reuses_it(tmp_path):
@@ -24,12 +28,21 @@ def test_loads_fingerprinted_model_locally_and_reuses_it(tmp_path):
     assert embedding("first") == [0.6, 0.8]
     assert embedding("second") == [0.6, 0.8]
     assert len(calls) == 1
-    assert calls[0][1] == {"device": "cpu", "local_files_only": True, "trust_remote_code": False}
+    assert calls[0][1] == {
+        "device": "cpu",
+        "local_files_only": True,
+        "trust_remote_code": False,
+    }
 
 
 def test_missing_and_tampered_model_fail_without_loading(tmp_path):
     calls = []
-    embedding = LocalSentenceEmbedding(tmp_path, expected_weights_sha256="0" * 64, expected_manifest_sha256="1" * 64, loader=lambda *args, **kwargs: calls.append(args))
+    embedding = LocalSentenceEmbedding(
+        tmp_path,
+        expected_weights_sha256="0" * 64,
+        expected_manifest_sha256="1" * 64,
+        loader=lambda *args, **kwargs: calls.append(args),
+    )
     with pytest.raises(LocalEmbeddingError, match="model_missing"):
         embedding("question")
     (tmp_path / "model.safetensors").write_bytes(b"unexpected")
@@ -46,7 +59,9 @@ def test_bad_embedding_vectors_fail_explicitly(tmp_path, vector):
         expected_weights_sha256=sha256(b"weights").hexdigest(),
         expected_manifest_sha256=model_manifest_sha256(tmp_path),
         dimensions=2,
-        loader=lambda *args, **kwargs: SimpleNamespace(encode=lambda *args, **kwargs: vector),
+        loader=lambda *args, **kwargs: SimpleNamespace(
+            encode=lambda *args, **kwargs: vector
+        ),
     )
     with pytest.raises(LocalEmbeddingError, match="vector_invalid"):
         embedding("question")
