@@ -164,6 +164,31 @@ describe('ChatInterface', () => {
     expect(screen.queryByText('Answer for A')).not.toBeInTheDocument();
   });
 
+  it('does not let an earlier request clear the trace of a newer request', async () => {
+    let finishRefresh!: (value: unknown) => void;
+    let finishSecond!: (value: unknown) => void;
+    (api.chat.listSessions as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ sessions: mockSessions })
+      .mockReturnValueOnce(new Promise((resolve) => { finishRefresh = resolve; }));
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ response: 'First answer' })
+      .mockReturnValueOnce(new Promise((resolve) => { finishSecond = resolve; }));
+    renderChatInterface();
+    await screen.findByRole('button', { name: 'Session 1' });
+    const composer = screen.getByRole('textbox', { name: /message composer/i });
+    fireEvent.change(composer, { target: { value: 'First' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    await screen.findByText('First answer');
+    fireEvent.change(composer, { target: { value: 'Second' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    await waitFor(() => expect(api.chat.sendMessage).toHaveBeenCalledTimes(2));
+    const secondTrace = screen.getByTestId('trace-panel').textContent;
+    expect(secondTrace).not.toBe('No selected run');
+    await act(async () => finishRefresh({ sessions: mockSessions }));
+    expect(screen.getByTestId('trace-panel')).toHaveTextContent(secondTrace || '');
+    await act(async () => finishSecond({ response: 'Second answer' }));
+  });
+
   it('reports a history load failure and allows selecting the session to retry', async () => {
     (api.chat.getSessionMessages as ReturnType<typeof vi.fn>)
       .mockRejectedValueOnce(new Error('unavailable'))

@@ -163,6 +163,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const sessionCreationRef = useRef<Promise<ChatSession> | null>(null);
   const freshSessionIdsRef = useRef<Set<string>>(new Set());
   const viewGenerationRef = useRef(0);
+  const activeRequestRef = useRef<string | null>(null);
 
   const strictInputSanitization = isEnabled('strictInputSanitization');
   const filteredSessions = sessions.filter((session) =>
@@ -321,8 +322,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     setInputValue("");
     setIsLoading(true);
     const requestId = crypto.randomUUID();
+    activeRequestRef.current = requestId;
     const generation = viewGenerationRef.current;
-    const isCurrentView = () => viewGenerationRef.current === generation;
+    const isCurrentView = () => viewGenerationRef.current === generation && activeRequestRef.current === requestId;
     setActiveRequestId(requestId);
     let sessionId = currentSessionId ?? undefined;
     const gatewayMessages = buildGatewayMessages(messages, userMsg);
@@ -381,7 +383,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (sessionData) {
         setSessions(sessionData.sessions || []);
       }
-      if (isCurrentView()) setActiveRequestId(null);
+      if (isCurrentView()) {
+        activeRequestRef.current = null;
+        setActiveRequestId(null);
+      }
 
     } catch (error) {
       reportClientError(error, {
@@ -406,6 +411,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         if (isCurrentView()) {
           setMessages(prev => [...prev, rateLimitMsg]);
           setIsLoading(false);
+          activeRequestRef.current = null;
           setActiveRequestId(null);
         }
         return;
@@ -446,6 +452,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (isCurrentView()) {
         setMessages(prev => [...prev, errorMsg]);
         setIsLoading(false);
+        activeRequestRef.current = null;
         setActiveRequestId(null);
       }
     }
@@ -460,6 +467,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
 
   const handleNewChat = () => {
     viewGenerationRef.current += 1;
+    activeRequestRef.current = null;
     setCurrentSessionId(null);
     draftSessionIdRef.current = null;
     sessionCreationRef.current = null;
@@ -474,6 +482,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       return;
     }
     viewGenerationRef.current += 1;
+    activeRequestRef.current = null;
     setMessages([]);
     setIsLoading(false);
     setActiveRequestId(null);
