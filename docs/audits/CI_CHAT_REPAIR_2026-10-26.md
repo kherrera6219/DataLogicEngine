@@ -165,6 +165,7 @@ separate open work; this owner-approved chat scope does not claim to fix them.
   deadline allows planning time, and a separate test rejects insufficient
   critical-path budgets. The original cancellation, timeout, persistence, and
   one-provider-call controls remain. The affected 36 Windows tests pass, and
-  the cancellation/timeout pair passes four consecutive runs. See PR #96 for
-  full Windows and GitHub verification. The earlier privacy failure remains a
+  the cancellation/timeout pair passes four consecutive runs. The subsequent
+  full Windows suite passes **3,374 tests**, 19 skipped, and zero test/setup/
+  collection errors. See PR #96 for GitHub verification. The earlier privacy failure remains a
   separate open finding; this change does not claim to identify its cause.

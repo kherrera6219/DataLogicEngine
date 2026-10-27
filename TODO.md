@@ -46,6 +46,8 @@ conditions, and exit gates remain authoritative in the active root plan.
       provider-start signal, allow the real request deadline enough planning
       time, and explicitly test rejection of an insufficient planning budget.
       Cancellation, timeout, trace, and provider-call assertions remain intact.
+      The full Windows suite passes 3,374 tests with 19 skipped and zero
+      test/setup/collection errors after this correction.
 - [ ] Investigate the previously observed privacy-response failure and the
       original cancellation failure's unproven cause. The full Windows and
       GitHub validation and merge status of the timing correction are tracked

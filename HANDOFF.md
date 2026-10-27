@@ -45,7 +45,9 @@ failure; its rerun also found a one-second planning-budget conflict and a
 separate privacy-response failure. A fresh full Windows suite after the fixture
 change passes 3,373 tests with 19 skipped and zero test/setup/collection errors.
 Kevin approved correcting the timeout and cancellation test timing; PR #96
-tracks that test-only work and its validation. A separate
+tracks that test-only work and its validation. The full Windows suite with the
+correction passes 3,374 tests with 19 skipped and zero test/setup/collection
+errors. A separate
 duplicate fixture-runtime cleanup issue was corrected in `8046c5f9` without
 changing or weakening the cancellation assertions. Details are in the repair
 checkpoint; a causal link between the two findings is not established.
