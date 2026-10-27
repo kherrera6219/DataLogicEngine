@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.7 |
+| Document version | v1.13.8 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-26 |
+| Last reviewed | 2026-10-27 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -50,6 +50,21 @@ update check, crash-reporting egress, or phone-home.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
+The October 27 frontend and retrieval review repairs are in progress. Source
+changes address chat-session and trace isolation, session search, confidence
+display, search and indexing failure reporting, per-run graph-context status,
+and a deletion lookup failure. The latest sequential Windows backend run passed
+3,401 tests with 19 skipped; the frontend suite passed 520 tests. These are
+source results, not installed-app or live-provider acceptance. The
+[review repair plan](docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md)
+tracks each finding and the work still open.
+
+The existing application continues to use its hash-based vector index. An
+offline MiniLM model and a separate test-only index preparation tool have been
+screened, but the model is not packaged or activated. Search qualification,
+safe index migration and recovery, installed testing, and a new build remain
+open. No existing user data has been migrated by this work.
+
 The October 26 [4.4.6 repair](https://github.com/kherrera6219/DataLogicEngine/pull/94)
 merged into `main` at `57c7b4b0`. It refreshes the Python and NPM locks and
 removes the LlamaIndex/NLTK path.
@@ -76,8 +91,9 @@ It was packaged from clean source commit
 `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`.
 Its frozen backend declares 4.4.6, required packaging resources and NSIS policy
 checks pass, and payload verification reports zero issues across 5,029 backend
-files. The installer predates subsequent test and documentation changes,
-including the bundled system card; a new build is needed to include them.
+files. The installer predates subsequent source, test, and documentation
+changes, including the October 27 review repairs; a new build is needed to
+include them.
 This installer is unsigned and has not passed installed or live-provider
 acceptance. Source, build, and merge results do not establish release approval.
 
@@ -520,11 +536,11 @@ npm --prefix frontend audit --audit-level=high
 ```
 
 Coverage is measured separately for Python and TypeScript; the repository does
-not claim one blended whole-app percentage. The latest October 26 Windows
-4.4.6 test-only follow-up passes 3,374 Python tests with 19 skipped and zero
-test/setup/collection errors. The preceding 3,373-test coverage run measures
+not claim one blended whole-app percentage. The October 27 source checkpoint
+passed 3,401 Python tests with 19 skipped and zero test/setup/collection
+errors, and 520 frontend tests. The earlier 3,373-test coverage run measures
 `backend/` at **80.45%**, `backend/security/` at **80.67%**,
-and `core/` at **81.07%**. All 506 frontend tests pass; V8 coverage is
+and `core/` at **81.07%**. Its earlier frontend V8 coverage is
 **89.65% statements**, **80.36% branches**, **86.68% functions**, and
 **91.49% lines**. These are source results, not installed acceptance. CI
 enforces 80.00% independently for every named Python scope and frontend metric;
