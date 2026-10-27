@@ -17,6 +17,10 @@ from backend.storage.chroma_security import safe_get_or_create_collection
 logger = logging.getLogger(__name__)
 
 
+class VectorSearchError(RuntimeError):
+    """A vector query failed rather than successfully returning no matches."""
+
+
 @dataclass
 class SearchResult:
     """Result from vector search."""
@@ -172,9 +176,9 @@ class ChromaDBBackend(VectorBackend):
                     ))
             
             return search_results
-        except Exception:
+        except Exception as exc:
             logger.error("Vector search failed")
-            return []
+            raise VectorSearchError("vector_search_unavailable") from exc
     
     def delete(self, collection: str, ids: List[str]) -> bool:
         """Delete vectors from ChromaDB."""

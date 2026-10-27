@@ -3,6 +3,7 @@ from hashlib import sha256
 
 from backend.governed_execution.contracts import GovernedRequest
 from backend.governed_execution.retrieval import retrieve_evidence
+from backend.services.rag_service import RAGService
 from extensions import db
 from models import IngestionChunk, IngestionFile, IngestionJob
 
@@ -21,6 +22,31 @@ class IngestionRag:
 
     def search_user_chat_history(self, **kwargs):
         return []
+
+
+def test_failed_vector_search_is_distinct_from_empty_results():
+    class FailedStore:
+        def search(self, **kwargs):
+            raise RuntimeError("private connection details")
+
+    request = _request()
+    service = RAGService(vector_store=FailedStore(), embedding_provider=lambda _text: [0.1])
+    evidence, warnings = retrieve_evidence(request, "policy", rag_service=service)
+    assert evidence == []
+    assert any(item.startswith("document_retrieval_failed:") for item in warnings)
+    assert any(item.startswith("knowledge_retrieval_failed:") for item in warnings)
+    assert all("private connection details" not in item for item in warnings)
+
+
+def test_empty_vector_search_has_no_failure_warning():
+    class EmptyStore:
+        def search(self, **kwargs):
+            return []
+
+    service = RAGService(vector_store=EmptyStore(), embedding_provider=lambda _text: [0.1])
+    evidence, warnings = retrieve_evidence(_request(), "policy", rag_service=service)
+    assert evidence == []
+    assert warnings == []
 
 
 def _request(**metadata):
@@ -179,6 +205,69 @@ def test_approved_graph_context_is_bounded_and_recorded(app, monkeypatch):
 
         assert warnings == []
         assert evidence[0].metadata["graph_context"][0]["neighbor_uid"] == "policy-parent"
+        assert request.metadata["_graph_context_status"] == "relationships_included"
+
+
+def test_graph_status_distinguishes_disabled_missing_and_failed(monkeypatch):
+    import backend.governed_execution.retrieval as module
+
+    monkeypatch.setattr(module, "_validate_ingestion_authority", lambda *args: ({}, None))
+    item = {"id": "ki_source", "text": "approved evidence", "score": 0.9}
+    service = IngestionRag(item)
+    disabled = _request()
+    retrieve_evidence(disabled, "evidence", rag_service=service)
+    assert disabled.metadata["_graph_context_status"] == "not_enabled"
+
+    failed = _request()
+    failed.constraints["use_graph_context"] = True
+    monkeypatch.setattr(module, "_load_graph_context", lambda _source: ([], "Unavailable"))
+    _evidence, warnings = retrieve_evidence(failed, "evidence", rag_service=service)
+    assert failed.metadata["_graph_context_status"] == "unavailable"
+    assert any(item.startswith("graph_context_unavailable:") for item in warnings)
+
+    missing = _request()
+    missing.constraints["use_graph_context"] = True
+    retrieve_evidence(missing, "evidence", rag_service=IngestionRag({"id": "other", "text": "evidence", "score": 0.9}))
+    assert missing.metadata["_graph_context_status"] == "no_eligible_source"
+
+    empty = _request()
+    empty.constraints["use_graph_context"] = True
+    monkeypatch.setattr(module, "_load_graph_context", lambda _source: ([], None))
+    retrieve_evidence(empty, "evidence", rag_service=service)
+    assert empty.metadata["_graph_context_status"] == "no_selected_relationships"
+
+    retrieval_off = _request(use_rag=False)
+    retrieval_off.constraints["use_graph_context"] = True
+    retrieve_evidence(retrieval_off, "evidence", rag_service=service)
+    assert retrieval_off.metadata["_graph_context_status"] == "retrieval_disabled"
+
+    class FailingKnowledge(IngestionRag):
+        def search_knowledge(self, query, k=5):
+            raise RuntimeError("unavailable")
+
+    unavailable = _request()
+    unavailable.constraints["use_graph_context"] = True
+    retrieve_evidence(unavailable, "evidence", rag_service=FailingKnowledge(item))
+    assert unavailable.metadata["_graph_context_status"] == "retrieval_unavailable"
+
+
+def test_graph_status_reports_partial_relationships_when_another_lookup_fails(monkeypatch):
+    import backend.governed_execution.retrieval as module
+
+    class TwoSources(IngestionRag):
+        def search_knowledge(self, query, k=5):
+            return [
+                {"id": "ki_ok", "text": "first", "score": 0.9},
+                {"id": "ki_error", "text": "second", "score": 0.8},
+            ]
+
+    monkeypatch.setattr(module, "_validate_ingestion_authority", lambda *args: ({}, None))
+    monkeypatch.setattr(module, "_load_graph_context", lambda source: ([{"neighbor_uid": "x"}], None) if source == "ki_ok" else ([], "Unavailable"))
+    request = _request()
+    request.constraints["use_graph_context"] = True
+    evidence, _warnings = retrieve_evidence(request, "evidence", rag_service=TwoSources(None))
+    assert any(item.metadata.get("graph_context") for item in evidence)
+    assert request.metadata["_graph_context_status"] == "partial"
 
 
 def test_retrieval_applies_character_and_source_diversity_budgets():

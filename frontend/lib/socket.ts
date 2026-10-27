@@ -86,7 +86,10 @@ class SocketClient {
    * Connect to the WebSocket server
    */
   connect(url?: string): void {
-    if (this.socket?.connected) {
+    if (this.socket) {
+      if (!this.socket.connected && !this.socket.active) {
+        this.socket.connect();
+      }
       return;
     }
 

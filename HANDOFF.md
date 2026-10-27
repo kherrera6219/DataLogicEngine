@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.7 |
+| Document version | v1.22.9 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-26 |
+| Last reviewed | 2026-10-27 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.3 (release program) |
@@ -27,6 +27,28 @@
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
 ## Required first read
+
+October 27 owner-approved frontend/retrieval fast-track is in progress on
+`codex/review-repair-20261026`; see
+`docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md` for exact
+scope, source tests and remaining work. MiniLM was evaluated offline and a
+separate-index preparation tool was tested, but active retrieval still uses
+the prior hash projection. Installed qualification, Phase A and CP19-M remain
+open. No new installer has been built for this work.
+The owner also approved a newly discovered Chroma deletion-error repair;
+source failure tests and an isolated synthetic deletion test pass, while the
+installed and concurrent cross-store deletion checks remain open.
+The later sequential Windows backend run passed 3,401 tests with 19 skipped;
+the frontend suite passed 520 tests, and frontend lint and type checking passed.
+A simulated-API browser check found and verified a source fix for repeated
+socket connections while the backend is unavailable. These checks do not
+replace an exact-source rebuilt installer or installed/provider acceptance.
+The review-repair PR #98 dependency scan on October 27 found seven advisories
+for Authlib 1.7.2. Authlib was updated to 1.9.1; the local locked-dependency
+audit and GitHub dependency scan at `453bd415` passed. The earlier failure is at
+https://github.com/kherrera6219/DataLogicEngine/actions/runs/40569900702.
+With Authlib 1.9.1 installed, the full Windows backend suite passed 3,401
+tests with 19 skipped, 35 warnings, and zero failure, setup, or collection errors.
 
 October 26 owner-approved repairs are recorded in
 `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. Documentation PR #93 is merged at

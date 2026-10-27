@@ -11,6 +11,7 @@ const mockSocket = {
   connect: vi.fn(),
   disconnect: vi.fn(),
   connected: false,
+  active: true,
 };
 
 vi.mock('socket.io-client', () => ({
@@ -21,6 +22,7 @@ describe('Socket Logic', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockSocket.connected = false;
+    mockSocket.active = true;
     mockSocket.on.mockClear();
     mockSocket.emit.mockClear();
     // Reset singleton private fields
@@ -35,6 +37,18 @@ describe('Socket Logic', () => {
       
       socketClient.connect();
       expect(io).not.toHaveBeenCalled();
+    });
+
+    it('reuses an existing connection while it is connecting or retrying', () => {
+      socketClient.connect();
+      expect(mockSocket.connected).toBe(false);
+      socketClient.connect();
+      socketClient.connect();
+      expect(io).toHaveBeenCalledTimes(1);
+      expect(mockSocket.on.mock.calls.filter((call: any) => call[0] === 'connect_error')).toHaveLength(1);
+      socketClient.disconnect();
+      socketClient.connect();
+      expect(io).toHaveBeenCalledTimes(2);
     });
 
     it('should initialize socket connection with correct options', () => {

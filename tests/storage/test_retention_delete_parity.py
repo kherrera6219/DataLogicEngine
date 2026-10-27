@@ -15,6 +15,7 @@ from backend.storage.retention import (
     RetentionDeleteError,
 )
 from models import DataDeletionTombstone
+from backend.storage.user_deletion import ChromaUserDeletionAdapter
 
 
 class FakeDeletionAdapter:
@@ -121,3 +122,34 @@ def test_unapproved_remnant_fails_closed_but_preserves_retry_tombstone(app):
         assert tombstone.status == "partial_failure"
         assert tombstone.store_status["minio"]["status"] == "failed"
         assert tombstone.safe_reason == "cross_store_deletion_incomplete"
+
+
+def test_chroma_lookup_failure_cannot_be_reported_as_complete_deletion(app):
+    class BrokenCollection:
+        def get(self, **kwargs):
+            raise RuntimeError("private storage detail")
+
+    class BrokenClient:
+        def list_collections(self):
+            return ["synthetic"]
+
+        def get_collection(self, **kwargs):
+            return BrokenCollection()
+
+    subject = DeletionSubject("user", "user-9")
+    adapter = ChromaUserDeletionAdapter(BrokenClient())
+    with pytest.raises(RetentionDeleteError, match="chroma_deletion_lookup_failed"):
+        adapter.delete(subject)
+    with pytest.raises(RetentionDeleteError, match="chroma_deletion_lookup_failed"):
+        adapter.remnant_count(subject)
+
+    with app.app_context():
+        adapters = {name: FakeDeletionAdapter(0) for name in REQUIRED_STORES}
+        adapters["chroma"] = adapter
+        with pytest.raises(RetentionDeleteError, match="cross_store_deletion_incomplete"):
+            _coordinator(db.session, adapters).run(subject)
+        tombstone = DataDeletionTombstone.query.one()
+        assert tombstone.status == "partial_failure"
+        assert tombstone.store_status["chroma"]["status"] == "failed"
+        assert tombstone.store_status["chroma"]["retained_count"] is None
+        assert "private storage detail" not in json.dumps(tombstone.store_status)

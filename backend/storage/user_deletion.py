@@ -16,6 +16,7 @@ from backend.storage.retention import (
     DeleteResult,
     DeletionSubject,
     RetentionDeleteCoordinator,
+    RetentionDeleteError,
 )
 
 
@@ -215,8 +216,8 @@ class ChromaUserDeletionAdapter:
             for where in filters:
                 try:
                     ids.update(str(value) for value in (collection.get(where=where).get("ids") or []))
-                except Exception:
-                    continue
+                except Exception as exc:
+                    raise RetentionDeleteError("chroma_deletion_lookup_failed") from exc
             if ids:
                 matches[name] = ids
         return matches

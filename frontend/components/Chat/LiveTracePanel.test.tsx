@@ -3,8 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LiveTracePanel } from './LiveTracePanel';
 
-const { listMock, getStagesMock, requestMock } = vi.hoisted(() => ({
+const { listMock, getMock, getStagesMock, requestMock } = vi.hoisted(() => ({
   listMock: vi.fn(),
+  getMock: vi.fn(),
   getStagesMock: vi.fn(),
   requestMock: vi.fn(),
 }));
@@ -13,6 +14,7 @@ vi.mock('@/lib/api', () => ({
   api: {
     trace: {
       list: listMock,
+      get: getMock,
       getStages: getStagesMock,
     },
   },
@@ -39,6 +41,7 @@ vi.mock('@/components/ui/card', () => ({
 describe('LiveTracePanel', () => {
   beforeEach(() => {
     listMock.mockReset();
+    getMock.mockReset();
     getStagesMock.mockReset();
     requestMock.mockReset();
     requestMock.mockResolvedValue(null);
@@ -70,6 +73,30 @@ describe('LiveTracePanel', () => {
     render(<LiveTracePanel />);
     expect(screen.getByText('Live Trace')).toBeInTheDocument();
     await screen.findByText('RUNNING');
+  });
+
+  it('shows an empty scoped draft without querying global runs', async () => {
+    render(<LiveTracePanel scopeToRun />);
+    expect(await screen.findByText(/No trace runs found yet/i)).toBeInTheDocument();
+    expect(listMock).not.toHaveBeenCalled();
+    expect(requestMock).not.toHaveBeenCalled();
+  });
+
+  it('loads only the selected run and its stages in scoped chat', async () => {
+    getMock.mockResolvedValue({ run_id: 'saved-run', status: 'completed', input_message: 'Saved question' });
+    render(<LiveTracePanel scopeToRun activeRunId="saved-run" />);
+    expect(await screen.findByText('Saved question')).toBeInTheDocument();
+    expect(getMock).toHaveBeenCalledWith('saved-run');
+    expect(getStagesMock).toHaveBeenCalledWith('saved-run');
+    expect(listMock).not.toHaveBeenCalled();
+    expect(requestMock).not.toHaveBeenCalled();
+  });
+
+  it('does not describe an unavailable saved run as actively running', async () => {
+    getMock.mockRejectedValueOnce(new Error('Saved trace unavailable'));
+    render(<LiveTracePanel scopeToRun activeRunId="saved-run" isRequestActive={false} />);
+    await waitFor(() => expect(screen.getByText('Saved trace unavailable')).toBeInTheDocument());
+    expect(screen.queryByText('RUNNING')).not.toBeInTheDocument();
   });
 
   it('should render run message and confidence metrics', async () => {

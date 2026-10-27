@@ -19,6 +19,7 @@ export interface ChatRequest {
 }
 
 export interface ChatResponse {
+  warnings?: string[];
   contract_version?: 'governed.v1' | string;
   status?: string;
   completion?: ProviderCompletion | null;

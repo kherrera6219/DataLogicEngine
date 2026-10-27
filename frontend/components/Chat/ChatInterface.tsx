@@ -153,14 +153,24 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [providerBudget, setProviderBudget] = useState<ProviderBudgetSnapshot | null>(null);
   const [mode, setMode] = useState<'chat' | 'quad'>('chat');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
+  const [historyError, setHistoryError] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [sessionSearch, setSessionSearch] = useState('');
   const [tracePaneOpen, setTracePaneOpen] = useState(true);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const draftSessionIdRef = useRef<string | null>(null);
   const sessionCreationRef = useRef<Promise<ChatSession> | null>(null);
   const freshSessionIdsRef = useRef<Set<string>>(new Set());
+  const viewGenerationRef = useRef(0);
+  const activeRequestRef = useRef<string | null>(null);
+  const visibleSessionRef = useRef<string | null>(null);
+  const pendingHistoryRefreshRef = useRef<Set<string>>(new Set());
 
   const strictInputSanitization = isEnabled('strictInputSanitization');
+  const filteredSessions = sessions.filter((session) =>
+    (session.title || 'Untitled Session').toLocaleLowerCase().includes(sessionSearch.trim().toLocaleLowerCase()),
+  );
 
   // WebSocket Integration
   useSocket({
@@ -191,11 +201,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   // Load User Sessions on mount
   useEffect(() => {
     const fetchSessions = async () => {
+      const generation = viewGenerationRef.current;
       try {
         const data = await api.chat.listSessions();
         const loadedSessions = data.sessions || [];
         setSessions(loadedSessions);
-        setCurrentSessionId((selected) => selected ?? loadedSessions[0]?.id ?? null);
+        if (generation === viewGenerationRef.current) {
+          setCurrentSessionId((selected) => selected ?? loadedSessions[0]?.id ?? null);
+        }
       } catch (err) {
         reportClientError(err, {
           module: 'ChatInterface',
@@ -219,6 +232,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   // Hydrate history when session changes
   useEffect(() => {
     if (!currentSessionId) return;
+    let cancelled = false;
     
     // Join WebSocket room for this session
     socketClient.joinRoom(`chat_${currentSessionId}`);
@@ -228,44 +242,57 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (isFreshSession) return;
       try {
         const data = await api.chat.getSessionMessages(currentSessionId);
+        if (cancelled) return;
+        pendingHistoryRefreshRef.current.delete(currentSessionId);
+        setHistoryError(false);
         if (data.messages?.length) {
           setMessages(data.messages.map(normalizeApiMessage));
         } else {
           setMessages([]);
         }
       } catch (err) {
-        console.warn("Failed to load history, starting fresh.", err);
-        setMessages([]);
+        if (cancelled) return;
+        setHistoryError(true);
+        reportClientError(err, { module: 'ChatInterface', action: 'getSessionMessages' });
+        toast('Could not load this conversation. Select it again to retry.', 'warning', 5000);
       }
     };
     fetchHistory();
 
     return () => {
+      cancelled = true;
       socketClient.leaveRoom(`chat_${currentSessionId}`);
     };
+  }, [currentSessionId, historyRefresh, toast]);
+
+  useEffect(() => {
+    visibleSessionRef.current = currentSessionId;
   }, [currentSessionId]);
 
-  const ensureCurrentSession = async (): Promise<string> => {
+  const ensureCurrentSession = async (generation: number): Promise<string> => {
     if (currentSessionId) return currentSessionId;
 
     if (!draftSessionIdRef.current) {
       draftSessionIdRef.current = crypto.randomUUID();
     }
     if (!sessionCreationRef.current) {
-      sessionCreationRef.current = api.chat.createSession({
+      const creation = api.chat.createSession({
         session_id: draftSessionIdRef.current,
         mode,
       }).then(({ session }) => {
-        freshSessionIdsRef.current.add(session.id);
-        setCurrentSessionId(session.id);
+        if (generation === viewGenerationRef.current) {
+          freshSessionIdsRef.current.add(session.id);
+          setCurrentSessionId(session.id);
+        }
         setSessions((existing) => [
           session,
           ...existing.filter((item) => item.id !== session.id),
         ]);
         return session;
       }).finally(() => {
-        sessionCreationRef.current = null;
+        if (sessionCreationRef.current === creation) sessionCreationRef.current = null;
       });
+      sessionCreationRef.current = creation;
     }
     return (await sessionCreationRef.current).id;
   };
@@ -302,12 +329,15 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     setInputValue("");
     setIsLoading(true);
     const requestId = crypto.randomUUID();
+    activeRequestRef.current = requestId;
+    const generation = viewGenerationRef.current;
+    const isCurrentView = () => viewGenerationRef.current === generation && activeRequestRef.current === requestId;
     setActiveRequestId(requestId);
     let sessionId = currentSessionId ?? undefined;
     const gatewayMessages = buildGatewayMessages(messages, userMsg);
 
     try {
-      sessionId = await ensureCurrentSession();
+      sessionId = await ensureCurrentSession(generation);
       // Use the centralized API
       const data = await api.chat.sendMessage({
         messages: gatewayMessages,
@@ -333,9 +363,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           completion: data.completion,
           confidenceDisplay: data.confidence_display,
           providerCallBudget: data.provider_call_budget,
+          warnings: data.warnings,
         };
-        setMessages(prev => [...prev, assistantMsg]);
-        setIsLoading(false);
+        if (isCurrentView()) {
+          setMessages(prev => [...prev, assistantMsg]);
+          setIsLoading(false);
+        }
       } else if ((data as { queued?: boolean }).queued) {
         const traceFields = extractGatewayTraceFields(data as GatewayTracePayload);
         const queuedMsg: ChatMessage = {
@@ -346,8 +379,10 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           ...traceFields,
         };
-        setMessages(prev => [...prev, queuedMsg]);
-        setIsLoading(false);
+        if (isCurrentView()) {
+          setMessages(prev => [...prev, queuedMsg]);
+          setIsLoading(false);
+        }
       }
       
       // Refresh session list in case a new session was created
@@ -355,7 +390,18 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
       if (sessionData) {
         setSessions(sessionData.sessions || []);
       }
-      setActiveRequestId(null);
+      if (isCurrentView()) {
+        activeRequestRef.current = null;
+        setActiveRequestId(null);
+        if (sessionId && pendingHistoryRefreshRef.current.has(sessionId)) {
+          setHistoryRefresh((value) => value + 1);
+        }
+      } else if (data?.response && sessionId) {
+        pendingHistoryRefreshRef.current.add(sessionId);
+        if (visibleSessionRef.current === sessionId && !activeRequestRef.current) {
+          setHistoryRefresh((value) => value + 1);
+        }
+      }
 
     } catch (error) {
       reportClientError(error, {
@@ -377,9 +423,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           ...extractGatewayTraceFields(errorPayload),
         };
-        setMessages(prev => [...prev, rateLimitMsg]);
-        setIsLoading(false);
-        setActiveRequestId(null);
+        if (isCurrentView()) {
+          setMessages(prev => [...prev, rateLimitMsg]);
+          setIsLoading(false);
+          activeRequestRef.current = null;
+          setActiveRequestId(null);
+        }
         return;
       }
 
@@ -415,9 +464,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         ...extractGatewayTraceFields(errorPayload),
       };
-      setMessages(prev => [...prev, errorMsg]);
-      setIsLoading(false);
-      setActiveRequestId(null);
+      if (isCurrentView()) {
+        setMessages(prev => [...prev, errorMsg]);
+        setIsLoading(false);
+        activeRequestRef.current = null;
+        setActiveRequestId(null);
+      }
     }
   };
 
@@ -429,10 +481,27 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   };
 
   const handleNewChat = () => {
+    viewGenerationRef.current += 1;
+    activeRequestRef.current = null;
     setCurrentSessionId(null);
     draftSessionIdRef.current = null;
     sessionCreationRef.current = null;
     setMessages([]);
+    setIsLoading(false);
+    setActiveRequestId(null);
+  };
+
+  const selectSession = (id: string) => {
+    if (id === currentSessionId) {
+      if (historyError) setHistoryRefresh((value) => value + 1);
+      return;
+    }
+    viewGenerationRef.current += 1;
+    activeRequestRef.current = null;
+    setMessages([]);
+    setIsLoading(false);
+    setActiveRequestId(null);
+    setCurrentSessionId(id);
   };
 
   const prepareContinuation = () => {
@@ -484,6 +553,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     }
 
     const safeFileName = sanitizeFileName(file.name);
+    const generation = viewGenerationRef.current;
     setIsLoading(true);
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
@@ -514,7 +584,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         isEnhanced: false
       };
-      setMessages(prev => [...prev, assistantMsg]);
+      if (generation === viewGenerationRef.current) setMessages(prev => [...prev, assistantMsg]);
     } catch (error) {
       reportClientError(error, {
         module: 'ChatInterface',
@@ -526,9 +596,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         content: 'Failed to process the uploaded file.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, errorMsg]);
+      if (generation === viewGenerationRef.current) setMessages(prev => [...prev, errorMsg]);
     } finally {
-      setIsLoading(false);
+      if (generation === viewGenerationRef.current) setIsLoading(false);
       event.target.value = '';
     }
   };
@@ -547,6 +617,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     () => messages.some((message) => message.role === 'user'),
     [messages]
   );
+  const selectedTraceId = activeRequestId || [...messages].reverse().find((message) => message.runId)?.runId || null;
 
   return (
     <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
@@ -566,6 +637,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                <Input
                  placeholder="Search..."
                  aria-label="Search chat sessions"
+                  value={sessionSearch}
+                  onChange={(event) => setSessionSearch(event.target.value)}
                  className="pl-8 bg-white/80 dark:bg-black/20 border-slate-300/70 dark:border-white/5 h-9 focus:bg-white dark:focus:bg-black/40 transition-colors"
                />
             </div>
@@ -578,8 +651,8 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                      <Calendar className="h-3 w-3" /> Recent Sessions
                   </h3>
                   <div className="space-y-1">
-                     {sessions.length > 0 ? (
-                       sessions.map((s) => (
+                     {filteredSessions.length > 0 ? (
+                       filteredSessions.map((s) => (
                         <Button 
                           key={s.id} 
                           variant="ghost" 
@@ -587,13 +660,13 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                             "w-full justify-start text-sm h-10 px-2 font-normal hover:bg-slate-200/70 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white rounded-md truncate",
                             currentSessionId === s.id ? "bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white font-medium border border-slate-300/70 dark:border-white/5" : "text-slate-600 dark:text-gray-400"
                           )}
-                          onClick={() => setCurrentSessionId(s.id)}
+                          onClick={() => selectSession(s.id)}
                         >
                            {s.title || "Untitled Session"}
                         </Button>
                        ))
                      ) : (
-                       <div className="text-xs text-slate-500 dark:text-gray-600 px-2 italic py-4">No recent sessions found</div>
+                       <div className="text-xs text-slate-500 dark:text-gray-600 px-2 italic py-4">{sessions.length ? 'No matching sessions' : 'No recent sessions found'}</div>
                      )}
                   </div>
                </div>
@@ -680,6 +753,17 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          {msg.role === 'assistant' ? (
                             <div className="space-y-4">
                                <div>{msg.finalAnswer || msg.content}</div>
+
+                               {msg.warnings?.some((warning) => /^(?:document|knowledge|chat_memory|truth_memory)_retrieval_failed:|^retrieval_unavailable:/.test(warning)) && (
+                                 <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
+                                   Some local knowledge could not be searched for this answer. Check the trace and storage connection before relying on the absence of sources.
+                                 </p>
+                               )}
+                               {msg.warnings?.some((warning) => /^(?:user|assistant)_chat_index_unavailable$/.test(warning)) && (
+                                 <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
+                                   This conversation was saved, but its search index was unavailable. It may not appear in later cross-session recall.
+                                 </p>
+                               )}
 
                                {msg.governedMode && (
                                  <div className="text-xs text-slate-500 dark:text-slate-400">
@@ -816,6 +900,9 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
               External data preflight: this request sends your prompt and may include attachments, selected retrieved text, persona context, and tool results. {mode === 'quad' ? 'Enhanced mode permits one conditional refinement cycle and at most 2 counted provider attempts.' : 'Standard chat permits 1 counted provider attempt; refinement is not enabled.'}
             </p>
             <p className="max-w-4xl mx-auto mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
+              Graph relationships are used only when graph context is explicitly enabled and an eligible local source is retrieved. Saved chats are not automatically verified graph facts.
+            </p>
+            <p className="max-w-4xl mx-auto mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
               {providerBudget
                 ? `Today: ${providerBudget.daily.calls}/${providerBudget.limits.daily_calls} calls and ${providerBudget.daily.tokens_total.toLocaleString()}/${providerBudget.limits.daily_tokens.toLocaleString()} tokens. ${providerBudget.remaining.daily_calls} calls remain. Pricing is ${providerBudget.pricing_status}; unknown price is never represented as zero.`
                 : 'Usage budget is unavailable in the renderer; the server still fails closed if its durable budget ledger cannot be read.'}
@@ -837,7 +924,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
           </div>
           <div className="min-h-[32rem] flex-1">
-            <LiveTracePanel activeRunId={activeRequestId} />
+            <LiveTracePanel key={selectedTraceId || 'empty'} activeRunId={selectedTraceId} scopeToRun isRequestActive={!!activeRequestId} />
           </div>
         </aside>
       )}

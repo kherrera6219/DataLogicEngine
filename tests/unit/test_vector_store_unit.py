@@ -105,7 +105,8 @@ def test_chromadb_backend_error_paths(tmp_path):
 
     backend._get_collection = _raise
     assert backend.add_embeddings("docs", ["id1"], ["t"], [[0.1]]) == []
-    assert backend.search("docs", [0.1]) == []
+    with pytest.raises(RuntimeError, match="vector_search_unavailable"):
+        backend.search("docs", [0.1])
     assert backend.delete("docs", ["id1"]) is False
     stats = backend.get_collection_stats("docs")
     assert stats["count"] == 0

@@ -68,6 +68,24 @@ def test_rag_uses_knowledge_nodes_collection_and_scalar_metadata():
     assert store.search_calls[0]["collection"] == "knowledge_nodes"
 
 
+def test_cross_session_recall_filters_owner_and_active_session_before_limit():
+    class FilteredStore(RecordingStore):
+        def search(self, **kwargs):
+            self.search_calls.append(kwargs)
+            assert kwargs["filters"] == {"$and": [
+                {"user_id": {"$eq": "owner-1"}},
+                {"session_id": {"$ne": "active"}},
+            ]}
+            assert kwargs["k"] == 1
+            return [SearchResult(id="old", score=0.9, text="older context", metadata={"session_id": "old", "user_id": "owner-1"})]
+
+    store = FilteredStore()
+    service = RAGService(vector_store=store, embedding_provider=lambda _text: [0.1])
+    matches = service.search_user_chat_history("owner-1", "context", k=1, exclude_session_id="active")
+    assert [item["id"] for item in matches] == ["old"]
+    assert store.search_calls[0]["collection"] == "chat_history"
+
+
 def test_rag_context_includes_ingested_citation_metadata():
     store = RecordingStore()
     service = RAGService(

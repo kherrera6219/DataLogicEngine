@@ -1,4 +1,5 @@
 import uuid
+from types import SimpleNamespace
 
 import pytest
 
@@ -7,6 +8,25 @@ from backend.llm_gateway.api import _desktop_session_messages
 from extensions import db
 from models import ChatMessage, ChatSession, User
 from tests.conftest import create_test_user
+
+
+@pytest.mark.asyncio
+async def test_transcript_survives_but_index_failure_is_reported(app, monkeypatch):
+    monkeypatch.setattr(
+        'backend.services.rag_service.get_rag_service',
+        lambda: SimpleNamespace(store_chat_message=lambda *args, **kwargs: False),
+    )
+    with app.app_context():
+        user_id = create_test_user(username='index-failure', email='index-failure@example.com', password='SecureTest789$#@')
+        session_id = uuid.uuid4()
+        db.session.add(ChatSession(id=session_id, user_id=user_id, mode='chat'))
+        db.session.commit()
+        result = await LLMGateway(db_session=db.session)._save_chat_message(
+            str(session_id), user_id, 'user', 'Persist this message',
+        )
+        assert result.ok is True
+        assert result.rag_status == 'failed'
+        assert db.session.get(ChatMessage, uuid.UUID(result.message_id)).content == 'Persist this message'
 
 
 def _authenticated_user_id(app) -> int:

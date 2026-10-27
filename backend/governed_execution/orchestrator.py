@@ -459,11 +459,17 @@ class GovernedExecutionOrchestrator:
             item.bind_to_trace(context.trace_id)
             measure_evidence(item)
         context.warnings.extend(retrieval_warnings)
+        graph_status = request.metadata.get("_graph_context_status")
+        if graph_status in {"relationships_included", "partial"} and not any(
+            item.metadata.get("graph_context") for item in context.evidence
+        ):
+            graph_status = "unavailable" if graph_status == "partial" else "no_selected_relationships"
         l2 = self.layer_stages.l2(context)
         l2.outputs.update(
             {
                 "decisions": list(request.metadata.get("_retrieval_decisions") or []),
                 "warnings": retrieval_warnings,
+                "graph_context_status": graph_status,
             }
         )
         self._finish_layer(
@@ -1036,6 +1042,8 @@ class GovernedExecutionOrchestrator:
                         )
                     ),
                 )
+            elif getattr(persistence_result, "rag_status", None) == "failed":
+                context.warnings.append("assistant_chat_index_unavailable")
         return result
 
     async def _evaluate_candidate(
@@ -1929,6 +1937,8 @@ class GovernedExecutionOrchestrator:
                         "replayable": False,
                     },
                 }
+            if getattr(persistence_result, "rag_status", None) == "failed":
+                context.warnings.append("user_chat_index_unavailable")
 
         budget_policy = ProviderBudgetPolicy(getattr(self.gateway, "db", None))
         max_calls = budget_policy.request_call_limit(request.mode, request.constraints)

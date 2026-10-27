@@ -24,7 +24,13 @@ def retrieve_evidence(
     the provider and later accepted by output validation.
     """
 
+    graph_requested = request.constraints.get("use_graph_context") is True
+    request.metadata["_graph_context_status"] = (
+        "not_evaluated" if graph_requested else "not_enabled"
+    )
     if request.metadata.get("use_rag") is False:
+        if graph_requested:
+            request.metadata["_graph_context_status"] = "retrieval_disabled"
         return [], ["retrieval_disabled_by_request"]
 
     warnings: list[str] = []
@@ -34,6 +40,8 @@ def retrieve_evidence(
 
             rag_service = get_rag_service()
         except Exception as exc:
+            if graph_requested:
+                request.metadata["_graph_context_status"] = "retrieval_unavailable"
             return [], [f"retrieval_unavailable:{type(exc).__name__}"]
 
     max_items = _bounded_int(request.constraints.get("max_evidence_items"), 8, 1, 20)
@@ -118,6 +126,8 @@ def retrieve_evidence(
     evidence: list[EvidenceRecord] = []
     selected_by_source_kind: dict[str, int] = {}
     selected_characters = 0
+    graph_attempts = 0
+    graph_failures = 0
     decisions: list[dict[str, Any]] = []
     request.metadata["_retrieval_decisions"] = decisions
 
@@ -181,8 +191,10 @@ def retrieve_evidence(
             continue
         metadata = {**metadata, **authority_metadata}
         if source_id.startswith("ki_") and request.constraints.get("use_graph_context") is True:
+            graph_attempts += 1
             graph_context, graph_error = _load_graph_context(source_id)
             if graph_error:
+                graph_failures += 1
                 warnings.append(f"graph_context_unavailable:{source_id}:{graph_error}")
                 if request.constraints.get("requires_graph_context") is True:
                     decisions.append(
@@ -249,6 +261,18 @@ def retrieve_evidence(
         if len(evidence) >= max_items:
             break
 
+    if graph_requested:
+        has_relationships = any(item.metadata.get("graph_context") for item in evidence)
+        if graph_failures:
+            request.metadata["_graph_context_status"] = "partial" if has_relationships else "unavailable"
+        elif has_relationships:
+            request.metadata["_graph_context_status"] = "relationships_included"
+        elif graph_attempts:
+            request.metadata["_graph_context_status"] = "no_selected_relationships"
+        elif any(item.startswith("knowledge_retrieval_failed:") for item in warnings):
+            request.metadata["_graph_context_status"] = "retrieval_unavailable"
+        else:
+            request.metadata["_graph_context_status"] = "no_eligible_source"
     return evidence, warnings
 
 

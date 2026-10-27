@@ -62,7 +62,7 @@ vi.mock('@/components/ui/scroll-area', () => ({
 }));
 
 vi.mock('./LiveTracePanel', () => ({
-  LiveTracePanel: () => <div data-testid="trace-panel">Trace</div>
+  LiveTracePanel: ({ activeRunId }: { activeRunId?: string | null }) => <div data-testid="trace-panel">{activeRunId || 'No selected run'}</div>
 }));
 vi.mock('./DetailedResponseView', () => ({
   DetailedResponseView: ({ message }: { message: { id: string } }) => <div data-testid="detailed-view">{message.id}</div>
@@ -119,6 +119,7 @@ describe('ChatInterface', () => {
   it('should load sessions and initial messages on mount', async () => {
     renderChatInterface();
     await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
+    expect(screen.getByText(/Graph relationships are used only when graph context is explicitly enabled/i)).toBeInTheDocument();
   });
 
   it('should handle switching sessions', async () => {
@@ -126,6 +127,111 @@ describe('ChatInterface', () => {
     await waitFor(() => screen.getByText('Session 2'));
     fireEvent.click(screen.getByText('Session 2'));
     expect(socketClient.joinRoom).toHaveBeenCalled();
+  });
+
+  it('does not replace the selected session with a late history response', async () => {
+    let resolveOld!: (value: unknown) => void;
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockImplementation((id: string) =>
+      id === 'session-1'
+        ? new Promise((resolve) => { resolveOld = resolve; })
+        : Promise.resolve({ messages: [{ id: 'b', role: 'assistant', content: 'Session B history' }] }),
+    );
+    renderChatInterface();
+    await screen.findByRole('button', { name: 'Session 2' });
+    await waitFor(() => expect(api.chat.getSessionMessages).toHaveBeenCalledWith('session-1'));
+    fireEvent.click(screen.getByRole('button', { name: 'Session 2' }));
+    expect(await screen.findByText('Session B history')).toBeInTheDocument();
+    await act(async () => resolveOld({ messages: [{ id: 'a', role: 'assistant', content: 'Session A history' }] }));
+    expect(screen.getByText('Session B history')).toBeInTheDocument();
+    expect(screen.queryByText('Session A history')).not.toBeInTheDocument();
+  });
+
+  it('keeps a late response out of a newly selected session', async () => {
+    let resolveSend!: (value: unknown) => void;
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockReturnValue(new Promise((resolve) => { resolveSend = resolve; }));
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockImplementation(async (id: string) => ({
+      messages: id === 'session-2' ? [{ id: 'b', role: 'assistant', content: 'Session B history' }] : [],
+    }));
+    renderChatInterface();
+    await screen.findByRole('button', { name: 'Session 1' });
+    await waitFor(() => expect(api.chat.getSessionMessages).toHaveBeenCalledWith('session-1'));
+    fireEvent.change(screen.getByRole('textbox', { name: /message composer/i }), { target: { value: 'Question for A' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    await waitFor(() => expect(api.chat.sendMessage).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Session 2' }));
+    expect(await screen.findByText('Session B history')).toBeInTheDocument();
+    await act(async () => resolveSend({ response: 'Answer for A' }));
+    expect(screen.getByText('Session B history')).toBeInTheDocument();
+    expect(screen.queryByText('Answer for A')).not.toBeInTheDocument();
+  });
+
+  it('does not let an earlier request clear the trace of a newer request', async () => {
+    let finishRefresh!: (value: unknown) => void;
+    let finishSecond!: (value: unknown) => void;
+    (api.chat.listSessions as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ sessions: mockSessions })
+      .mockReturnValueOnce(new Promise((resolve) => { finishRefresh = resolve; }));
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ response: 'First answer' })
+      .mockReturnValueOnce(new Promise((resolve) => { finishSecond = resolve; }));
+    renderChatInterface();
+    await screen.findByRole('button', { name: 'Session 1' });
+    const composer = screen.getByRole('textbox', { name: /message composer/i });
+    fireEvent.change(composer, { target: { value: 'First' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    await screen.findByText('First answer');
+    fireEvent.change(composer, { target: { value: 'Second' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    await waitFor(() => expect(api.chat.sendMessage).toHaveBeenCalledTimes(2));
+    const secondTrace = screen.getByTestId('trace-panel').textContent;
+    expect(secondTrace).not.toBe('No selected run');
+    await act(async () => finishRefresh({ sessions: mockSessions }));
+    expect(screen.getByTestId('trace-panel')).toHaveTextContent(secondTrace || '');
+    await act(async () => finishSecond({ response: 'Second answer' }));
+  });
+
+  it('refreshes a session revisited before its background answer completes', async () => {
+    let finish!: (value: unknown) => void;
+    let saved = false;
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockImplementation(async (id: string) => ({
+      messages: id === 'session-1' && saved ? [{ id: 'saved', role: 'assistant', content: 'Saved background answer' }] : [],
+    }));
+    renderChatInterface();
+    await screen.findByRole('button', { name: 'Session 1' });
+    await waitFor(() => expect(api.chat.getSessionMessages).toHaveBeenCalledWith('session-1'));
+    fireEvent.change(screen.getByRole('textbox', { name: /message composer/i }), { target: { value: 'Question' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    await waitFor(() => expect(api.chat.sendMessage).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Session 2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Session 1' }));
+    await waitFor(() => expect(api.chat.getSessionMessages).toHaveBeenCalledTimes(3));
+    saved = true;
+    await act(async () => finish({ response: 'Saved background answer' }));
+    expect(await screen.findByText('Saved background answer')).toBeInTheDocument();
+  });
+
+  it('reports a history load failure and allows selecting the session to retry', async () => {
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>)
+      .mockRejectedValueOnce(new Error('unavailable'))
+      .mockResolvedValueOnce({ messages: [{ id: 'retry', role: 'assistant', content: 'Recovered history' }] });
+    renderChatInterface();
+    expect(await screen.findByText(/could not load this conversation/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Session 1' }));
+    expect(await screen.findByText('Recovered history')).toBeInTheDocument();
+  });
+
+  it('filters recent sessions by title and restores them when the search is cleared', async () => {
+    renderChatInterface();
+    await screen.findByRole('button', { name: 'Session 1' });
+    const search = screen.getByRole('textbox', { name: 'Search chat sessions' });
+    fireEvent.change(search, { target: { value: 'SESSION 2' } });
+    expect(screen.queryByRole('button', { name: 'Session 1' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Session 2' })).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: 'missing' } });
+    expect(screen.getByText('No matching sessions')).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: '' } });
+    expect(screen.getByRole('button', { name: 'Session 1' })).toBeInTheDocument();
   });
 
   it('should handle sending a message and displaying direct response', async () => {
@@ -249,6 +355,20 @@ describe('ChatInterface', () => {
     expect(screen.queryByText('100.0%')).not.toBeInTheDocument();
   });
 
+  it('shows retrieval and indexing failures without exposing internal error details', async () => {
+    (api.chat.sendMessage as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      response: 'Answer without available local evidence',
+      warnings: ['document_retrieval_failed:RetrievalError', 'user_chat_index_unavailable'],
+    });
+    renderChatInterface();
+    const textarea = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(textarea, { target: { value: 'Find local evidence' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    expect(await screen.findByText(/Some local knowledge could not be searched/i)).toBeInTheDocument();
+    expect(screen.getByText(/conversation was saved, but its search index was unavailable/i)).toBeInTheDocument();
+    expect(screen.queryByText(/document_retrieval_failed/)).not.toBeInTheDocument();
+  });
+
   it('creates a durable session before the first message is sent', async () => {
     const createdSession = {
       id: 'created-session-1',
@@ -307,6 +427,19 @@ describe('ChatInterface', () => {
         expect.objectContaining({ session_id: 'created-session-1' }),
       );
     });
+  });
+
+  it('clears the selected run for a new draft and restores a saved session run', async () => {
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockResolvedValue({
+      messages: [{ id: 'm1', role: 'assistant', content: 'Saved response', run_id: 'saved-run' }],
+    });
+    renderChatInterface();
+    expect(await screen.findByText('Saved response')).toBeInTheDocument();
+    expect(screen.getByTestId('trace-panel')).toHaveTextContent('saved-run');
+    fireEvent.click(screen.getByTestId('new-chat-button'));
+    expect(screen.getByTestId('trace-panel')).toHaveTextContent('No selected run');
+    fireEvent.click(screen.getByRole('button', { name: 'Session 1' }));
+    await waitFor(() => expect(screen.getByTestId('trace-panel')).toHaveTextContent('saved-run'));
   });
 
   it('should display queued gateway trace links when a provider request is saved offline', async () => {
