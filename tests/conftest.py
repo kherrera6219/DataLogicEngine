@@ -2,6 +2,8 @@
 import os
 import sys
 import gc
+import tempfile
+import atexit
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -28,6 +30,8 @@ os.environ.setdefault(
 
 # Ensure repository root is on the Python path for tests
 ROOT_DIR = Path(__file__).resolve().parent.parent
+_TEST_RUNTIME = tempfile.TemporaryDirectory(prefix="dle-tests-")
+_TEST_RUNTIME_CLEANED = False
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
@@ -36,7 +40,7 @@ if str(ROOT_DIR) not in sys.path:
 # process-scoped disposable root as explicit test app factories.
 os.environ.setdefault(
     'DLE_RUNTIME_ROOT',
-    str(ROOT_DIR / '.pytest_cache' / f'default-runtime-{os.getpid()}'),
+    str(Path(_TEST_RUNTIME.name) / 'default'),
 )
 
 import pytest
@@ -44,6 +48,7 @@ from flask import has_app_context
 from app import create_app, db
 from extensions import limiter, login_manager
 from sqlalchemy.engine import Engine
+from backend.runtime import ApplicationRuntime
 
 # Shared helpers live in a regular importable module (not this conftest) so test
 # modules can import them by a collision-free name. Re-exported here for
@@ -56,13 +61,19 @@ from tests._helpers import (
     is_sqlite_test_db,  # noqa: F401  (re-exported for tests)
 )
 
+# Pytest loads this file as ``conftest`` while existing tests also import its
+# public helpers as ``tests.conftest``. Bind both names to the same module so
+# those imports do not create a second application/runtime and cleanup handler.
+if __name__ == "conftest":
+    sys.modules.setdefault("tests.conftest", sys.modules[__name__])
+
 
 flask_app = create_app(
     "testing",
     {
         "SQLALCHEMY_DATABASE_URI": TEST_DATABASE_URL,
         "DLE_RUNTIME_ROOT": str(
-            ROOT_DIR / ".pytest_cache" / f"runtime-{os.getpid()}-{__name__.replace('.', '-')}"
+            Path(_TEST_RUNTIME.name) / "app"
         ),
         "DLE_INITIALIZE_SCHEMA": False,
         "DLE_INITIALIZE_STORES": False,
@@ -71,6 +82,22 @@ flask_app = create_app(
     },
     start_runtime=True,
 )
+
+
+def _cleanup_test_runtime():
+    """Release every runtime owned by this fixture root before removing it."""
+    global _TEST_RUNTIME_CLEANED
+    if _TEST_RUNTIME_CLEANED:
+        return
+    owned_root = Path(_TEST_RUNTIME.name).resolve()
+    for candidate in gc.get_objects():
+        if isinstance(candidate, ApplicationRuntime) and candidate.runtime_root.resolve().is_relative_to(owned_root):
+            candidate.shutdown()
+    _TEST_RUNTIME.cleanup()
+    _TEST_RUNTIME_CLEANED = True
+
+
+atexit.register(_cleanup_test_runtime)
 
 
 def _dispose_sqlalchemy_engines() -> None:
@@ -169,6 +196,12 @@ def _final_engine_cleanup():
         _dispose_sqlalchemy_engines()
         _dispose_stray_sqlalchemy_engines()
     flask_app.extensions["dle_runtime"].shutdown()
+    import app as app_module
+
+    compatibility_app = app_module._default_app
+    if compatibility_app is not None:
+        compatibility_app.extensions["dle_runtime"].shutdown()
+    _cleanup_test_runtime()
 
 @pytest.fixture
 def client(app):

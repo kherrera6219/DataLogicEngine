@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-003 |
 | Title | Interface and client-integration specification |
 | Document version | v1.6.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | active |
 | Audience | API/client engineers, application integrators, security, quality, operators, and professional reviewers |
 | Owner | API Engineering |
@@ -28,20 +28,14 @@ call model providers or internal data services directly.
 The default listener is loopback-only. Same-host clients are supported at the
 engineering checkpoint. `private_windows_gateway` remains disabled until the
 signed two-machine TLS/firewall qualification passes. Browser/CORS and public-
-internet exposure are outside the 4.4.5 contract.
+internet exposure are outside the 4.4.6 contract.
 
-The available local unsigned 4.4.5 engineering installer is a physical
-artifact from before the PR #91 dependency/source refresh. It has not been
-installed or gateway/provider-tested and cannot validate the later source
-changes. An earlier 4.4.3 Program Files backend was healthy on
-`127.0.0.1:5000` and its core packaged-file hashes matched that build; those
-observations do not establish 4.4.5 signed same-host/private gateway,
-provider-chat, authenticated-client, load, lifecycle, or two-machine
-acceptance. PR #91's Python dependency scan and backend-test gate failed on
-the unsuppressed transitive NLTK advisory; the later `main` Security Scan also
-failed. A separate post-merge Linux refinement-workflow test failed. The source
-is integrated, but those gates and installed acceptance remain open;
-production/public release is **NO-GO**.
+The unsigned 4.4.6 engineering installer includes the October 26 dependency/chat
+repair and passes payload checks. Local/GitHub dependency scans pass without
+exceptions. Installed gateway/provider, authenticated-client, load, lifecycle,
+and two-machine acceptance remain open; earlier Program Files observations
+belong to another artifact. Exact build/CI evidence is in
+`audits/CI_CHAT_REPAIR_2026-10-26.md`. Production/public release is **NO-GO**.
 
 ## Version and route policy
 

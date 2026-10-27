@@ -47,7 +47,13 @@ describe('DetailedResponseView', () => {
         }}
       />
     );
-    expect(screen.getByText('No validation telemetry is available for this response yet.')).toBeInTheDocument();
+    expect(screen.getByText('This message has no attached validation metrics.')).toBeInTheDocument();
+  });
+
+  it('directs saved runs to recorded validation rather than claiming none exists', () => {
+    render(<DetailedResponseView message={{ id: 'saved', role: 'assistant', content: 'Answer', timestamp: '10:00 AM', runId: 'run-1' }} />);
+    expect(screen.getByText('Open Reasoning Trace for the recorded validation and refinement details.')).toBeInTheDocument();
+    expect(screen.queryByText(/no validation telemetry/i)).not.toBeInTheDocument();
   });
 
   it('downloads the validation report and omits unsupported sharing', () => {

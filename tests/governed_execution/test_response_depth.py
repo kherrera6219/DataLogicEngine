@@ -45,3 +45,17 @@ def test_explicit_bounded_profile_wins_over_heuristic():
 
     assert profile["profile"] == "standard"
     assert profile["selection_reason"] == "explicit_request_constraint"
+
+
+def test_mechanism_question_requests_full_explanation_without_extra_calls():
+    profile = select_response_depth(
+        _context("how to the best of your know how does cold fussion work")
+    )
+    assert profile["profile"] == "comprehensive"
+    assert profile["additional_provider_calls_authorized"] is False
+    assert (
+        select_response_depth(_context("How does fusion work?", explicit="concise"))[
+            "profile"
+        ]
+        == "concise"
+    )

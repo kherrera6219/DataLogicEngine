@@ -17,11 +17,11 @@
     "install_command": "npm ci",
     "release_build_node_major": 24,
     "electron": {
-      "package_version": "43.1.1",
-      "chromium_version": "150.0.7871.114",
-      "embedded_node_version": "24.18.0",
-      "official_release_metadata": "https://releases.electronjs.org/release/v43.1.1",
-      "reviewed_at": "2026-07-14"
+      "package_version": "43.8.3",
+      "chromium_version": "150.0.7871.250",
+      "embedded_node_version": "24.22.0",
+      "official_release_metadata": "https://releases.electronjs.org/release/v43.8.3",
+      "reviewed_at": "2026-10-26"
     }
   }
 }

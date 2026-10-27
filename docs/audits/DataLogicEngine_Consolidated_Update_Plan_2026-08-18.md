@@ -7,7 +7,7 @@
 | Document ID | DLE-PLAN-CONSOLIDATED-2026-08-18 |
 | Title | Consolidated update plan for the August 15–18 documentation set |
 | Document version | v1.12.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Date | 2026-08-27 |
 | Last reviewed | 2026-09-27 |
 | Status | Active supporting review input; 4.4.5 clean-source engineering rebuild is complete while installed/provider/signing rows remain blocked, CU-3 is decision-gated, CU-4 copy-only scope is owner-approved and deferred, and CU-5 source/publication is partial |
@@ -51,7 +51,14 @@ No archived plan may authorize implementation, rebuilding, signing, or release.
 - Independent coverage gates pass at 80.29% for `backend/`, 80.67% for
   `backend/security/`, 81.07% for `core/`, and 89.54% statements, 80.69%
   branches, 86.11% functions, and 91.36% lines for the frontend.
-- The existing local 4.4.5 engineering artifact is `DataLogicEngine Setup 4.4.5.exe`,
+- The current 4.4.6 engineering artifact is `DataLogicEngine Setup 4.4.6.exe`,
+  350,186,546 bytes, SHA-256
+  `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`,
+  built from clean source `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`.
+  Payload/resources/NSIS checks pass; it is unsigned and has not passed local
+  portable, installed, or live-provider acceptance. Current test/CI evidence is
+  in `CI_CHAT_REPAIR_2026-10-26.md` (3,373 Windows and 506 frontend tests pass).
+- The preceding local 4.4.5 engineering artifact was `DataLogicEngine Setup 4.4.5.exe`,
   398,783,115 bytes, SHA-256
   `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`,
   built from clean source commit

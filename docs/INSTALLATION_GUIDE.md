@@ -7,7 +7,7 @@
 | Document ID | DLE-USER-002 |
 | Title | Installation and lifecycle guide |
 | Document version | v1.4.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | qualification_only |
 | Audience | Supported users, evaluators, desktop administrators, and release reviewers |
 | Owner | Platform Operations |
@@ -20,26 +20,24 @@
 
 ## Current distribution status
 
-DataLogicEngine 4.4.5 is not approved for production or public installation.
-The current engineering installer is `DataLogicEngine Setup 4.4.5.exe`
-(398,783,115 bytes; SHA-256
-`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`),
+DataLogicEngine 4.4.6 is not approved for production or public installation.
+The current engineering installer is `DataLogicEngine Setup 4.4.6.exe`
+(350,186,546 bytes; SHA-256
+`303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`),
 built from clean source commit
-`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`. It is unsigned. The
+`0f0d51d1fea7aadfb1f739c98c1b1565063b880c`. It is unsigned. The
 packaged-payload check passes, but portable, installed-mode, provider-chat,
 upgrade, repair, uninstall, and retained-data acceptance have not been run
 for this exact artifact.
 
-The later PR #91 dependency/CI source refresh is not included in this
-installer. Its Python dependency security and backend checks are red on
-transitive `nltk==3.10.3` (`PYSEC-2026-3740`), and no exact-source replacement
-installer has been built or installed. A repository merge does not convert the
-older unsigned artifact into release or installed acceptance evidence.
-The separate post-merge Linux Deploy run also failed a refinement-workflow
-test; this source gate is open independently of the NLTK finding.
+This artifact includes the owner-approved PR #94 dependency and chat repair.
+Local and GitHub dependency scans pass without exceptions, and the replacement
+Linux suite passes the previously failing refinement module. Build evidence is
+recorded in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`; it does not establish
+installed, live-provider, or production release acceptance.
 
 The older 4.4.3 payload had a narrow Program Files loopback health/readiness
-observation. That evidence does not transfer to the 4.4.5 installer or prove
+observation. That evidence does not transfer to the 4.4.6 installer or prove
 its installation, lifecycle, provider chat, or signed release acceptance.
 
 The earlier frozen candidate stopped safely at
@@ -67,7 +65,7 @@ yet ratified and must not be guessed from development machines.
 
 1. Obtain the installer only from the release location named in the approved
    release-readiness record.
-2. Confirm the filename matches the exact approved release-readiness record; the current unsigned `DataLogicEngine Setup 4.4.5.exe` is engineering-only.
+2. Confirm the filename matches the exact approved release-readiness record; the current unsigned `DataLogicEngine Setup 4.4.6.exe` is engineering-only.
 3. Confirm the published SHA-256 matches the installer.
 4. Open Windows file properties and verify a valid signature from the approved
    publisher, a trusted chain, a valid timestamp, and no revocation failure.

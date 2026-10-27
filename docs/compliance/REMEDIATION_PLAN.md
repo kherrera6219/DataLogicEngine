@@ -16,8 +16,15 @@ CR-A0 must capture a new commit-bound baseline before CR-A1 is treated as
 open work. Other findings retain their task-level verify-first requirements;
 CR-E1 and CR-E4 were found already satisfied.
 
+**October 26 checkpoint:** owner-approved 4.4.6 maintenance passes 3,373 Windows
+tests (19 skipped; zero test/setup/collection errors), all 506 frontend tests,
+and local/GitHub Python/NPM security scans without exceptions. LlamaIndex/NLTK
+are removed. Exact build/CI evidence is in
+`docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. This does not disposition Phase A or
+replace CR-A0's required commit-bound remediation baseline.
+
 **Assumption stated in the open:** this program remains a separate gate to
-unblocking the current 4.4.5 release. The original v4.4.4 target above is
+unblocking the current 4.4.6 release. The original v4.4.4 target above is
 historical plan provenance, not a statement that the product is still at
 v4.4.4. Phase 19 established substantial pipeline wiring evidence,
 but CP19-M installed/provider/signing acceptance remains independently open.

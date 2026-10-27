@@ -696,7 +696,7 @@ def _entry(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def build_authority() -> dict[str, Any]:
-    crosswalk_bytes = CROSSWALK_PATH.read_bytes()
+    crosswalk_bytes = CROSSWALK_PATH.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
     crosswalk = json.loads(crosswalk_bytes)
     if crosswalk.get("status") != "approved_cp18_a_authority":
         raise ValueError("retained CP18-A crosswalk is not approved")

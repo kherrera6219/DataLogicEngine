@@ -1,8 +1,7 @@
 """
 RAG (Retrieval Augmented Generation) Service
 
-Enhanced with LlamaIndex for better document parsing, chunking, and retrieval.
-Falls back to basic implementation if LlamaIndex is not installed.
+Uses a versioned local sentence chunker for document retrieval.
 """
 
 import logging
@@ -12,19 +11,9 @@ import json
 import time
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
+from backend.services.text_chunking import CHUNKING_REVISION, split_text
 
 logger = logging.getLogger(__name__)
-
-# Check for LlamaIndex availability
-LLAMAINDEX_AVAILABLE = False
-try:
-    from llama_index.core import Document
-    from llama_index.core.node_parser import SentenceSplitter
-    LLAMAINDEX_AVAILABLE = True
-    logger.info("LlamaIndex available - using enhanced RAG")
-except ImportError:
-    logger.info("LlamaIndex not installed - using basic RAG")
-
 
 @dataclass
 class DocumentChunk:
@@ -39,13 +28,14 @@ class RAGService:
     """
     Retrieval Augmented Generation service.
     
-    Uses VectorStore with optional LlamaIndex enhancement for:
-    - Smart document chunking (sentence-based with LlamaIndex)
+    Uses VectorStore and a deterministic local chunker for:
+    - Bounded sentence-based document chunking
     - Semantic search
     - Context retrieval for LLM prompts
     """
     
     COLLECTION_DOCUMENTS = "documents"
+    chunking_revision = CHUNKING_REVISION
     COLLECTION_KNOWLEDGE = "knowledge_nodes"
     COLLECTION_CHAT_HISTORY = "chat_history"
     COLLECTION_PERSONA_PROFILES = "persona_profiles"
@@ -88,16 +78,6 @@ class RAGService:
         )
         self.embedding_dimensions = max(1, int(embedding_dimensions))
         self._initialized = False
-        self._sentence_splitter = None
-        
-        if LLAMAINDEX_AVAILABLE:
-            # Configure LlamaIndex sentence splitter
-            self._sentence_splitter = SentenceSplitter(
-                chunk_size=512,
-                chunk_overlap=50,
-                paragraph_separator="\n\n",
-                secondary_chunking_regex="[.。!?！？]"
-            )
         
     def _get_vector_store(self):
         """Lazy load vector store."""
@@ -192,28 +172,17 @@ class RAGService:
         """Set the embedding provider function."""
         self._embedding_provider = provider
         
-    def chunk_text(self, text: str, chunk_size: int = 512, overlap: int = 50) -> List[str]:
+    def chunk_text(self, text: str, chunk_size: int = 512, overlap: int | None = None) -> List[str]:
         """
         Split text into chunks for embedding.
         
-        Uses LlamaIndex SentenceSplitter if available, otherwise
-        falls back to basic character-based splitting.
+        Uses the same local sentence boundaries on every installation.
         """
         if not text or len(text.strip()) == 0:
             return []
         
-        # Use LlamaIndex for better chunking
-        if LLAMAINDEX_AVAILABLE and self._sentence_splitter:
-            try:
-                # Create a LlamaIndex Document
-                doc = Document(text=text)
-                nodes = self._sentence_splitter.get_nodes_from_documents([doc])
-                return [node.get_content() for node in nodes]
-            except Exception as e:
-                logger.warning(f"LlamaIndex chunking failed, falling back: {e}")
-        
-        # Fallback to basic chunking
-        return self._basic_chunk_text(text, chunk_size, overlap)
+        resolved_overlap = min(50, chunk_size // 10) if overlap is None else overlap
+        return split_text(text, chunk_size, resolved_overlap)
     
     def _basic_chunk_text(self, text: str, chunk_size: int = 512, overlap: int = 50) -> List[str]:
         """Basic character-based text chunking with sentence boundary awareness."""

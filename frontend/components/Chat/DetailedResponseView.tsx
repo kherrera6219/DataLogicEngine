@@ -80,7 +80,9 @@ export function DetailedResponseView({ message }: DetailedResponseViewProps) {
   if (!personas.length && !metrics.length) {
     return (
       <div className="mt-4 rounded-lg border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-black/20 p-3 text-xs text-slate-600 dark:text-gray-400">
-        No validation telemetry is available for this response yet.
+        {message.runId || message.auditTrail
+          ? 'Open Reasoning Trace for the recorded validation and refinement details.'
+          : 'This message has no attached validation metrics.'}
       </div>
     );
   }

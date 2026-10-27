@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.4.6 engineering candidate - 2026-10-26
+
+- Refreshed the Python and NPM dependency locks; local audits report zero
+  known vulnerabilities without exceptions. Removed LlamaIndex/NLTK and the
+  unused accessibility CLI/ChromeDriver chain; upgraded Electron to 43.8.3.
+- Replaced optional RAG splitting with a deterministic local sentence chunker
+  and versioned ingestion identities so a changed splitter supersedes old chunks.
+- Clarified Standard/Enhanced refinement behavior beside chat answers and in
+  the composer. Mechanism questions request comprehensive depth within the
+  existing provider budget. The owner retained Standard no-evidence answers.
+- Pinned the browser CI job to Ubuntu 24.04, removed obsolete audit ignores,
+  and corrected Windows verification hash/path handling.
+- Validation and rebuild status: `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`.
+  This remains a release-blocked engineering candidate.
+
 ## 4.4.5 engineering candidate - 2026-09-27
 
 - [PR #91](https://github.com/kherrera6219/DataLogicEngine/pull/91) merged
@@ -78,7 +93,7 @@
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
 | Document version | v1.13.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
 | Owner | Release Engineering |

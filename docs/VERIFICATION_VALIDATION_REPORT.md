@@ -6,22 +6,34 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.3 |
-| Product version | 4.4.5 |
+| Document version | v1.8.4 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
 | Owner | Quality Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
 ## Purpose
 
+The October 26 owner-approved 4.4.6 repair passes the full Windows coverage
+suite: **3,373 passed, 19 skipped**, zero test/setup/collection errors.
+Independent coverage is backend **80.45%**, backend/security **80.67%**, core
+**81.07%** after fixture de-duplication. All **506 frontend tests** pass; statements **89.65%**, branches
+**80.36%**, functions **86.68%**, lines **91.49%**. Local and GitHub Python/NPM
+audits pass without exceptions. The affected 61-test group also passes after
+the fixture cleanup idempotency correction. Build and final CI evidence are
+tracked in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`; installed acceptance and
+production release are not established by these source results.
+
+The following 4.4.5 and earlier checkpoints are retained historical evidence.
+
 CP19-K is complete at 213/213 individually qualified KAs and CP19-L passed. The
-current 4.4.5 source gate records 3,364 Python tests passed with 18 skipped,
+preceding 4.4.5 source gate records 3,364 Python tests passed with 18 skipped,
 zero setup errors, and 504 frontend tests passed. Independent Python
 coverage remains recorded from an earlier checkpoint at 80.29%
 `backend/`, 80.67% `backend/security/`, and 81.07% `core/`; these percentages
@@ -47,8 +59,11 @@ merge prove installed acceptance or GO.
 
 The post-merge Deploy Linux suite independently reported one failing
 refinement-workflow test, 3,355 passed, and 26 skipped in run `36378632388`.
-The failure remains undispositioned; the earlier Windows pass does not
-supersede this negative evidence.
+The replacement PR #94 Linux backend job `121691827783` passes all three tests
+in that refinement module and the full suite (3,366 passed, 26 skipped).
+The original failure does not reproduce with the refreshed source/lock; its
+individual root cause was not isolated. Historical negative evidence remains
+retained, and the exact post-merge Deploy check must still run.
 
 The newly observed **New Chat** / Live Trace session-scoping defect has source
 evidence but no corrected code or regression pass. Verification must cover a
@@ -138,12 +153,12 @@ the current installed result. Reproducibility, signing, exact-artifact binding,
 and the retained CP19-M/system/manual/external acceptance rows remain open.
 
 The current engineering artifact was rebuilt from clean source commit
-`8a419f6c8908c541ac13389dd75e9b7bb83bb87f`. It is 398,783,115 bytes
+`0f0d51d1fea7aadfb1f739c98c1b1565063b880c`. It is 350,186,546 bytes
 with SHA-256
-`9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941`.
+`303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`.
 Its packaged-payload check passes, but it is unsigned; portable smoke, full
 installer/lifecycle, and installed live-provider acceptance were not run.
-Earlier 4.4.3 portable and installed observations are historical, not 4.4.5
+Earlier 4.4.3 portable and installed observations are historical, not 4.4.6
 results. No provider-corpus/human, accessibility, recovery, independent-review,
 pilot, or soak evidence transfers between artifact hashes.
 

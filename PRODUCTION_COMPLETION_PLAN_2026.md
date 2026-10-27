@@ -8,7 +8,7 @@
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Runtime model | Electron control/validation shell plus a Flask backend that is loopback-only by default and may expose an explicitly enabled private gateway mode |
 | Data model | App-owned internal PostgreSQL, Redis, Neo4j, ChromaDB, and S3-compatible object-store services |
 | External runtime dependency | Optional OpenAI or Google model access and explicitly enabled MCP connectors only |
@@ -18,6 +18,13 @@
 | Release authority | `docs/RELEASE_READINESS_RECORD.md` and `docs/VERIFICATION_VALIDATION_REPORT.md` |
 
 ### Current execution checkpoint
+
+The October 26 owner-approved 4.4.6 repair passes 3,373 Windows tests with
+19 skipped and zero test/setup/collection errors, all 506 frontend tests, and
+independent Python/frontend coverage gates. Refreshed Python and NPM audits
+pass locally and on GitHub without exceptions. Exact rebuild/CI evidence is
+recorded in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. This fast-track does not
+disposition compliance Phase A or close installed/provider/signing acceptance.
 
 On 2026-09-27, the 4.4.5 source gate passed 3,364 Windows backend tests with
 18 skipped and zero setup errors, all 504 frontend tests, and the production

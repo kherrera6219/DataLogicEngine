@@ -6,21 +6,27 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.3 |
-| Product version | 4.4.5 |
+| Document version | v1.8.4 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
 | Owner | Release Authority |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
 ## Current decision
 
 **Production/public release: NO-GO.**
+
+The October 26 4.4.6 repair clears the source dependency audits without
+exceptions, passes 3,373 Windows tests (19 skipped; zero test/setup/collection
+errors), all 506 frontend tests, and independent coverage gates. Evidence is
+tracked in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. These maintenance results
+do not close the existing signed, installed, provider, or compliance gates.
 
 This record does not authorize distribution. Engineering checkpoints through
 Phase 15 and Phase 16 documentation construction show substantial implemented
@@ -86,7 +92,7 @@ keep the decision **NO-GO**.
 
 ## Candidate identity
 
-The installed historical qualification artifact and the current 4.4.5
+The installed historical qualification artifact and the current 4.4.6
 engineering build are distinct. Evidence remains bound to its exact hash and
 is never transferred between them.
 
@@ -118,20 +124,20 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 
 | Item | Current local build record |
 |---|---|
-| Runtime source input | Exact clean commit `8a419f6c8908c541ac13389dd75e9b7bb83bb87f` |
-| Artifact | `DataLogicEngine Setup 4.4.5.exe` |
-| Size | 398,783,115 bytes |
-| SHA-256 | `9686f458e0971715338dfa23a9343459f248d98fd33f7ab2aca8399e38ad4941` |
-| Integrity | Packaged-payload check passes; full current-candidate installer integrity evidence remains to be recorded |
+| Runtime source input | Exact clean commit `0f0d51d1fea7aadfb1f739c98c1b1565063b880c` |
+| Artifact | `DataLogicEngine Setup 4.4.6.exe` |
+| Size | 350,186,546 bytes |
+| SHA-256 | `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e` |
+| Integrity | Packaged-payload, required resources, NSIS policy, and local checksum checks pass |
 | Packaging governance | Current-candidate installed and release-governance gates remain open |
 | Signature | `NotSigned`; production signing remains unauthorized |
 | Portable smoke | Not run for this artifact |
 | Installed-mode observation | Not installed or provider-tested; earlier Program Files observations belong to a different artifact |
 | Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
 
-This physical local build predates the PR #91 dependency source. It is
-exact-source-bound to its own earlier commit but unsigned. No live Google or OpenAI
-result for the 4.4.5 models, installed, provider-corpus/human, accessibility,
+This physical local build includes the owner-approved October 26 dependency
+and chat repair. It is bound to its source commit but unsigned. No live Google or OpenAI
+result for the 4.4.6 models, installed, provider-corpus/human, accessibility,
 recovery, independent-review, pilot, or soak result from an earlier hash is
 attributed to this artifact. The next CP19-M release-candidate run must bind every
 result to one exact signed artifact.

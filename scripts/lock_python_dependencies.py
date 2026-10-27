@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import subprocess
@@ -24,6 +25,13 @@ def _source_sha256(path: Path) -> str:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--upgrade",
+        action="store_true",
+        help="Refresh transitive pins for a reviewed dependency update.",
+    )
+    args = parser.parse_args()
     authority = json.loads(AUTHORITY.read_text(encoding="utf-8"))["python"]
     required_generator = str(authority["lock_generator"])
     version_result = subprocess.run(
@@ -44,6 +52,7 @@ def main() -> int:
         "uv",
         "pip",
         "compile",
+        "--quiet",
         SOURCE.name,
         "--output-file",
         LOCK.name,
@@ -52,6 +61,8 @@ def main() -> int:
         "--python-version",
         str(authority["python_version"]),
     ]
+    if args.upgrade:
+        command.append("--upgrade")
     subprocess.run(command, cwd=ROOT, check=True)
     source_hash = _source_sha256(SOURCE)
     text = LOCK.read_text(encoding="utf-8")

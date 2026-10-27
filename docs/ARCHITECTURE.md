@@ -7,7 +7,7 @@
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
 | Document version | v5.2.1 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
 | Owner | Architecture |
@@ -27,19 +27,18 @@ local data was adopted once with a verified recovery receipt; no new or fallback
 user database became authoritative. This is installed engineering evidence, not
 production release authorization.
 
-The 4.4.5 source selects OpenAI `gpt-6-sol` with High reasoning and Google
+The 4.4.6 source selects OpenAI `gpt-6-sol` with High reasoning and Google
 `gemini-3.8-flash`, with a forward migration for known retired saved defaults.
-The clean-source Windows build at `8a419f6c8908c541ac13389dd75e9b7bb83bb87f`
+The clean-source Windows build at `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`
 produced an unsigned engineering installer. That build has not been installed
 or tested against live providers; prior 4.4.3 portable/installed observations
 do not transfer to it. CP19-M installed acceptance remains open.
 
-The later PR #91 dependency/CI source refresh and PR #92 documentation update
-are integrated into `main`, but no exact-source installer or installed
-acceptance was produced from them. The Python dependency security scan remains
-red on the unsuppressed transitive NLTK advisory, and the post-merge Linux
-refinement-workflow test also failed. These are separate open source gates;
-repository integration does not authorize production/public release.
+This artifact includes the October 26 dependency/chat repair: LlamaIndex/NLTK
+are removed, local/GitHub dependency scans pass without exceptions, and the
+replacement Linux suite passes the refinement module. Exact evidence is in
+`audits/CI_CHAT_REPAIR_2026-10-26.md`. Source integration does not authorize
+production/public release.
 
 Define the current logical and runtime architecture of DataLogicEngine for engineering, security, operations, and technical-review stakeholders.
 

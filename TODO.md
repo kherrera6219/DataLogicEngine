@@ -6,26 +6,49 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.5 |
-| Product version | 4.4.5 |
+| Document version | v1.20.6 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
 | Owner | Production Program Owner |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.2 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19 installed-chat repair; PR #91 merged into `main` at `39ba7e54`, but Python dependency security/backend checks remain red on NLTK and post-merge Deploy has one Linux refinement test failure. Security/test disposition, a new exact-source rebuild, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19; 4.4.6 Windows/frontend/coverage gates and clean-source rebuild pass; final repair-head CI/merge, installed acceptance, and signing/lifecycle/provider CP19-M rows remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
+
+## October 26 owner-approved repair
+
+- [x] Complete the full Windows suite (3,373 passed, 19 skipped, zero
+      test/setup/collection errors), frontend tests (506 passed), and independent
+      coverage gates. Refreshed Python/NPM audits pass locally and on GitHub
+      without exceptions; LlamaIndex/NLTK are removed and JWT claims tested.
+- [x] Build 4.4.6 from clean commit `0f0d51d1` and verify payload, resources,
+      NSIS policy, version, and checksum. The unsigned installer is 350,186,546
+      bytes; exact SHA-256 is in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`.
+- [ ] Finish final repair-head CI and merge PR #94. Earlier red September jobs
+      remain retained historical negative evidence; replacement scan/backend
+      jobs pass at the first repair checkpoint.
+- [ ] Resolve the intermittent Linux governed-execution failures seen at
+      `f636573e`. A rerun exposed a one-second timeout test whose plan needed
+      750 ms with 599 ms left, and a separate privacy-response failure; the
+      cancellation assertion's cause remains unproven. The cancellation controls
+      remain unchanged. After fixture de-duplication (`8046c5f9`), the fresh
+      Windows suite passes 3,373 tests with 19 skipped and zero test/setup/
+      collection errors; final GitHub verification remains pending.
+- [ ] Validate the new chat refinement explanation and comprehensive mechanism
+      answers in a rebuilt installation. Standard no-evidence answer behavior
+      remains owner-approved; no extra provider call is implicit.
 
 ## Governed-chat UI finding from the 2026-09-27 owner observation
 
@@ -56,29 +79,28 @@ release.
 
 The post-merge Deploy run `36378632388` separately failed
 `tests/knowledge_algorithms/test_phase19_cp19g_refinement_workflow.py::test_cp19g_refinement_accounts_all_steps_and_revalidates_once`
-on Linux (one failed, 3,355 passed, 26 skipped). This is an additional open
-source gate; the earlier Windows pass does not close it.
+on Linux (one failed, 3,355 passed, 26 skipped). The PR #94 replacement backend
+job `121691827783` passes all three tests in that module and the full Linux
+suite (3,366 passed, 26 skipped). The failure does not reproduce with the
+refreshed source/lock; this does not independently isolate its original cause.
 
-- [ ] Triage the post-merge Linux refinement-workflow failure, verify the
-      premise against current source, and rerun the affected and full gates.
-      Do not skip or weaken the test.
+- [x] Recheck the Linux refinement-workflow failure against current source and
+      rerun the full suite. PR #94's Linux backend suite passes without skipped
+      or weakened refinement controls. Retain the historical failure above.
 - [ ] After the NLTK security blocker is resolved, rerun the affected security
       and backend checks, then the full current-source release gate. Record an
       exact-source Windows packaging and installed-acceptance result before a
       release decision.
-- [ ] Resolve or explicitly disposition `PYSEC-2026-3740` /
-      `CVE-2026-81726` in transitive `nltk==3.10.3`. The 2026-09-27 local
-      Python audit reports one remaining finding and the upstream advisory
-      lists no patched version. Do not add an audit suppression or treat a
-      repository merge as a security disposition. Any dependency removal or replacement that changes
-      retrieval behavior requires owner direction and testing.
+- [x] Remove the transitive NLTK path under Kevin's October 26 fast-track
+      approval. The replacement splitter is versioned and tested; refreshed
+      local Python/NPM audits report zero findings without exceptions. Retain
+      replacement GitHub and rebuilt-artifact evidence before release.
 - [ ] Track existing repository-wide lint debt through the compliance
       remediation program: the full Ruff check currently reports 58 errors
-      and the format check would change 870 files. The CI-scoped Ruff rule set
+      and the format check would change 862 files. The CI-scoped Ruff rule set
       passes; this dependency merge does not weaken either full gate.
-- [ ] After the dependency gate is green, produce a fresh exact-source 4.4.5
-      engineering installer and repeat installed acceptance. The existing
-      unsigned setup artifact was built before this dependency refresh.
+- [ ] Repeat installed acceptance using the new exact-source 4.4.6 engineering
+      installer. The preceding 4.4.5 artifact does not contain this repair.
 
 ## Active Phase 19 canonical KA system-of-systems integration
 

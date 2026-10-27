@@ -686,6 +686,12 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                                    {msg.providerCallBudget
                                      ? `${msg.providerCallBudget.calls_used} of ${msg.providerCallBudget.max_calls} provider attempts used for this governed run.`
                                      : 'Provider-attempt budget was not recorded for this historical message.'}
+                                   {msg.governedMode === 'standard' && (
+                                     <p className="mt-1">Standard mode does not enable the 12-step refinement workflow. This does not indicate that the answer met a measured confidence threshold.</p>
+                                   )}
+                                   {msg.governedMode === 'enhanced' && (
+                                     <p className="mt-1">Enhanced mode permits one conditional refinement cycle. Open Reasoning Trace to see whether it ran and why.</p>
+                                   )}
                                  </div>
                                )}
 
@@ -787,12 +793,14 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                   </Button>
                   <Button 
                     variant="ghost" 
-                    size="icon" 
-                    className={`h-8 w-8 rounded-lg transition-colors ${mode === 'quad' ? 'text-yellow-400 bg-yellow-400/10' : 'text-yellow-500/80 hover:text-yellow-400 hover:bg-yellow-400/10'}`}
+                    size="sm"
+                    className={`h-8 gap-1.5 rounded-lg px-2 text-xs transition-colors ${mode === 'quad' ? 'text-yellow-400 bg-yellow-400/10' : 'text-yellow-500/80 hover:text-yellow-400 hover:bg-yellow-400/10'}`}
                     onClick={() => setMode(prev => prev === 'chat' ? 'quad' : 'chat')}
                     aria-label="Toggle Quad Persona Mode"
+                    aria-pressed={mode === 'quad'}
+                    title="Enhanced mode permits one conditional refinement cycle and at most two provider attempts."
                   >
-                    <Zap className="h-4 w-4" />
+                    <Zap className="h-4 w-4" /> Enhanced
                   </Button>
                 </div>
                 <Button 
@@ -805,7 +813,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
             </div>
             
             <p className="max-w-4xl mx-auto mt-2 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
-              External data preflight: this request sends your prompt and may include attachments, selected retrieved text, persona context, and tool results. {mode === 'quad' ? 'Enhanced mode permits at most 2 counted provider attempts.' : 'Standard chat permits 1 counted provider attempt.'}
+              External data preflight: this request sends your prompt and may include attachments, selected retrieved text, persona context, and tool results. {mode === 'quad' ? 'Enhanced mode permits one conditional refinement cycle and at most 2 counted provider attempts.' : 'Standard chat permits 1 counted provider attempt; refinement is not enabled.'}
             </p>
             <p className="max-w-4xl mx-auto mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-gray-500">
               {providerBudget

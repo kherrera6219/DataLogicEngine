@@ -76,6 +76,33 @@ def test_local_ingestion_dedupes_by_chunk_hash(app, tmp_path, monkeypatch):
         assert KnowledgeGraphNode.query.count() == 2
 
 
+def test_same_source_new_chunker_supersedes_old_chunks(app, tmp_path, monkeypatch):
+    from models import IngestionFile
+
+    monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(tmp_path / "manifests"))
+    source = tmp_path / "corpus"
+    source.mkdir()
+    (source / "a.txt").write_text("unchanged source content", encoding="utf-8")
+
+    with app.app_context():
+        rag = FakeRag()
+        rag.chunking_revision = "old-splitter"
+        service = LocalKnowledgeIngestionService(rag_service=rag)
+        service.ingest_path(source)
+        old_ids = {node.uid for node in KnowledgeGraphNode.query.all()}
+        rag.chunking_revision = "new-splitter"
+        replacement = service.ingest_path(source)
+        repeated = service.ingest_path(source)
+
+        assert replacement.chunks_created == 2
+        assert repeated.chunks_created == 0
+        assert KnowledgeGraphNode.query.count() == 4
+        assert IngestionFile.query.filter_by(status="deletion_pending").count() == 1
+        deletes = CrossStoreOutboxEvent.query.filter_by(operation="delete_knowledge_node").all()
+        assert {event.entity_id for event in deletes} == old_ids
+        assert len(deletes) == 4
+
+
 def test_ingestion_route_accepts_allowed_local_path(authenticated_client, tmp_path, monkeypatch):
     source = tmp_path / "route-corpus"
     source.mkdir()

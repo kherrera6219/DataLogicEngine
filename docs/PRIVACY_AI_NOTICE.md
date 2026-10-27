@@ -7,7 +7,7 @@
 | Document ID | DLE-USER-005 |
 | Title | Privacy, provider, retention, and AI limitations notice |
 | Document version | v1.2.1 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, administrators, privacy/security reviewers, and release authority |
 | Owner | Privacy Engineering |
@@ -20,21 +20,20 @@
 
 ## Important current status
 
-DataLogicEngine 4.4.5 is not approved for production or public distribution.
+DataLogicEngine 4.4.6 is not approved for production or public distribution.
 This notice describes the implemented and approved local-first contract while
 clearly retaining installed, independent, legal, security, provider, deletion,
 backup/restore, and release evidence that remains open. It is not a claim of
 certification, regulatory approval, or legal suitability for a particular use.
 
-The available local 4.4.5 engineering installer is an unsigned physical
-artifact from before the PR #91 dependency/source refresh. It has not been
-installed or provider-tested and cannot validate the later source changes.
+The available 4.4.6 engineering installer is unsigned, includes the October 26
+repair, and passes payload checks. It has not been installed or provider-tested.
 Earlier 4.4.3 Program Files readiness evidence is historical and cannot
-establish 4.4.5 all-output redaction/no-egress, provider, deletion/recovery,
+establish 4.4.6 all-output redaction/no-egress, provider, deletion/recovery,
 independent privacy, lifecycle, or exact signed-artifact acceptance; those
-gates remain open. PR #91's Python dependency scan and backend-test gate remain
-red on the unsuppressed transitive NLTK advisory. Source integration does not
-waive that finding or alter the production/public release **NO-GO**.
+gates remain open. Replacement local/GitHub dependency scans pass without
+exceptions. Source integration does not alter the production/public release
+**NO-GO**; exact repair evidence is in `audits/CI_CHAT_REPAIR_2026-10-26.md`.
 
 ## Local-first does not mean air-gapped
 

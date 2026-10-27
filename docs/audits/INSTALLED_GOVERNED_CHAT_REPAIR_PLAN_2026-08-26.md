@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-PLAN-CHAT-QC-2026-08-26 |
 | Document version | v1.1.2 |
-| Product version | 4.4.5 |
+| Product version | 4.4.6 |
 | Date | 2026-08-26 |
 | Last reviewed | 2026-09-27 |
 | Status | Source implementation through CHAT-QC-05 complete; pre-refresh 4.4.5 engineering installer exists; installed CHAT-QC-06, PR #91 security, Linux refinement, and newly observed trace-panel session-scoping gates open; not release authority |
@@ -34,7 +34,16 @@ This is a supporting plan. It does not replace, reopen, or weaken:
 
 CP19-D through CP19-G remain implemented. The work below repairs product
 binding, presentation, durability, and acceptance around those capabilities.
-The current 4.4.5 release status remains `release_blocked`.
+The current 4.4.6 release status remains `release_blocked`.
+
+### Owner-approved maintenance checkpoint — 2026-10-26
+
+The dependency/chat repair passes 3,373 Windows tests (19 skipped; zero
+test/setup/collection errors), 506 frontend tests, and independent coverage
+gates. Local/GitHub dependency scans pass without exceptions. The unsigned
+4.4.6 installer from `0f0d51d1` passes payload/resources/NSIS checks; installed
+CHAT-QC-06 remains open. Exact hash and CI evidence are recorded in
+`CI_CHAT_REPAIR_2026-10-26.md`. Earlier checkpoints below are historical.
 
 ### Source and build checkpoint — 2026-09-27
 

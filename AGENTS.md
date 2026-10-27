@@ -11,7 +11,7 @@ DataLogicEngine is **installed software**, not a SaaS product. It runs on a cust
 
 That deployment model is load-bearing for almost every decision here. **Do not add an outbound network call, a telemetry hook, an update check, or a crash reporter.** Any of those silently falsifies the product's central compliance claim. If a task seems to require one, stop and ask.
 
-Current version 4.4.5, status `release_blocked`. Market: **United States only** — the product is not placed on the EU market, so EU CRA / EU AI Act / GDPR / NIS2 / DORA are out of scope.
+Current version 4.4.6, status `release_blocked`. Market: **United States only** — the product is not placed on the EU market, so EU CRA / EU AI Act / GDPR / NIS2 / DORA are out of scope.
 
 ---
 
@@ -31,7 +31,7 @@ An active remediation program governs most work in this repo. **Read these befor
 
 **Picking work:** read `remediation_tasks.json`, find a task whose `depends_on` are all complete and whose `human_gate` is false, and execute it exactly as written in `REMEDIATION_PLAN.md`. Do not invent tasks.
 
-**Phase A blocks the remediation phases.** The external review reported 40 Windows setup errors, but a later 4.4.5 Windows source run passed 3,364 tests with 18 skipped and zero setup errors. A separate post-merge Linux Deploy run failed one refinement-workflow test, and the Python dependency security scan remains red on transitive NLTK. CR-A0 must capture a fresh commit-bound remediation baseline before deciding whether CR-A1 still has work; do not treat the historical setup-error count as current or start Phases B–G before Phase A is formally dispositioned.
+**Phase A blocks the remediation phases.** Historical 4.4.5 evidence includes 3,364 passing Windows tests, a separate failed Linux refinement test, and a red NLTK security scan. The owner-approved October 26 fast-track removes LlamaIndex/NLTK, passes 3,373 Windows tests (19 skipped; zero test/setup/collection errors), and clears local/GitHub dependency scans; see `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. It does not disposition Phase A. CR-A0 must still capture a fresh commit-bound remediation baseline before CR-A1 disposition; do not treat historical setup errors as current or start Phases B–G before Phase A is formally dispositioned.
 
 ---
 

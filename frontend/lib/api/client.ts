@@ -483,7 +483,7 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
       if (typeof window !== 'undefined') {
         removeLocalStorageItem('user-session');
         if (!desktopRuntime) {
-          window.location.href = '/login?error=session_expired';
+          window.location.href = new URL('/login?error=session_expired', window.location.href).href;
         }
       }
       throw new Error('Session expired. Please re-authenticate.');

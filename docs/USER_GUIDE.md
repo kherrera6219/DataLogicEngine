@@ -6,15 +6,15 @@
 |---|---|
 | Document ID | DLE-USER-001 |
 | Title | User guide |
-| Document version | v4.2.2 |
-| Product version | 4.4.5 |
+| Document version | v4.2.3 |
+| Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Analysts, operators, pilot users, evaluators, and professional reviewers |
 | Owner | Product Engineering |
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-26 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -23,6 +23,20 @@
 Provide task-focused instructions for day-to-day use of DataLogicEngine by analysts, operators, admins, pilot users, and technical evaluators.
 
 This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, Diagnostics, and admin workflows.
+
+The 4.4.6 source explains the refinement budget beside each answer. Standard
+uses one provider attempt and does not enable the 12-step rewrite workflow;
+this is not proof of high confidence. The visible **Enhanced** toggle allows
+one conditional refinement cycle within two attempts. Open **Reasoning Trace**
+for the recorded decision. Missing chat metrics do not mean a layer was skipped.
+Mechanism questions (“how does … work”) request comprehensive breadth without
+adding an attempt. Answers without governed sources remain allowed; review
+the evidence-support disclosure before relying on their factual claims.
+
+The October dependency repair passes local Python/NPM audits without exceptions;
+final CI and rebuilt-installed acceptance are tracked in
+`docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. The following 4.4.5 installer record
+is historical and does not establish 4.4.6 acceptance.
 
 The 4.4.5 source selects OpenAI `gpt-6-sol` with High reasoning and Google
 `gemini-3.8-flash`. The available clean-source engineering installer contains

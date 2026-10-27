@@ -7,7 +7,7 @@ const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 // Mock window location
-const mockLocation = { href: '' };
+const mockLocation = { href: 'http://localhost/' };
 Object.defineProperty(window, 'location', {
   value: mockLocation,
   writable: true
