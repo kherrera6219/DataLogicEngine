@@ -166,6 +166,14 @@ def _narrative(
         evidence_ids = outputs.get("evidence_ids")
         count = len(evidence_ids) if isinstance(evidence_ids, list) else 0
         text = f"Retrieved and recorded {count} evidence records."
+        warnings = outputs.get("warnings")
+        if isinstance(warnings, list) and any(
+            isinstance(warning, str) and (
+                "_retrieval_failed:" in warning or warning.startswith("retrieval_unavailable:")
+            )
+            for warning in warnings
+        ):
+            text += " Some local searches were unavailable."
     elif layer_index == 4:
         profiles = outputs.get("profiles") or outputs.get("persona_profiles")
         count = len(profiles) if isinstance(profiles, dict) else 0
