@@ -172,6 +172,16 @@ def test_rag_ingest_document():
     assert count > 0
     mock_store.add_embeddings.assert_called()
 
+
+def test_chat_index_failure_logs_do_not_expose_exception(caplog):
+    mock_store = MagicMock()
+    mock_store.add_embeddings.side_effect = RuntimeError("synthetic-secret-index-error")
+    service = RAGService(vector_store=mock_store)
+    service.set_embedding_provider(lambda text: [0.1] * 10)
+
+    assert service.store_chat_message("session", "message", "user", "text") is False
+    assert "synthetic-secret-index-error" not in caplog.text
+
 def test_get_context_for_query():
     mock_store = MagicMock()
     # Mock search results
