@@ -61,6 +61,12 @@ from tests._helpers import (
     is_sqlite_test_db,  # noqa: F401  (re-exported for tests)
 )
 
+# Pytest loads this file as ``conftest`` while existing tests also import its
+# public helpers as ``tests.conftest``. Bind both names to the same module so
+# those imports do not create a second application/runtime and cleanup handler.
+if __name__ == "conftest":
+    sys.modules.setdefault("tests.conftest", sys.modules[__name__])
+
 
 flask_app = create_app(
     "testing",
