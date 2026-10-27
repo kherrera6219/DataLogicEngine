@@ -393,7 +393,7 @@ class RAGService:
         
         try:
             embedding = self._embedding_provider(content)
-            store.add_embeddings(
+            stored_ids = store.add_embeddings(
                 collection=self.COLLECTION_CHAT_HISTORY,
                 ids=[message_id],
                 texts=[content],
@@ -404,7 +404,7 @@ class RAGService:
                     "user_id": user_id or "",
                 }]
             )
-            return True
+            return message_id in stored_ids
         except Exception as e:
             logger.error(f"Failed to store chat message: {e}")
             return False

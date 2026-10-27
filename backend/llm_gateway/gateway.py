@@ -1209,13 +1209,16 @@ class LLMGateway:
                 from backend.services.rag_service import get_rag_service
 
                 rag = get_rag_service()
-                rag.store_chat_message(
+                indexed = rag.store_chat_message(
                     str(session.id),
                     str(msg.id),
                     role,
                     content,
                     user_id=str(user_id),
                 )
+                if not indexed:
+                    rag_status = "failed"
+                    logger.warning("Chat message RAG synchronization was not acknowledged")
             except Exception as exc:
                 rag_status = "failed"
                 logger.warning("Chat message RAG synchronization failed: %s", exc)
