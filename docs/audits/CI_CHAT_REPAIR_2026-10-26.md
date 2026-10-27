@@ -130,4 +130,17 @@ separate open work; this owner-approved chat scope does not claim to fix them.
 - Source checkpoint `0f0d51d1` passes GitHub security scans, backend tests,
   frontend build/browser checks, governance, lint, and Windows packaging/portable
   smoke (CI run `40358828347`, Security run `40358828401`). Docker verification
-  and the final documentation-head checks/merge remain pending at this checkpoint.
+  also passes at that source checkpoint.
+- Documentation checkpoint `f636573e` passes security, frontend, governance,
+  lint, and Windows packaging/portable smoke, but its Linux backend suite
+  reported one cancellation-test failure (3,365 passed, 26 skipped). The same
+  cancellation module passes locally (21 tests), including after full test
+  collection; the cause of the intermittent Linux failure remains unproven.
+  A GitHub rerun and final-head checks are required; no assertion was weakened.
+- Independent cleanup diagnosis found that pytest loaded `tests/conftest.py`
+  twice as `conftest` and `tests.conftest`, creating two application runtimes and
+  an extra late shutdown handler. The test-only change in `8046c5f9` aliases
+  both names to the same module. A full-collection diagnostic confirms one
+  object and completed cleanup; 36 focused tests pass. A fresh full Windows
+  suite and GitHub checks are pending for that change. The duplicate fixture is
+  not claimed as the established cause of the cancellation assertion failure.

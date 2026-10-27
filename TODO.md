@@ -39,6 +39,11 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Finish final repair-head CI and merge PR #94. Earlier red September jobs
       remain retained historical negative evidence; replacement scan/backend
       jobs pass at the first repair checkpoint.
+- [ ] Resolve the intermittent Linux cancellation-test failure seen at
+      `f636573e`, retain the rerun result, and complete the fresh Windows suite
+      after test-only fixture de-duplication (`8046c5f9`). The duplicate-runtime
+      cleanup diagnosis is established; its relationship to the cancellation
+      failure is not. The cancellation assertions remain unchanged.
 - [ ] Validate the new chat refinement explanation and comprehensive mechanism
       answers in a rebuilt installation. Standard no-evidence answer behavior
       remains owner-approved; no extra provider call is implicit.

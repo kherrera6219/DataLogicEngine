@@ -39,6 +39,11 @@ installer from `0f0d51d1` is 350,186,546 bytes, SHA-256
 `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`.
 Payload/resources/NSIS verification passes. Final-head CI and installed/provider
 acceptance remain open; the artifact is unsigned and release verdict unchanged.
+The `f636573e` GitHub backend run reported an intermittent cancellation-test
+failure; rerun and fresh full Windows/CI verification are pending. A separate
+duplicate fixture-runtime cleanup issue was corrected in `8046c5f9` without
+changing or weakening the cancellation assertions. Details are in the repair
+checkpoint; a causal link between the two findings is not established.
 
 Documentation review on 2026-09-27 reconciled active user, engineering,
 assurance, and operator guidance to the 4.4.5 source and evidence boundary.
