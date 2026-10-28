@@ -69,6 +69,16 @@ migration checks remain open.
 
 ## Windows bundle probe
 
+Later source checkpoint `feb6ca6c` adds replaceable model-sized vector families
+and a distinct namespace bound to the model, chunker, dimensions and cosine
+metric. The combined focused Windows group passes 73 tests. The disposable
+real-service record is `reports/profiled-model-vector-families-probe-20261028.json`:
+metric calculation, legacy collection preservation, other-owner exclusion,
+active-session exclusion, idempotent retry, shorter-text replacement and complete
+deletion pass. These checks do not activate the new namespace or qualify a
+retained-data migration. Derived structured caches still need compatibility
+checks, and full regression/installed acceptance remain open after these changes.
+
 The separate probe `scripts/probe_offline_embedding_bundle.py` also passed as a
 Windows frozen executable with socket connection methods blocked: 384 output
 dimensions, zero attempted connections, relevant cosine approximately 0.7396

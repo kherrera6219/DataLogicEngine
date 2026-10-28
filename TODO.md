@@ -50,6 +50,12 @@ conditions, and exit gates remain authoritative in the active root plan.
       validation, synchronized migration/rollback and full app packaging remain
       open. The default model is still the hash projection. A stopped-data
       recovery copy was hash-verified locally; restore is not yet tested.
+- [ ] Finish migration/routing after `feb6ca6c`: model-sized families and
+      profile-bound cosine collections pass 73 focused Windows checks and a
+      disposable real-service probe. The active RAG factory remains hash-based.
+      Rebuild from authoritative sources, qualify derived cache compatibility,
+      and demonstrate interruption, deletion, cutover and rollback before
+      activation. Re-run full regression after this later R-3 source work.
 - [ ] Qualify the owner-approved session-retention repair in the installed app.
       An isolated real index passed synthetic deletion, preservation and retry
       checks; the full locked-environment Windows suite passed 3,423 tests

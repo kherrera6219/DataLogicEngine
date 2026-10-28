@@ -28,6 +28,19 @@
 
 ## Required first read
 
+October 28 semantic checkpoint: `feb6ca6c` includes model-sized document,
+chat, knowledge and text-item families, obsolete-chunk replacement, complete
+family deletion, and explicit over-limit rejection. A separate versioned store
+checks model fingerprints, dimensions, chunk revision and cosine configuration
+before use. Seventy-three focused Windows tests pass. A disposable real-service
+probe verifies metric calculations, preservation of legacy collections,
+owner-filtered chat recall, active-session exclusion, retry and deletion.
+The data machine and disposable container are stopped/removed. The active RAG
+factory remains hash-based; migration, cache compatibility, synchronized routing,
+full app packaging and installed acceptance remain open. The full 3,433-test
+checkpoint below predates these later R-3 changes; final full regression is
+required after the remaining source work.
+
 October 28 next-source checkpoint: `fa28f99f` adds model-token-bounded document
 chunking when a local embedding model is explicitly injected into RAG. Its
 32 focused tests pass, and the real offline tokenizer screen retains 32/32
