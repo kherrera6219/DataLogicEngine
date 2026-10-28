@@ -35,7 +35,9 @@ conditions, and exit gates remain authoritative in the active root plan.
       not run cleanup on user data as a verification shortcut.
 - [ ] Complete final full-suite and installed verification of the later source
       fixes for document/knowledge index acknowledgments, safe failure logs,
-      and chat/trace reconnect. Focused backend and frontend tests pass.
+      and chat/trace reconnect. At `e25170a9`, the Windows backend suite passed
+      3,410 tests with 19 skipped, all 521 frontend tests passed, and the
+      Electron-mode frontend build passed; installed verification remains open.
 - [ ] Qualify a search threshold and representative held-out evaluation. A
       small public-document screen found 10/12 MiniLM top-1 but only 1/12
       retained at the existing simulated squared-L2 threshold; it is not an

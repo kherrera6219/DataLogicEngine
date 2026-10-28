@@ -31,8 +31,11 @@ writes: documents report an explicit internal retrieval error for incomplete
 writes, and failed knowledge-node materializations remain retryable. Index
 failure logs no longer include exception text. A focused recovery test and 66
 related backend tests pass. The chat client also restores current chat and
-trace rooms after a connection returns; 70 focused frontend tests pass. These
-changes still require final full-suite and installed verification.
+trace rooms after a connection returns; 70 focused frontend tests pass. The
+sequential Windows backend suite at `e25170a9` passed 3,410 tests with 19
+skipped, 35 warnings, and no test/setup/collection errors. The frontend suite
+passed 521 tests, and the Electron-mode frontend build passed at the same
+source checkpoint. Installed verification remains open.
 
 A reproducible offline screen of 12 public documentation sections and 12
 manually written questions found hash ranking top-1 1/12 and top-4 4/12,

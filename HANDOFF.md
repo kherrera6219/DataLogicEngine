@@ -30,10 +30,12 @@
 
 The current review-repair branch has additional source fixes for index-write
 acknowledgments, redacted failure logs, and reconnection of current chat and
-trace rooms. Focused backend (66) and frontend (70) tests pass. A small offline
+trace rooms. Focused backend (66) and frontend (70) tests pass; the sequential
+Windows suite passed 3,410 tests with 19 skipped, and all 521 frontend tests and
+the Electron-mode frontend build passed at source checkpoint `e25170a9`. A small offline
 public-document screen further demonstrates that the existing threshold can
 exclude relevant MiniLM results; it is not threshold or migration acceptance.
-Full current-source tests, safe chat-index reconciliation, local-model
+Safe chat-index reconciliation, local-model
 packaging, migration, and installed/provider validation remain open.
 
 October 27 owner-approved frontend/retrieval fast-track source work was merged
