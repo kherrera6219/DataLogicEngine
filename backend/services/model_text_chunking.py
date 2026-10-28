@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+CHUNKING_REVISION = "model-token-spans-v1"
+
 
 class ModelChunkingError(RuntimeError):
     """The tokenizer or model budget cannot produce safe source chunks."""

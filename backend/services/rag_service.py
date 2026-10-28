@@ -194,7 +194,12 @@ class RAGService:
         parent_id = str(item_id)
         ids = [parent_id if i == 0 else f"{parent_id}:chunk:{i}" for i in range(len(chunks))]
         vectors = [self._embedding_provider(chunk) for chunk in chunks]
-        metas = [{**self._metadata_for_chroma(metadata), "vector_parent_id":parent_id,
+        from backend.services.model_text_chunking import CHUNKING_REVISION
+        proof = {"dle_embedding_manifest":self._embedding_provider.expected_manifest_sha256,
+                 "dle_embedding_weights":self._embedding_provider.expected_weights_sha256,
+                 "dle_embedding_dimensions":self._embedding_provider.dimensions,
+                 "dle_chunking_revision":CHUNKING_REVISION}
+        metas = [{**self._metadata_for_chroma(metadata), **proof, "vector_parent_id":parent_id,
                   "chunk_index":i, "chunk_count":len(chunks)} for i in range(len(chunks))]
         stored = store.replace_embeddings(collection, parent_id, ids=ids, texts=chunks,
                                           embeddings=vectors, metadata=metas)
