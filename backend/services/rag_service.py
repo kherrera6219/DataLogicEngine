@@ -528,7 +528,7 @@ class RAGService:
             return False
         try:
             embedding = self._embedding_provider(content)
-            store.add_embeddings(
+            stored_ids = store.add_embeddings(
                 collection=self.COLLECTION_KNOWLEDGE,
                 ids=[node_id],
                 texts=[content],
@@ -538,9 +538,12 @@ class RAGService:
                     "node_type": node_type
                 }]
             )
+            if stored_ids != [node_id]:
+                logger.error("Knowledge node index write was not acknowledged")
+                return False
             return True
-        except Exception as e:
-            logger.error(f"Failed to ingest knowledge node: {e}")
+        except Exception:
+            logger.error("Failed to ingest knowledge node")
             return False
 
     def delete_knowledge_node(self, node_id: str) -> bool:
@@ -550,8 +553,8 @@ class RAGService:
             return False
         try:
             return bool(store.delete(self.COLLECTION_KNOWLEDGE, [str(node_id)]))
-        except Exception as exc:
-            logger.error("Failed to delete knowledge node: %s", exc)
+        except Exception:
+            logger.error("Failed to delete knowledge node")
             return False
     
     def search_knowledge(
