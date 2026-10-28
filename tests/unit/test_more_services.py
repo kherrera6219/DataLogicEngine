@@ -104,6 +104,7 @@ def test_retention_cleanup_sessions_refuses_unimplemented_archive():
 
 def test_retention_cleanup_trace_runs_purges_matching_capture():
     srv = DataRetentionService()
+    srv.set_policy(RetentionCategory.TRACE_RUNS, 180, archive_before_delete=False)
     run_id = uuid.uuid4()
     mock_db = MagicMock()
     mock_model = MagicMock()
@@ -126,6 +127,25 @@ def test_retention_cleanup_trace_runs_purges_matching_capture():
     purge.assert_called_once_with([str(run_id)])
     mock_query.delete.assert_called_once_with(synchronize_session=False)
     mock_db.session.commit.assert_called_once_with()
+
+
+def test_trace_retention_refuses_unimplemented_archive():
+    srv = DataRetentionService()
+    mock_db = MagicMock()
+    mock_model = MagicMock()
+    mock_model.created_at.__lt__.return_value = MagicMock()
+    query = mock_model.query.filter.return_value
+    query.with_entities.return_value.all.return_value = [(uuid.uuid4(),)]
+    modules = {'extensions': MagicMock(db=mock_db), 'models': MagicMock(TraceRun=mock_model)}
+    with patch.dict(sys.modules, modules), patch(
+        'backend.dataset_exporter.runtime_capture.purge_staged_capture_runs'
+    ) as purge:
+        result = srv.cleanup_trace_runs()
+    assert result['status'] == 'error'
+    assert result['deleted_count'] == 0
+    purge.assert_not_called()
+    query.delete.assert_not_called()
+    mock_db.session.commit.assert_not_called()
 
 def test_run_cleanup_all():
     srv = DataRetentionService()
