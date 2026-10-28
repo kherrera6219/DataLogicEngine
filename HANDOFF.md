@@ -28,6 +28,15 @@
 
 ## Required first read
 
+October 28: Kevin approved the session-retention repair. Source now verifies
+removal from the chat index before deleting a transcript, coordinates active
+gateway indexing and profile deletion with cleanup, and reports unfinished
+batches. Archive-required session and trace cleanup stops explicitly because
+archival is not implemented. The 44 focused Windows tests cover failures and
+concurrent synthetic writes; installed and real-index qualification remain
+open. Existing customer data was not used for cleanup tests. Durable chat-index
+retry, search-model qualification and migration remain open.
+
 The current review-repair branch has additional source fixes for index-write
 acknowledgments, redacted failure logs, and reconnection of current chat and
 trace rooms. Focused backend (66) and frontend (70) tests pass; the sequential

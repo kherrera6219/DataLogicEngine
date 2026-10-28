@@ -26,6 +26,15 @@ These results do not establish search quality or installed acceptance.
 
 ## October 27 progress checkpoint
 
+October 28 retention checkpoint: Kevin approved fail-closed cross-store session
+cleanup. Source verifies chat-index deletion before transcript deletion and
+coordinates the active gateway writer, profile deletion and session cleanup
+through a shared runtime lock. Partial batches are reported, and policies that
+require unavailable session or trace archival stop rather than report a false
+archive. Forty-four focused Windows tests pass, including concurrent synthetic
+writes. This does not establish installed behavior, real-index qualification,
+durable chat-index retries, or coordination with non-cooperating processes.
+
 Later source work corrects unacknowledged document and knowledge-node vector
 writes: documents report an explicit internal retrieval error for incomplete
 writes, and failed knowledge-node materializations remain retryable. Index

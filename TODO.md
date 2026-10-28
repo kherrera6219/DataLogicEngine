@@ -29,10 +29,12 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
-- [ ] Disposition the newly observed session-retention gap: relational cleanup
-      does not remove chat-history vectors and can report an archive without
-      creating one. The owner decision on the additional repair is pending; do
-      not run cleanup on user data as a verification shortcut.
+- [ ] Qualify the owner-approved session-retention repair against an isolated
+      real index and the installed app. Source now verifies index removal before
+      transcript deletion, coordinates active writers and profile deletion,
+      reports incomplete batches, and refuses archive-required cleanup until
+      real archival exists. Focused Windows tests pass; do not use customer
+      data as a cleanup test. Durable chat-index retry remains open.
 - [ ] Complete final full-suite and installed verification of the later source
       fixes for document/knowledge index acknowledgments, safe failure logs,
       and chat/trace reconnect. At `e25170a9`, the Windows backend suite passed
