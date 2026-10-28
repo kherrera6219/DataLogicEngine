@@ -1241,6 +1241,10 @@ class LLMGateway:
                         if not indexed:
                             rag_status = "failed"
                             logger.warning("Chat message RAG synchronization was not acknowledged")
+                        else:
+                            from backend.storage.chat_index_recovery import complete_immediate_index
+
+                            complete_immediate_index(db.session, str(message_id))
             except Exception:
                 db.session.rollback()
                 rag_status = "failed"

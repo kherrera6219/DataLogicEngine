@@ -36,6 +36,27 @@ def enqueue_chat_index(session, message, chat_session) -> None:
     )
 
 
+def complete_immediate_index(session, message_id: str) -> None:
+    """Complete an unclaimed receipt while the caller holds the index lock."""
+    from models import CrossStoreOutboxEvent
+
+    event = (
+        session.query(CrossStoreOutboxEvent)
+        .filter_by(
+            entity_type="chat_message",
+            entity_id=message_id,
+            destination="chroma",
+            operation="upsert_chat_message",
+        )
+        .one()
+    )
+    if event.status in {"pending", "failed"}:
+        CrossStoreOutbox(session).mark_succeeded(
+            event, observed_revision=event.source_revision
+        )
+        session.commit()
+
+
 def deliver_chat_index(event) -> str:
     from flask import current_app
     from sqlalchemy.orm import object_session
