@@ -43,3 +43,30 @@ and add fresh held-out cases before final acceptance. Permission checks are
 mandatory regardless of ranking quality. The active app still uses its existing
 hash projection. No model package, collection, customer migration or cutover is
 enabled by this artifact.
+
+## Windows bundle probe
+
+The separate probe `scripts/probe_offline_embedding_bundle.py` also passed as a
+Windows frozen executable with socket connection methods blocked: 384 output
+dimensions, zero attempted connections, relevant cosine approximately 0.7396
+versus unrelated approximately -0.00017. The frozen process reported about
+24.3 seconds for loading, fingerprint checks and three embeddings. This is
+not an application startup or installed-app performance measurement.
+
+The test used PyInstaller 6.18.0 in one-directory mode, the pinned cached model
+as `offline-model`, and explicit hidden imports for the BERT model/configuration/
+tokenizer and SentenceTransformer Transformer/Pooling modules. The generated
+probe stdout is `reports/offline-embedding-frozen-probe-20261028.txt`. Its EXE
+SHA-256 is `f7fa170c7dc5e20f980411dad8d131577209dc4fd3bb56267c6b06468dbdb04b`.
+The entire probe directory has 9,958 files totaling 1,019,374,444 bytes; the EXE
+hash alone is not an integrity digest for that directory. Binary output remains
+in ignored local build storage, not in the application installer.
+
+The installed library dependency inventory and candidate advisory audit are
+`reports/offline-embedding-candidate-inventory.json` and
+`reports/offline-embedding-candidate-audit.json`. The candidate advisory scan
+found no known vulnerabilities; it does not constitute an audit or license
+approval of every file collected into the frozen directory. Full application
+bundle inventory, licenses, model inclusion, offline enforcement and installed
+startup still need qualification. No dependency pin or installer spec was
+changed for this probe.
