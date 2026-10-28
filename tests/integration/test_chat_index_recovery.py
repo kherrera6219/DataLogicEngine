@@ -178,3 +178,20 @@ def test_failed_worker_delivery_waits_then_recovers(app, monkeypatch):
             lambda: SimpleNamespace(store_chat_message=lambda *a, **k: True))
         assert dispatcher.run_once()["succeeded"] == 1
         assert event.attempts == 2
+
+
+def test_successful_immediate_index_does_not_schedule_a_second_write(app, monkeypatch):
+    with app.app_context():
+        initial, owner = _save(app, monkeypatch)
+        # Recover the deliberately failed setup turn first.
+        calls = []
+        monkeypatch.setattr("backend.services.rag_service.get_rag_service",
+            lambda: SimpleNamespace(store_chat_message=lambda *a, **k: calls.append(a) or True))
+        CrossStoreMaterializationDispatcher(db.session).run_once()
+        calls.clear()
+        result = asyncio.run(LLMGateway(db_session=db.session)._save_chat_message(
+            initial.session_id, owner, "assistant", "synthetic reply"))
+        assert result.ok and result.rag_status == "synced"
+        assert len(calls) == 1
+        assert CrossStoreMaterializationDispatcher(db.session).run_once()["claimed"] == 0
+        assert len(calls) == 1
