@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.12 |
+| Document version | v1.20.13 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-10-28 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.4 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.5 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; 4.4.6 repair PR #94 and timing PR #96 merged. Main CI/CD, Deploy, and Security pass at `73187a8d`. Installed acceptance and signing/lifecycle/provider CP19-M rows remain open |
@@ -29,13 +29,16 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
-- [ ] Complete full regression and installed acceptance of the owner-approved
-      nested-ownership deletion repair. Source `ebf835d2` passes 66 focused
-      Windows checks and the disposable native PostgreSQL/Chroma/Neo4j probe;
+- [ ] Complete installed acceptance of the owner-approved
+      nested-ownership deletion repair. Source `ebf835d2` passes 3,480 Windows
+      tests (19 skipped; zero errors) and the disposable native PostgreSQL/Chroma/Neo4j probe;
       the original reproducer now has no actual remnants. Shared ownership is
       held for review, and other owners in the same tenant are preserved.
       Customer cleanup has not run; full installed lifecycle acceptance remains
-      open. The additional approval is granted and no longer blocks migration work.
+      open. Later source `00dfebd6` retains SQL ownership for retries when an
+      external store fails; 41 focused checks and the full Windows run pass:
+      3,481 passed, 19 skipped, zero failures/setup/collection errors.
+      The additional approval is granted and no longer blocks migration work.
 - [ ] Qualify the new durable chat-index recovery in the installed app. Source
       now saves content-free retry records atomically with transcripts, limits
       attempts, rechecks source fingerprints and deletion receipts, and removes
@@ -55,7 +58,13 @@ conditions, and exit gates remain authoritative in the active root plan.
       chat/knowledge/text families and metric-bound stores are prepared; active
       routing, synchronized migration/rollback and full app packaging remain
       open. The default model is still the hash projection. A stopped-data
-      recovery copy was hash-verified locally; restore is not yet tested.
+      recovery copy was hash-verified locally; restore is not yet tested. The
+      previously omitted `DataLogicEngine Desktop` user-data folder is now
+      included (217 hash-verified files). Read-only managed authority contains
+      three sessions and ten messages; the older SQLite copy has none. Use the
+      managed source for migration, preserving both copies. Read-only Chroma
+      inventory finds ten chat-history records and no records in the other
+      six existing collections; counts alone do not prove source parity.
 - [ ] Finish migration/routing after `feb6ca6c`: model-sized families and
       profile-bound cosine collections pass 73 focused Windows checks and a
       disposable real-service probe. The active RAG factory remains hash-based.
@@ -70,11 +79,12 @@ conditions, and exit gates remain authoritative in the active root plan.
       reports incomplete batches, and refuses archive-required cleanup until
       real archival exists. Focused Windows tests pass; do not use customer
       data as a cleanup test. Installed chat-index retry qualification remains open.
-- [ ] Complete final full-suite and installed verification of the later source
+- [ ] Complete installed verification of the later source
       fixes for document/knowledge index acknowledgments, safe failure logs,
       and chat/trace reconnect. At `e25170a9`, the Windows backend suite passed
       3,410 tests with 19 skipped, all 521 frontend tests passed, and the
-      Electron-mode frontend build passed; installed verification remains open.
+      Electron-mode frontend build passed. The later backend source also passes
+      the 3,481-test full Windows run; installed verification remains open.
 - [ ] Qualify a search threshold and representative held-out evaluation. A
       small public-document screen found 10/12 MiniLM top-1 but only 1/12
       retained at the existing simulated squared-L2 threshold; it is not an

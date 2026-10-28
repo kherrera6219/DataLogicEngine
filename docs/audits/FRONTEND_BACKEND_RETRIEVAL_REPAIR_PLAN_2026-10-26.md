@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-REVIEW-2026-10-26 |
-| Document version | v1.1.3 |
+| Document version | v1.1.4 |
 | Product version | 4.4.6 at review |
 | Review baseline | main `f91dd4919c6a5c3265c9fc82bdbb388f15a3b5aa` |
 | Date | 2026-10-26 |
@@ -39,8 +39,34 @@ nodes, preserves another owner in the same tenant, and blocks shared ownership.
 Its cache lifecycle effect was stubbed, so it is not installed lifecycle proof.
 See `reports/ingested-ownership-deletion-fixed-probe-20261028.json` and
 `reports/native-owner-deletion-probe-20261028.json`. The isolated test services
-and network were removed and the data machine restored to stopped. Full Windows
-regression is in progress. No customer cleanup or retained-data migration ran.
+and network were removed and the data machine restored to stopped. The full
+Windows run at `ebf835d2` passes 3,480 tests, 19 skipped, zero failures/setup/
+collection errors; output is `reports/owner-deletion-windows-20261028.txt`.
+Later source `00dfebd6` retains canonical SQL ownership and the user record
+after an external-store failure so deletion can be retried. Forty-one focused
+checks pass; its full Windows regression passes 3,481 tests, 19 skipped,
+35 warnings, zero failures/setup/collection errors. Output is
+`reports/owner-deletion-final-windows-20261028.txt`. No customer cleanup or
+retained-data migration ran.
+The subsequent formatting cleanup passes the complete configured Ruff rule
+set for all twelve repair Python files; Python syntax trees match `00dfebd6`
+(`reports/owner-deletion-format-check-20261028.json`). All 54 selected ownership,
+ingestion, materialization and documentation-authority checks pass afterward.
+
+Migration preflight also corrected the recovery-copy scope: Electron uses
+`DataLogicEngine Desktop`, not only the older `DataLogicEngine` user-data
+folder. The added restricted recovery component has 217 hash-verified files
+(108,580,368 bytes). Restore is untested. A rolled-back read-only transaction
+finds three sessions and ten messages in installation-owned PostgreSQL; the
+older SQLite copy has none. Both have zero knowledge/ingestion records. The
+managed source must drive retained-chat migration; the empty fallback must not
+be mistaken for authority. The PostgreSQL container and data machine were
+returned to stopped, and neither source was cleaned up or reindexed.
+Read-only Chroma inventory finds ten chat-history records; all six other
+existing collections are empty. Internal networking and disabled telemetry
+were verified before starting that retained service, and its stopped state
+was restored. Exact source/permission parity and restore still need proof;
+matching counts are not migration acceptance.
 
 October 28 final recovery gate: runtime `ae4c2978` and diagnostic test changes
 from `fe870b5c` pass 3,433 Windows tests, 19 skipped, 35 warnings, and zero

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.12 |
+| Document version | v1.22.13 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,7 +17,7 @@
 | Last reviewed | 2026-10-28 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.4 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.5 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
@@ -42,8 +42,33 @@ evidence are `reports/ingested-ownership-deletion-fixed-probe-20261028.json` and
 stubbed in that probe; full installed lifecycle acceptance remains open. The
 temporary services and internal test network were removed and the previously
 stopped data machine was stopped again. Customer records were not deleted.
-Full Windows regression is running for this later source checkpoint. Retained
-data migration and activation remain unexecuted, not blocked on that approval.
+The full Windows run at `ebf835d2` passed 3,480 tests, 19 skipped, with zero
+failures/setup/collection errors (`reports/owner-deletion-windows-20261028.txt`).
+Later source `00dfebd6` preserves canonical SQL ownership and the user record
+when another store fails deletion, allowing a subsequent retry to finish;
+41 focused Windows checks pass. The full Windows run at `00dfebd6` passes
+3,481 tests, 19 skipped, 35 warnings, with zero failures/setup/collection errors
+(`reports/owner-deletion-final-windows-20261028.txt`). Retained data migration and activation remain unexecuted, not
+blocked on the ownership-repair approval.
+
+Recovery-copy correction: the actual Electron user-data folder is
+`C:\Users\kevin\AppData\Roaming\DataLogicEngine Desktop`, in addition to the
+older `DataLogicEngine` folder. The earlier recovery copy omitted this second
+folder. It now includes an ACL-restricted `desktop-user-data` component under
+the same recovery directory: all 217 files (108,580,368 bytes) match source
+SHA-256 hashes. The separate local inventory records their paths and hashes;
+no private contents were committed. Restore remains untested. Read-only
+inspection found three sessions and ten messages in the installation-owned
+managed PostgreSQL database, but none in the older desktop SQLite database.
+Neither store contains knowledge nodes or ingestion records at this checkpoint.
+The managed database was read in a rolled-back read-only transaction, then its
+container and data machine were stopped again. Migration must use managed
+authority rather than treating the empty SQLite fallback as the source.
+Read-only inventory of the retained Chroma service finds ten chat-history
+records and zero records in the six other existing collections. Its internal
+network and disabled telemetry were checked before start; it and the data
+machine were stopped again after inspection. Counts alone do not establish
+chat-ID/content/permission parity or qualify a migration.
 
 Next implementation notes: the persona cache currently reads one complete JSON
 payload from `search_collection`; blindly splitting that cache into semantic
