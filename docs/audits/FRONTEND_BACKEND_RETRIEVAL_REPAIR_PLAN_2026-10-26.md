@@ -150,7 +150,7 @@ to its prior stopped state. This is not installed or retained-data qualification
 **Still open:** qualification and packaging of the complete local ML stack
 (the existing installer spec excludes it), a broader approved relevance and
 threshold evaluation, coordinated write/deletion/retention and race-safe
-cutover, installed recovery/rollback, index synchronization retry, installed
+cutover, installed recovery/rollback and index synchronization retry, installed
 graph-use visibility, final quality gates,
 and exact rebuilt/installed/provider acceptance. The active app continues to
 use the existing hash projection and index. No user data has been migrated and

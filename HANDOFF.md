@@ -52,8 +52,8 @@ concurrent synthetic writes. The full locked-environment Windows suite passed
 cached Chroma container verified removal, preservation of another synthetic
 session, and an idempotent retry; the container was removed and the previously
 stopped data-service machine was stopped again. Installed qualification remains
-open. Customer data was not used for cleanup tests. Durable chat-index retry,
-search-model qualification and migration remain open.
+open. Customer data was not used for cleanup tests. Installed chat-index retry
+qualification, search-model qualification and migration remain open.
 
 The current review-repair branch has additional source fixes for index-write
 acknowledgments, redacted failure logs, and reconnection of current chat and
@@ -62,7 +62,7 @@ Windows suite passed 3,410 tests with 19 skipped, and all 521 frontend tests and
 the Electron-mode frontend build passed at source checkpoint `e25170a9`. A small offline
 public-document screen further demonstrates that the existing threshold can
 exclude relevant MiniLM results; it is not threshold or migration acceptance.
-Safe chat-index reconciliation, local-model
+Installed chat-index recovery qualification, local-model
 packaging, migration, and installed/provider validation remain open.
 
 October 27 owner-approved frontend/retrieval fast-track source work was merged

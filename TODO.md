@@ -47,7 +47,7 @@ conditions, and exit gates remain authoritative in the active root plan.
       transcript deletion, coordinates active writers and profile deletion,
       reports incomplete batches, and refuses archive-required cleanup until
       real archival exists. Focused Windows tests pass; do not use customer
-      data as a cleanup test. Durable chat-index retry remains open.
+      data as a cleanup test. Installed chat-index retry qualification remains open.
 - [ ] Complete final full-suite and installed verification of the later source
       fixes for document/knowledge index acknowledgments, safe failure logs,
       and chat/trace reconnect. At `e25170a9`, the Windows backend suite passed
@@ -69,7 +69,7 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Complete offline MiniLM qualification, packaging and safe index lifecycle,
       including write/delete/retention reconciliation, concurrent cutover and
       rollback. The prepared separate-index tool does not activate an index;
-      existing retrieval remains hash-based. Add bounded chat-index recovery,
+      existing retrieval remains hash-based. Qualify bounded chat-index recovery,
       verify per-run graph-use visibility in the installed app, then rerun final
       gates and rebuild.
 - [ ] Disposition the unchanged main-branch unrestricted Ruff and formatting
