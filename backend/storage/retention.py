@@ -43,6 +43,19 @@ class DeletionSubject:
     tenant_id: str | None = None
 
 
+def scoped_deletion_subject(subject: DeletionSubject) -> DeletionSubject:
+    """A user's tenant context never authorizes deletion of the whole tenant."""
+    kind = str(subject.subject_type or "").strip().lower()
+    identity = str(subject.subject_id or "").strip()
+    if kind not in {"user", "tenant"} or not identity:
+        raise ValueError("deletion_subject_invalid")
+    if kind == "user":
+        return DeletionSubject(kind, identity)
+    if subject.tenant_id is not None and str(subject.tenant_id) != identity:
+        raise ValueError("deletion_tenant_scope_conflict")
+    return DeletionSubject(kind, identity, tenant_id=identity)
+
+
 @dataclass(frozen=True, slots=True)
 class DeleteResult:
     deleted_count: int
@@ -86,6 +99,7 @@ class RetentionDeleteCoordinator:
         self.lifecycle_evidence: dict[str, object] = {}
 
     def run(self, subject: DeletionSubject) -> DataDeletionTombstone:
+        subject = scoped_deletion_subject(subject)
         normalized_type = str(subject.subject_type or "").strip().lower()
         normalized_id = str(subject.subject_id or "").strip()
         if normalized_type not in {"user", "tenant"} or not normalized_id:

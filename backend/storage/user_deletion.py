@@ -11,12 +11,14 @@ from typing import Any
 from sqlalchemy import delete, or_, select, update
 
 from backend.storage.chroma_security import safe_get_collection
+from backend.storage.knowledge_ownership import build_knowledge_ownership_plan, ownership_matches
 
 from backend.storage.retention import (
     DeleteResult,
     DeletionSubject,
     RetentionDeleteCoordinator,
     RetentionDeleteError,
+    scoped_deletion_subject,
 )
 
 
@@ -48,8 +50,14 @@ class PostgreSQLUserDeletionAdapter:
         return columns[0] if len(columns) == 1 else None
 
     def _targets(self, subject: DeletionSubject):
+        subject = scoped_deletion_subject(subject)
+        knowledge = build_knowledge_ownership_plan(self.session, self.metadata, subject)
         selected: dict[Any, set[Any]] = {}
         depth: dict[Any, int] = {}
+        if knowledge.primary_ids:
+            table = self.metadata.tables["ukg_knowledge_nodes"]
+            selected[table] = set(knowledge.primary_ids)
+            depth[table] = 0
         for table in self.metadata.tables.values():
             if table.name in AUDIT_RETENTION_TABLES:
                 continue
@@ -107,6 +115,7 @@ class PostgreSQLUserDeletionAdapter:
         return selected, depth
 
     def delete(self, subject: DeletionSubject) -> DeleteResult:
+        subject = scoped_deletion_subject(subject)
         selected, depth = self._targets(subject)
         deleted_count = 0
 
@@ -169,63 +178,96 @@ class PostgreSQLUserDeletionAdapter:
 
 
 class Neo4jUserDeletionAdapter:
-    def __init__(self, driver):
+    def __init__(self, driver, *, knowledge_uids=()):
         self.driver = driver
+        self.knowledge_uids = frozenset(knowledge_uids)
 
-    @staticmethod
-    def _where(subject):
-        return (
-            "toString(n.user_id) = $subject_id OR "
-            "($tenant_id IS NOT NULL AND toString(n.tenant_id) = $tenant_id)"
-        )
+    def _matching_ids(self, subject):
+        subject = scoped_deletion_subject(subject)
+        ids=[]
+        with self.driver.session() as session:
+            rows=session.run(
+                "MATCH (n) RETURN elementId(n) AS element_id, "
+                "{uid:n.uid,node_id:n.node_id,user_id:n.user_id,owner_user_id:n.owner_user_id,"
+                "tenant_id:n.tenant_id,permissions:n.permissions,node_metadata:n.node_metadata,metadata:n.metadata} AS properties"
+            )
+            for row in rows:
+                properties=row["properties"]
+                if not isinstance(properties,dict) or not isinstance(row["element_id"],str):
+                    raise RetentionDeleteError("neo4j_deletion_lookup_invalid")
+                known=any(properties.get(key) in self.knowledge_uids for key in ("uid","node_id"))
+                if ownership_matches(properties,subject,authoritative=known):
+                    ids.append(row["element_id"])
+        return ids
 
     def delete(self, subject):
+        ids=self._matching_ids(subject)
+        deleted=0
         with self.driver.session() as session:
-            record = session.run(
-                f"MATCH (n) WHERE {self._where(subject)} "
-                "WITH collect(n) AS nodes, count(n) AS count "
-                "FOREACH (node IN nodes | DETACH DELETE node) RETURN count",
-                subject_id=str(subject.subject_id),
-                tenant_id=str(subject.tenant_id) if subject.tenant_id else None,
-            ).single()
-        return DeleteResult(int(record["count"] if record else 0))
+            for start in range(0,len(ids),500):
+                record=session.run(
+                    "MATCH (n) WHERE elementId(n) IN $element_ids "
+                    "WITH collect(n) AS nodes FOREACH (node IN nodes | DETACH DELETE node) "
+                    "RETURN size(nodes) AS count",element_ids=ids[start:start+500],
+                ).single()
+                if record is None:
+                    raise RetentionDeleteError("neo4j_deletion_unverified")
+                deleted+=int(record["count"])
+        return DeleteResult(deleted)
 
     def remnant_count(self, subject):
-        with self.driver.session() as session:
-            record = session.run(
-                f"MATCH (n) WHERE {self._where(subject)} RETURN count(n) AS count",
-                subject_id=str(subject.subject_id),
-                tenant_id=str(subject.tenant_id) if subject.tenant_id else None,
-            ).single()
-        return int(record["count"] if record else 0)
+        return len(self._matching_ids(subject))
 
 
 class ChromaUserDeletionAdapter:
-    def __init__(self, client):
+    def __init__(self, client, *, knowledge_uids=()):
         self.client = client
+        self.knowledge_uids = frozenset(knowledge_uids)
 
     def _matching_ids(self, subject):
+        subject = scoped_deletion_subject(subject)
         matches: dict[str, set[str]] = {}
-        filters = [{"user_id": str(subject.subject_id)}, {"user_id": subject.subject_id}]
-        if subject.tenant_id:
-            filters.append({"tenant_id": str(subject.tenant_id)})
-        for listed in self.client.list_collections():
-            name = str(listed if isinstance(listed, str) else listed.name)
-            collection = safe_get_collection(self.client, name=name)
-            ids: set[str] = set()
-            for where in filters:
-                try:
-                    ids.update(str(value) for value in (collection.get(where=where).get("ids") or []))
-                except Exception as exc:
-                    raise RetentionDeleteError("chroma_deletion_lookup_failed") from exc
-            if ids:
-                matches[name] = ids
+        try:
+            offset=0; seen_collections=set()
+            while True:
+                collections=self.client.list_collections(limit=100,offset=offset)
+                for listed in collections:
+                    name=str(listed if isinstance(listed,str) else listed.name)
+                    if name in seen_collections:
+                        raise RetentionDeleteError("chroma_deletion_inventory_unstable")
+                    seen_collections.add(name)
+                    collection=safe_get_collection(self.client,name=name)
+                    ids=set(); seen_ids=set(); row_offset=0
+                    while True:
+                        page=collection.get(limit=500,offset=row_offset,include=["metadatas"])
+                        page_ids=page.get("ids"); metas=page.get("metadatas")
+                        if not isinstance(page_ids,list) or not isinstance(metas,list) or len(page_ids)!=len(metas):
+                            raise RetentionDeleteError("chroma_deletion_lookup_invalid")
+                        for item_id,meta in zip(page_ids,metas):
+                            if not isinstance(item_id,str) or item_id in seen_ids or not isinstance(meta,(dict,type(None))):
+                                raise RetentionDeleteError("chroma_deletion_lookup_invalid")
+                            seen_ids.add(item_id)
+                            meta=meta or {}
+                            known=item_id in self.knowledge_uids or any(meta.get(key) in self.knowledge_uids
+                                for key in ("vector_parent_id","node_uid","node_id"))
+                            if ownership_matches(meta,subject,authoritative=known):ids.add(item_id)
+                        if len(page_ids)<500:break
+                        row_offset+=500
+                    if ids:matches[name]=ids
+                if len(collections)<100:break
+                offset+=100
+        except RetentionDeleteError:
+            raise
+        except Exception as exc:
+            raise RetentionDeleteError("chroma_deletion_lookup_failed") from exc
         return matches
 
     def delete(self, subject):
         matches = self._matching_ids(subject)
         for name, ids in matches.items():
-            safe_get_collection(self.client, name=name).delete(ids=sorted(ids))
+            ordered=sorted(ids)
+            for start in range(0,len(ordered),500):
+                safe_get_collection(self.client, name=name).delete(ids=ordered[start:start+500])
         return DeleteResult(sum(len(ids) for ids in matches.values()))
 
     def remnant_count(self, subject):
@@ -418,6 +460,7 @@ def run_user_deletion(app, subject: DeletionSubject):
     from backend.storage.chat_index_coordination import ChatIndexLockError, chat_index_guard
 
     runtime = app.extensions["dle_runtime"]
+    subject = scoped_deletion_subject(subject)
     try:
         with chat_index_guard(runtime.runtime_root):
             return _run_user_deletion_locked(app, subject)
@@ -430,6 +473,7 @@ def _run_user_deletion_locked(app, subject: DeletionSubject):
     from backend.storage.connection_manager import get_connection_manager
 
     runtime = app.extensions["dle_runtime"]
+    knowledge=build_knowledge_ownership_plan(db.session,db.metadata,subject)
     adapters = {
         "postgresql": PostgreSQLUserDeletionAdapter(db.session, db.metadata),
         "local_json": LocalJsonUserDeletionAdapter(
@@ -457,7 +501,7 @@ def _run_user_deletion_locked(app, subject: DeletionSubject):
                                 settings["neo4j_uri"],
                                 auth=(settings["neo4j_user"], settings["neo4j_password"]),
                             )
-                        )
+                        ), knowledge_uids=knowledge.uids,
                     ),
                     "chroma": ChromaUserDeletionAdapter(
                         resources.own(
@@ -465,7 +509,7 @@ def _run_user_deletion_locked(app, subject: DeletionSubject):
                                 host=settings["chroma_host"],
                                 port=settings["chroma_port"],
                             )
-                        )
+                        ), knowledge_uids=knowledge.uids,
                     ),
                     "minio": MinIOUserDeletionAdapter(
                         get_object_store(), settings["object_buckets"]

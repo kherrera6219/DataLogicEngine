@@ -333,7 +333,7 @@ class LocalKnowledgeIngestionService:
                         relative_path=relative_path,
                         source_path=relative_path,
                         document_uid=self._document_uid(
-                            tenant_id, job.source_digest, relative_path
+                            tenant_id, job.source_digest, relative_path, owner_user_id=user_id
                         ),
                         status="rejected",
                         error_code=reason,
@@ -350,7 +350,7 @@ class LocalKnowledgeIngestionService:
                         relative_path=rejected.relative_path,
                         source_path=rejected.relative_path,
                         document_uid=self._document_uid(
-                            tenant_id, job.source_digest, rejected.relative_path
+                            tenant_id, job.source_digest, rejected.relative_path, owner_user_id=user_id
                         ),
                         status="rejected",
                         error_code=rejected.reason,
@@ -378,7 +378,7 @@ class LocalKnowledgeIngestionService:
                     relative_path=acquired_file.relative_path,
                     source_path=acquired_file.relative_path,
                     document_uid=self._document_uid(
-                        tenant_id, job.source_digest, acquired_file.relative_path
+                        tenant_id, job.source_digest, acquired_file.relative_path, owner_user_id=user_id
                     ),
                     source_revision=f"sha256:{acquired_file.sha256}",
                     source_sha256=acquired_file.sha256,
@@ -540,6 +540,7 @@ class LocalKnowledgeIngestionService:
                         ":".join(
                             (
                                 tenant_id or "owner",
+                                f"user:{user_id}" if user_id is not None else "anonymous",
                                 acquired_file.relative_path,
                                 acquired_file.sha256,
                                 chunking_revision,
@@ -557,6 +558,7 @@ class LocalKnowledgeIngestionService:
                     )
                     node_metadata = {
                         **(metadata or {}),
+                        "user_id": user_id,
                         "ingestion_ka": ka_decision.node_metadata(),
                         "ingestion_id": result.ingestion_id,
                         "source": "local_file_ingestion",
@@ -614,6 +616,12 @@ class LocalKnowledgeIngestionService:
                         "title": material_title,
                         "tenant_id": tenant_id or "",
                     }
+                    from backend.storage.knowledge_ownership import ownership_ids
+
+                    material_owners, _ = ownership_ids(material_node_metadata)
+                    if len(material_owners) > 1:
+                        raise RuntimeError("ingestion_ownership_conflict")
+                    material_owner = next(iter(material_owners)) if material_owners else None
                     outbox = CrossStoreOutbox(db.session)
                     chroma_event = outbox.enqueue(
                         entity_type="knowledge_graph_node",
@@ -648,6 +656,7 @@ class LocalKnowledgeIngestionService:
                                 "content": material_content,
                                 "content_type": "text/plain",
                                 "tenant_id": tenant_id,
+                                "user_id": material_owner,
                             },
                         },
                         correlation_id=result.ingestion_id,
@@ -1194,12 +1203,13 @@ class LocalKnowledgeIngestionService:
 
     @classmethod
     def _document_uid(
-        cls, tenant_id: str | None, source_digest: str, relative_path: str
+        cls, tenant_id: str | None, source_digest: str, relative_path: str, *, owner_user_id: int | None = None
     ) -> str:
         digest = cls._sha256(
             ":".join(
                 (
                     tenant_id or "owner",
+                    f"user:{owner_user_id}" if owner_user_id is not None else "anonymous",
                     str(source_digest),
                     str(relative_path).casefold(),
                 )
