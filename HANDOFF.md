@@ -28,18 +28,22 @@
 
 ## Required first read
 
-Owner decision pending, retained locally: the additional nested-ownership
-deletion finding is reproduced in
-`reports/ingested-ownership-deletion-probe-20261028.json` by
-`scripts/probe_ingested_owner_deletion.py`. The PostgreSQL deletion adapter's
-selector logic was exercised on disposable in-memory SQLite, and the Chroma
-adapter on a synthetic collection transport. For knowledge owned only through
-`permissions.owner_user_id`, both report zero remnants while one synthetic
-record remains. This is not yet a real PostgreSQL/Neo4j qualification. Kevin
-was asked to authorize the database/search/graph ownership-deletion repair
-under AGENTS section 5; no production repair or customer cleanup was performed.
-Do not proceed with retained-data migration or activation before disposition.
-Keep this unpatched finding/evidence local pending the owner decision.
+Kevin approved the nested-ownership deletion repair on October 28. At source
+`ebf835d2`, the original adapter reproduction reports zero actual remnants;
+66 focused Windows tests pass, and the native PostgreSQL/Chroma/Neo4j probe
+passes with 602 synthetic search records and 601 graph nodes erased while a
+second owner in the same tenant is preserved. Shared ownership stops before
+mutation. Future ingestion IDs are owner-scoped, owner fields reach the graph
+and search records, and queued canonical knowledge rechecks retained authority
+and deletion receipts under the index lock. The original finding is retained
+in `reports/ingested-ownership-deletion-probe-20261028.json`; repaired and native
+evidence are `reports/ingested-ownership-deletion-fixed-probe-20261028.json` and
+`reports/native-owner-deletion-probe-20261028.json`. Native lifecycle effects were
+stubbed in that probe; full installed lifecycle acceptance remains open. The
+temporary services and internal test network were removed and the previously
+stopped data machine was stopped again. Customer records were not deleted.
+Full Windows regression is running for this later source checkpoint. Retained
+data migration and activation remain unexecuted, not blocked on that approval.
 
 Next implementation notes: the persona cache currently reads one complete JSON
 payload from `search_collection`; blindly splitting that cache into semantic

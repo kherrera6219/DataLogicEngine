@@ -29,11 +29,13 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
-- [ ] Obtain Kevin's disposition of the locally retained nested-ownership
-      deletion finding before migration. Synthetic adapter tests show ingested
-      knowledge owned through `permissions.owner_user_id` can remain after a
-      zero-remnants report. No production fix or customer cleanup has run.
-      Owner approval for database/search/graph repair is pending under AGENTS.
+- [ ] Complete full regression and installed acceptance of the owner-approved
+      nested-ownership deletion repair. Source `ebf835d2` passes 66 focused
+      Windows checks and the disposable native PostgreSQL/Chroma/Neo4j probe;
+      the original reproducer now has no actual remnants. Shared ownership is
+      held for review, and other owners in the same tenant are preserved.
+      Customer cleanup has not run; full installed lifecycle acceptance remains
+      open. The additional approval is granted and no longer blocks migration work.
 - [ ] Qualify the new durable chat-index recovery in the installed app. Source
       now saves content-free retry records atomically with transcripts, limits
       attempts, rechecks source fingerprints and deletion receipts, and removes
