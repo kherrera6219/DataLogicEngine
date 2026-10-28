@@ -88,7 +88,7 @@ def test_ingestion_ownership_is_materialized_and_other_users_do_not_share_ids(ap
         first_owner=create_test_user(username="first-ingest-owner",email="first-ingest@example.com",password="SecureTest789$#@")
         second_owner=create_test_user(username="second-ingest-owner",email="second-ingest@example.com",password="SecureTest789$#@")
         service=LocalKnowledgeIngestionService(rag_service=FakeRag())
-        first=service.ingest_path(source,user_id=first_owner,tenant_id="same")
+        first=service.ingest_path(source,user_id=first_owner,tenant_id="same",metadata={"user_id":"forged-owner"})
         first_ids={node.uid for node in KnowledgeGraphNode.query.all()}
         second=service.ingest_path(source,user_id=second_owner,tenant_id="same")
         assert first.chunks_created==second.chunks_created==2

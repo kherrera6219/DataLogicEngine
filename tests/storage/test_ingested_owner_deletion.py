@@ -43,12 +43,17 @@ def authority():
 
 def test_relational_nested_owner_is_removed_without_tenant_wide_deletion(authority):
     session,metadata,nodes,_,_=authority
+    for name in ("cross_store_materialization_states","cross_store_outbox_events"):
+        session.execute(metadata.tables[name].insert(),[{"id":1,"entity_id":"one"},{"id":2,"entity_id":"two"}])
+    session.commit()
     adapter=PostgreSQLUserDeletionAdapter(session,metadata)
     subject=DeletionSubject("user","1",tenant_id="same")
     assert adapter.remnant_count(subject)>0
     adapter.delete(subject)
     assert adapter.remnant_count(subject)==0
     assert session.execute(select(nodes.c.uid)).scalars().all()==["two"]
+    for name in ("cross_store_materialization_states","cross_store_outbox_events"):
+        assert session.execute(select(metadata.tables[name].c.entity_id)).scalars().all()==["two"]
 
 
 def test_shared_knowledge_reference_stops_deletion_before_mutation(authority):

@@ -52,3 +52,47 @@ def test_owned_queue_resolves_current_source_and_respects_deletion(app,monkeypat
         else:
             assert calls==[]
             assert result["failed"]==(1 if state=="deletion_requested" else 0)
+
+
+@pytest.mark.parametrize("destination",["chroma","neo4j"])
+def test_queued_materialization_waits_for_deletion_and_rechecks_authority(app,monkeypatch,destination):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+    import backend.storage.knowledge_materialization as delivery
+    from backend.storage.chat_index_coordination import chat_index_guard
+
+    held=Event(); waiting=Event(); calls=[]
+    with app.app_context():
+        owner=create_test_user(username="racing-knowledge-owner",email="racing-owner@example.com",password="SecureTest789$#@")
+        node=KnowledgeGraphNode(uid="racing-uid",node_id="RACING",node_type="ingested_document_chunk",
+            content="synthetic race",node_metadata={"permissions":{"owner_user_id":owner}})
+        db.session.add(node); db.session.commit()
+        CrossStoreOutbox(db.session).enqueue(entity_type="knowledge_graph_node",entity_id="racing-uid",
+            destination=destination,operation="upsert_knowledge_node" if destination=="chroma" else "merge_knowledge_node",
+            schema_version="knowledge-node.v1",source_revision="rev1",correlation_id="synthetic",payload={"content":"synthetic race"})
+        db.session.commit()
+    real_guard=delivery.chat_index_guard
+    def observed_guard(root):
+        waiting.set()
+        return real_guard(root)
+    monkeypatch.setattr(delivery,"chat_index_guard",observed_guard)
+    monkeypatch.setattr("backend.services.rag_service.get_rag_service",
+        lambda:SimpleNamespace(ingest_knowledge_node=lambda *args:calls.append(args) or True))
+    monkeypatch.setattr("backend.storage.get_graph_store",
+        lambda:SimpleNamespace(connect=lambda:None,merge_knowledge_node=lambda props:calls.append(props) or True))
+    def erase():
+        with app.app_context():
+            with chat_index_guard(app.extensions["dle_runtime"].runtime_root):
+                held.set()
+                assert waiting.wait(8)
+                db.session.delete(KnowledgeGraphNode.query.filter_by(uid="racing-uid").one())
+                db.session.commit()
+    def deliver():
+        assert held.wait(8)
+        with app.app_context():
+            return CrossStoreMaterializationDispatcher(db.session).run_once()
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        erased=executor.submit(erase); delivered=executor.submit(deliver)
+        erased.result(timeout=20)
+        assert delivered.result(timeout=20)["succeeded"]==1
+    assert calls==[]
