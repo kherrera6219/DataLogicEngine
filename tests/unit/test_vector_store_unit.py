@@ -124,6 +124,42 @@ def test_chromadb_backend_error_paths(tmp_path):
     assert backend.delete_collection("docs") is False
 
 
+def test_chat_session_index_deletion_verifies_no_remainder(monkeypatch, tmp_path):
+    class Collection:
+        remaining = ["synthetic-message"]
+
+        def delete(self, *, where):
+            assert where == {"session_id": {"$eq": "session-1"}}
+            self.remaining.clear()
+
+        def get(self, *, where, limit, include):
+            assert where == {"session_id": {"$eq": "session-1"}}
+            assert limit == 1
+            return {"ids": self.remaining}
+
+    collection = Collection()
+    backend = ChromaDBBackend(persist_directory=str(tmp_path))
+    backend._client = object()
+    monkeypatch.setattr(vector_store_module, "safe_get_collection", lambda *_a, **_k: collection)
+    backend.delete_chat_session("session-1")
+    assert collection.remaining == []
+
+
+def test_chat_session_index_deletion_fails_if_records_remain(monkeypatch, tmp_path):
+    class Collection:
+        def delete(self, *, where):
+            pass
+
+        def get(self, **kwargs):
+            return {"ids": ["remaining"]}
+
+    backend = ChromaDBBackend(persist_directory=str(tmp_path))
+    backend._client = object()
+    monkeypatch.setattr(vector_store_module, "safe_get_collection", lambda *_a, **_k: Collection())
+    with pytest.raises(RuntimeError, match="chat_index_deletion_unverified"):
+        backend.delete_chat_session("session-1")
+
+
 def test_pinecone_backend_happy_path():
     backend = PineconeBackend(api_key="k", environment="us-east-1", index_name="idx")
     backend._index = FakePineconeIndex()

@@ -1,4 +1,5 @@
 import uuid
+from contextlib import contextmanager
 from types import SimpleNamespace
 
 import pytest
@@ -49,6 +50,35 @@ async def test_index_exception_keeps_transcript_and_redacts_exception(app, monke
         assert result.rag_status == 'failed'
         assert db.session.get(ChatMessage, uuid.UUID(result.message_id)).content == 'Keep the transcript'
         assert sensitive_marker not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_deleted_session_is_not_reindexed_after_waiting_for_cleanup(app, monkeypatch):
+    with app.app_context():
+        user_id = create_test_user(username='deleted-before-index', email='deleted-before-index@example.com', password='SecureTest789$#@')
+        session_id = uuid.uuid4()
+        db.session.add(ChatSession(id=session_id, user_id=user_id, mode='chat'))
+        db.session.commit()
+        calls = []
+
+        @contextmanager
+        def delete_before_index(_root):
+            db.session.delete(db.session.get(ChatSession, session_id))
+            db.session.commit()
+            yield
+
+        monkeypatch.setattr('backend.storage.chat_index_coordination.chat_index_guard', delete_before_index)
+        monkeypatch.setattr(
+            'backend.services.rag_service.get_rag_service',
+            lambda: SimpleNamespace(store_chat_message=lambda *args, **kwargs: calls.append(args)),
+        )
+        result = await LLMGateway(db_session=db.session)._save_chat_message(
+            str(session_id), user_id, 'user', 'Synthetic text',
+        )
+        assert result.ok is True
+        assert result.rag_status == 'failed'
+        assert calls == []
+        assert db.session.get(ChatSession, session_id) is None
 
 
 def _authenticated_user_id(app) -> int:
