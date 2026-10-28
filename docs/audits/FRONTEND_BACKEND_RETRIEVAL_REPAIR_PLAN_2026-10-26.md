@@ -37,7 +37,7 @@ nine authority tests pass. Final full-suite and installed recovery acceptance
 remain open. This only queues newly persisted turns, not a backfill of old chats.
 The broader synthetic R-3 candidate is documented in
 `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`; its acceptance
-criteria await the owner decision. The existing locked embedding stack was
+starting corpus and criteria were approved by Kevin on October 28. The existing locked embedding stack was
 inventoried and audited without adding dependencies: about 745 MiB installed,
 excluding model files, and no known advisories in the candidate audit. A source
 model probe with socket connections blocked loaded 384-dimensional embeddings,

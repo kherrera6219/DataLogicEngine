@@ -37,7 +37,7 @@ pass. The full Windows run reported 3,431 passed, 19 skipped, and one document
 classification failure introduced by the new evaluation note. That note was
 then classified and all nine documentation-authority tests passed. This is not
 a claim of a later all-green full run or installed recovery acceptance.
-The broader synthetic search candidate and pending owner criteria are in
+The broader synthetic search candidate and owner-approved criteria are in
 `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`. Historical
 transcripts without outbox records are not automatically backfilled by this
 change. Semantic activation and an updated installer remain open.

@@ -1,6 +1,7 @@
 # Local search evaluation candidate
 
-Status: prepared for Kevin's review; no search activation or acceptance claim.
+Status: starting corpus and criteria approved by Kevin on October 28;
+qualification in progress, with no search activation or acceptance claim.
 
 This candidate supports R-3 of the frontend/backend/retrieval repair plan.
 `retrieval_qualification_v1.json` contains sixteen manually authored fictional
@@ -30,7 +31,7 @@ cold-machine startup bound. Cosine similarity is different from the active
 index's existing `1 - squared L2 distance` score: 0.25 is not a drop-in threshold
 for the old collection or existing UI confidence.
 
-Proposed gates, awaiting owner approval: at least 95% held-out top-four recall,
+Owner-approved gates: at least 95% held-out top-four recall,
 at most 10% unrelated queries receiving a match, and warm local semantic query
 p95 below one second. Scores are retrieval relevance, not answer confidence.
 
@@ -43,6 +44,23 @@ and add fresh held-out cases before final acceptance. Permission checks are
 mandatory regardless of ranking quality. The active app still uses its existing
 hash projection. No model package, collection, customer migration or cutover is
 enabled by this artifact.
+
+## Long-document extension
+
+The approved extension places each fictional policy after a repeated handbook
+introduction and reuses its two held-out questions. This is a truncation stress
+check rather than a new independent accuracy sample. The reproducible tool is
+`scripts/evaluate_long_document_retrieval.py`, with per-query output in
+`reports/retrieval-long-document-candidate-20261028.json`.
+
+The existing 512-unit chunker produced 32 pieces, all exceeding the model's
+256-token input limit (largest 521 tokens), and retained 0/32 intended sources
+in the first four results at cosine 0.25. A tokenizer-aware prototype produced
+80 exact-source spans, with no piece exceeding 256 tokens, and retained 32/32
+intended sources. Its budget reserves the model's two required special tokens
+and uses the remaining capacity; it does not lower the model's supported limit.
+This prototype is not yet integrated into application indexing. Permission,
+retention and migration checks remain mandatory.
 
 ## Windows bundle probe
 

@@ -24,7 +24,7 @@ recovery and session-retention coordination. Focused recovery checks pass;
 installed restart/outage recovery remains open. A separate frozen Windows
 MiniLM probe passed with network connections blocked. That probe does not
 activate semantic search or change the application installer. The proposed
-broader retrieval corpus and acceptance criteria await the owner's decision;
+broader starting corpus and acceptance criteria were approved by the owner;
 see `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
 
 The October 27 owner-approved review repairs and evidence-test diagnostics
