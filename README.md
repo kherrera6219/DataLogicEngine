@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.9 |
+| Document version | v1.13.10 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -51,11 +51,12 @@ update check, crash-reporting egress, or phone-home.
 > pilot, and soak acceptance remain release gates.
 
 The October 28 draft repair adds durable, bounded chat-index retries, deletion
-checks, and retention coordination. Focused Windows recovery tests pass;
+checks, and retention coordination. The Windows source suite passes 3,433 tests
+(19 skipped);
 installed recovery acceptance remains open. A separate frozen Windows MiniLM
 probe passed with network connections blocked, but the app's search model and
-installer have not been changed. Search acceptance criteria and the broader
-evaluation are still under review.
+installer have not been changed. The starting search corpus and acceptance
+criteria are owner-approved; the broader qualification remains in progress.
 
 The October 27 frontend and retrieval review repairs are in progress. Source
 changes address chat-session and trace isolation, session search, confidence

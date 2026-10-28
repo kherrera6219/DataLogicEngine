@@ -32,10 +32,13 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Qualify the new durable chat-index recovery in the installed app. Source
       now saves content-free retry records atomically with transcripts, limits
       attempts, rechecks source fingerprints and deletion receipts, and removes
-      retry records during retention. Forty focused Windows tests pass. Full
-      Windows run: 3,431 passed, 19 skipped, one documentation classification
-      failure; classification corrected and nine authority tests then pass.
-      Final all-green full run and installed restart/outage checks remain open.
+      retry records during retention. Forty-one focused Windows tests pass.
+      Final full Windows run: 3,433 passed, 19 skipped, zero failures or setup
+      errors. Installed restart/outage checks remain open.
+- [ ] Investigate the unconfirmed intermittent persona-causality failure from
+      an earlier full run. Diagnostic assertions preserve the failure details;
+      its module, 1,056 governance tests, twenty repetitions and the final full
+      suite pass. Do not claim an established root cause or a runtime fix.
 - [ ] Complete the owner-approved synthetic search extension and its
       access/lifecycle cases. The starting corpus and criteria were approved
       October 28; the long-document prototype passes its synthetic screen.

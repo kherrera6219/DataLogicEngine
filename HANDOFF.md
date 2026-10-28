@@ -28,6 +28,19 @@
 
 ## Required first read
 
+October 28 verified recovery checkpoint: runtime source `ae4c2978`, with
+diagnostics from `fe870b5c`, passed the full Windows suite: 3,433 passed,
+19 skipped, 35 warnings, and zero failures/setup/collection errors. Forty-one
+focused recovery/deletion checks pass. One prior full run failed the persona
+causality test; its original cause is unconfirmed. The three-test module, the
+1,056-test governance group, twenty isolated repetitions, and the final full
+run pass with assertions intact. Preserve the failure and retest reports in
+`reports/chat-*20261028.txt`; this is not an installed acceptance claim.
+Kevin approved the starting search corpus and criteria and their extension.
+The long-document prototype retains 32/32 synthetic targets with no input
+over the model limit; application integration, permission/lifecycle checks,
+retained-data migration, and the updated installer remain open.
+
 October 28 recovery checkpoint: runtime source `d0847d74` saves chat-index
 work in the existing SQL outbox in the same transaction as the transcript.
 Requests contain no chat text; delivery rechecks the retained source, its

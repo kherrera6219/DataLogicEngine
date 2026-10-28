@@ -26,6 +26,14 @@ These results do not establish search quality or installed acceptance.
 
 ## October 27 progress checkpoint
 
+October 28 final recovery gate: runtime `ae4c2978` and diagnostic test changes
+from `fe870b5c` pass 3,433 Windows tests, 19 skipped, 35 warnings, and zero
+failures/setup/collection errors. Forty-one focused checks pass. Preserve the
+prior persona-causality failure and its unconfirmed cause: the module, 1,056
+governance tests, twenty isolated repetitions and final full run subsequently
+pass. Reports are `reports/chat-*20261028.txt`. No assertion, budget or policy
+was weakened. Installed restart/outage recovery remains open.
+
 October 28 recovery checkpoint: source `d0847d74` adds atomic, content-free
 chat-message outbox records and bounded recovery through the existing worker.
 Delivery rechecks retained source ownership/fingerprint and user-deletion
