@@ -33,9 +33,13 @@ removal from the chat index before deleting a transcript, coordinates active
 gateway indexing and profile deletion with cleanup, and reports unfinished
 batches. Archive-required session and trace cleanup stops explicitly because
 archival is not implemented. The 44 focused Windows tests cover failures and
-concurrent synthetic writes; installed and real-index qualification remain
-open. Existing customer data was not used for cleanup tests. Durable chat-index
-retry, search-model qualification and migration remain open.
+concurrent synthetic writes. The full locked-environment Windows suite passed
+3,423 tests (19 skipped; 35 warnings) at runtime source `b6f2632d`. An isolated
+cached Chroma container verified removal, preservation of another synthetic
+session, and an idempotent retry; the container was removed and the previously
+stopped data-service machine was stopped again. Installed qualification remains
+open. Customer data was not used for cleanup tests. Durable chat-index retry,
+search-model qualification and migration remain open.
 
 The current review-repair branch has additional source fixes for index-write
 acknowledgments, redacted failure logs, and reconnection of current chat and

@@ -32,8 +32,13 @@ coordinates the active gateway writer, profile deletion and session cleanup
 through a shared runtime lock. Partial batches are reported, and policies that
 require unavailable session or trace archival stop rather than report a false
 archive. Forty-four focused Windows tests pass, including concurrent synthetic
-writes. This does not establish installed behavior, real-index qualification,
-durable chat-index retries, or coordination with non-cooperating processes.
+writes. The full Windows suite using locked dependencies passed 3,423 tests,
+19 skipped, 35 warnings, and no failures or setup/collection errors at runtime
+source `b6f2632d`. A disposable cached Chroma container verified deletion of a
+synthetic session, preservation of another session, and repeat deletion. The
+container was removed and the data-service machine was restored to stopped.
+This does not establish installed behavior, durable chat-index retries, or
+coordination with non-cooperating processes.
 
 Later source work corrects unacknowledged document and knowledge-node vector
 writes: documents report an explicit internal retrieval error for incomplete

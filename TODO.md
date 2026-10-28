@@ -29,8 +29,10 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
-- [ ] Qualify the owner-approved session-retention repair against an isolated
-      real index and the installed app. Source now verifies index removal before
+- [ ] Qualify the owner-approved session-retention repair in the installed app.
+      An isolated real index passed synthetic deletion, preservation and retry
+      checks; the full locked-environment Windows suite passed 3,423 tests
+      with 19 skipped. Source now verifies index removal before
       transcript deletion, coordinates active writers and profile deletion,
       reports incomplete batches, and refuses archive-required cleanup until
       real archival exists. Focused Windows tests pass; do not use customer
