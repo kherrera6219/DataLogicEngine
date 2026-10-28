@@ -77,7 +77,7 @@ def test_retention_init():
     policy = srv.get_policy(RetentionCategory.SESSIONS)
     assert policy.retention_days > 0
 
-def test_retention_cleanup_sessions():
+def test_retention_cleanup_sessions_refuses_unimplemented_archive():
     srv = DataRetentionService()
 
     mock_db = MagicMock()
@@ -95,12 +95,11 @@ def test_retention_cleanup_sessions():
 
         res = srv.cleanup_sessions(dry_run=False)
 
-        if res['status'] != 'success':
-            print(f"Retention Failed: {res.get('error')}")
-
-        assert res['status'] == 'success'
-        assert res['deleted_count'] == 5
-        mock_db.session.commit.assert_called()
+        assert res['status'] == 'error'
+        assert res['deleted_count'] == 0
+        assert res['archived_count'] == 0
+        mock_query.delete.assert_not_called()
+        mock_db.session.commit.assert_not_called()
 
 
 def test_retention_cleanup_trace_runs_purges_matching_capture():
@@ -139,6 +138,14 @@ def test_run_cleanup_all():
          summary = srv.run_cleanup()
          assert summary['status'] == "success"
          assert len(summary['cleanups']) == 2
+
+
+def test_retention_summary_reports_category_failure():
+    srv = DataRetentionService()
+    with patch.object(srv, 'cleanup_sessions', return_value={'category': 'sessions', 'status': 'error'}), \
+         patch.object(srv, 'cleanup_trace_runs', return_value={'category': 'trace_runs', 'status': 'success'}):
+        summary = srv.run_cleanup()
+    assert summary['status'] == 'error'
 
 
 def test_retention_cleanup_failures_hide_exception_details():
