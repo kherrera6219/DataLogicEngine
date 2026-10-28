@@ -177,6 +177,30 @@ class RAGService:
     def set_embedding_provider(self, provider):
         """Set the embedding provider function."""
         self._embedding_provider = provider
+
+    def _uses_local_model(self) -> bool:
+        from backend.services.local_sentence_embedding import LocalSentenceEmbedding
+
+        return isinstance(self._embedding_provider, LocalSentenceEmbedding)
+
+    def _store_local_item(self, collection, item_id, text, metadata) -> int:
+        """Replace a complete model-sized family while preserving authority metadata."""
+        store = self._get_vector_store()
+        if store is None:
+            raise RetrievalError("vector_store_unavailable")
+        chunks = self.chunk_text(text)
+        if not chunks:
+            raise RetrievalError("vector_item_text_empty")
+        parent_id = str(item_id)
+        ids = [parent_id if i == 0 else f"{parent_id}:chunk:{i}" for i in range(len(chunks))]
+        vectors = [self._embedding_provider(chunk) for chunk in chunks]
+        metas = [{**self._metadata_for_chroma(metadata), "vector_parent_id":parent_id,
+                  "chunk_index":i, "chunk_count":len(chunks)} for i in range(len(chunks))]
+        stored = store.replace_embeddings(collection, parent_id, ids=ids, texts=chunks,
+                                          embeddings=vectors, metadata=metas)
+        if stored != ids:
+            raise RetrievalError("vector_item_write_unacknowledged")
+        return len(chunks)
         
     def chunk_text(self, text: str, chunk_size: int = 512, overlap: int | None = None) -> List[str]:
         """
@@ -243,6 +267,13 @@ class RAGService:
         if store is None:
             logger.warning("VectorStore not available for document ingestion")
             raise RetrievalError("vector_store_unavailable")
+
+        if self._uses_local_model() and text.strip():
+            try:
+                return self._store_local_item(self.COLLECTION_DOCUMENTS, doc_id, text,
+                                              {**(metadata or {}), "doc_id":str(doc_id)})
+            except Exception as exc:
+                raise RetrievalError("document_vector_write_failed") from exc
         
         chunks = self.chunk_text(text, chunk_size)
         
@@ -414,6 +445,10 @@ class RAGService:
             return False
         
         try:
+            if self._uses_local_model():
+                self._store_local_item(self.COLLECTION_CHAT_HISTORY, message_id, content,
+                    {"session_id":session_id, "role":role, "user_id":user_id or ""})
+                return True
             embedding = self._embedding_provider(content)
             stored_ids = store.add_embeddings(
                 collection=self.COLLECTION_CHAT_HISTORY,
@@ -550,6 +585,10 @@ class RAGService:
         if store is None:
             return False
         try:
+            if self._uses_local_model():
+                self._store_local_item(self.COLLECTION_KNOWLEDGE, node_id, content,
+                    {**self._metadata_for_chroma(metadata), "node_type":node_type})
+                return True
             embedding = self._embedding_provider(content)
             stored_ids = store.add_embeddings(
                 collection=self.COLLECTION_KNOWLEDGE,
@@ -575,6 +614,9 @@ class RAGService:
         if store is None:
             return False
         try:
+            if self._uses_local_model():
+                store.delete_parent_embeddings(self.COLLECTION_KNOWLEDGE, str(node_id))
+                return True
             return bool(store.delete(self.COLLECTION_KNOWLEDGE, [str(node_id)]))
         except Exception:
             logger.error("Failed to delete knowledge node")
@@ -607,16 +649,19 @@ class RAGService:
         if store is None or not text:
             return False
         try:
-            store.add_embeddings(
+            if self._uses_local_model():
+                self._store_local_item(collection, item_id, text, metadata)
+                return True
+            stored_ids = store.add_embeddings(
                 collection=collection,
                 ids=[item_id],
                 texts=[text],
                 embeddings=[self._embedding_provider(text)],
                 metadata=[self._metadata_for_chroma(metadata)],
             )
-            return True
-        except Exception as e:
-            logger.error(f"Failed to ingest text item {item_id} into {collection}: {e}")
+            return stored_ids == [item_id]
+        except Exception:
+            logger.error("Failed to ingest text item")
             return False
 
     def search_collection(
