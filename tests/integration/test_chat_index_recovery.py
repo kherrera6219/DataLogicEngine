@@ -130,3 +130,35 @@ def test_crashed_claim_is_recovered_without_duplicate_vectors(app, monkeypatch):
                             lambda: SimpleNamespace(store_chat_message=store))
         assert CrossStoreMaterializationDispatcher(db.session).run_once()["succeeded"] == 1
         assert vectors == {result.message_id: "synthetic private transcript"}
+
+
+def test_crash_at_retry_limit_is_reported_without_another_index_write(app, monkeypatch):
+    with app.app_context():
+        result, _ = _save(app, monkeypatch)
+        event = CrossStoreOutboxEvent.query.filter_by(entity_id=result.message_id).one()
+        event.status = "processing"
+        event.attempts = 8
+        event.locked_at = datetime.now(UTC) - timedelta(minutes=10)
+        db.session.commit()
+        calls = []
+        monkeypatch.setattr("backend.services.rag_service.get_rag_service",
+            lambda: SimpleNamespace(store_chat_message=lambda *a, **k: calls.append(a) or True))
+        assert CrossStoreMaterializationDispatcher(db.session).run_once()["failed"] == 1
+        assert event.status == "failed"
+        assert calls == []
+        assert CrossStoreMaterializationDispatcher(db.session).run_once()["claimed"] == 0
+
+
+def test_queue_failure_rolls_back_the_new_transcript_row(app, monkeypatch):
+    from sqlalchemy.exc import SQLAlchemyError
+
+    with app.app_context():
+        result, owner = _save(app, monkeypatch)
+        def fail(*args):
+            raise SQLAlchemyError("synthetic transaction failure")
+        monkeypatch.setattr("backend.storage.chat_index_recovery.enqueue_chat_index", fail)
+        failed = asyncio.run(LLMGateway(db_session=db.session)._save_chat_message(
+            result.session_id, owner, "user", "uncommitted synthetic message"))
+        assert not failed.ok
+        assert ChatMessage.query.count() == 1
+        assert CrossStoreOutboxEvent.query.count() == 1
