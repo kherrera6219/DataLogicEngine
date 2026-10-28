@@ -10,13 +10,18 @@ from backend.services.local_sentence_embedding import (
 )
 
 
+def _model(encode):
+    return SimpleNamespace(encode=encode, max_seq_length=256,
+        tokenizer=lambda text, **kwargs:{"input_ids":list(range(len(text.split())+2))})
+
+
 def test_loads_fingerprinted_model_locally_and_reuses_it(tmp_path):
     (tmp_path / "model.safetensors").write_bytes(b"local weights")
     calls = []
 
     def loader(path, **kwargs):
         calls.append((path, kwargs))
-        return SimpleNamespace(encode=lambda text, **options: [0.6, 0.8])
+        return _model(lambda text, **options: [0.6, 0.8])
 
     embedding = LocalSentenceEmbedding(
         tmp_path,
@@ -59,9 +64,7 @@ def test_bad_embedding_vectors_fail_explicitly(tmp_path, vector):
         expected_weights_sha256=sha256(b"weights").hexdigest(),
         expected_manifest_sha256=model_manifest_sha256(tmp_path),
         dimensions=2,
-        loader=lambda *args, **kwargs: SimpleNamespace(
-            encode=lambda *args, **kwargs: vector
-        ),
+        loader=lambda *args, **kwargs: _model(lambda *args, **kwargs: vector),
     )
     with pytest.raises(LocalEmbeddingError, match="vector_invalid"):
         embedding("question")
@@ -80,3 +83,17 @@ def test_changed_model_configuration_fails_manifest_check(tmp_path):
     )
     with pytest.raises(LocalEmbeddingError, match="manifest_mismatch"):
         embedding("question")
+
+
+def test_actual_model_capacity_is_used_and_long_input_is_never_silently_truncated(tmp_path):
+    (tmp_path / "model.safetensors").write_bytes(b"weights")
+    encoded=[]
+    model = _model(lambda text, **kwargs: encoded.append(text) or [0.6,0.8])
+    embedding=LocalSentenceEmbedding(tmp_path, dimensions=2,
+        expected_weights_sha256=sha256(b"weights").hexdigest(),
+        expected_manifest_sha256=model_manifest_sha256(tmp_path),
+        loader=lambda *args, **kwargs:model)
+    assert embedding(" ".join(["token"]*254)) == [0.6,0.8]
+    with pytest.raises(LocalEmbeddingError, match="input_exceeds_model_limit"):
+        embedding(" ".join(["token"]*255))
+    assert len(encoded) == 1

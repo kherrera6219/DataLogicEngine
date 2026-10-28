@@ -12,7 +12,7 @@ class Tokenizer:
         assert pair is False
         return 2
 
-    def __call__(self, text, *, add_special_tokens, truncation, return_offsets_mapping=False):
+    def __call__(self, text, *, add_special_tokens, truncation, return_offsets_mapping=False, verbose=True):
         assert truncation is False
         spans = [match.span() for match in re.finditer(r"\w+|[^\w\s]", text)]
         result = {"input_ids": list(range(len(spans) + (2 if add_special_tokens else 0)))}
