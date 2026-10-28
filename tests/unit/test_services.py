@@ -7,7 +7,7 @@ import logging
 
 from backend.services.analytics_service import AnalyticsService
 from backend.services.document_processor import DocumentProcessor
-from backend.services.rag_service import RAGService
+from backend.services.rag_service import RAGService, RetrievalError
 from backend.services.video_service import VideoService
 
 # --- Analytics Service Tests ---
@@ -163,6 +163,7 @@ def test_rag_embedding_total_failover():
 
 def test_rag_ingest_document():
     mock_store = MagicMock()
+    mock_store.add_embeddings.side_effect = lambda **kwargs: kwargs["ids"]
     service = RAGService(vector_store=mock_store)
     
     # Use mock embedding to avoid overhead
@@ -171,6 +172,28 @@ def test_rag_ingest_document():
     count = service.ingest_document("doc1", "content " * 50, {}, chunk_size=20)
     assert count > 0
     mock_store.add_embeddings.assert_called()
+
+
+@pytest.mark.parametrize("acknowledgment", [[], ["doc1_chunk_0"]])
+def test_rag_ingest_document_rejects_incomplete_write_acknowledgment(acknowledgment):
+    mock_store = MagicMock()
+    mock_store.add_embeddings.return_value = acknowledgment
+    service = RAGService(vector_store=mock_store)
+    service.set_embedding_provider(lambda text: [0.1] * 10)
+
+    with pytest.raises(RetrievalError, match="document_index_write_incomplete"):
+        service.ingest_document("doc1", "content " * 50, {}, chunk_size=20)
+
+
+def test_rag_ingest_document_reports_store_error_without_leaking_details(caplog):
+    mock_store = MagicMock()
+    mock_store.add_embeddings.side_effect = RuntimeError("synthetic-sensitive-write-error")
+    service = RAGService(vector_store=mock_store)
+    service.set_embedding_provider(lambda text: [0.1] * 10)
+
+    with pytest.raises(RetrievalError, match="document_index_unavailable"):
+        service.ingest_document("doc1", "content " * 50, {}, chunk_size=20)
+    assert "synthetic-sensitive-write-error" not in caplog.text
 
 
 def test_chat_index_failure_logs_do_not_expose_exception(caplog):
