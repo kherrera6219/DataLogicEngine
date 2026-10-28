@@ -76,6 +76,36 @@ def test_local_ingestion_dedupes_by_chunk_hash(app, tmp_path, monkeypatch):
         assert KnowledgeGraphNode.query.count() == 2
 
 
+def test_ingestion_ownership_is_materialized_and_other_users_do_not_share_ids(app,tmp_path,monkeypatch):
+    from extensions import db
+    from tests.conftest import create_test_user
+    from models import IngestionFile
+
+    monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR",str(tmp_path/"manifests"))
+    source=tmp_path/"corpus"; source.mkdir()
+    (source/"same.txt").write_text("same owned source",encoding="utf-8")
+    with app.app_context():
+        first_owner=create_test_user(username="first-ingest-owner",email="first-ingest@example.com",password="SecureTest789$#@")
+        second_owner=create_test_user(username="second-ingest-owner",email="second-ingest@example.com",password="SecureTest789$#@")
+        service=LocalKnowledgeIngestionService(rag_service=FakeRag())
+        first=service.ingest_path(source,user_id=first_owner,tenant_id="same")
+        first_ids={node.uid for node in KnowledgeGraphNode.query.all()}
+        second=service.ingest_path(source,user_id=second_owner,tenant_id="same")
+        assert first.chunks_created==second.chunks_created==2
+        assert len({node.uid for node in KnowledgeGraphNode.query.all()})==4
+        assert len({row.document_uid for row in IngestionFile.query.all()})==2
+        repeated=service.ingest_path(source,user_id=first_owner,tenant_id="same")
+        assert repeated.chunks_created==0
+        for event in CrossStoreOutboxEvent.query.all():
+            if event.operation=="upsert_knowledge_node":
+                owner=event.payload["metadata"]["user_id"]
+            elif event.operation=="merge_knowledge_node":
+                owner=event.payload["properties"]["user_id"]
+            else:continue
+            assert str(owner)==str(first_owner if event.entity_id in first_ids else second_owner)
+        db.session.rollback()
+
+
 def test_same_source_new_chunker_supersedes_old_chunks(app, tmp_path, monkeypatch):
     from models import IngestionFile
 
