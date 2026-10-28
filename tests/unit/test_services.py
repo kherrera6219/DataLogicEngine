@@ -273,6 +273,7 @@ def test_rag_chat_history_requires_the_written_id_acknowledgment():
     assert service.store_chat_message("session", "message", "user", "content") is True
 def test_rag_knowledge_node():
     mock_store = MagicMock()
+    mock_store.add_embeddings.side_effect = lambda **kwargs: kwargs["ids"]
     service = RAGService(vector_store=mock_store)
     service.set_embedding_provider(lambda x: [0.1])
     
@@ -284,6 +285,14 @@ def test_rag_knowledge_node():
     mock_store.search.return_value = []
     service.search_knowledge("query", node_type="concept")
     mock_store.search.assert_called()
+
+
+@pytest.mark.parametrize("acknowledgment", [[], ["other-node"], ["node1", "other-node"]])
+def test_rag_knowledge_node_rejects_incorrect_acknowledgment(acknowledgment):
+    store = MagicMock()
+    store.add_embeddings.return_value = acknowledgment
+    service = RAGService(vector_store=store, embedding_provider=lambda _text: [0.1])
+    assert service.ingest_knowledge_node("node1", "content", "concept") is False
 
 # --- Video Service Tests ---
 
