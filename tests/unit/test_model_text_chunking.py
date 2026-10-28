@@ -76,7 +76,11 @@ def test_configured_local_model_ingests_every_document_span_without_truncation(t
     def store(**kwargs):
         written.append(kwargs)
         return kwargs["ids"]
-    service = RAGService(vector_store=SimpleNamespace(add_embeddings=store), embedding_provider=embed)
+    def replace(collection, parent_id, **kwargs):
+        assert collection == "documents"
+        assert parent_id == "synthetic-doc"
+        return store(collection=collection, **kwargs)
+    service = RAGService(vector_store=SimpleNamespace(replace_embeddings=replace), embedding_provider=embed)
     text = " ".join(f"unique{i}" for i in range(40))
     count = service.ingest_document("synthetic-doc", text, {"user_id":"owner"})
     assert count > 1
