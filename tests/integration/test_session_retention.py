@@ -99,6 +99,24 @@ def test_archive_required_blocks_deletion_and_dry_run_is_read_only(app, monkeypa
         assert db.session.get(ChatSession, session_id) is not None
 
 
+def test_session_cleanup_reports_remaining_batch(app, monkeypatch):
+    with app.app_context():
+        session_id = _session(app)
+        owner = db.session.get(ChatSession, session_id).user_id
+        second_id = uuid.uuid4()
+        db.session.add(ChatSession(id=second_id, user_id=owner, mode="chat",
+                                   created_at=datetime.now(UTC) - timedelta(days=99)))
+        db.session.commit()
+        monkeypatch.setattr("backend.retention_service.SESSION_CLEANUP_BATCH_SIZE", 1)
+        monkeypatch.setattr("backend.services.rag_service.get_rag_service",
+                            lambda: SimpleNamespace(delete_chat_session=lambda _: None))
+        result = _service().cleanup_sessions()
+        assert result["status"] == "partial"
+        assert result["eligible_count"] == 2
+        assert result["deleted_count"] == 1
+        assert db.session.get(ChatSession, second_id) is not None
+
+
 def test_concurrent_chat_write_cannot_recreate_deleted_index(app, monkeypatch):
     import backend.storage.chat_index_coordination as coordination
 
