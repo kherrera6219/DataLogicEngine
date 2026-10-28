@@ -53,3 +53,35 @@ def test_unusable_tokenizer_offsets_fail_explicitly():
             return {"offset_mapping": [(999,1000)]}
     with pytest.raises(ModelChunkingError):
         model_text_chunks("source", BrokenTokenizer(), 256)
+
+
+def test_configured_local_model_ingests_every_document_span_without_truncation(tmp_path):
+    from hashlib import sha256
+    from types import SimpleNamespace
+    from backend.services.local_sentence_embedding import LocalSentenceEmbedding, model_manifest_sha256
+    from backend.services.rag_service import RAGService
+
+    (tmp_path / "model.safetensors").write_bytes(b"synthetic weights")
+    tokenizer = Tokenizer()
+    encoded = []
+    def encode(text, **kwargs):
+        assert len(tokenizer(text, add_special_tokens=True, truncation=False)["input_ids"]) <= 10
+        encoded.append(text)
+        return [0.6, 0.8]
+    embed = LocalSentenceEmbedding(tmp_path, dimensions=2,
+        expected_weights_sha256=sha256(b"synthetic weights").hexdigest(),
+        expected_manifest_sha256=model_manifest_sha256(tmp_path),
+        loader=lambda *a, **k: SimpleNamespace(max_seq_length=10, tokenizer=tokenizer, encode=encode))
+    written = []
+    def store(**kwargs):
+        written.append(kwargs)
+        return kwargs["ids"]
+    service = RAGService(vector_store=SimpleNamespace(add_embeddings=store), embedding_provider=embed)
+    text = " ".join(f"unique{i}" for i in range(40))
+    count = service.ingest_document("synthetic-doc", text, {"user_id":"owner"})
+    assert count > 1
+    assert count == len(encoded) == len(written[0]["ids"])
+    assert written[0]["texts"] == encoded
+    assert all(value in text for value in encoded)
+    assert all(any(token in part for part in encoded) for token in text.split())
+    assert all(meta["user_id"] == "owner" for meta in written[0]["metadata"])
