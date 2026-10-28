@@ -63,6 +63,8 @@ def test_local_items_preserve_all_text_and_replace_obsolete_chunks(tmp_path, kin
     assert len(store.rows) > 1
     assert all(any(token in value[0] for value in store.rows.values()) for token in text.split())
     assert all(value[2]["user_id"] == "owner" for value in store.rows.values())
+    assert all(value[2]["embedding_revision"] == service.embedding_revision for value in store.rows.values())
+    assert service._embedding_provider.expected_manifest_sha256 in service.embedding_revision
     assert write("short replacement") is True
     assert len(store.rows) == 1
     assert next(iter(store.rows.values()))[0] == "short replacement"
