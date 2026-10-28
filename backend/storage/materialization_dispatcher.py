@@ -31,6 +31,10 @@ def _chroma_handler(event: CrossStoreOutboxEvent) -> str:
         from backend.storage.chat_index_recovery import deliver_chat_index
 
         return deliver_chat_index(event)
+    if event.entity_type == "knowledge_graph_node" and event.operation == "upsert_knowledge_node":
+        from backend.storage.knowledge_materialization import deliver_owned_knowledge
+
+        return deliver_owned_knowledge(event,"chroma")
     if event.operation == "delete_knowledge_node":
         from backend.services.rag_service import get_rag_service
 
@@ -61,6 +65,10 @@ def _chroma_handler(event: CrossStoreOutboxEvent) -> str:
 
 
 def _neo4j_handler(event: CrossStoreOutboxEvent) -> str:
+    if event.entity_type == "knowledge_graph_node" and event.operation == "merge_knowledge_node":
+        from backend.storage.knowledge_materialization import deliver_owned_knowledge
+
+        return deliver_owned_knowledge(event,"neo4j")
     from backend.storage import get_graph_store
 
     store = get_graph_store()

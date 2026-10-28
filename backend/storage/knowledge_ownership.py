@@ -95,11 +95,26 @@ def build_knowledge_ownership_plan(session, metadata, subject):
             "tenant_id",
         }.issubset(jobs.c.keys()):
             raise RetentionDeleteError("knowledge_ownership_schema_invalid")
-        rows = session.execute(
-            select(chunks.c.node_uid, jobs.c.user_id, jobs.c.tenant_id).join(
-                jobs, chunks.c.job_id == jobs.c.id
+        reference_query = select(
+            chunks.c.node_uid, jobs.c.user_id, jobs.c.tenant_id
+        ).join(jobs, chunks.c.job_id == jobs.c.id)
+        files = metadata.tables.get("ingestion_files")
+        if (
+            files is not None
+            and "file_id" in chunks.c
+            and {"id", "status"}.issubset(files.c.keys())
+        ):
+            from sqlalchemy import or_
+
+            reference_query = reference_query.outerjoin(
+                files, chunks.c.file_id == files.c.id
+            ).where(
+                or_(
+                    files.c.id.is_(None),
+                    files.c.status.not_in(("deleted", "superseded", "rejected")),
+                )
             )
-        ).yield_per(500)
+        rows = session.execute(reference_query).yield_per(500)
         try:
             for uid, owner, tenant in rows:
                 reference = references.setdefault(str(uid), (set(), set()))

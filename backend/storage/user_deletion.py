@@ -77,7 +77,7 @@ class PostgreSQLUserDeletionAdapter:
                 self.session.execute(select(primary_key).where(or_(*conditions))).scalars()
             )
             if values:
-                selected[table] = values
+                selected.setdefault(table,set()).update(values)
                 depth[table] = 0
 
         changed = True
