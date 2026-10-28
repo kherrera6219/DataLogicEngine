@@ -50,7 +50,21 @@ def main():
             )
             for _, text in pieces
         ]
-        vectors = [embed(text) for _, text in pieces]
+        # [R-3] Explicitly simulate the historical truncating path for comparison;
+        # application embeddings now reject over-limit input instead.
+        vectors = (
+            [
+                [
+                    float(value)
+                    for value in model.encode(
+                        text, normalize_embeddings=True, show_progress_bar=False
+                    )
+                ]
+                for _, text in pieces
+            ]
+            if method == "existing_512_units"
+            else [embed(text) for _, text in pieces]
+        )
         rows = []
         for document in corpus["documents"]:
             for query in document["held_out"]:

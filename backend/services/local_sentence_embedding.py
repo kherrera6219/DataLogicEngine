@@ -103,7 +103,24 @@ class LocalSentenceEmbedding:
         if not isinstance(text, str) or not text.strip():
             raise LocalEmbeddingError("local_embedding_text_empty")
         try:
-            vector = self._load().encode(
+            model = self._load()
+            limit = model.max_seq_length
+            tokens = model.tokenizer(
+                text,
+                add_special_tokens=True,
+                truncation=False,
+                verbose=False,  # [R-3] Capacity is explicitly checked before inference.
+            )["input_ids"]
+            if (
+                not isinstance(limit, int)
+                or isinstance(limit, bool)
+                or limit < 1
+                or not isinstance(tokens, (list, tuple))
+            ):
+                raise LocalEmbeddingError("local_embedding_input_budget_invalid")
+            if len(tokens) > limit:
+                raise LocalEmbeddingError("local_embedding_input_exceeds_model_limit")
+            vector = model.encode(
                 text, normalize_embeddings=True, show_progress_bar=False
             )
             result = [float(value) for value in vector]

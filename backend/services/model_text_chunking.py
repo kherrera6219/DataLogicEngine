@@ -27,7 +27,11 @@ def model_text_chunks(text, tokenizer, model_limit, *, overlap_tokens=32):
     if not text.strip():
         return []
     offsets = tokenizer(
-        text, add_special_tokens=False, truncation=False, return_offsets_mapping=True
+        text,
+        add_special_tokens=False,
+        truncation=False,
+        return_offsets_mapping=True,
+        verbose=False,  # [R-3] This only maps source spans; every inference chunk is checked below.
     ).get("offset_mapping")
     if not isinstance(offsets, (list, tuple)) or not offsets:
         raise ModelChunkingError("model_chunk_offsets_invalid")
