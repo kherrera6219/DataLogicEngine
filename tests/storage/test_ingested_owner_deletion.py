@@ -20,8 +20,11 @@ def authority():
         Column("uid",String),Column("node_metadata",JSON),Column("tenant_id",String))
     jobs=Table("ingestion_jobs",metadata,Column("id",Integer,primary_key=True),
         Column("user_id",Integer,ForeignKey("users.id")),Column("tenant_id",String))
+    Table("ingestion_files",metadata,Column("id",Integer,primary_key=True),
+          Column("job_id",Integer,ForeignKey("ingestion_jobs.id")),Column("status",String))
     chunks=Table("ingestion_chunks",metadata,Column("id",Integer,primary_key=True),
-        Column("job_id",Integer,ForeignKey("ingestion_jobs.id")),Column("node_uid",String))
+        Column("job_id",Integer,ForeignKey("ingestion_jobs.id")),Column("node_uid",String),
+        Column("file_id",Integer,ForeignKey("ingestion_files.id")))
     for name in ("cross_store_materialization_states","cross_store_outbox_events"):
         Table(name,metadata,Column("id",Integer,primary_key=True),Column("entity_id",String))
     metadata.create_all(engine)
@@ -162,3 +165,24 @@ def test_relational_malformed_owner_metadata_fails_before_deleting_identity(auth
     with pytest.raises(RetentionDeleteError):
         PostgreSQLUserDeletionAdapter(session,metadata).delete(DeletionSubject("user","1"))
     assert session.scalar(select(func.count()).select_from(metadata.tables["users"]))==2
+
+
+def test_completed_file_deletion_does_not_create_a_false_shared_owner_conflict(authority):
+    session,metadata,nodes,jobs,chunks=authority
+    session.execute(jobs.insert(),[{"id":1,"user_id":1,"tenant_id":"same"},{"id":2,"user_id":2,"tenant_id":"same"}])
+    files=metadata.tables["ingestion_files"]
+    session.execute(files.insert(),[{"id":1,"job_id":1,"status":"ready"},{"id":2,"job_id":2,"status":"deleted"}])
+    session.execute(chunks.insert(),[{"id":1,"job_id":1,"node_uid":"one","file_id":1},{"id":2,"job_id":2,"node_uid":"one","file_id":2}])
+    session.commit()
+    PostgreSQLUserDeletionAdapter(session,metadata).delete(DeletionSubject("user","1"))
+    assert session.execute(select(nodes.c.uid)).scalars().all()==["two"]
+
+
+def test_tenant_deletion_includes_both_flat_and_nested_tenant_ownership(authority):
+    session,metadata,nodes,_,_=authority
+    session.execute(nodes.update().where(nodes.c.id==2).values(tenant_id=None,
+        node_metadata={"permissions":{"owner_user_id":2,"tenant_id":"same"}}))
+    session.commit()
+    adapter=PostgreSQLUserDeletionAdapter(session,metadata)
+    adapter.delete(DeletionSubject("tenant","same"))
+    assert session.scalar(select(func.count()).select_from(nodes))==0
