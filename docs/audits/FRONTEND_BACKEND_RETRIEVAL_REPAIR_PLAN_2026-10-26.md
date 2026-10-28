@@ -26,6 +26,24 @@ These results do not establish search quality or installed acceptance.
 
 ## October 27 progress checkpoint
 
+October 28 recovery checkpoint: source `d0847d74` adds atomic, content-free
+chat-message outbox records and bounded recovery through the existing worker.
+Delivery rechecks retained source ownership/fingerprint and user-deletion
+receipts under the shared lock. Retention clears retry envelopes. Forty focused
+Windows tests pass, including delayed and interrupted recovery. The full Windows
+run reported 3,431 passed, 19 skipped and one documentation-authority failure
+for the new candidate note; the missing classification was corrected and the
+nine authority tests pass. Final full-suite and installed recovery acceptance
+remain open. This only queues newly persisted turns, not a backfill of old chats.
+The broader synthetic R-3 candidate is documented in
+`docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`; its acceptance
+criteria await the owner decision. The existing locked embedding stack was
+inventoried and audited without adding dependencies: about 745 MiB installed,
+excluding model files, and no known advisories in the candidate audit. A source
+model probe with socket connections blocked loaded 384-dimensional embeddings,
+ranked a relevant passage above an unrelated one, and attempted no connections.
+Frozen packaging is still being qualified; the active app is unchanged.
+
 October 28 retention checkpoint: Kevin approved fail-closed cross-store session
 cleanup. Source verifies chat-index deletion before transcript deletion and
 coordinates the active gateway writer, profile deletion and session cleanup

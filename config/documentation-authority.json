@@ -262,6 +262,7 @@
     "docs/audits/DataLogicEngine_Design_vs_Implementation_Audit_2026-07-12.md"
   ],
   "supporting_review_inputs": [
+    "docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md",
     "CODEX_WORK_QUEUE_2026-08-10.md",
     "docs/AUTH_SURFACE_MATRIX.md",
     "docs/CI_QUALITY_POLICY.md",

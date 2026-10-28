@@ -29,6 +29,17 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
+- [ ] Qualify the new durable chat-index recovery in the installed app. Source
+      now saves content-free retry records atomically with transcripts, limits
+      attempts, rechecks source fingerprints and deletion receipts, and removes
+      retry records during retention. Forty focused Windows tests pass. Full
+      Windows run: 3,431 passed, 19 skipped, one documentation classification
+      failure; classification corrected and nine authority tests then pass.
+      Final all-green full run and installed restart/outage checks remain open.
+- [ ] Obtain the owner's evaluation-set/criteria decision and extend the
+      synthetic search candidate with long-document and access/lifecycle cases.
+      Candidate details and limitations are in
+      `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
 - [ ] Qualify the owner-approved session-retention repair in the installed app.
       An isolated real index passed synthetic deletion, preservation and retry
       checks; the full locked-environment Windows suite passed 3,423 tests

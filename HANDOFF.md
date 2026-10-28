@@ -28,6 +28,20 @@
 
 ## Required first read
 
+October 28 recovery checkpoint: runtime source `d0847d74` saves chat-index
+work in the existing SQL outbox in the same transaction as the transcript.
+Requests contain no chat text; delivery rechecks the retained source, its
+fingerprint, and user-deletion receipts under the shared index lock. Processing
+is bounded and retention removes pending records. Forty focused Windows tests
+pass. The full Windows run reported 3,431 passed, 19 skipped, and one document
+classification failure introduced by the new evaluation note. That note was
+then classified and all nine documentation-authority tests passed. This is not
+a claim of a later all-green full run or installed recovery acceptance.
+The broader synthetic search candidate and pending owner criteria are in
+`docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`. Historical
+transcripts without outbox records are not automatically backfilled by this
+change. Semantic activation and an updated installer remain open.
+
 October 28: Kevin approved the session-retention repair. Source now verifies
 removal from the chat index before deleting a transcript, coordinates active
 gateway indexing and profile deletion with cleanup, and reports unfinished
