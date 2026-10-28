@@ -1167,8 +1167,10 @@ class LLMGateway:
                 run_id=str(parsed_run_id) if parsed_run_id else None,
             )
 
+        message_id = uuid.uuid4()
         try:
             msg = ChatMessage(
+                id=message_id,
                 session_id=session.id,
                 role=role,
                 content=content,
@@ -1206,28 +1208,46 @@ class LLMGateway:
         if role in {"user", "assistant"}:
             rag_status = "synced"
             try:
+                from flask import current_app
+                from backend.storage.chat_index_coordination import chat_index_guard
                 from backend.services.rag_service import get_rag_service
 
-                rag = get_rag_service()
-                indexed = rag.store_chat_message(
-                    str(session.id),
-                    str(msg.id),
-                    role,
-                    content,
-                    user_id=str(user_id),
-                )
-                if not indexed:
-                    rag_status = "failed"
-                    logger.warning("Chat message RAG synchronization was not acknowledged")
+                runtime = current_app.extensions["dle_runtime"]
+                with chat_index_guard(runtime.runtime_root):
+                    persisted = (
+                        db.session.query(ChatMessage.id)
+                        .join(ChatSession, ChatMessage.session_id == ChatSession.id)
+                        .filter(
+                            ChatMessage.id == message_id,
+                            ChatSession.id == parsed_session_id,
+                            ChatSession.user_id == user_id,
+                        )
+                        .first()
+                    )
+                    if persisted is None:
+                        rag_status = "failed"
+                        logger.warning("Chat message no longer exists for indexing")
+                    else:
+                        indexed = get_rag_service().store_chat_message(
+                            str(parsed_session_id),
+                            str(message_id),
+                            role,
+                            content,
+                            user_id=str(user_id),
+                        )
+                        if not indexed:
+                            rag_status = "failed"
+                            logger.warning("Chat message RAG synchronization was not acknowledged")
             except Exception:
+                db.session.rollback()
                 rag_status = "failed"
                 logger.warning("Chat message RAG synchronization failed")
 
         return ChatMessagePersistenceResult(
             ok=True,
             code="CHAT_MESSAGE_PERSISTED",
-            session_id=str(session.id),
-            message_id=str(msg.id),
+            session_id=str(parsed_session_id),
+            message_id=str(message_id),
             run_id=str(parsed_run_id) if parsed_run_id else None,
             rag_status=rag_status,
         )

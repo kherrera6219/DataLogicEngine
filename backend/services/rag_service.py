@@ -9,6 +9,7 @@ import hashlib
 import os
 import json
 import time
+import uuid
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from backend.services.text_chunking import CHUNKING_REVISION, split_text
@@ -422,6 +423,20 @@ class RAGService:
             logger.error("Failed to store chat message")
             return False
     
+    def delete_chat_session(self, session_id: str) -> None:
+        """Remove and verify one session's indexed chat records."""
+        try:
+            canonical_id = str(uuid.UUID(str(session_id)))
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise RetrievalError("chat_index_session_invalid") from exc
+        store = self._get_vector_store()
+        if store is None:
+            raise RetrievalError("vector_store_unavailable")
+        try:
+            store.delete_chat_session(canonical_id)
+        except Exception as exc:
+            raise RetrievalError("chat_index_deletion_unavailable") from exc
+
     def search_chat_history(
         self,
         session_id: str,

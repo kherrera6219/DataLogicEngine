@@ -414,6 +414,18 @@ class DeletionResources:
 
 
 def run_user_deletion(app, subject: DeletionSubject):
+    """Serialize profile deletion with chat indexing and session retention."""
+    from backend.storage.chat_index_coordination import ChatIndexLockError, chat_index_guard
+
+    runtime = app.extensions["dle_runtime"]
+    try:
+        with chat_index_guard(runtime.runtime_root):
+            return _run_user_deletion_locked(app, subject)
+    except ChatIndexLockError as exc:
+        raise RetentionDeleteError("chat_index_lock_unavailable") from exc
+
+
+def _run_user_deletion_locked(app, subject: DeletionSubject):
     from extensions import db
     from backend.storage.connection_manager import get_connection_manager
 

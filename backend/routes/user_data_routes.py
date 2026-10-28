@@ -210,7 +210,7 @@ def delete_user_profile() -> Tuple[Response, int]:
         db.session.rollback()
         logger.error("Cross-store profile deletion incomplete: %s", e)
         return internal_error(
-            "Deletion is incomplete and safely recorded for retry. No completion was claimed."
+            "Deletion is incomplete. No completion was claimed; please retry."
         )
     except SQLAlchemyError as e:
         db.session.rollback()

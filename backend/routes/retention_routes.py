@@ -176,7 +176,7 @@ def run_cleanup():
         results = service.run_cleanup(dry_run=dry_run)
         
         return jsonify({
-            'success': True,
+            'success': results.get('status') == 'success',
             'data': results
         })
     except Exception:

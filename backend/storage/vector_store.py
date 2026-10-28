@@ -12,13 +12,17 @@ from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 
 from backend.storage.chroma_http import ChromaHttpClient
-from backend.storage.chroma_security import safe_get_or_create_collection
+from backend.storage.chroma_security import safe_get_collection, safe_get_or_create_collection
 
 logger = logging.getLogger(__name__)
 
 
 class VectorSearchError(RuntimeError):
     """A vector query failed rather than successfully returning no matches."""
+
+
+class VectorDeleteError(RuntimeError):
+    """A vector deletion failed or could not be verified."""
 
 
 @dataclass
@@ -189,6 +193,22 @@ class ChromaDBBackend(VectorBackend):
         except Exception:
             logger.error("Failed to delete vectors")
             return False
+
+    def delete_chat_session(self, session_id: str) -> None:
+        """Delete and verify all chat vectors for one globally unique session."""
+        if not isinstance(session_id, str) or not session_id or len(session_id) > 128:
+            raise VectorDeleteError("chat_index_session_invalid")
+        try:
+            collection = safe_get_collection(self.client, name="chat_history")
+            selector = {"session_id": {"$eq": session_id}}
+            collection.delete(where=selector)
+            remaining = collection.get(where=selector, limit=1, include=["metadatas"])
+            if not isinstance(remaining, dict) or remaining.get("ids") != []:
+                raise VectorDeleteError("chat_index_deletion_unverified")
+        except VectorDeleteError:
+            raise
+        except Exception as exc:
+            raise VectorDeleteError("chat_index_deletion_unavailable") from exc
     
     def get_collection_stats(self, collection: str) -> Dict[str, Any]:
         """Get collection statistics from ChromaDB."""
@@ -419,6 +439,13 @@ class VectorStore:
     def delete(self, collection: str, ids: List[str]) -> bool:
         """Delete vectors by ID."""
         return self._backend.delete(collection, ids)
+
+    def delete_chat_session(self, session_id: str) -> None:
+        """Delete only when the selected backend supports verified cleanup."""
+        delete_session = getattr(self._backend, "delete_chat_session", None)
+        if not callable(delete_session):
+            raise VectorDeleteError("chat_index_deletion_unsupported")
+        delete_session(session_id)
     
     def get_collection_stats(self, collection: str) -> Dict[str, Any]:
         """Get collection statistics."""
