@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.10 |
+| Document version | v1.20.11 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -29,6 +29,17 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
+- [ ] Disposition the newly observed session-retention gap: relational cleanup
+      does not remove chat-history vectors and can report an archive without
+      creating one. The owner decision on the additional repair is pending; do
+      not run cleanup on user data as a verification shortcut.
+- [ ] Complete final full-suite and installed verification of the later source
+      fixes for document/knowledge index acknowledgments, safe failure logs,
+      and chat/trace reconnect. Focused backend and frontend tests pass.
+- [ ] Qualify a search threshold and representative held-out evaluation. A
+      small public-document screen found 10/12 MiniLM top-1 but only 1/12
+      retained at the existing simulated squared-L2 threshold; it is not an
+      approved production-quality or customer-data evaluation.
 - [ ] Complete and validate the owner-approved
       `docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md`.
       Session/trace scoping, recent-session search, metric display and explicit

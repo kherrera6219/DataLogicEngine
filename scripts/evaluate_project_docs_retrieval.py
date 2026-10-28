@@ -13,6 +13,7 @@ from time import perf_counter
 
 from backend.services.local_sentence_embedding import LocalSentenceEmbedding
 from backend.services.rag_service import RAGService
+from backend.services.text_chunking import split_text
 from scripts.evaluate_local_retrieval_candidates import cosine, lexical_similarity
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,6 +71,17 @@ CASES = (
         "What steps should the operator take when an incident occurs?",
     ),
 )
+UNRELATED_QUESTIONS = (
+    "How do I bake a sourdough loaf?",
+    "What is the orbit of Jupiter?",
+    "How do I replace a bicycle tire?",
+    "Which plants grow in a desert?",
+    "What are the rules of chess castling?",
+    "How do I tune a violin?",
+    "What causes a volcanic eruption?",
+    "How do I make a wool sweater?",
+)
+SCREEN_THRESHOLDS = (0.15, 0.0, -0.25, -0.5)
 
 
 def section(filename: str, heading: str) -> str:
@@ -91,6 +103,9 @@ def main() -> None:
     parser.add_argument("model_path", type=Path)
     parser.add_argument("--weights-sha256", required=True)
     parser.add_argument("--manifest-sha256", required=True)
+    parser.add_argument(
+        "--chunked", action="store_true", help="Screen production-style document chunks"
+    )
     args = parser.parse_args()
     embed = LocalSentenceEmbedding(
         args.model_path.resolve(strict=True),
@@ -98,14 +113,22 @@ def main() -> None:
         expected_manifest_sha256=args.manifest_sha256,
     )
     started = perf_counter()
-    documents = [section(filename, heading) for filename, heading, _ in CASES]
+    sections = [section(filename, heading) for filename, heading, _ in CASES]
+    documents: list[str] = []
+    source_ids: list[int] = []
+    for source_id, text in enumerate(sections):
+        chunks = split_text(text, 512, 50) if args.chunked else [text]
+        documents.extend(chunks)
+        source_ids.extend([source_id] * len(chunks))
     semantic_documents = [embed(document) for document in documents]
     semantic_questions = [embed(question) for _, _, question in CASES]
+    unrelated_vectors = [embed(question) for question in UNRELATED_QUESTIONS]
     baseline = RAGService()
     hash_documents = [
         baseline._deterministic_embedding(document) for document in documents
     ]
     counts = {name: [0, 0, 0] for name in ("hash", "lexical", "minilm")}
+    positive_retained = {threshold: 0 for threshold in SCREEN_THRESHOLDS}
     for index, (_, _, question) in enumerate(CASES):
         query_hash = baseline._deterministic_embedding(question)
         scores = {
@@ -117,8 +140,8 @@ def main() -> None:
         }
         for name, values in scores.items():
             ordered = sorted(range(len(values)), key=lambda item: (-values[item], item))
-            counts[name][0] += ordered[0] == index
-            counts[name][1] += index in ordered[:4]
+            counts[name][0] += source_ids[ordered[0]] == index
+            counts[name][1] += any(source_ids[item] == index for item in ordered[:4])
             if name != "lexical":
                 query = query_hash if name == "hash" else semantic_questions[index]
                 vectors = hash_documents if name == "hash" else semantic_documents
@@ -129,12 +152,38 @@ def main() -> None:
                 l2_ordered = sorted(
                     range(len(l2_scores)), key=lambda item: (-l2_scores[item], item)
                 )
-                counts[name][2] += index in l2_ordered[:4] and l2_scores[index] >= 0.15
-    print(f"Public documentation screen: {len(CASES)} sections and questions")
+                counts[name][2] += any(
+                    source_ids[item] == index and l2_scores[item] >= 0.15
+                    for item in l2_ordered[:4]
+                )
+                if name == "minilm":
+                    for threshold in SCREEN_THRESHOLDS:
+                        positive_retained[threshold] += any(
+                            source_ids[item] == index and l2_scores[item] >= threshold
+                            for item in l2_ordered[:4]
+                        )
+    print(
+        f"Public documentation screen: {len(CASES)} sections, "
+        f"{len(documents)} indexed pieces and {len(CASES)} questions"
+    )
     for name, (top1, top4, retained) in counts.items():
         suffix = "not applicable" if name == "lexical" else f"{retained}/{len(CASES)}"
         print(
             f"{name}: top1={top1}/{len(CASES)} top4={top4}/{len(CASES)} threshold={suffix}"
+        )
+    negative_scores = [
+        max(
+            1.0 - sum((a - b) ** 2 for a, b in zip(question, document))
+            for document in semantic_documents
+        )
+        for question in unrelated_vectors
+    ]
+    for threshold in SCREEN_THRESHOLDS:
+        admitted = sum(score >= threshold for score in negative_scores)
+        print(
+            f"minilm threshold {threshold:.2f}: "
+            f"known target retained={positive_retained[threshold]}/{len(CASES)}, "
+            f"unrelated query with a match={admitted}/{len(UNRELATED_QUESTIONS)}"
         )
     print(f"Elapsed: {perf_counter() - started:.2f}s; model truncation applies")
     print(

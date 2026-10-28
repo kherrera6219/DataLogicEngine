@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.10 |
+| Document version | v1.22.11 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -27,6 +27,14 @@
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
 ## Required first read
+
+The current review-repair branch has additional source fixes for index-write
+acknowledgments, redacted failure logs, and reconnection of current chat and
+trace rooms. Focused backend (66) and frontend (70) tests pass. A small offline
+public-document screen further demonstrates that the existing threshold can
+exclude relevant MiniLM results; it is not threshold or migration acceptance.
+Full current-source tests, safe chat-index reconciliation, local-model
+packaging, migration, and installed/provider validation remain open.
 
 October 27 owner-approved frontend/retrieval fast-track source work was merged
 to main in PR #98; see

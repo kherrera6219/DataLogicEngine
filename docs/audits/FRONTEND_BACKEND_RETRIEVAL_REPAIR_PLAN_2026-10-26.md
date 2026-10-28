@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-REVIEW-2026-10-26 |
-| Document version | v1.1.1 |
+| Document version | v1.1.2 |
 | Product version | 4.4.6 at review |
 | Review baseline | main `f91dd4919c6a5c3265c9fc82bdbb388f15a3b5aa` |
 | Date | 2026-10-26 |
@@ -26,6 +26,32 @@ These results do not establish search quality or installed acceptance.
 
 ## October 27 progress checkpoint
 
+Later source work corrects unacknowledged document and knowledge-node vector
+writes: documents report an explicit internal retrieval error for incomplete
+writes, and failed knowledge-node materializations remain retryable. Index
+failure logs no longer include exception text. A focused recovery test and 66
+related backend tests pass. The chat client also restores current chat and
+trace rooms after a connection returns; 70 focused frontend tests pass. These
+changes still require final full-suite and installed verification.
+
+A reproducible offline screen of 12 public documentation sections and 12
+manually written questions found hash ranking top-1 1/12 and top-4 4/12,
+lexical top-1 4/12 and top-4 8/12, and MiniLM top-1 10/12 and top-4 12/12.
+Using simulated squared-L2 ranking with the existing 0.15 threshold retained
+the target for 0/12 hash and 1/12 MiniLM questions. Model truncation applies.
+This small screen uses public documents, not retained customer data; it does
+not qualify a threshold, approve an index cutover, or measure production accuracy.
+The reproducible tool is `scripts/evaluate_project_docs_retrieval.py`.
+The same screen includes eight manually chosen unrelated questions. On this
+small set, MiniLM thresholds 0.15, 0.00, -0.25, and -0.50 retained 1/12,
+7/12, 11/12, and 11/12 known targets respectively, while none of the eight
+unrelated questions crossed those thresholds. These queries and sections are
+too few and too easy to establish false-positive rates or select a threshold.
+The optional production-style chunker produced 12 pieces for these short
+sections; MiniLM retained the same 10/12 top-1 and 1/12 at 0.15. The hash
+top-4 result changed from 4/12 to 1/12 after chunk normalization, illustrating
+that this projection is sensitive to exact text representation.
+
 Kevin authorized this repair as a separate fast-track while Phase A and release
 gates remain open, and approved an offline MiniLM model with a separate,
 recoverable index. Source changes now cover session-scoped chat and trace,
@@ -40,7 +66,7 @@ the captured summary did not retain the error detail. The test and its full
 six-test module pass when rerun independently. The cause is not established.
 A subsequent sequential Windows backend run at `04885301` passed 3,401 tests,
 with 19 skipped, 35 warnings and zero failures, setup or collection errors. The
-backend and backend tests are unchanged since that run. At `1767a887` the full
+backend and backend tests have since changed. At `1767a887` the full
 frontend suite passed 520 tests across 93 files, and frontend lint and type
 checking passed. The unrestricted Python lint and format
 gates have existing failures on both main and the repair branch, and `mypy` is
@@ -95,6 +121,12 @@ and exact rebuilt/installed/provider acceptance. The active app continues to
 use the existing hash projection and index. No user data has been migrated and
 no new installer has been built for this repair. Do not treat the shadow-index
 tool or this source checkpoint as enabling semantic retrieval in the app.
+
+A separate source review of session retention found that `cleanup_sessions`
+deletes relational sessions without deleting their `chat_history` vectors and
+can count sessions as archived without creating an archive. The retention route
+can invoke this code. The owner's decision on the additional repair is pending;
+no cleanup or user-data mutation was performed during this review.
 
 During the index-lifecycle review, a newly discovered deletion defect was
 reproduced: a failed Chroma lookup could be treated as zero remnants. Kevin
