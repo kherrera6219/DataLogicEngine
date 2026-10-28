@@ -36,7 +36,9 @@ def test_local_ingestion_creates_sql_nodes_and_manifest(app, tmp_path, monkeypat
 
     with app.app_context():
         rag = FakeRag()
-        result = LocalKnowledgeIngestionService(rag_service=rag, chunk_size=32).ingest_path(source)
+        result = LocalKnowledgeIngestionService(
+            rag_service=rag, chunk_size=32
+        ).ingest_path(source)
 
         assert result.files_scanned == 1
         assert result.files_ingested == 1
@@ -76,33 +78,52 @@ def test_local_ingestion_dedupes_by_chunk_hash(app, tmp_path, monkeypatch):
         assert KnowledgeGraphNode.query.count() == 2
 
 
-def test_ingestion_ownership_is_materialized_and_other_users_do_not_share_ids(app,tmp_path,monkeypatch):
+def test_ingestion_ownership_is_materialized_and_other_users_do_not_share_ids(
+    app, tmp_path, monkeypatch
+):
     from extensions import db
     from tests.conftest import create_test_user
     from models import IngestionFile
 
-    monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR",str(tmp_path/"manifests"))
-    source=tmp_path/"corpus"; source.mkdir()
-    (source/"same.txt").write_text("same owned source",encoding="utf-8")
+    monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(tmp_path / "manifests"))
+    source = tmp_path / "corpus"
+    source.mkdir()
+    (source / "same.txt").write_text("same owned source", encoding="utf-8")
     with app.app_context():
-        first_owner=create_test_user(username="first-ingest-owner",email="first-ingest@example.com",password="SecureTest789$#@")
-        second_owner=create_test_user(username="second-ingest-owner",email="second-ingest@example.com",password="SecureTest789$#@")
-        service=LocalKnowledgeIngestionService(rag_service=FakeRag())
-        first=service.ingest_path(source,user_id=first_owner,tenant_id="same",metadata={"user_id":"forged-owner"})
-        first_ids={node.uid for node in KnowledgeGraphNode.query.all()}
-        second=service.ingest_path(source,user_id=second_owner,tenant_id="same")
-        assert first.chunks_created==second.chunks_created==2
-        assert len({node.uid for node in KnowledgeGraphNode.query.all()})==4
-        assert len({row.document_uid for row in IngestionFile.query.all()})==2
-        repeated=service.ingest_path(source,user_id=first_owner,tenant_id="same")
-        assert repeated.chunks_created==0
+        first_owner = create_test_user(
+            username="first-ingest-owner",
+            email="first-ingest@example.com",
+            password="SecureTest789$#@",
+        )
+        second_owner = create_test_user(
+            username="second-ingest-owner",
+            email="second-ingest@example.com",
+            password="SecureTest789$#@",
+        )
+        service = LocalKnowledgeIngestionService(rag_service=FakeRag())
+        first = service.ingest_path(
+            source,
+            user_id=first_owner,
+            tenant_id="same",
+            metadata={"user_id": "forged-owner"},
+        )
+        first_ids = {node.uid for node in KnowledgeGraphNode.query.all()}
+        second = service.ingest_path(source, user_id=second_owner, tenant_id="same")
+        assert first.chunks_created == second.chunks_created == 2
+        assert len({node.uid for node in KnowledgeGraphNode.query.all()}) == 4
+        assert len({row.document_uid for row in IngestionFile.query.all()}) == 2
+        repeated = service.ingest_path(source, user_id=first_owner, tenant_id="same")
+        assert repeated.chunks_created == 0
         for event in CrossStoreOutboxEvent.query.all():
-            if event.operation=="upsert_knowledge_node":
-                owner=event.payload["metadata"]["user_id"]
-            elif event.operation=="merge_knowledge_node":
-                owner=event.payload["properties"]["user_id"]
-            else:continue
-            assert str(owner)==str(first_owner if event.entity_id in first_ids else second_owner)
+            if event.operation == "upsert_knowledge_node":
+                owner = event.payload["metadata"]["user_id"]
+            elif event.operation == "merge_knowledge_node":
+                owner = event.payload["properties"]["user_id"]
+            else:
+                continue
+            assert str(owner) == str(
+                first_owner if event.entity_id in first_ids else second_owner
+            )
         db.session.rollback()
 
 
@@ -128,12 +149,16 @@ def test_same_source_new_chunker_supersedes_old_chunks(app, tmp_path, monkeypatc
         assert repeated.chunks_created == 0
         assert KnowledgeGraphNode.query.count() == 4
         assert IngestionFile.query.filter_by(status="deletion_pending").count() == 1
-        deletes = CrossStoreOutboxEvent.query.filter_by(operation="delete_knowledge_node").all()
+        deletes = CrossStoreOutboxEvent.query.filter_by(
+            operation="delete_knowledge_node"
+        ).all()
         assert {event.entity_id for event in deletes} == old_ids
         assert len(deletes) == 4
 
 
-def test_ingestion_route_accepts_allowed_local_path(authenticated_client, tmp_path, monkeypatch):
+def test_ingestion_route_accepts_allowed_local_path(
+    authenticated_client, tmp_path, monkeypatch
+):
     source = tmp_path / "route-corpus"
     source.mkdir()
     (source / "note.txt").write_text("route ingestion content", encoding="utf-8")
@@ -164,7 +189,9 @@ def test_ingestion_route_accepts_allowed_local_path(authenticated_client, tmp_pa
     assert payload["data"]["chunks_created"] == 1
 
 
-def test_ingestion_route_rejects_path_outside_allowed_root(authenticated_client, tmp_path, monkeypatch):
+def test_ingestion_route_rejects_path_outside_allowed_root(
+    authenticated_client, tmp_path, monkeypatch
+):
     allowed = tmp_path / "allowed"
     allowed.mkdir()
     outside = tmp_path / "outside"
@@ -181,7 +208,9 @@ def test_ingestion_route_rejects_path_outside_allowed_root(authenticated_client,
     assert response.get_json()["error"] == "Invalid ingestion path"
 
 
-def test_ingestion_history_lists_recent_manifests(authenticated_client, tmp_path, monkeypatch):
+def test_ingestion_history_lists_recent_manifests(
+    authenticated_client, tmp_path, monkeypatch
+):
     manifest_dir = tmp_path / "manifests"
     manifest_dir.mkdir()
     monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(manifest_dir))
@@ -217,7 +246,9 @@ def test_ingestion_supported_returns_defaults(authenticated_client):
     assert payload["data"]["default_max_files"] == 1000
 
 
-def test_ingestion_route_rejects_invalid_resource_limits(authenticated_client, tmp_path, monkeypatch):
+def test_ingestion_route_rejects_invalid_resource_limits(
+    authenticated_client, tmp_path, monkeypatch
+):
     source = tmp_path / "corpus"
     source.mkdir()
     (source / "note.txt").write_text("bounded", encoding="utf-8")
@@ -246,7 +277,10 @@ class FakeDocumentProcessor:
                 "text": "Extracted PDF content from " + filename,
                 "metadata": {"type": "pdf", "pages": 1},
             }
-        if mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        if (
+            mime_type
+            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ):
             return {
                 "text": "Extracted DOCX content from " + filename,
                 "metadata": {"type": "docx", "paragraphs": 1},
@@ -265,7 +299,9 @@ def test_pdf_file_ingestion_uses_document_processor(app, tmp_path, monkeypatch):
         rag = FakeRag()
         processor = FakeDocumentProcessor()
         service = LocalKnowledgeIngestionService(
-            rag_service=rag, document_processor=processor, chunk_size=2000,
+            rag_service=rag,
+            document_processor=processor,
+            chunk_size=2000,
         )
         result = service.ingest_path(source)
 
@@ -289,7 +325,9 @@ def test_docx_file_ingestion_uses_document_processor(app, tmp_path, monkeypatch)
         rag = FakeRag()
         processor = FakeDocumentProcessor()
         service = LocalKnowledgeIngestionService(
-            rag_service=rag, document_processor=processor, chunk_size=2000,
+            rag_service=rag,
+            document_processor=processor,
+            chunk_size=2000,
         )
         result = service.ingest_path(source)
 
@@ -332,7 +370,9 @@ def test_malformed_pdf_rejects_gracefully(app, tmp_path, monkeypatch):
         assert result.rejected_files[0].reason == "document_parser_failed"
 
 
-def test_ingestion_stages_source_and_removes_plaintext_staging(app, tmp_path, monkeypatch):
+def test_ingestion_stages_source_and_removes_plaintext_staging(
+    app, tmp_path, monkeypatch
+):
     monkeypatch.setenv("DATALOGIC_INGESTION_MANIFEST_DIR", str(tmp_path / "manifests"))
     source = tmp_path / "corpus"
     source.mkdir()
@@ -418,7 +458,9 @@ def test_async_ingestion_status_route(authenticated_client, tmp_path, monkeypatc
     assert response.get_json()["success"] is False
 
 
-def test_async_route_starts_and_returns_202(authenticated_client, tmp_path, monkeypatch):
+def test_async_route_starts_and_returns_202(
+    authenticated_client, tmp_path, monkeypatch
+):
     import time
 
     source = tmp_path / "async-corpus"
@@ -452,7 +494,9 @@ def test_async_route_starts_and_returns_202(authenticated_client, tmp_path, monk
 
     # Poll until done.
     for _ in range(20):
-        status_response = authenticated_client.get(f"/api/v1/ingestion/status/{ingestion_id}")
+        status_response = authenticated_client.get(
+            f"/api/v1/ingestion/status/{ingestion_id}"
+        )
         if status_response.get_json()["data"]["status"] not in {"queued", "running"}:
             break
         time.sleep(0.1)
@@ -473,7 +517,9 @@ def test_neo4j_sync_flag_reports_durable_outbox_pending(app, tmp_path, monkeypat
     with app.app_context():
         service = LocalKnowledgeIngestionService(rag_service=FakeRag())
         ingestion_id = service.ingest_path_async(
-            source, sync_neo4j=True, flask_app=app,
+            source,
+            sync_neo4j=True,
+            flask_app=app,
         )
 
         for _ in range(20):

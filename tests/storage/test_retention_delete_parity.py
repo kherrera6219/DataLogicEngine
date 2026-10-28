@@ -31,8 +31,12 @@ def test_user_deletion_requires_the_same_chat_index_lock(tmp_path, monkeypatch):
         lambda root: real_guard(root, timeout_seconds=0.1),
     )
     calls = []
-    monkeypatch.setattr(deletion, "_run_user_deletion_locked", lambda *_args: calls.append(True))
-    app = SimpleNamespace(extensions={"dle_runtime": SimpleNamespace(runtime_root=tmp_path)})
+    monkeypatch.setattr(
+        deletion, "_run_user_deletion_locked", lambda *_args: calls.append(True)
+    )
+    app = SimpleNamespace(
+        extensions={"dle_runtime": SimpleNamespace(runtime_root=tmp_path)}
+    )
     with real_guard(tmp_path):
         with pytest.raises(RetentionDeleteError, match="chat_index_lock_unavailable"):
             deletion.run_user_deletion(app, DeletionSubject("user", "1"))
@@ -134,10 +138,10 @@ def test_unapproved_remnant_fails_closed_but_preserves_retry_tombstone(app):
         adapters = {name: FakeDeletionAdapter(1) for name in REQUIRED_STORES}
         adapters["minio"] = FakeDeletionAdapter(1, retained=1, basis=None)
 
-        with pytest.raises(RetentionDeleteError, match="cross_store_deletion_incomplete"):
-            _coordinator(db.session, adapters).run(
-                DeletionSubject("user", "user-8")
-            )
+        with pytest.raises(
+            RetentionDeleteError, match="cross_store_deletion_incomplete"
+        ):
+            _coordinator(db.session, adapters).run(DeletionSubject("user", "user-8"))
 
         tombstone = DataDeletionTombstone.query.one()
         assert tombstone.status == "partial_failure"
@@ -167,7 +171,9 @@ def test_chroma_lookup_failure_cannot_be_reported_as_complete_deletion(app):
     with app.app_context():
         adapters = {name: FakeDeletionAdapter(0) for name in REQUIRED_STORES}
         adapters["chroma"] = adapter
-        with pytest.raises(RetentionDeleteError, match="cross_store_deletion_incomplete"):
+        with pytest.raises(
+            RetentionDeleteError, match="cross_store_deletion_incomplete"
+        ):
             _coordinator(db.session, adapters).run(subject)
         tombstone = DataDeletionTombstone.query.one()
         assert tombstone.status == "partial_failure"
@@ -182,25 +188,44 @@ def test_failed_external_store_preserves_authority_for_a_successful_retry(app):
     from tests.conftest import create_test_user
 
     class UnavailableStore:
-        def delete(self, subject):raise RetentionDeleteError("synthetic_store_unavailable")
-        def remnant_count(self, subject):raise RetentionDeleteError("synthetic_store_unavailable")
+        def delete(self, subject):
+            raise RetentionDeleteError("synthetic_store_unavailable")
+
+        def remnant_count(self, subject):
+            raise RetentionDeleteError("synthetic_store_unavailable")
 
     with app.app_context():
-        owner=create_test_user(username="deletion-retry-owner",email="deletion-retry@example.com",password="SecureTest789$#@")
-        node=KnowledgeGraphNode(uid="retry-owned",node_type="ingested_document_chunk",
-            content="synthetic retained authority",node_metadata={"permissions":{"owner_user_id":owner}})
-        db.session.add(node); db.session.commit()
-        adapters={name:FakeDeletionAdapter(0) for name in REQUIRED_STORES}
-        adapters["postgresql"]=PostgreSQLUserDeletionAdapter(db.session,db.metadata)
-        adapters["chroma"]=UnavailableStore()
-        subject=DeletionSubject("user",str(owner))
-        with pytest.raises(RetentionDeleteError,match="cross_store_deletion_incomplete"):
-            _coordinator(db.session,adapters).run(subject)
-        assert db.session.get(User,owner) is not None
-        assert KnowledgeGraphNode.query.filter_by(uid="retry-owned").count()==1
-        pending=DataDeletionTombstone.query.order_by(DataDeletionTombstone.requested_at.desc()).first()
-        assert pending.store_status["postgresql"]["safe_reason"]=="authority_retained_for_retry"
-        adapters["chroma"]=FakeDeletionAdapter(0)
-        assert _coordinator(db.session,adapters).run(subject).status=="completed"
-        assert db.session.get(User,owner) is None
-        assert KnowledgeGraphNode.query.filter_by(uid="retry-owned").count()==0
+        owner = create_test_user(
+            username="deletion-retry-owner",
+            email="deletion-retry@example.com",
+            password="SecureTest789$#@",
+        )
+        node = KnowledgeGraphNode(
+            uid="retry-owned",
+            node_type="ingested_document_chunk",
+            content="synthetic retained authority",
+            node_metadata={"permissions": {"owner_user_id": owner}},
+        )
+        db.session.add(node)
+        db.session.commit()
+        adapters = {name: FakeDeletionAdapter(0) for name in REQUIRED_STORES}
+        adapters["postgresql"] = PostgreSQLUserDeletionAdapter(db.session, db.metadata)
+        adapters["chroma"] = UnavailableStore()
+        subject = DeletionSubject("user", str(owner))
+        with pytest.raises(
+            RetentionDeleteError, match="cross_store_deletion_incomplete"
+        ):
+            _coordinator(db.session, adapters).run(subject)
+        assert db.session.get(User, owner) is not None
+        assert KnowledgeGraphNode.query.filter_by(uid="retry-owned").count() == 1
+        pending = DataDeletionTombstone.query.order_by(
+            DataDeletionTombstone.requested_at.desc()
+        ).first()
+        assert (
+            pending.store_status["postgresql"]["safe_reason"]
+            == "authority_retained_for_retry"
+        )
+        adapters["chroma"] = FakeDeletionAdapter(0)
+        assert _coordinator(db.session, adapters).run(subject).status == "completed"
+        assert db.session.get(User, owner) is None
+        assert KnowledgeGraphNode.query.filter_by(uid="retry-owned").count() == 0
