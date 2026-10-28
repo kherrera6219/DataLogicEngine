@@ -74,14 +74,19 @@ def main():
                     )
                 }
 
-            def get(self, where):
-                key, value = next(iter(where.items()))
-                return {
-                    "ids": [
-                        item
-                        for item, meta in self.rows.items()
+            def get(self, where=None, *, limit=500, offset=0, include=None):
+                selected = list(self.rows.items())
+                if where:
+                    key, value = next(iter(where.items()))
+                    selected = [
+                        (item, meta)
+                        for item, meta in selected
                         if meta.get(key) == value
                     ]
+                selected = selected[offset : offset + limit]
+                return {
+                    "ids": [item for item, _ in selected],
+                    "metadatas": [meta for _, meta in selected],
                 }
 
             def delete(self, ids):
@@ -92,8 +97,10 @@ def main():
             def __init__(self):
                 self.collection = Collection()
 
-            def list_collections(self):
-                return [SimpleNamespace(name="knowledge_nodes")]
+            def list_collections(self, limit=100, offset=0):
+                return [SimpleNamespace(name="knowledge_nodes")][
+                    offset : offset + limit
+                ]
 
             def get_collection(self, **kwargs):
                 return self.collection

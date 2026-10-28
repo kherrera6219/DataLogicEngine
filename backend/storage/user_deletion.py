@@ -188,8 +188,10 @@ class Neo4jUserDeletionAdapter:
         with self.driver.session() as session:
             rows=session.run(
                 "MATCH (n) RETURN elementId(n) AS element_id, "
-                "{uid:n.uid,node_id:n.node_id,user_id:n.user_id,owner_user_id:n.owner_user_id,"
-                "tenant_id:n.tenant_id,permissions:n.permissions,node_metadata:n.node_metadata,metadata:n.metadata} AS properties"
+                "{uid:n[$ownership_keys[0]],node_id:n[$ownership_keys[1]],user_id:n[$ownership_keys[2]],"
+                "owner_user_id:n[$ownership_keys[3]],tenant_id:n[$ownership_keys[4]],permissions:n[$ownership_keys[5]],"
+                "node_metadata:n[$ownership_keys[6]],metadata:n[$ownership_keys[7]]} AS properties",
+                ownership_keys=["uid","node_id","user_id","owner_user_id","tenant_id","permissions","node_metadata","metadata"],
             )
             for row in rows:
                 properties=row["properties"]
