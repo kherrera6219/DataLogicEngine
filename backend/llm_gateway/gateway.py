@@ -1189,13 +1189,16 @@ class LLMGateway:
                     f"{bounded_title}..." if len(content.strip()) > 50 else bounded_title
                 )
 
+            if role in {"user", "assistant"}:
+                from backend.storage.chat_index_recovery import enqueue_chat_index
+
+                enqueue_chat_index(db.session, msg, session)
             db.session.commit()
         except SQLAlchemyError:
             db.session.rollback()
             logger.error(
                 "Chat transcript persistence failed for session %s",
                 parsed_session_id,
-                exc_info=True,
             )
             return ChatMessagePersistenceResult(
                 ok=False,

@@ -18,6 +18,7 @@ from models import CrossStoreMaterializationState, CrossStoreOutboxEvent
 _DESTINATIONS = {"neo4j", "chroma", "minio"}
 _IDENTIFIER_RE = re.compile(r"^[a-z0-9][a-z0-9_.:-]{0,119}$")
 _SAFE_REASON_RE = re.compile(r"^[a-z0-9][a-z0-9_:.-]{0,119}$")
+CHAT_INDEX_MAX_ATTEMPTS = 8
 
 
 def canonical_payload_sha256(payload: dict[str, Any]) -> str:
@@ -160,6 +161,9 @@ class CrossStoreOutbox:
         now = datetime.now(UTC)
         stale_processing = now - timedelta(seconds=processing_timeout_seconds)
         query = self.session.query(CrossStoreOutboxEvent).filter(
+            or_(CrossStoreOutboxEvent.entity_type != "chat_message",
+                CrossStoreOutboxEvent.attempts < CHAT_INDEX_MAX_ATTEMPTS,
+                CrossStoreOutboxEvent.status == "processing"),
             or_(
                 (
                     CrossStoreOutboxEvent.status.in_(("pending", "failed"))

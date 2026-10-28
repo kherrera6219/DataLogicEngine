@@ -27,6 +27,10 @@ DeliveryHandler = Callable[[CrossStoreOutboxEvent], str]
 
 
 def _chroma_handler(event: CrossStoreOutboxEvent) -> str:
+    if event.operation == "upsert_chat_message":
+        from backend.storage.chat_index_recovery import deliver_chat_index
+
+        return deliver_chat_index(event)
     if event.operation == "delete_knowledge_node":
         from backend.services.rag_service import get_rag_service
 

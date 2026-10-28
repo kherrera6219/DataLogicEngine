@@ -196,6 +196,9 @@ class DataRetentionService:
                         rag = get_rag_service()
                         for chat_session in sessions:
                             rag.delete_chat_session(str(chat_session.id))
+                            from backend.storage.chat_index_recovery import remove_session_retries
+
+                            remove_session_retries(db.session, chat_session.id)
                             db.session.delete(chat_session)
                             db.session.commit()
                             result["deleted_count"] += 1
