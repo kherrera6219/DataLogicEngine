@@ -18,6 +18,27 @@ from models import DataDeletionTombstone
 from backend.storage.user_deletion import ChromaUserDeletionAdapter
 
 
+def test_user_deletion_requires_the_same_chat_index_lock(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    import backend.storage.chat_index_coordination as coordination
+    import backend.storage.user_deletion as deletion
+
+    real_guard = coordination.chat_index_guard
+    monkeypatch.setattr(
+        coordination,
+        "chat_index_guard",
+        lambda root: real_guard(root, timeout_seconds=0.1),
+    )
+    calls = []
+    monkeypatch.setattr(deletion, "_run_user_deletion_locked", lambda *_args: calls.append(True))
+    app = SimpleNamespace(extensions={"dle_runtime": SimpleNamespace(runtime_root=tmp_path)})
+    with real_guard(tmp_path):
+        with pytest.raises(RetentionDeleteError, match="chat_index_lock_unavailable"):
+            deletion.run_user_deletion(app, DeletionSubject("user", "1"))
+    assert calls == []
+
+
 class FakeDeletionAdapter:
     def __init__(self, count: int, *, retained: int = 0, basis: str | None = None):
         self.count = count
