@@ -134,3 +134,31 @@ def test_authoritative_uid_owner_conflict_is_explicit_and_does_not_delete():
     with pytest.raises(RetentionDeleteError,match="ownership"):
         Neo4jUserDeletionAdapter(driver,knowledge_uids={"legacy-uid"}).delete(DeletionSubject("user","1"))
     assert len(driver.rows)==3
+
+
+def test_search_pagination_removes_all_owned_records_and_preserves_other_owner():
+    client=Client()
+    for index in range(600):
+        client.collection.rows[f"owned-{index}"]={"permissions":json.dumps({"owner_user_id":"1"})}
+    adapter=ChromaUserDeletionAdapter(client,knowledge_uids={"legacy-uid"})
+    assert adapter.delete(DeletionSubject("user","1")).deleted_count==602
+    assert set(client.collection.rows)=={"two"}
+
+
+def test_ignored_search_page_offset_is_failure_without_mutation():
+    client=Client()
+    for index in range(600):client.collection.rows[f"owned-{index}"]={"user_id":"1"}
+    original=client.collection.get
+    client.collection.get=lambda **kwargs:original(**{**kwargs,"offset":0})
+    with pytest.raises(RetentionDeleteError):
+        ChromaUserDeletionAdapter(client).delete(DeletionSubject("user","1"))
+    assert len(client.collection.rows)==603
+
+
+def test_relational_malformed_owner_metadata_fails_before_deleting_identity(authority):
+    session,metadata,nodes,_,_=authority
+    session.execute(nodes.update().where(nodes.c.id==1).values(node_metadata={"permissions":"{broken"}))
+    session.commit()
+    with pytest.raises(RetentionDeleteError):
+        PostgreSQLUserDeletionAdapter(session,metadata).delete(DeletionSubject("user","1"))
+    assert session.scalar(select(func.count()).select_from(metadata.tables["users"]))==2

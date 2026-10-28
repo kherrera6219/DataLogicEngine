@@ -151,7 +151,7 @@ def test_chroma_lookup_failure_cannot_be_reported_as_complete_deletion(app):
             raise RuntimeError("private storage detail")
 
     class BrokenClient:
-        def list_collections(self):
+        def list_collections(self, limit=100, offset=0):
             return ["synthetic"]
 
         def get_collection(self, **kwargs):
