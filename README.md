@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-27 |
+| Last reviewed | 2026-10-28 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -50,13 +50,20 @@ update check, crash-reporting egress, or phone-home.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
+The October 28 draft repair adds durable, bounded chat-index retries, deletion
+checks, and retention coordination. Focused Windows recovery tests pass;
+installed recovery acceptance remains open. A separate frozen Windows MiniLM
+probe passed with network connections blocked, but the app's search model and
+installer have not been changed. Search acceptance criteria and the broader
+evaluation are still under review.
+
 The October 27 frontend and retrieval review repairs are in progress. Source
 changes address chat-session and trace isolation, session search, confidence
 display, search and indexing failure reporting, per-run graph-context status,
 and a deletion lookup failure. PR #98 merged these source changes; PR #99
 added diagnostics for an evidence test that failed twice in an earlier Deploy
 run before passing on rerun. Its original failure cause is not established.
-At main `f82e0a86`, CI/CD, Deploy, and Security workflows passed. The latest sequential Windows backend run passed
+At main `f82e0a86`, CI/CD, Deploy, and Security workflows passed. The October 27 sequential Windows backend run passed
 3,401 tests with 19 skipped; the frontend suite passed 520 tests. These are
 source results, not installed-app or live-provider acceptance. The
 [review repair plan](docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md)

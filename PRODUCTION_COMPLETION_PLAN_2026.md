@@ -19,6 +19,14 @@
 
 ### Current execution checkpoint
 
+The October 28 draft review-repair branch adds durable, bounded chat-index
+recovery and session-retention coordination. Focused recovery checks pass;
+installed restart/outage recovery remains open. A separate frozen Windows
+MiniLM probe passed with network connections blocked. That probe does not
+activate semantic search or change the application installer. The proposed
+broader retrieval corpus and acceptance criteria await the owner's decision;
+see `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
+
 The October 27 owner-approved review repairs and evidence-test diagnostics
 merged in PRs #98 and #99. At main `f82e0a86`, CI/CD, Deploy, and Security
 workflows passed. The Windows backend suite with the Authlib 1.9.1 update

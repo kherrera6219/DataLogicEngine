@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-REVIEW-2026-10-26 |
-| Document version | v1.1.2 |
+| Document version | v1.1.3 |
 | Product version | 4.4.6 at review |
 | Review baseline | main `f91dd4919c6a5c3265c9fc82bdbb388f15a3b5aa` |
 | Date | 2026-10-26 |
