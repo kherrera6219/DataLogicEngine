@@ -149,7 +149,7 @@ def test_crash_at_retry_limit_is_reported_without_another_index_write(app, monke
         assert CrossStoreMaterializationDispatcher(db.session).run_once()["claimed"] == 0
 
 
-def test_queue_failure_rolls_back_the_new_transcript_row(app, monkeypatch):
+def test_queue_failure_rolls_back_the_new_transcript_row(app, monkeypatch, caplog):
     from sqlalchemy.exc import SQLAlchemyError
 
     with app.app_context():
@@ -162,3 +162,19 @@ def test_queue_failure_rolls_back_the_new_transcript_row(app, monkeypatch):
         assert not failed.ok
         assert ChatMessage.query.count() == 1
         assert CrossStoreOutboxEvent.query.count() == 1
+        assert "synthetic transaction failure" not in caplog.text
+
+
+def test_failed_worker_delivery_waits_then_recovers(app, monkeypatch):
+    with app.app_context():
+        result, _ = _save(app, monkeypatch)
+        dispatcher = CrossStoreMaterializationDispatcher(db.session)
+        assert dispatcher.run_once()["failed"] == 1
+        assert dispatcher.run_once()["claimed"] == 0
+        event = CrossStoreOutboxEvent.query.filter_by(entity_id=result.message_id).one()
+        event.available_at = datetime.now(UTC) - timedelta(seconds=1)
+        db.session.commit()
+        monkeypatch.setattr("backend.services.rag_service.get_rag_service",
+            lambda: SimpleNamespace(store_chat_message=lambda *a, **k: True))
+        assert dispatcher.run_once()["succeeded"] == 1
+        assert event.attempts == 2
