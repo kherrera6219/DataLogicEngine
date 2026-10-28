@@ -151,8 +151,11 @@ class RetentionDeleteCoordinator:
             if store == "postgresql" and failed:
                 # Retain the identity and canonical ownership map for retry.
                 statuses[store] = {
-                    "status": "failed", "deleted_count": 0, "retained_count": None,
-                    "retention_basis": None, "safe_reason": "authority_retained_for_retry",
+                    "status": "failed",
+                    "deleted_count": 0,
+                    "retained_count": None,
+                    "retention_basis": None,
+                    "safe_reason": "authority_retained_for_retry",
                 }
                 continue
             try:
