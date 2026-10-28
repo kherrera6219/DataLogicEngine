@@ -44,6 +44,12 @@ conditions, and exit gates remain authoritative in the active root plan.
       October 28; the long-document prototype passes its synthetic screen.
       Candidate details and limitations are in
       `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
+- [ ] Complete semantic source integration after `fa28f99f`: configured local
+      document chunks now fit the model tokenizer (32 focused tests pass), but
+      long chat/knowledge/text items, versioned collection routing, metric
+      validation, synchronized migration/rollback and full app packaging remain
+      open. The default model is still the hash projection. A stopped-data
+      recovery copy was hash-verified locally; restore is not yet tested.
 - [ ] Qualify the owner-approved session-retention repair in the installed app.
       An isolated real index passed synthetic deletion, preservation and retry
       checks; the full locked-environment Windows suite passed 3,423 tests

@@ -28,6 +28,22 @@
 
 ## Required first read
 
+October 28 next-source checkpoint: `fa28f99f` adds model-token-bounded document
+chunking when a local embedding model is explicitly injected into RAG. Its
+32 focused tests pass, and the real offline tokenizer screen retains 32/32
+long-document targets with no input above the 256-token model limit. The
+active factory still selects the hash projection. Remaining R-3 work includes
+long chat/knowledge/text-item handling, versioned collection routing and metric
+validation, deletion-aware migration/cutover/rollback, full application model
+packaging, and installed acceptance. Do not activate a model against old vectors.
+
+A restricted local recovery copy was created at
+`C:\Users\kevin\Documents\DataLogicEngine-recovery\20261028-071116` while
+the app and data machine were stopped. All 22 copied files were SHA-256 checked,
+including the data-machine disk and application state. The copy's local
+`inventory.json` records the components; no secrets or backup contents were
+committed. This is copy verification, not a tested restore or installed recovery.
+
 October 28 verified recovery checkpoint: runtime source `ae4c2978`, with
 diagnostics from `fe870b5c`, passed the full Windows suite: 3,433 passed,
 19 skipped, 35 warnings, and zero failures/setup/collection errors. Forty-one

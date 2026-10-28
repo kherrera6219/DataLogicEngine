@@ -59,8 +59,13 @@ in the first four results at cosine 0.25. A tokenizer-aware prototype produced
 80 exact-source spans, with no piece exceeding 256 tokens, and retained 32/32
 intended sources. Its budget reserves the model's two required special tokens
 and uses the remaining capacity; it does not lower the model's supported limit.
-This prototype is not yet integrated into application indexing. Permission,
-retention and migration checks remain mandatory.
+Source `fa28f99f` integrates this chunker for document ingestion when a local
+embedding model is explicitly injected into RAG. Thirty-two focused tests
+pass. The repeated real-tokenizer screen in
+`reports/retrieval-long-document-integrated-chunker-20261028.json` retains
+32/32 targets with no over-limit inputs. The active app factory still uses the
+hash projection. Long chat and knowledge entries, permission, retention and
+migration checks remain open.
 
 ## Windows bundle probe
 
