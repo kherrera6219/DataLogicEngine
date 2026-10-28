@@ -87,6 +87,17 @@ def main():
     )
     rag.delete_chat_session(session)
     assert chats.get(include=["metadatas"])["ids"] == ["retained-message"]
+    assert rag.search_user_chat_history("one", "other owner", k=5) == []
+    owner_recall = rag.search_user_chat_history("two", "other owner", k=5)
+    assert owner_recall and all(
+        row["metadata"]["user_id"] == "two" for row in owner_recall
+    )
+    assert (
+        rag.search_user_chat_history(
+            "two", "other owner", k=5, exclude_session_id=other_session
+        )
+        == []
+    )
     assert rag.ingest_text(
         "persona_profiles", "synthetic-persona", text, {"user_id": "one"}
     )
@@ -119,6 +130,8 @@ def main():
                 "other_owner_preserved": True,
                 "retry_idempotent": True,
                 "chat_session_removed": True,
+                "owner_filtered_recall_verified": True,
+                "active_session_exclusion_verified": True,
                 "active_index_changed": False,
                 "profiled": profile is not None,
                 "cosine_metric_verified": profile is not None,

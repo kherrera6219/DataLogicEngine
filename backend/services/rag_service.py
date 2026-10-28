@@ -82,6 +82,11 @@ class RAGService:
                 else "configured-embedding-provider-v1"
             )
         )
+        if self._uses_local_model():
+            from backend.services.model_text_chunking import CHUNKING_REVISION
+
+            self.embedding_revision = str(embedding_revision or
+                f"local-minilm:{self._embedding_provider.expected_manifest_sha256}:{CHUNKING_REVISION}")
         self.embedding_dimensions = max(1, int(embedding_dimensions))
         self._initialized = False
         
@@ -196,6 +201,7 @@ class RAGService:
         vectors = [self._embedding_provider(chunk) for chunk in chunks]
         from backend.services.model_text_chunking import CHUNKING_REVISION
         proof = {"dle_embedding_manifest":self._embedding_provider.expected_manifest_sha256,
+                 "embedding_revision":self.embedding_revision,
                  "dle_embedding_weights":self._embedding_provider.expected_weights_sha256,
                  "dle_embedding_dimensions":self._embedding_provider.dimensions,
                  "dle_chunking_revision":CHUNKING_REVISION}
