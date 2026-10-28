@@ -1,0 +1,4 @@
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|##########| 103/103 [00:00<00:00, 9340.22it/s]
+{"status": "pass", "frozen": true, "dimensions": 384, "network_attempts": 0, "positive_cosine": 0.7396061119586301, "negative_cosine": -0.00017428905042623095, "seconds": 24.297487399999227}

@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.10 |
+| Document version | v1.20.13 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-27 |
+| Last reviewed | 2026-10-28 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.4 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.5 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; 4.4.6 repair PR #94 and timing PR #96 merged. Main CI/CD, Deploy, and Security pass at `73187a8d`. Installed acceptance and signing/lifecycle/provider CP19-M rows remain open |
@@ -29,6 +29,66 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
+- [ ] Complete installed acceptance of the owner-approved
+      nested-ownership deletion repair. Source `ebf835d2` passes 3,480 Windows
+      tests (19 skipped; zero errors) and the disposable native PostgreSQL/Chroma/Neo4j probe;
+      the original reproducer now has no actual remnants. Shared ownership is
+      held for review, and other owners in the same tenant are preserved.
+      Customer cleanup has not run; full installed lifecycle acceptance remains
+      open. Later source `00dfebd6` retains SQL ownership for retries when an
+      external store fails; 41 focused checks and the full Windows run pass:
+      3,481 passed, 19 skipped, zero failures/setup/collection errors.
+      The additional approval is granted and no longer blocks migration work.
+- [ ] Qualify the new durable chat-index recovery in the installed app. Source
+      now saves content-free retry records atomically with transcripts, limits
+      attempts, rechecks source fingerprints and deletion receipts, and removes
+      retry records during retention. Forty-one focused Windows tests pass.
+      Final full Windows run: 3,433 passed, 19 skipped, zero failures or setup
+      errors. Installed restart/outage checks remain open.
+- [ ] Investigate the unconfirmed intermittent persona-causality failure from
+      an earlier full run. Diagnostic assertions preserve the failure details;
+      its module, 1,056 governance tests, twenty repetitions and the final full
+      suite pass. Do not claim an established root cause or a runtime fix.
+- [ ] Complete the owner-approved synthetic search extension and its
+      access/lifecycle cases. The starting corpus and criteria were approved
+      October 28; the long-document prototype passes its synthetic screen.
+      Candidate details and limitations are in
+      `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
+- [ ] Complete semantic source integration after `feb6ca6c`: model-sized document,
+      chat/knowledge/text families and metric-bound stores are prepared; active
+      routing, synchronized migration/rollback and full app packaging remain
+      open. The default model is still the hash projection. A stopped-data
+      recovery copy was hash-verified locally; restore is not yet tested. The
+      previously omitted `DataLogicEngine Desktop` user-data folder is now
+      included (217 hash-verified files). Read-only managed authority contains
+      three sessions and ten messages; the older SQLite copy has none. Use the
+      managed source for migration, preserving both copies. Read-only Chroma
+      inventory finds ten chat-history records and no records in the other
+      six existing collections; counts alone do not prove source parity.
+- [ ] Finish migration/routing after `feb6ca6c`: model-sized families and
+      profile-bound cosine collections pass 73 focused Windows checks and a
+      disposable real-service probe. The active RAG factory remains hash-based.
+      Rebuild from authoritative sources, qualify derived cache compatibility,
+      and demonstrate interruption, deletion, cutover and rollback before
+      activation. Re-run full regression after this later R-3 source work.
+- [ ] Qualify the owner-approved session-retention repair in the installed app.
+      An isolated real index passed synthetic deletion, preservation and retry
+      checks; the full locked-environment Windows suite passed 3,423 tests
+      with 19 skipped. Source now verifies index removal before
+      transcript deletion, coordinates active writers and profile deletion,
+      reports incomplete batches, and refuses archive-required cleanup until
+      real archival exists. Focused Windows tests pass; do not use customer
+      data as a cleanup test. Installed chat-index retry qualification remains open.
+- [ ] Complete installed verification of the later source
+      fixes for document/knowledge index acknowledgments, safe failure logs,
+      and chat/trace reconnect. At `e25170a9`, the Windows backend suite passed
+      3,410 tests with 19 skipped, all 521 frontend tests passed, and the
+      Electron-mode frontend build passed. The later backend source also passes
+      the 3,481-test full Windows run; installed verification remains open.
+- [ ] Qualify a search threshold and representative held-out evaluation. A
+      small public-document screen found 10/12 MiniLM top-1 but only 1/12
+      retained at the existing simulated squared-L2 threshold; it is not an
+      approved production-quality or customer-data evaluation.
 - [ ] Complete and validate the owner-approved
       `docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md`.
       Session/trace scoping, recent-session search, metric display and explicit
@@ -41,7 +101,7 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Complete offline MiniLM qualification, packaging and safe index lifecycle,
       including write/delete/retention reconciliation, concurrent cutover and
       rollback. The prepared separate-index tool does not activate an index;
-      existing retrieval remains hash-based. Add bounded chat-index recovery,
+      existing retrieval remains hash-based. Qualify bounded chat-index recovery,
       verify per-run graph-use visibility in the installed app, then rerun final
       gates and rebuild.
 - [ ] Disposition the unchanged main-branch unrestricted Ruff and formatting

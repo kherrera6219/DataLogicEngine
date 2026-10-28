@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.9 |
+| Document version | v1.13.11 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-27 |
+| Last reviewed | 2026-10-28 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -50,13 +50,24 @@ update check, crash-reporting egress, or phone-home.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
+The October 28 draft repair adds durable, bounded chat-index retries, deletion
+checks, and retention coordination. The ownership-deletion checkpoint passes
+3,481 Windows tests (19 skipped; zero failures or setup/collection errors),
+including retry protection that preserves canonical records when another
+store fails deletion. A separate disposable native PostgreSQL/Chroma/Neo4j
+probe verifies ownership-based deletion and preservation of another owner. Installed recovery and
+lifecycle acceptance remain open. A separate frozen Windows MiniLM
+probe passed with network connections blocked, but the app's search model and
+installer have not been changed. The starting search corpus and acceptance
+criteria are owner-approved; the broader qualification remains in progress.
+
 The October 27 frontend and retrieval review repairs are in progress. Source
 changes address chat-session and trace isolation, session search, confidence
 display, search and indexing failure reporting, per-run graph-context status,
 and a deletion lookup failure. PR #98 merged these source changes; PR #99
 added diagnostics for an evidence test that failed twice in an earlier Deploy
 run before passing on rerun. Its original failure cause is not established.
-At main `f82e0a86`, CI/CD, Deploy, and Security workflows passed. The latest sequential Windows backend run passed
+At main `f82e0a86`, CI/CD, Deploy, and Security workflows passed. The October 27 sequential Windows backend run passed
 3,401 tests with 19 skipped; the frontend suite passed 520 tests. These are
 source results, not installed-app or live-provider acceptance. The
 [review repair plan](docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md)

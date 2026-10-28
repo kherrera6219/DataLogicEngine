@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.83.4 |
+| Document version | v1.83.5 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -18,6 +18,23 @@
 | Release authority | `docs/RELEASE_READINESS_RECORD.md` and `docs/VERIFICATION_VALIDATION_REPORT.md` |
 
 ### Current execution checkpoint
+
+The October 28 owner-approved knowledge-ownership deletion repair passes 3,480
+Windows tests with 19 skipped and zero failures/setup/collection errors at
+`ebf835d2`, plus a disposable native PostgreSQL/Chroma/Neo4j deletion probe.
+Later retry protection at `00dfebd6` passes 41 focused checks and the full
+Windows suite: 3,481 passed, 19 skipped, zero failures/setup/collection errors. Installed lifecycle acceptance remains open. Recovery
+scope now includes the actual Electron desktop user-data folder omitted from
+the earlier copy. Read-only inspection identifies managed PostgreSQL as the
+retained-chat source; no customer cleanup or semantic cutover has run.
+
+The October 28 draft review-repair branch adds durable, bounded chat-index
+recovery and session-retention coordination. Focused recovery checks pass;
+installed restart/outage recovery remains open. A separate frozen Windows
+MiniLM probe passed with network connections blocked. That probe does not
+activate semantic search or change the application installer. The proposed
+broader starting corpus and acceptance criteria were approved by the owner;
+see `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
 
 The October 27 owner-approved review repairs and evidence-test diagnostics
 merged in PRs #98 and #99. At main `f82e0a86`, CI/CD, Deploy, and Security

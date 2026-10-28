@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 logger = logging.getLogger(__name__)
+SESSION_CLEANUP_BATCH_SIZE = 100
 
 
 class RetentionCategory(Enum):
@@ -170,26 +171,48 @@ class DataRetentionService:
             from extensions import db
             from models import ChatSession
 
-            # Count sessions to delete
-            query = ChatSession.query.filter(ChatSession.created_at < cutoff)
-            count = query.count()
-            result["eligible_count"] = count
+            if dry_run or policy.archive_before_delete:
+                count = ChatSession.query.filter(ChatSession.created_at < cutoff).count()
+                result["eligible_count"] = count
+                if not dry_run and count and policy.archive_before_delete:
+                    result["status"] = "error"
+                    result["error"] = "Session archival is unavailable; no sessions were deleted"
+                    return result
+            else:
+                from flask import current_app
+                from backend.services.rag_service import get_rag_service
+                from backend.storage.chat_index_coordination import chat_index_guard
 
-            if not dry_run and count > 0:
-                if policy.archive_before_delete:
-                    # Archive logic could export to cold storage here
-                    result["archived_count"] = count
-                    logger.info(f"Archived {count} sessions before deletion")
+                runtime = current_app.extensions["dle_runtime"]
+                with chat_index_guard(runtime.runtime_root):
+                    query = ChatSession.query.filter(ChatSession.created_at < cutoff)
+                    result["eligible_count"] = query.count()
+                    # Limit each run; each successfully completed session commits
+                    # independently so a later failure is accurately reported.
+                    sessions = query.order_by(ChatSession.created_at, ChatSession.id).limit(
+                        SESSION_CLEANUP_BATCH_SIZE
+                    ).all()
+                    if sessions:
+                        rag = get_rag_service()
+                        for chat_session in sessions:
+                            rag.delete_chat_session(str(chat_session.id))
+                            from backend.storage.chat_index_recovery import remove_session_retries
 
-                # Delete old sessions
-                query.delete(synchronize_session=False)
-                db.session.commit()
-                result["deleted_count"] = count
-                logger.info(f"Deleted {count} sessions older than {cutoff}")
+                            remove_session_retries(db.session, chat_session.id)
+                            db.session.delete(chat_session)
+                            db.session.commit()
+                            result["deleted_count"] += 1
 
-            result["status"] = "success"
+            result["status"] = (
+                "partial"
+                if not dry_run and not policy.archive_before_delete
+                and result["deleted_count"] < result["eligible_count"]
+                else "success"
+            )
         except Exception:
-            logger.exception("Session cleanup failed")
+            if "db" in locals():
+                db.session.rollback()
+            logger.error("Session cleanup failed")
             result["status"] = "error"
             result["error"] = "Session cleanup failed"
 
@@ -224,6 +247,10 @@ class DataRetentionService:
             result["eligible_count"] = count
 
             if not dry_run and count > 0:
+                if policy.archive_before_delete:
+                    result["status"] = "error"
+                    result["error"] = "Trace archival is unavailable; no traces were deleted"
+                    return result
                 purge_staged_capture_runs(run_ids)
                 query.delete(synchronize_session=False)
                 db.session.commit()
@@ -280,7 +307,9 @@ class DataRetentionService:
                 )
 
         results["completed_at"] = datetime.now(UTC).isoformat()
-        results["status"] = "success"
+        results["status"] = (
+            "error" if any(item.get("status") in {"error", "partial"} for item in results["cleanups"]) else "success"
+        )
 
         logger.info(
             f"Retention cleanup completed: {len(results['cleanups'])} categories processed"

@@ -1,0 +1,1499 @@
+{
+  "status": "candidate_not_activated",
+  "model_limit": 256,
+  "corpus_sha256": "bf755478f6b4b2b7872abaf6ea4954d213d5fcd99dc7d71c142eb47dcff31b8d",
+  "script_sha256": "2d8cc5b4aa50370490f18c6491e3b0b7162f02efcd5ca8c7cd63f6c0b9766838",
+  "model_manifest_sha256": "8c4ccf957588dbe5df32048c58a29a8e81fd46e3fa8d940e8d7777b348b0c979",
+  "results": {
+    "existing_512_units": {
+      "pieces": 32,
+      "max_input_tokens": 521,
+      "pieces_over_model_limit": 32,
+      "retained_at_cosine_025": 0,
+      "total": 32,
+      "cases": [
+        {
+          "query": "How long does Cedar keep disaster recovery copies?",
+          "expected": "backup",
+          "top4": [
+            [
+              "backup",
+              0.09717369041181431
+            ],
+            [
+              "restore",
+              0.09717369041181431
+            ],
+            [
+              "retention",
+              0.09717369041181431
+            ],
+            [
+              "delete",
+              0.09717369041181431
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Who should protect the data before a software update?",
+          "expected": "backup",
+          "top4": [
+            [
+              "backup",
+              0.0010362560498636026
+            ],
+            [
+              "restore",
+              0.0010362560498636026
+            ],
+            [
+              "retention",
+              0.0010362560498636026
+            ],
+            [
+              "delete",
+              0.0010362560498636026
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Where should a recovery snapshot be loaded initially?",
+          "expected": "restore",
+          "top4": [
+            [
+              "backup",
+              0.09637078516424767
+            ],
+            [
+              "restore",
+              0.09637078516424767
+            ],
+            [
+              "retention",
+              0.09637078516424767
+            ],
+            [
+              "delete",
+              0.09637078516424767
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Can Cedar return to the old workspace after a failed recovery?",
+          "expected": "restore",
+          "top4": [
+            [
+              "backup",
+              0.02741296834457872
+            ],
+            [
+              "restore",
+              0.02741296834457872
+            ],
+            [
+              "retention",
+              0.02741296834457872
+            ],
+            [
+              "delete",
+              0.02741296834457872
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "How old must Cedar's conversations be before automatic expiry?",
+          "expected": "retention",
+          "top4": [
+            [
+              "backup",
+              0.06134068701278553
+            ],
+            [
+              "restore",
+              0.06134068701278553
+            ],
+            [
+              "retention",
+              0.06134068701278553
+            ],
+            [
+              "delete",
+              0.06134068701278553
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Which copy of a conversation is removed first during cleanup?",
+          "expected": "retention",
+          "top4": [
+            [
+              "backup",
+              0.1749901675002903
+            ],
+            [
+              "restore",
+              0.1749901675002903
+            ],
+            [
+              "retention",
+              0.1749901675002903
+            ],
+            [
+              "delete",
+              0.1749901675002903
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Does deleting a Cedar account erase data from every store?",
+          "expected": "delete",
+          "top4": [
+            [
+              "backup",
+              -0.01176336246427878
+            ],
+            [
+              "restore",
+              -0.01176336246427878
+            ],
+            [
+              "retention",
+              -0.01176336246427878
+            ],
+            [
+              "delete",
+              -0.01176336246427878
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "What identifying information appears on Cedar's erasure receipt?",
+          "expected": "delete",
+          "top4": [
+            [
+              "backup",
+              0.11834407452347384
+            ],
+            [
+              "restore",
+              0.11834407452347384
+            ],
+            [
+              "retention",
+              0.11834407452347384
+            ],
+            [
+              "delete",
+              0.11834407452347384
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "What should an operator do if a provider secret is stolen?",
+          "expected": "key",
+          "top4": [
+            [
+              "backup",
+              -0.028515044625871986
+            ],
+            [
+              "restore",
+              -0.028515044625871986
+            ],
+            [
+              "retention",
+              -0.028515044625871986
+            ],
+            [
+              "delete",
+              -0.028515044625871986
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "May Cedar record a model access secret in a support log?",
+          "expected": "key",
+          "top4": [
+            [
+              "backup",
+              0.03007679741483029
+            ],
+            [
+              "restore",
+              0.03007679741483029
+            ],
+            [
+              "retention",
+              0.03007679741483029
+            ],
+            [
+              "delete",
+              0.03007679741483029
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Who verifies an employee who cannot access their account?",
+          "expected": "login",
+          "top4": [
+            [
+              "backup",
+              -0.0012021465831130818
+            ],
+            [
+              "restore",
+              -0.0012021465831130818
+            ],
+            [
+              "retention",
+              -0.0012021465831130818
+            ],
+            [
+              "delete",
+              -0.0012021465831130818
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "What must a Cedar employee do when their login session expires?",
+          "expected": "login",
+          "top4": [
+            [
+              "backup",
+              0.06067091428413443
+            ],
+            [
+              "restore",
+              0.06067091428413443
+            ],
+            [
+              "retention",
+              0.06067091428413443
+            ],
+            [
+              "delete",
+              0.06067091428413443
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "How can Cedar stop an integrated client from making more requests?",
+          "expected": "gateway",
+          "top4": [
+            [
+              "backup",
+              0.046899478479851986
+            ],
+            [
+              "restore",
+              0.046899478479851986
+            ],
+            [
+              "retention",
+              0.046899478479851986
+            ],
+            [
+              "delete",
+              0.046899478479851986
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Does every approved integration share one access token?",
+          "expected": "gateway",
+          "top4": [
+            [
+              "backup",
+              0.060928512812426026
+            ],
+            [
+              "restore",
+              0.060928512812426026
+            ],
+            [
+              "retention",
+              0.060928512812426026
+            ],
+            [
+              "delete",
+              0.060928512812426026
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Does Cedar phone home with product usage statistics?",
+          "expected": "egress",
+          "top4": [
+            [
+              "backup",
+              0.02949368192231644
+            ],
+            [
+              "restore",
+              0.02949368192231644
+            ],
+            [
+              "retention",
+              0.02949368192231644
+            ],
+            [
+              "delete",
+              0.02949368192231644
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "What status should Cedar show if a model endpoint cannot be reached?",
+          "expected": "egress",
+          "top4": [
+            [
+              "backup",
+              0.006255594073795745
+            ],
+            [
+              "restore",
+              0.006255594073795745
+            ],
+            [
+              "retention",
+              0.006255594073795745
+            ],
+            [
+              "delete",
+              0.006255594073795745
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "How many coordinates represent each text in Cedar's semantic index?",
+          "expected": "search",
+          "top4": [
+            [
+              "backup",
+              0.1487029055304079
+            ],
+            [
+              "restore",
+              0.1487029055304079
+            ],
+            [
+              "retention",
+              0.1487029055304079
+            ],
+            [
+              "delete",
+              0.1487029055304079
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Where should Cedar store vectors when changing its embedding model?",
+          "expected": "search",
+          "top4": [
+            [
+              "backup",
+              0.01303074627240908
+            ],
+            [
+              "restore",
+              0.01303074627240908
+            ],
+            [
+              "retention",
+              0.01303074627240908
+            ],
+            [
+              "delete",
+              0.01303074627240908
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "How many unsuccessful deliveries are allowed before Cedar stops retrying?",
+          "expected": "retry",
+          "top4": [
+            [
+              "backup",
+              0.07513255300966344
+            ],
+            [
+              "restore",
+              0.07513255300966344
+            ],
+            [
+              "retention",
+              0.07513255300966344
+            ],
+            [
+              "delete",
+              0.07513255300966344
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Can a Cedar retry reconstruct a message whose transcript was erased?",
+          "expected": "retry",
+          "top4": [
+            [
+              "backup",
+              0.10564346518069657
+            ],
+            [
+              "restore",
+              0.10564346518069657
+            ],
+            [
+              "retention",
+              0.10564346518069657
+            ],
+            [
+              "delete",
+              0.10564346518069657
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Should Cedar call a graph outage a successful search with no relationships?",
+          "expected": "graph",
+          "top4": [
+            [
+              "backup",
+              -0.002562586405777919
+            ],
+            [
+              "restore",
+              -0.002562586405777919
+            ],
+            [
+              "retention",
+              -0.002562586405777919
+            ],
+            [
+              "delete",
+              -0.002562586405777919
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Which graph state means lookup has been turned off?",
+          "expected": "graph",
+          "top4": [
+            [
+              "backup",
+              0.010976131971508724
+            ],
+            [
+              "restore",
+              0.010976131971508724
+            ],
+            [
+              "retention",
+              0.010976131971508724
+            ],
+            [
+              "delete",
+              0.010976131971508724
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "How should Cedar distinguish missing confidence from a measured zero?",
+          "expected": "confidence",
+          "top4": [
+            [
+              "backup",
+              0.06577593911364375
+            ],
+            [
+              "restore",
+              0.06577593911364375
+            ],
+            [
+              "retention",
+              0.06577593911364375
+            ],
+            [
+              "delete",
+              0.06577593911364375
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Does a high dashboard confidence value prove an answer is correct?",
+          "expected": "confidence",
+          "top4": [
+            [
+              "backup",
+              -0.0037925624774157937
+            ],
+            [
+              "restore",
+              -0.0037925624774157937
+            ],
+            [
+              "retention",
+              -0.0037925624774157937
+            ],
+            [
+              "delete",
+              -0.0037925624774157937
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Which run should Cedar's trace panel describe?",
+          "expected": "trace",
+          "top4": [
+            [
+              "backup",
+              0.1508051174217296
+            ],
+            [
+              "restore",
+              0.1508051174217296
+            ],
+            [
+              "retention",
+              0.1508051174217296
+            ],
+            [
+              "delete",
+              0.1508051174217296
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Where can an operator inspect why refinement was skipped?",
+          "expected": "trace",
+          "top4": [
+            [
+              "backup",
+              0.22502290951189127
+            ],
+            [
+              "restore",
+              0.22502290951189127
+            ],
+            [
+              "retention",
+              0.22502290951189127
+            ],
+            [
+              "delete",
+              0.22502290951189127
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Does querying Cedar's local database spend a model call?",
+          "expected": "budget",
+          "top4": [
+            [
+              "backup",
+              0.008281716095719515
+            ],
+            [
+              "restore",
+              0.008281716095719515
+            ],
+            [
+              "retention",
+              0.008281716095719515
+            ],
+            [
+              "delete",
+              0.008281716095719515
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "What is needed before Cedar may make a second inference attempt?",
+          "expected": "budget",
+          "top4": [
+            [
+              "backup",
+              0.26492576273112867
+            ],
+            [
+              "restore",
+              0.26492576273112867
+            ],
+            [
+              "retention",
+              0.26492576273112867
+            ],
+            [
+              "delete",
+              0.26492576273112867
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "Can a physical purchase be returned two weeks after buying it?",
+          "expected": "refund",
+          "top4": [
+            [
+              "backup",
+              0.05812514801078386
+            ],
+            [
+              "restore",
+              0.05812514801078386
+            ],
+            [
+              "retention",
+              0.05812514801078386
+            ],
+            [
+              "delete",
+              0.05812514801078386
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "How long does a subscriber have to cancel a digital purchase?",
+          "expected": "refund",
+          "top4": [
+            [
+              "backup",
+              0.0781226640298149
+            ],
+            [
+              "restore",
+              0.0781226640298149
+            ],
+            [
+              "retention",
+              0.0781226640298149
+            ],
+            [
+              "delete",
+              0.0781226640298149
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "What must an employee do before booking a holiday?",
+          "expected": "vacation",
+          "top4": [
+            [
+              "backup",
+              0.065262970455191
+            ],
+            [
+              "restore",
+              0.065262970455191
+            ],
+            [
+              "retention",
+              0.065262970455191
+            ],
+            [
+              "delete",
+              0.065262970455191
+            ]
+          ],
+          "retained": false
+        },
+        {
+          "query": "How many days can Cedar staff work away from the office?",
+          "expected": "vacation",
+          "top4": [
+            [
+              "backup",
+              0.03236414223704906
+            ],
+            [
+              "restore",
+              0.03236414223704906
+            ],
+            [
+              "retention",
+              0.03236414223704906
+            ],
+            [
+              "delete",
+              0.03236414223704906
+            ]
+          ],
+          "retained": false
+        }
+      ]
+    },
+    "model_token_spans": {
+      "pieces": 80,
+      "max_input_tokens": 256,
+      "pieces_over_model_limit": 0,
+      "retained_at_cosine_025": 32,
+      "total": 32,
+      "cases": [
+        {
+          "query": "How long does Cedar keep disaster recovery copies?",
+          "expected": "backup",
+          "top4": [
+            [
+              "backup",
+              0.7097434084341174
+            ],
+            [
+              "retry",
+              0.6237853456456481
+            ],
+            [
+              "retention",
+              0.618447235283246
+            ],
+            [
+              "refund",
+              0.5656322177298155
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Who should protect the data before a software update?",
+          "expected": "backup",
+          "top4": [
+            [
+              "backup",
+              0.3784153075027679
+            ],
+            [
+              "key",
+              0.23739321855672865
+            ],
+            [
+              "gateway",
+              0.1924446765658404
+            ],
+            [
+              "retry",
+              0.15235615373853909
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Where should a recovery snapshot be loaded initially?",
+          "expected": "restore",
+          "top4": [
+            [
+              "backup",
+              0.3785293250740243
+            ],
+            [
+              "retry",
+              0.35207830552923297
+            ],
+            [
+              "restore",
+              0.31384581011062584
+            ],
+            [
+              "trace",
+              0.24042061909940327
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Can Cedar return to the old workspace after a failed recovery?",
+          "expected": "restore",
+          "top4": [
+            [
+              "restore",
+              0.7573537216454255
+            ],
+            [
+              "login",
+              0.5951836718066442
+            ],
+            [
+              "retry",
+              0.590625578529775
+            ],
+            [
+              "delete",
+              0.5761509073808676
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "How old must Cedar's conversations be before automatic expiry?",
+          "expected": "retention",
+          "top4": [
+            [
+              "retention",
+              0.7722328469970584
+            ],
+            [
+              "retry",
+              0.5556207707124765
+            ],
+            [
+              "backup",
+              0.5340272120757564
+            ],
+            [
+              "trace",
+              0.4917519965735783
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Which copy of a conversation is removed first during cleanup?",
+          "expected": "retention",
+          "top4": [
+            [
+              "retention",
+              0.5018579120075021
+            ],
+            [
+              "retry",
+              0.4417654206701188
+            ],
+            [
+              "trace",
+              0.40764806544290394
+            ],
+            [
+              "delete",
+              0.2935911191197274
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Does deleting a Cedar account erase data from every store?",
+          "expected": "delete",
+          "top4": [
+            [
+              "delete",
+              0.8473393729097194
+            ],
+            [
+              "refund",
+              0.6044733832076584
+            ],
+            [
+              "key",
+              0.5992036576874086
+            ],
+            [
+              "retention",
+              0.5897567995704713
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "What identifying information appears on Cedar's erasure receipt?",
+          "expected": "delete",
+          "top4": [
+            [
+              "delete",
+              0.5937188858863285
+            ],
+            [
+              "refund",
+              0.5160437892248686
+            ],
+            [
+              "retry",
+              0.4920788566623494
+            ],
+            [
+              "login",
+              0.4831169452379026
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "What should an operator do if a provider secret is stolen?",
+          "expected": "key",
+          "top4": [
+            [
+              "key",
+              0.4427848911399709
+            ],
+            [
+              "gateway",
+              0.30853035116545036
+            ],
+            [
+              "backup",
+              0.2964786893163726
+            ],
+            [
+              "delete",
+              0.2435024062957053
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "May Cedar record a model access secret in a support log?",
+          "expected": "key",
+          "top4": [
+            [
+              "key",
+              0.6970756608603463
+            ],
+            [
+              "egress",
+              0.6113930335969046
+            ],
+            [
+              "login",
+              0.5726692485099067
+            ],
+            [
+              "delete",
+              0.5354854333089198
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Who verifies an employee who cannot access their account?",
+          "expected": "login",
+          "top4": [
+            [
+              "login",
+              0.46497469505906197
+            ],
+            [
+              "key",
+              0.3543607933022564
+            ],
+            [
+              "vacation",
+              0.3324161425054876
+            ],
+            [
+              "delete",
+              0.317650588898133
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "What must a Cedar employee do when their login session expires?",
+          "expected": "login",
+          "top4": [
+            [
+              "login",
+              0.79367643962899
+            ],
+            [
+              "vacation",
+              0.6701068407339217
+            ],
+            [
+              "key",
+              0.6465138201620497
+            ],
+            [
+              "retention",
+              0.6218127785558243
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "How can Cedar stop an integrated client from making more requests?",
+          "expected": "gateway",
+          "top4": [
+            [
+              "gateway",
+              0.6866986414240986
+            ],
+            [
+              "egress",
+              0.6632434307484124
+            ],
+            [
+              "key",
+              0.5096363514372269
+            ],
+            [
+              "vacation",
+              0.5092266791699012
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Does every approved integration share one access token?",
+          "expected": "gateway",
+          "top4": [
+            [
+              "gateway",
+              0.27099313593034524
+            ],
+            [
+              "login",
+              0.2532721757000253
+            ],
+            [
+              "key",
+              0.18229753515025002
+            ],
+            [
+              "budget",
+              0.15408087350245245
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Does Cedar phone home with product usage statistics?",
+          "expected": "egress",
+          "top4": [
+            [
+              "confidence",
+              0.4967002869946825
+            ],
+            [
+              "egress",
+              0.4608099711888085
+            ],
+            [
+              "budget",
+              0.4486890781998736
+            ],
+            [
+              "refund",
+              0.38874176642378855
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "What status should Cedar show if a model endpoint cannot be reached?",
+          "expected": "egress",
+          "top4": [
+            [
+              "egress",
+              0.7942358730168596
+            ],
+            [
+              "key",
+              0.5393228464634524
+            ],
+            [
+              "confidence",
+              0.5211870194922341
+            ],
+            [
+              "graph",
+              0.49956020902762227
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "How many coordinates represent each text in Cedar's semantic index?",
+          "expected": "search",
+          "top4": [
+            [
+              "search",
+              0.6541664586694527
+            ],
+            [
+              "retry",
+              0.40573020830968415
+            ],
+            [
+              "search",
+              0.3650611624224701
+            ],
+            [
+              "graph",
+              0.3480341033371066
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Where should Cedar store vectors when changing its embedding model?",
+          "expected": "search",
+          "top4": [
+            [
+              "search",
+              0.5929810069175595
+            ],
+            [
+              "key",
+              0.5065787092054432
+            ],
+            [
+              "restore",
+              0.45714117372865787
+            ],
+            [
+              "delete",
+              0.4359840034439201
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "How many unsuccessful deliveries are allowed before Cedar stops retrying?",
+          "expected": "retry",
+          "top4": [
+            [
+              "retry",
+              0.5514075995011796
+            ],
+            [
+              "egress",
+              0.5346549473230011
+            ],
+            [
+              "vacation",
+              0.4944035271285212
+            ],
+            [
+              "refund",
+              0.47864702910073154
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Can a Cedar retry reconstruct a message whose transcript was erased?",
+          "expected": "retry",
+          "top4": [
+            [
+              "retry",
+              0.765620958163473
+            ],
+            [
+              "retention",
+              0.6925756955593358
+            ],
+            [
+              "delete",
+              0.6007950134483862
+            ],
+            [
+              "backup",
+              0.5806419057992148
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Should Cedar call a graph outage a successful search with no relationships?",
+          "expected": "graph",
+          "top4": [
+            [
+              "graph",
+              0.7380502215522716
+            ],
+            [
+              "egress",
+              0.5107796042139316
+            ],
+            [
+              "budget",
+              0.47477131957526186
+            ],
+            [
+              "retention",
+              0.47331971637260406
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Which graph state means lookup has been turned off?",
+          "expected": "graph",
+          "top4": [
+            [
+              "graph",
+              0.42515551902949256
+            ],
+            [
+              "trace",
+              0.2934210779877404
+            ],
+            [
+              "confidence",
+              0.2534882365060487
+            ],
+            [
+              "egress",
+              0.23476949348067405
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "How should Cedar distinguish missing confidence from a measured zero?",
+          "expected": "confidence",
+          "top4": [
+            [
+              "confidence",
+              0.7111497262709425
+            ],
+            [
+              "egress",
+              0.4806983692212893
+            ],
+            [
+              "delete",
+              0.39903571323505754
+            ],
+            [
+              "retry",
+              0.3976263487085549
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Does a high dashboard confidence value prove an answer is correct?",
+          "expected": "confidence",
+          "top4": [
+            [
+              "confidence",
+              0.50221392222397
+            ],
+            [
+              "graph",
+              0.1633483680618699
+            ],
+            [
+              "trace",
+              0.1253555089627744
+            ],
+            [
+              "egress",
+              0.12499745509533618
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Which run should Cedar's trace panel describe?",
+          "expected": "trace",
+          "top4": [
+            [
+              "trace",
+              0.6206745299547847
+            ],
+            [
+              "egress",
+              0.49786740018913095
+            ],
+            [
+              "confidence",
+              0.4692003410412808
+            ],
+            [
+              "restore",
+              0.4015857526337463
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Where can an operator inspect why refinement was skipped?",
+          "expected": "trace",
+          "top4": [
+            [
+              "trace",
+              0.3011213093706649
+            ],
+            [
+              "restore",
+              0.27664700286779603
+            ],
+            [
+              "egress",
+              0.2749870518498624
+            ],
+            [
+              "restore",
+              0.2609626439829824
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Does querying Cedar's local database spend a model call?",
+          "expected": "budget",
+          "top4": [
+            [
+              "budget",
+              0.6611119457771155
+            ],
+            [
+              "egress",
+              0.549963084951252
+            ],
+            [
+              "key",
+              0.5107955313002261
+            ],
+            [
+              "delete",
+              0.42839182655320546
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "What is needed before Cedar may make a second inference attempt?",
+          "expected": "budget",
+          "top4": [
+            [
+              "egress",
+              0.5906482527498105
+            ],
+            [
+              "budget",
+              0.5345713068095336
+            ],
+            [
+              "trace",
+              0.5010839761718332
+            ],
+            [
+              "restore",
+              0.4643524722601933
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "Can a physical purchase be returned two weeks after buying it?",
+          "expected": "refund",
+          "top4": [
+            [
+              "refund",
+              0.5835058481600456
+            ],
+            [
+              "backup",
+              0.2934571525200364
+            ],
+            [
+              "refund",
+              0.22276963624195195
+            ],
+            [
+              "vacation",
+              0.20703873048912955
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "How long does a subscriber have to cancel a digital purchase?",
+          "expected": "refund",
+          "top4": [
+            [
+              "refund",
+              0.5741155506684169
+            ],
+            [
+              "backup",
+              0.27636205810847636
+            ],
+            [
+              "retention",
+              0.2382128487235065
+            ],
+            [
+              "delete",
+              0.23022766596940583
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "What must an employee do before booking a holiday?",
+          "expected": "vacation",
+          "top4": [
+            [
+              "vacation",
+              0.3278106068551925
+            ],
+            [
+              "vacation",
+              0.18285404363637342
+            ],
+            [
+              "refund",
+              0.15754076858871352
+            ],
+            [
+              "login",
+              0.14950182881261487
+            ]
+          ],
+          "retained": true
+        },
+        {
+          "query": "How many days can Cedar staff work away from the office?",
+          "expected": "vacation",
+          "top4": [
+            [
+              "vacation",
+              0.7359128888522639
+            ],
+            [
+              "login",
+              0.45698786108000744
+            ],
+            [
+              "retention",
+              0.4366820785130815
+            ],
+            [
+              "restore",
+              0.43560870909903665
+            ]
+          ],
+          "retained": true
+        }
+      ]
+    }
+  }
+}

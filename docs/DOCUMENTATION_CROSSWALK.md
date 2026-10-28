@@ -165,6 +165,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/DOCUMENTATION_BOM.md` | `engineering_maintenance` | generated replacement | `docs/DOCUMENTATION_BOM.md` | generated companion artifact |
 | `docs/DOCUMENTATION_CROSSWALK.md` | `engineering_maintenance` | generated replacement | `docs/DOCUMENTATION_CROSSWALK.md` | generated companion artifact |
 | `docs/evaluation/AI_SYSTEM_CARD.md` | `assurance_release_external` | authoritative input | `docs/evaluation/AI_SYSTEM_CARD.md` | selected canonical document |
+| `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/generated/PRODUCTION_CONTRACT_INDEX.md` | `engineering_maintenance` | generated replacement | `docs/generated/PRODUCTION_CONTRACT_INDEX.md` | generated companion artifact |
 | `docs/GENERATED_STRUCTURE.md` | `engineering_maintenance` | generated replacement | `docs/GENERATED_STRUCTURE.md` | generated companion artifact |
 | `docs/INDEPENDENT_REVIEW_RECORD.md` | `assurance_release_external` | authoritative input | `docs/INDEPENDENT_REVIEW_RECORD.md` | selected canonical document |

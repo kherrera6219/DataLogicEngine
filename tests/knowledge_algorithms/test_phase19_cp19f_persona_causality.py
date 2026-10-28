@@ -248,8 +248,8 @@ async def test_cp19f_persona_output_changes_prompt_and_single_candidate(
         "balanced-regulatory",
     ).execute(_request())
 
-    assert first.ok is True
-    assert second.ok is True
+    assert first.ok is True, first.to_dict()
+    assert second.ok is True, second.to_dict()
     assert first.answer != second.answer
     assert first_gateway.provider_calls == 1
     assert second_gateway.provider_calls == 1

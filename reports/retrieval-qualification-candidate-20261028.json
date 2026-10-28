@@ -1,0 +1,2977 @@
+{
+  "status": "candidate_screen_not_acceptance",
+  "model_weights_sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db",
+  "model_manifest_sha256": "8c4ccf957588dbe5df32048c58a29a8e81fd46e3fa8d940e8d7777b348b0c979",
+  "script_sha256": "3e4ab356aef5655c7627bd61e810c9c4cf5f4c5620b5306e0a8e3840b39701fa",
+  "packages": {
+    "sentence-transformers": "5.6.0",
+    "torch": "2.14.1",
+    "transformers": "5.13.0"
+  },
+  "metric": "cosine similarity of normalized vectors; warm timing includes query encoding and semantic ranking only",
+  "corpus_sha256": "bf755478f6b4b2b7872abaf6ea4954d213d5fcd99dc7d71c142eb47dcff31b8d",
+  "pieces": 16,
+  "cold_encode_corpus_seconds": 9.022866300001624,
+  "warm_query_p95_seconds": 0.026916835003794402,
+  "summary": {
+    "calibration": {
+      "hash": {
+        "top1": 0,
+        "top4": 1,
+        "total": 16
+      },
+      "lexical": {
+        "top1": 11,
+        "top4": 14,
+        "total": 16
+      },
+      "minilm": {
+        "top1": 16,
+        "top4": 16,
+        "total": 16
+      },
+      "hybrid": {
+        "top1": 15,
+        "top4": 16,
+        "total": 16
+      }
+    },
+    "held_out": {
+      "hash": {
+        "top1": 2,
+        "top4": 10,
+        "total": 32
+      },
+      "lexical": {
+        "top1": 16,
+        "top4": 21,
+        "total": 32
+      },
+      "minilm": {
+        "top1": 29,
+        "top4": 32,
+        "total": 32
+      },
+      "hybrid": {
+        "top1": 24,
+        "top4": 31,
+        "total": 32
+      }
+    }
+  },
+  "cosine_thresholds": {
+    "0.15": {
+      "calibration": 16,
+      "held_out": 32,
+      "unrelated_matches": 1
+    },
+    "0.25": {
+      "calibration": 16,
+      "held_out": 32,
+      "unrelated_matches": 0
+    },
+    "0.35": {
+      "calibration": 16,
+      "held_out": 27,
+      "unrelated_matches": 0
+    },
+    "0.45": {
+      "calibration": 16,
+      "held_out": 23,
+      "unrelated_matches": 0
+    },
+    "0.55": {
+      "calibration": 15,
+      "held_out": 20,
+      "unrelated_matches": 0
+    }
+  },
+  "cases": {
+    "calibration": [
+      {
+        "query": "When does Cedar copy its data for recovery?",
+        "expected": "backup",
+        "top4": {
+          "minilm": [
+            "backup",
+            "retry",
+            "delete",
+            "login"
+          ],
+          "hash": [
+            "vacation",
+            "egress",
+            "refund",
+            "login"
+          ],
+          "lexical": [
+            "backup",
+            "retry",
+            "egress",
+            "refund"
+          ],
+          "hybrid": [
+            "backup",
+            "retry",
+            "login",
+            "egress"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "backup",
+            0.7352340301152557
+          ],
+          [
+            "retry",
+            0.6787045063108779
+          ],
+          [
+            "delete",
+            0.6096214376252963
+          ],
+          [
+            "login",
+            0.5779582568851065
+          ]
+        ]
+      },
+      {
+        "query": "How does Cedar validate a restored workspace?",
+        "expected": "restore",
+        "top4": {
+          "minilm": [
+            "restore",
+            "login",
+            "key",
+            "backup"
+          ],
+          "hash": [
+            "egress",
+            "search",
+            "refund",
+            "vacation"
+          ],
+          "lexical": [
+            "restore",
+            "refund",
+            "delete",
+            "search"
+          ],
+          "hybrid": [
+            "restore",
+            "delete",
+            "login",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "restore",
+            0.8097155266438972
+          ],
+          [
+            "login",
+            0.5939331948352803
+          ],
+          [
+            "key",
+            0.5739120788343299
+          ],
+          [
+            "backup",
+            0.5666541191182114
+          ]
+        ]
+      },
+      {
+        "query": "What happens when Cedar cannot archive expired chats?",
+        "expected": "retention",
+        "top4": {
+          "minilm": [
+            "retention",
+            "retry",
+            "backup",
+            "login"
+          ],
+          "hash": [
+            "trace",
+            "search",
+            "vacation",
+            "login"
+          ],
+          "lexical": [
+            "login",
+            "refund",
+            "gateway",
+            "backup"
+          ],
+          "hybrid": [
+            "login",
+            "retention",
+            "backup",
+            "gateway"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "retention",
+            0.8244346431598311
+          ],
+          [
+            "retry",
+            0.7024614602947151
+          ],
+          [
+            "backup",
+            0.563703272640709
+          ],
+          [
+            "login",
+            0.5449773314619721
+          ]
+        ]
+      },
+      {
+        "query": "How does Cedar report a partly unsuccessful account erasure?",
+        "expected": "delete",
+        "top4": {
+          "minilm": [
+            "delete",
+            "login",
+            "retention",
+            "key"
+          ],
+          "hash": [
+            "login",
+            "gateway",
+            "restore",
+            "retry"
+          ],
+          "lexical": [
+            "refund",
+            "delete",
+            "login",
+            "search"
+          ],
+          "hybrid": [
+            "delete",
+            "login",
+            "refund",
+            "restore"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "delete",
+            0.7905319651050763
+          ],
+          [
+            "login",
+            0.6932981549385582
+          ],
+          [
+            "retention",
+            0.6173792589316841
+          ],
+          [
+            "key",
+            0.6131659950360694
+          ]
+        ]
+      },
+      {
+        "query": "Where are Cedar's model API credentials protected?",
+        "expected": "key",
+        "top4": {
+          "minilm": [
+            "key",
+            "login",
+            "gateway",
+            "egress"
+          ],
+          "hash": [
+            "refund",
+            "budget",
+            "graph",
+            "retention"
+          ],
+          "lexical": [
+            "key",
+            "trace",
+            "backup",
+            "search"
+          ],
+          "hybrid": [
+            "key",
+            "backup",
+            "gateway",
+            "egress"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "key",
+            0.7973104941357552
+          ],
+          [
+            "login",
+            0.6238349434381311
+          ],
+          [
+            "gateway",
+            0.6002235896856872
+          ],
+          [
+            "egress",
+            0.563924120286024
+          ]
+        ]
+      },
+      {
+        "query": "How many factors does Cedar staff authentication require?",
+        "expected": "login",
+        "top4": {
+          "minilm": [
+            "login",
+            "key",
+            "gateway",
+            "vacation"
+          ],
+          "hash": [
+            "gateway",
+            "restore",
+            "vacation",
+            "key"
+          ],
+          "lexical": [
+            "login",
+            "vacation",
+            "refund",
+            "backup"
+          ],
+          "hybrid": [
+            "login",
+            "vacation",
+            "backup",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "login",
+            0.7331743845224151
+          ],
+          [
+            "key",
+            0.598971171916498
+          ],
+          [
+            "gateway",
+            0.5508679007636621
+          ],
+          [
+            "vacation",
+            0.5350207992653276
+          ]
+        ]
+      },
+      {
+        "query": "Can one Cedar gateway client read another owner's chats?",
+        "expected": "gateway",
+        "top4": {
+          "minilm": [
+            "gateway",
+            "trace",
+            "egress",
+            "budget"
+          ],
+          "hash": [
+            "retention",
+            "graph",
+            "refund",
+            "login"
+          ],
+          "lexical": [
+            "gateway",
+            "trace",
+            "search",
+            "backup"
+          ],
+          "hybrid": [
+            "gateway",
+            "trace",
+            "budget",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "gateway",
+            0.6793276095096774
+          ],
+          [
+            "trace",
+            0.526095742464074
+          ],
+          [
+            "egress",
+            0.4850054278657942
+          ],
+          [
+            "budget",
+            0.4699930181299307
+          ]
+        ]
+      },
+      {
+        "query": "Which remote inference destinations does Cedar permit?",
+        "expected": "egress",
+        "top4": {
+          "minilm": [
+            "egress",
+            "budget",
+            "gateway",
+            "vacation"
+          ],
+          "hash": [
+            "refund",
+            "retention",
+            "graph",
+            "backup"
+          ],
+          "lexical": [
+            "vacation",
+            "egress",
+            "budget",
+            "refund"
+          ],
+          "hybrid": [
+            "egress",
+            "vacation",
+            "budget",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "egress",
+            0.6127887557231778
+          ],
+          [
+            "budget",
+            0.5225670611631059
+          ],
+          [
+            "gateway",
+            0.5083937148327035
+          ],
+          [
+            "vacation",
+            0.47526044529037015
+          ]
+        ]
+      },
+      {
+        "query": "Can Cedar mix embeddings from different models?",
+        "expected": "search",
+        "top4": {
+          "minilm": [
+            "search",
+            "key",
+            "egress",
+            "budget"
+          ],
+          "hash": [
+            "delete",
+            "retention",
+            "budget",
+            "trace"
+          ],
+          "lexical": [
+            "vacation",
+            "delete",
+            "graph",
+            "backup"
+          ],
+          "hybrid": [
+            "search",
+            "egress",
+            "graph",
+            "vacation"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "search",
+            0.49184996303185097
+          ],
+          [
+            "key",
+            0.4207449475066166
+          ],
+          [
+            "egress",
+            0.39818659583183164
+          ],
+          [
+            "budget",
+            0.3922781473778135
+          ]
+        ]
+      },
+      {
+        "query": "Where does Cedar keep failed search-index work?",
+        "expected": "retry",
+        "top4": {
+          "minilm": [
+            "retry",
+            "retention",
+            "delete",
+            "key"
+          ],
+          "hash": [
+            "key",
+            "login",
+            "backup",
+            "retry"
+          ],
+          "lexical": [
+            "retry",
+            "vacation",
+            "retention",
+            "search"
+          ],
+          "hybrid": [
+            "retry",
+            "retention",
+            "delete",
+            "graph"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "retry",
+            0.6377941514587772
+          ],
+          [
+            "retention",
+            0.5740376935556214
+          ],
+          [
+            "delete",
+            0.5367963463597998
+          ],
+          [
+            "key",
+            0.48352986480802057
+          ]
+        ]
+      },
+      {
+        "query": "What does Cedar's knowledge graph store?",
+        "expected": "graph",
+        "top4": {
+          "minilm": [
+            "graph",
+            "trace",
+            "retry",
+            "search"
+          ],
+          "hash": [
+            "refund",
+            "gateway",
+            "key",
+            "confidence"
+          ],
+          "lexical": [
+            "graph",
+            "trace",
+            "refund",
+            "gateway"
+          ],
+          "hybrid": [
+            "graph",
+            "trace",
+            "search",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "graph",
+            0.7565029987306312
+          ],
+          [
+            "trace",
+            0.4510845035133232
+          ],
+          [
+            "retry",
+            0.44628023236186
+          ],
+          [
+            "search",
+            0.4451982553103967
+          ]
+        ]
+      },
+      {
+        "query": "What label describes Cedar's average measured run confidence?",
+        "expected": "confidence",
+        "top4": {
+          "minilm": [
+            "confidence",
+            "trace",
+            "egress",
+            "login"
+          ],
+          "hash": [
+            "search",
+            "delete",
+            "retry",
+            "restore"
+          ],
+          "lexical": [
+            "trace",
+            "confidence",
+            "gateway",
+            "backup"
+          ],
+          "hybrid": [
+            "confidence",
+            "trace",
+            "key",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "confidence",
+            0.657761931859987
+          ],
+          [
+            "trace",
+            0.3893485968768704
+          ],
+          [
+            "egress",
+            0.3383819955200824
+          ],
+          [
+            "login",
+            0.3208396696672746
+          ]
+        ]
+      },
+      {
+        "query": "What should happen to Cedar's trace when starting a new conversation?",
+        "expected": "trace",
+        "top4": {
+          "minilm": [
+            "trace",
+            "retention",
+            "retry",
+            "delete"
+          ],
+          "hash": [
+            "graph",
+            "delete",
+            "retry",
+            "backup"
+          ],
+          "lexical": [
+            "trace",
+            "refund",
+            "gateway",
+            "search"
+          ],
+          "hybrid": [
+            "trace",
+            "delete",
+            "gateway",
+            "egress"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "trace",
+            0.7364615068441216
+          ],
+          [
+            "retention",
+            0.59286317235522
+          ],
+          [
+            "retry",
+            0.5704304355449141
+          ],
+          [
+            "delete",
+            0.4833917700952158
+          ]
+        ]
+      },
+      {
+        "query": "How many provider attempts does Cedar Standard chat allow?",
+        "expected": "budget",
+        "top4": {
+          "minilm": [
+            "budget",
+            "egress",
+            "retry",
+            "gateway"
+          ],
+          "hash": [
+            "search",
+            "key",
+            "retention",
+            "login"
+          ],
+          "lexical": [
+            "budget",
+            "retry",
+            "retention",
+            "egress"
+          ],
+          "hybrid": [
+            "budget",
+            "retry",
+            "egress",
+            "retention"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "budget",
+            0.6465161859425601
+          ],
+          [
+            "egress",
+            0.5577472987217298
+          ],
+          [
+            "retry",
+            0.5510501704252663
+          ],
+          [
+            "gateway",
+            0.536522270191582
+          ]
+        ]
+      },
+      {
+        "query": "What proof does Cedar's shop require for a refund?",
+        "expected": "refund",
+        "top4": {
+          "minilm": [
+            "refund",
+            "delete",
+            "login",
+            "restore"
+          ],
+          "hash": [
+            "delete",
+            "budget",
+            "confidence",
+            "retry"
+          ],
+          "lexical": [
+            "refund",
+            "backup",
+            "trace",
+            "delete"
+          ],
+          "hybrid": [
+            "refund",
+            "delete",
+            "backup",
+            "restore"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "refund",
+            0.6807149721133038
+          ],
+          [
+            "delete",
+            0.4982697807750592
+          ],
+          [
+            "login",
+            0.470735648479952
+          ],
+          [
+            "restore",
+            0.4637803711565411
+          ]
+        ]
+      },
+      {
+        "query": "Who approves Cedar employees' annual leave?",
+        "expected": "vacation",
+        "top4": {
+          "minilm": [
+            "vacation",
+            "login",
+            "delete",
+            "gateway"
+          ],
+          "hash": [
+            "login",
+            "trace",
+            "budget",
+            "egress"
+          ],
+          "lexical": [
+            "vacation",
+            "backup",
+            "retention",
+            "egress"
+          ],
+          "hybrid": [
+            "vacation",
+            "login",
+            "backup",
+            "egress"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "vacation",
+            0.7454575680652726
+          ],
+          [
+            "login",
+            0.5497372149089731
+          ],
+          [
+            "delete",
+            0.4979052461415904
+          ],
+          [
+            "gateway",
+            0.48282851165189455
+          ]
+        ]
+      }
+    ],
+    "held_out": [
+      {
+        "query": "How long does Cedar keep disaster recovery copies?",
+        "expected": "backup",
+        "top4": {
+          "minilm": [
+            "backup",
+            "retry",
+            "retention",
+            "refund"
+          ],
+          "hash": [
+            "search",
+            "backup",
+            "delete",
+            "restore"
+          ],
+          "lexical": [
+            "backup",
+            "login",
+            "refund",
+            "retry"
+          ],
+          "hybrid": [
+            "backup",
+            "retry",
+            "refund",
+            "login"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "backup",
+            0.6673075599373557
+          ],
+          [
+            "retry",
+            0.6140081646255833
+          ],
+          [
+            "retention",
+            0.5756440426076077
+          ],
+          [
+            "refund",
+            0.5424591275063552
+          ]
+        ]
+      },
+      {
+        "query": "Who should protect the data before a software update?",
+        "expected": "backup",
+        "top4": {
+          "minilm": [
+            "backup",
+            "key",
+            "gateway",
+            "retry"
+          ],
+          "hash": [
+            "confidence",
+            "trace",
+            "vacation",
+            "budget"
+          ],
+          "lexical": [
+            "backup",
+            "restore",
+            "refund",
+            "delete"
+          ],
+          "hybrid": [
+            "backup",
+            "key",
+            "egress",
+            "retry"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "backup",
+            0.33999640163256606
+          ],
+          [
+            "key",
+            0.1989453606589153
+          ],
+          [
+            "gateway",
+            0.13863803226390825
+          ],
+          [
+            "retry",
+            0.07880354311311089
+          ]
+        ]
+      },
+      {
+        "query": "Where should a recovery snapshot be loaded initially?",
+        "expected": "restore",
+        "top4": {
+          "minilm": [
+            "backup",
+            "retry",
+            "restore",
+            "login"
+          ],
+          "hash": [
+            "refund",
+            "retry",
+            "delete",
+            "key"
+          ],
+          "lexical": [
+            "delete",
+            "graph",
+            "search",
+            "refund"
+          ],
+          "hybrid": [
+            "backup",
+            "delete",
+            "restore",
+            "login"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "backup",
+            0.3586396527575185
+          ],
+          [
+            "retry",
+            0.35488349968603033
+          ],
+          [
+            "restore",
+            0.2905202195984159
+          ],
+          [
+            "login",
+            0.22957050299732748
+          ]
+        ]
+      },
+      {
+        "query": "Can Cedar return to the old workspace after a failed recovery?",
+        "expected": "restore",
+        "top4": {
+          "minilm": [
+            "restore",
+            "login",
+            "retry",
+            "delete"
+          ],
+          "hash": [
+            "graph",
+            "login",
+            "backup",
+            "key"
+          ],
+          "lexical": [
+            "restore",
+            "retry",
+            "delete",
+            "backup"
+          ],
+          "hybrid": [
+            "restore",
+            "retry",
+            "delete",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "restore",
+            0.7386230333727322
+          ],
+          [
+            "login",
+            0.6187223219377372
+          ],
+          [
+            "retry",
+            0.6129972179578412
+          ],
+          [
+            "delete",
+            0.5867112160903981
+          ]
+        ]
+      },
+      {
+        "query": "How old must Cedar's conversations be before automatic expiry?",
+        "expected": "retention",
+        "top4": {
+          "minilm": [
+            "retention",
+            "retry",
+            "backup",
+            "trace"
+          ],
+          "hash": [
+            "trace",
+            "retention",
+            "budget",
+            "gateway"
+          ],
+          "lexical": [
+            "trace",
+            "key",
+            "graph",
+            "search"
+          ],
+          "hybrid": [
+            "trace",
+            "retention",
+            "backup",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "retention",
+            0.7307738100856904
+          ],
+          [
+            "retry",
+            0.5260015507812649
+          ],
+          [
+            "backup",
+            0.5116656755034299
+          ],
+          [
+            "trace",
+            0.46817332461511724
+          ]
+        ]
+      },
+      {
+        "query": "Which copy of a conversation is removed first during cleanup?",
+        "expected": "retention",
+        "top4": {
+          "minilm": [
+            "retention",
+            "retry",
+            "trace",
+            "delete"
+          ],
+          "hash": [
+            "graph",
+            "egress",
+            "retention",
+            "refund"
+          ],
+          "lexical": [
+            "confidence",
+            "retention",
+            "restore",
+            "refund"
+          ],
+          "hybrid": [
+            "retention",
+            "retry",
+            "restore",
+            "delete"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "retention",
+            0.4758132944807122
+          ],
+          [
+            "retry",
+            0.4245225620319262
+          ],
+          [
+            "trace",
+            0.3832230957322831
+          ],
+          [
+            "delete",
+            0.28673154642014753
+          ]
+        ]
+      },
+      {
+        "query": "Does deleting a Cedar account erase data from every store?",
+        "expected": "delete",
+        "top4": {
+          "minilm": [
+            "delete",
+            "refund",
+            "key",
+            "retention"
+          ],
+          "hash": [
+            "confidence",
+            "graph",
+            "backup",
+            "retention"
+          ],
+          "lexical": [
+            "refund",
+            "delete",
+            "login",
+            "vacation"
+          ],
+          "hybrid": [
+            "delete",
+            "refund",
+            "login",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "delete",
+            0.840956662129231
+          ],
+          [
+            "refund",
+            0.6066730439977801
+          ],
+          [
+            "key",
+            0.5902111117238598
+          ],
+          [
+            "retention",
+            0.5894299825001494
+          ]
+        ]
+      },
+      {
+        "query": "What identifying information appears on Cedar's erasure receipt?",
+        "expected": "delete",
+        "top4": {
+          "minilm": [
+            "delete",
+            "refund",
+            "login",
+            "retry"
+          ],
+          "hash": [
+            "delete",
+            "retry",
+            "refund",
+            "vacation"
+          ],
+          "lexical": [
+            "trace",
+            "refund",
+            "delete",
+            "gateway"
+          ],
+          "hybrid": [
+            "delete",
+            "refund",
+            "trace",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "delete",
+            0.6107482811651879
+          ],
+          [
+            "refund",
+            0.5247588607760032
+          ],
+          [
+            "login",
+            0.5164579419510067
+          ],
+          [
+            "retry",
+            0.5003423414274988
+          ]
+        ]
+      },
+      {
+        "query": "What should an operator do if a provider secret is stolen?",
+        "expected": "key",
+        "top4": {
+          "minilm": [
+            "key",
+            "gateway",
+            "backup",
+            "delete"
+          ],
+          "hash": [
+            "vacation",
+            "refund",
+            "retry",
+            "delete"
+          ],
+          "lexical": [
+            "confidence",
+            "budget",
+            "refund",
+            "retention"
+          ],
+          "hybrid": [
+            "key",
+            "budget",
+            "refund",
+            "delete"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "key",
+            0.4135437714079132
+          ],
+          [
+            "gateway",
+            0.29843453236465606
+          ],
+          [
+            "backup",
+            0.2833290670825927
+          ],
+          [
+            "delete",
+            0.22615922999311597
+          ]
+        ]
+      },
+      {
+        "query": "May Cedar record a model access secret in a support log?",
+        "expected": "key",
+        "top4": {
+          "minilm": [
+            "key",
+            "login",
+            "egress",
+            "delete"
+          ],
+          "hash": [
+            "retention",
+            "trace",
+            "search",
+            "egress"
+          ],
+          "lexical": [
+            "search",
+            "budget",
+            "refund",
+            "delete"
+          ],
+          "hybrid": [
+            "key",
+            "login",
+            "delete",
+            "budget"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "key",
+            0.6950064235544874
+          ],
+          [
+            "login",
+            0.5841147168815518
+          ],
+          [
+            "egress",
+            0.5769084097511007
+          ],
+          [
+            "delete",
+            0.5350735304217716
+          ]
+        ]
+      },
+      {
+        "query": "Who verifies an employee who cannot access their account?",
+        "expected": "login",
+        "top4": {
+          "minilm": [
+            "login",
+            "vacation",
+            "key",
+            "delete"
+          ],
+          "hash": [
+            "delete",
+            "trace",
+            "backup",
+            "confidence"
+          ],
+          "lexical": [
+            "login",
+            "vacation",
+            "refund",
+            "confidence"
+          ],
+          "hybrid": [
+            "login",
+            "vacation",
+            "key",
+            "delete"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "login",
+            0.4166495826045504
+          ],
+          [
+            "vacation",
+            0.3451920991410613
+          ],
+          [
+            "key",
+            0.321078236564542
+          ],
+          [
+            "delete",
+            0.3044207050142144
+          ]
+        ]
+      },
+      {
+        "query": "What must a Cedar employee do when their login session expires?",
+        "expected": "login",
+        "top4": {
+          "minilm": [
+            "login",
+            "vacation",
+            "key",
+            "retention"
+          ],
+          "hash": [
+            "refund",
+            "key",
+            "retry",
+            "trace"
+          ],
+          "lexical": [
+            "login",
+            "refund",
+            "delete",
+            "search"
+          ],
+          "hybrid": [
+            "login",
+            "vacation",
+            "delete",
+            "retention"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "login",
+            0.7705472817354346
+          ],
+          [
+            "vacation",
+            0.6521208953667055
+          ],
+          [
+            "key",
+            0.6187391068515105
+          ],
+          [
+            "retention",
+            0.5960087477460326
+          ]
+        ]
+      },
+      {
+        "query": "How can Cedar stop an integrated client from making more requests?",
+        "expected": "gateway",
+        "top4": {
+          "minilm": [
+            "gateway",
+            "egress",
+            "vacation",
+            "key"
+          ],
+          "hash": [
+            "delete",
+            "confidence",
+            "trace",
+            "budget"
+          ],
+          "lexical": [
+            "gateway",
+            "confidence",
+            "graph",
+            "vacation"
+          ],
+          "hybrid": [
+            "gateway",
+            "vacation",
+            "egress",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "gateway",
+            0.6893324433055769
+          ],
+          [
+            "egress",
+            0.6595301751105537
+          ],
+          [
+            "vacation",
+            0.50572475737438
+          ],
+          [
+            "key",
+            0.5036638226925615
+          ]
+        ]
+      },
+      {
+        "query": "Does every approved integration share one access token?",
+        "expected": "gateway",
+        "top4": {
+          "minilm": [
+            "gateway",
+            "login",
+            "key",
+            "budget"
+          ],
+          "hash": [
+            "restore",
+            "key",
+            "budget",
+            "login"
+          ],
+          "lexical": [
+            "retention",
+            "search",
+            "budget",
+            "refund"
+          ],
+          "hybrid": [
+            "gateway",
+            "budget",
+            "login",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "gateway",
+            0.25617555082815546
+          ],
+          [
+            "login",
+            0.20527250749729653
+          ],
+          [
+            "key",
+            0.15368690541368155
+          ],
+          [
+            "budget",
+            0.13023439922933513
+          ]
+        ]
+      },
+      {
+        "query": "Does Cedar phone home with product usage statistics?",
+        "expected": "egress",
+        "top4": {
+          "minilm": [
+            "confidence",
+            "budget",
+            "egress",
+            "refund"
+          ],
+          "hash": [
+            "refund",
+            "egress",
+            "vacation",
+            "trace"
+          ],
+          "lexical": [
+            "retention",
+            "login",
+            "refund",
+            "backup"
+          ],
+          "hybrid": [
+            "refund",
+            "egress",
+            "retention",
+            "budget"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "confidence",
+            0.47969387601226626
+          ],
+          [
+            "budget",
+            0.458828245334009
+          ],
+          [
+            "egress",
+            0.42655044575611983
+          ],
+          [
+            "refund",
+            0.3882456843245904
+          ]
+        ]
+      },
+      {
+        "query": "What status should Cedar show if a model endpoint cannot be reached?",
+        "expected": "egress",
+        "top4": {
+          "minilm": [
+            "egress",
+            "key",
+            "graph",
+            "login"
+          ],
+          "hash": [
+            "search",
+            "budget",
+            "confidence",
+            "key"
+          ],
+          "lexical": [
+            "search",
+            "key",
+            "budget",
+            "delete"
+          ],
+          "hybrid": [
+            "key",
+            "graph",
+            "budget",
+            "egress"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "egress",
+            0.7798560234366159
+          ],
+          [
+            "key",
+            0.5310107875927266
+          ],
+          [
+            "graph",
+            0.5091649138718741
+          ],
+          [
+            "login",
+            0.5086445992239168
+          ]
+        ]
+      },
+      {
+        "query": "How many coordinates represent each text in Cedar's semantic index?",
+        "expected": "search",
+        "top4": {
+          "minilm": [
+            "search",
+            "retry",
+            "graph",
+            "retention"
+          ],
+          "hash": [
+            "graph",
+            "vacation",
+            "search",
+            "backup"
+          ],
+          "lexical": [
+            "search",
+            "retry",
+            "trace",
+            "backup"
+          ],
+          "hybrid": [
+            "search",
+            "retry",
+            "trace",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "search",
+            0.674009479870517
+          ],
+          [
+            "retry",
+            0.4181142869949445
+          ],
+          [
+            "graph",
+            0.38454860925531525
+          ],
+          [
+            "retention",
+            0.3449289341216936
+          ]
+        ]
+      },
+      {
+        "query": "Where should Cedar store vectors when changing its embedding model?",
+        "expected": "search",
+        "top4": {
+          "minilm": [
+            "search",
+            "key",
+            "delete",
+            "restore"
+          ],
+          "hash": [
+            "retention",
+            "budget",
+            "confidence",
+            "search"
+          ],
+          "lexical": [
+            "egress",
+            "search",
+            "key",
+            "budget"
+          ],
+          "hybrid": [
+            "search",
+            "key",
+            "egress",
+            "retention"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "search",
+            0.5926580965234873
+          ],
+          [
+            "key",
+            0.5127776253196781
+          ],
+          [
+            "delete",
+            0.4394550286942146
+          ],
+          [
+            "restore",
+            0.437986970078265
+          ]
+        ]
+      },
+      {
+        "query": "How many unsuccessful deliveries are allowed before Cedar stops retrying?",
+        "expected": "retry",
+        "top4": {
+          "minilm": [
+            "retry",
+            "egress",
+            "vacation",
+            "refund"
+          ],
+          "hash": [
+            "confidence",
+            "budget",
+            "refund",
+            "vacation"
+          ],
+          "lexical": [
+            "backup",
+            "retention",
+            "vacation",
+            "restore"
+          ],
+          "hybrid": [
+            "vacation",
+            "egress",
+            "restore",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "retry",
+            0.5616822902348851
+          ],
+          [
+            "egress",
+            0.5165382490691357
+          ],
+          [
+            "vacation",
+            0.47195977609473
+          ],
+          [
+            "refund",
+            0.453078645981226
+          ]
+        ]
+      },
+      {
+        "query": "Can a Cedar retry reconstruct a message whose transcript was erased?",
+        "expected": "retry",
+        "top4": {
+          "minilm": [
+            "retry",
+            "retention",
+            "delete",
+            "backup"
+          ],
+          "hash": [
+            "vacation",
+            "restore",
+            "backup",
+            "egress"
+          ],
+          "lexical": [
+            "refund",
+            "delete",
+            "search",
+            "restore"
+          ],
+          "hybrid": [
+            "delete",
+            "retry",
+            "refund",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "retry",
+            0.7506257456249349
+          ],
+          [
+            "retention",
+            0.6734533975203897
+          ],
+          [
+            "delete",
+            0.596335044530018
+          ],
+          [
+            "backup",
+            0.5323451373605457
+          ]
+        ]
+      },
+      {
+        "query": "Should Cedar call a graph outage a successful search with no relationships?",
+        "expected": "graph",
+        "top4": {
+          "minilm": [
+            "graph",
+            "budget",
+            "egress",
+            "retention"
+          ],
+          "hash": [
+            "gateway",
+            "egress",
+            "search",
+            "restore"
+          ],
+          "lexical": [
+            "graph",
+            "refund",
+            "delete",
+            "egress"
+          ],
+          "hybrid": [
+            "graph",
+            "egress",
+            "budget",
+            "delete"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "graph",
+            0.7466749371528901
+          ],
+          [
+            "budget",
+            0.5129073258493447
+          ],
+          [
+            "egress",
+            0.48469508490865365
+          ],
+          [
+            "retention",
+            0.4757903324055903
+          ]
+        ]
+      },
+      {
+        "query": "Which graph state means lookup has been turned off?",
+        "expected": "graph",
+        "top4": {
+          "minilm": [
+            "graph",
+            "trace",
+            "confidence",
+            "budget"
+          ],
+          "hash": [
+            "budget",
+            "vacation",
+            "login",
+            "confidence"
+          ],
+          "lexical": [
+            "graph",
+            "egress",
+            "backup",
+            "restore"
+          ],
+          "hybrid": [
+            "graph",
+            "egress",
+            "restore",
+            "retention"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "graph",
+            0.42309513387636316
+          ],
+          [
+            "trace",
+            0.32584905093727956
+          ],
+          [
+            "confidence",
+            0.2657567939163867
+          ],
+          [
+            "budget",
+            0.2371842304496478
+          ]
+        ]
+      },
+      {
+        "query": "How should Cedar distinguish missing confidence from a measured zero?",
+        "expected": "confidence",
+        "top4": {
+          "minilm": [
+            "confidence",
+            "egress",
+            "login",
+            "delete"
+          ],
+          "hash": [
+            "backup",
+            "search",
+            "egress",
+            "retention"
+          ],
+          "lexical": [
+            "confidence",
+            "delete",
+            "refund",
+            "search"
+          ],
+          "hybrid": [
+            "confidence",
+            "delete",
+            "egress",
+            "login"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "confidence",
+            0.7170582339391167
+          ],
+          [
+            "egress",
+            0.45488922019703776
+          ],
+          [
+            "login",
+            0.40429171580813805
+          ],
+          [
+            "delete",
+            0.39740216997176736
+          ]
+        ]
+      },
+      {
+        "query": "Does a high dashboard confidence value prove an answer is correct?",
+        "expected": "confidence",
+        "top4": {
+          "minilm": [
+            "confidence",
+            "graph",
+            "budget",
+            "trace"
+          ],
+          "hash": [
+            "backup",
+            "egress",
+            "graph",
+            "vacation"
+          ],
+          "lexical": [
+            "confidence",
+            "refund",
+            "delete",
+            "retention"
+          ],
+          "hybrid": [
+            "confidence",
+            "egress",
+            "budget",
+            "graph"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "confidence",
+            0.4983630776561727
+          ],
+          [
+            "graph",
+            0.11325797176645952
+          ],
+          [
+            "budget",
+            0.09823315350902899
+          ],
+          [
+            "trace",
+            0.09252194932438888
+          ]
+        ]
+      },
+      {
+        "query": "Which run should Cedar's trace panel describe?",
+        "expected": "trace",
+        "top4": {
+          "minilm": [
+            "trace",
+            "egress",
+            "confidence",
+            "login"
+          ],
+          "hash": [
+            "backup",
+            "retry",
+            "delete",
+            "budget"
+          ],
+          "lexical": [
+            "trace",
+            "gateway",
+            "backup",
+            "confidence"
+          ],
+          "hybrid": [
+            "trace",
+            "confidence",
+            "gateway",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "trace",
+            0.6470447657640005
+          ],
+          [
+            "egress",
+            0.4761215449091005
+          ],
+          [
+            "confidence",
+            0.4631447776717705
+          ],
+          [
+            "login",
+            0.4066785602281848
+          ]
+        ]
+      },
+      {
+        "query": "Where can an operator inspect why refinement was skipped?",
+        "expected": "trace",
+        "top4": {
+          "minilm": [
+            "trace",
+            "restore",
+            "refund",
+            "budget"
+          ],
+          "hash": [
+            "retention",
+            "trace",
+            "gateway",
+            "login"
+          ],
+          "lexical": [
+            "confidence",
+            "graph",
+            "retention",
+            "login"
+          ],
+          "hybrid": [
+            "confidence",
+            "trace",
+            "refund",
+            "graph"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "trace",
+            0.2672184077647567
+          ],
+          [
+            "restore",
+            0.2275391176335259
+          ],
+          [
+            "refund",
+            0.22693848002817432
+          ],
+          [
+            "budget",
+            0.21917134315930073
+          ]
+        ]
+      },
+      {
+        "query": "Does querying Cedar's local database spend a model call?",
+        "expected": "budget",
+        "top4": {
+          "minilm": [
+            "budget",
+            "egress",
+            "key",
+            "graph"
+          ],
+          "hash": [
+            "backup",
+            "retry",
+            "delete",
+            "gateway"
+          ],
+          "lexical": [
+            "budget",
+            "search",
+            "key",
+            "refund"
+          ],
+          "hybrid": [
+            "budget",
+            "key",
+            "egress",
+            "delete"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "budget",
+            0.7079450681096691
+          ],
+          [
+            "egress",
+            0.5425291138436771
+          ],
+          [
+            "key",
+            0.5199051250405315
+          ],
+          [
+            "graph",
+            0.44788535278811903
+          ]
+        ]
+      },
+      {
+        "query": "What is needed before Cedar may make a second inference attempt?",
+        "expected": "budget",
+        "top4": {
+          "minilm": [
+            "egress",
+            "budget",
+            "trace",
+            "graph"
+          ],
+          "hash": [
+            "trace",
+            "gateway",
+            "restore",
+            "egress"
+          ],
+          "lexical": [
+            "budget",
+            "confidence",
+            "egress",
+            "restore"
+          ],
+          "hybrid": [
+            "budget",
+            "egress",
+            "restore",
+            "confidence"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "egress",
+            0.5446561223611361
+          ],
+          [
+            "budget",
+            0.5242798366600453
+          ],
+          [
+            "trace",
+            0.480052916589363
+          ],
+          [
+            "graph",
+            0.44382055856601843
+          ]
+        ]
+      },
+      {
+        "query": "Can a physical purchase be returned two weeks after buying it?",
+        "expected": "refund",
+        "top4": {
+          "minilm": [
+            "refund",
+            "backup",
+            "vacation",
+            "delete"
+          ],
+          "hash": [
+            "vacation",
+            "retry",
+            "refund",
+            "gateway"
+          ],
+          "lexical": [
+            "graph",
+            "refund",
+            "delete",
+            "search"
+          ],
+          "hybrid": [
+            "refund",
+            "delete",
+            "vacation",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "refund",
+            0.5522709221512622
+          ],
+          [
+            "backup",
+            0.2211435260394043
+          ],
+          [
+            "vacation",
+            0.18735123967817546
+          ],
+          [
+            "delete",
+            0.169268422759643
+          ]
+        ]
+      },
+      {
+        "query": "How long does a subscriber have to cancel a digital purchase?",
+        "expected": "refund",
+        "top4": {
+          "minilm": [
+            "refund",
+            "backup",
+            "delete",
+            "gateway"
+          ],
+          "hash": [
+            "refund",
+            "graph",
+            "retention",
+            "egress"
+          ],
+          "lexical": [
+            "refund",
+            "delete",
+            "search",
+            "restore"
+          ],
+          "hybrid": [
+            "refund",
+            "delete",
+            "backup",
+            "gateway"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "refund",
+            0.5587084892655846
+          ],
+          [
+            "backup",
+            0.221193542097713
+          ],
+          [
+            "delete",
+            0.19043857633119288
+          ],
+          [
+            "gateway",
+            0.18601724574906164
+          ]
+        ]
+      },
+      {
+        "query": "What must an employee do before booking a holiday?",
+        "expected": "vacation",
+        "top4": {
+          "minilm": [
+            "vacation",
+            "refund",
+            "login",
+            "gateway"
+          ],
+          "hash": [
+            "delete",
+            "login",
+            "retry",
+            "trace"
+          ],
+          "lexical": [
+            "refund",
+            "delete",
+            "retention",
+            "search"
+          ],
+          "hybrid": [
+            "refund",
+            "delete",
+            "restore",
+            "vacation"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "vacation",
+            0.30312901706462436
+          ],
+          [
+            "refund",
+            0.13859473505653036
+          ],
+          [
+            "login",
+            0.11884956428188645
+          ],
+          [
+            "gateway",
+            0.11647657339674895
+          ]
+        ]
+      },
+      {
+        "query": "How many days can Cedar staff work away from the office?",
+        "expected": "vacation",
+        "top4": {
+          "minilm": [
+            "vacation",
+            "login",
+            "restore",
+            "retention"
+          ],
+          "hash": [
+            "confidence",
+            "graph",
+            "search",
+            "backup"
+          ],
+          "lexical": [
+            "vacation",
+            "backup",
+            "retry",
+            "login"
+          ],
+          "hybrid": [
+            "vacation",
+            "login",
+            "restore",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "vacation",
+            0.721264181931227
+          ],
+          [
+            "login",
+            0.44547284504444684
+          ],
+          [
+            "restore",
+            0.4215187291602657
+          ],
+          [
+            "retention",
+            0.40427407459934817
+          ]
+        ]
+      }
+    ],
+    "unrelated": [
+      {
+        "query": "What is the orbital period of Neptune?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "backup",
+            "retention",
+            "restore",
+            "login"
+          ],
+          "hash": [
+            "restore",
+            "backup",
+            "confidence",
+            "delete"
+          ],
+          "lexical": [
+            "confidence",
+            "retry",
+            "restore",
+            "key"
+          ],
+          "hybrid": [
+            "restore",
+            "backup",
+            "confidence",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "backup",
+            0.11911805522970327
+          ],
+          [
+            "retention",
+            0.10274098701893593
+          ],
+          [
+            "restore",
+            0.08882798279866619
+          ],
+          [
+            "login",
+            0.08657453102315012
+          ]
+        ]
+      },
+      {
+        "query": "How do I bake rye bread?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "search",
+            "login",
+            "restore",
+            "trace"
+          ],
+          "hash": [
+            "confidence",
+            "login",
+            "vacation",
+            "restore"
+          ],
+          "lexical": [
+            "vacation",
+            "budget",
+            "backup",
+            "restore"
+          ],
+          "hybrid": [
+            "restore",
+            "login",
+            "budget",
+            "search"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "search",
+            0.014397276941458587
+          ],
+          [
+            "login",
+            0.009073479607425801
+          ],
+          [
+            "restore",
+            0.005702366316897551
+          ],
+          [
+            "trace",
+            -0.0021416703732732314
+          ]
+        ]
+      },
+      {
+        "query": "How is a violin tuned?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "confidence",
+            "trace",
+            "budget",
+            "restore"
+          ],
+          "hash": [
+            "confidence",
+            "budget",
+            "refund",
+            "vacation"
+          ],
+          "lexical": [
+            "confidence",
+            "refund",
+            "delete",
+            "egress"
+          ],
+          "hybrid": [
+            "confidence",
+            "budget",
+            "restore",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "confidence",
+            0.11174074567824831
+          ],
+          [
+            "trace",
+            0.005856940975499715
+          ],
+          [
+            "budget",
+            0.002912720323053058
+          ],
+          [
+            "restore",
+            -0.008219550400002208
+          ]
+        ]
+      },
+      {
+        "query": "What causes a volcanic eruption?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "key",
+            "egress",
+            "delete",
+            "gateway"
+          ],
+          "hash": [
+            "vacation",
+            "confidence",
+            "budget",
+            "login"
+          ],
+          "lexical": [
+            "refund",
+            "delete",
+            "search",
+            "restore"
+          ],
+          "hybrid": [
+            "delete",
+            "refund",
+            "egress",
+            "gateway"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "key",
+            0.03176226738447332
+          ],
+          [
+            "egress",
+            0.007202405945071968
+          ],
+          [
+            "delete",
+            -0.01802068507383722
+          ],
+          [
+            "gateway",
+            -0.020659472688132757
+          ]
+        ]
+      },
+      {
+        "query": "How do I replace a bicycle tire?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "retry",
+            "trace",
+            "key",
+            "backup"
+          ],
+          "hash": [
+            "key",
+            "restore",
+            "gateway",
+            "vacation"
+          ],
+          "lexical": [
+            "budget",
+            "refund",
+            "delete",
+            "search"
+          ],
+          "hybrid": [
+            "backup",
+            "retry",
+            "delete",
+            "key"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "retry",
+            0.07438531254655494
+          ],
+          [
+            "trace",
+            0.0659556671619509
+          ],
+          [
+            "key",
+            0.05367186869667053
+          ],
+          [
+            "backup",
+            0.03651284735674396
+          ]
+        ]
+      },
+      {
+        "query": "Which birds migrate over the Pacific?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "budget",
+            "retry",
+            "vacation",
+            "graph"
+          ],
+          "hash": [
+            "budget",
+            "confidence",
+            "login",
+            "delete"
+          ],
+          "lexical": [
+            "restore",
+            "key",
+            "retry",
+            "trace"
+          ],
+          "hybrid": [
+            "retry",
+            "key",
+            "backup",
+            "delete"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "budget",
+            0.10594163536297127
+          ],
+          [
+            "retry",
+            0.09828659228441002
+          ],
+          [
+            "vacation",
+            0.08550134227371779
+          ],
+          [
+            "graph",
+            0.04798022306408512
+          ]
+        ]
+      },
+      {
+        "query": "What are the rules for chess castling?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "budget",
+            "trace",
+            "vacation",
+            "egress"
+          ],
+          "hash": [
+            "refund",
+            "retention",
+            "egress",
+            "trace"
+          ],
+          "lexical": [
+            "backup",
+            "restore",
+            "key",
+            "retry"
+          ],
+          "hybrid": [
+            "trace",
+            "vacation",
+            "retry",
+            "backup"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "budget",
+            0.0758365355708506
+          ],
+          [
+            "trace",
+            0.06871110231661712
+          ],
+          [
+            "vacation",
+            0.05613008686989058
+          ],
+          [
+            "egress",
+            0.031686354706821795
+          ]
+        ]
+      },
+      {
+        "query": "How do I knit a wool sweater?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "search",
+            "vacation",
+            "retry",
+            "retention"
+          ],
+          "hash": [
+            "trace",
+            "restore",
+            "retention",
+            "gateway"
+          ],
+          "lexical": [
+            "budget",
+            "refund",
+            "delete",
+            "search"
+          ],
+          "hybrid": [
+            "search",
+            "refund",
+            "budget",
+            "vacation"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "search",
+            0.0669617118357173
+          ],
+          [
+            "vacation",
+            0.05528700566565268
+          ],
+          [
+            "retry",
+            0.052635803236339894
+          ],
+          [
+            "retention",
+            0.04670049639366021
+          ]
+        ]
+      },
+      {
+        "query": "How are coral reefs formed?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "key",
+            "backup",
+            "trace",
+            "budget"
+          ],
+          "hash": [
+            "key",
+            "egress",
+            "budget",
+            "graph"
+          ],
+          "lexical": [
+            "backup",
+            "key",
+            "restore",
+            "retention"
+          ],
+          "hybrid": [
+            "backup",
+            "key",
+            "login",
+            "restore"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "key",
+            0.027310106101658908
+          ],
+          [
+            "backup",
+            0.024067341556861147
+          ],
+          [
+            "trace",
+            -0.004202655515613868
+          ],
+          [
+            "budget",
+            -0.00458593979613185
+          ]
+        ]
+      },
+      {
+        "query": "What is the boiling point of mercury?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "confidence",
+            "graph",
+            "trace",
+            "key"
+          ],
+          "hash": [
+            "login",
+            "trace",
+            "retention",
+            "confidence"
+          ],
+          "lexical": [
+            "confidence",
+            "retry",
+            "restore",
+            "key"
+          ],
+          "hybrid": [
+            "confidence",
+            "trace",
+            "key",
+            "retry"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "confidence",
+            0.15256864360098668
+          ],
+          [
+            "graph",
+            0.07712571781250975
+          ],
+          [
+            "trace",
+            0.05188590911105287
+          ],
+          [
+            "key",
+            0.035378702158652624
+          ]
+        ]
+      },
+      {
+        "query": "Who painted the ceiling of the Sistine Chapel?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "backup",
+            "vacation",
+            "trace",
+            "login"
+          ],
+          "hash": [
+            "confidence",
+            "budget",
+            "restore",
+            "backup"
+          ],
+          "lexical": [
+            "retry",
+            "restore",
+            "key",
+            "trace"
+          ],
+          "hybrid": [
+            "backup",
+            "trace",
+            "key",
+            "login"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "backup",
+            0.03206583998544442
+          ],
+          [
+            "vacation",
+            0.012648130916801515
+          ],
+          [
+            "trace",
+            0.010380545238052354
+          ],
+          [
+            "login",
+            -0.00032928269265115754
+          ]
+        ]
+      },
+      {
+        "query": "How many bones are in an adult human body?",
+        "expected": null,
+        "top4": {
+          "minilm": [
+            "backup",
+            "search",
+            "budget",
+            "confidence"
+          ],
+          "hash": [
+            "gateway",
+            "refund",
+            "retention",
+            "egress"
+          ],
+          "lexical": [
+            "login",
+            "key",
+            "retry",
+            "confidence"
+          ],
+          "hybrid": [
+            "backup",
+            "login",
+            "confidence",
+            "search"
+          ]
+        },
+        "semantic_top4_scores": [
+          [
+            "backup",
+            0.1379334878665739
+          ],
+          [
+            "search",
+            0.0843967501654376
+          ],
+          [
+            "budget",
+            0.07903284054861853
+          ],
+          [
+            "confidence",
+            0.060032295541342644
+          ]
+        ]
+      }
+    ]
+  }
+}

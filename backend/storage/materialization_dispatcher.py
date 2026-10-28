@@ -27,6 +27,17 @@ DeliveryHandler = Callable[[CrossStoreOutboxEvent], str]
 
 
 def _chroma_handler(event: CrossStoreOutboxEvent) -> str:
+    if event.operation == "upsert_chat_message":
+        from backend.storage.chat_index_recovery import deliver_chat_index
+
+        return deliver_chat_index(event)
+    if (
+        event.entity_type == "knowledge_graph_node"
+        and event.operation == "upsert_knowledge_node"
+    ):
+        from backend.storage.knowledge_materialization import deliver_owned_knowledge
+
+        return deliver_owned_knowledge(event, "chroma")
     if event.operation == "delete_knowledge_node":
         from backend.services.rag_service import get_rag_service
 
@@ -57,6 +68,13 @@ def _chroma_handler(event: CrossStoreOutboxEvent) -> str:
 
 
 def _neo4j_handler(event: CrossStoreOutboxEvent) -> str:
+    if (
+        event.entity_type == "knowledge_graph_node"
+        and event.operation == "merge_knowledge_node"
+    ):
+        from backend.storage.knowledge_materialization import deliver_owned_knowledge
+
+        return deliver_owned_knowledge(event, "neo4j")
     from backend.storage import get_graph_store
 
     store = get_graph_store()
@@ -94,7 +112,9 @@ def _minio_handler(event: CrossStoreOutboxEvent) -> str:
         if store.exists(bucket, key) and not store.delete(bucket, key):
             raise MaterializationDeliveryError("minio_object_delete_failed")
         if store.exists(bucket, key):
-            raise MaterializationDeliveryError("minio_object_delete_verification_failed")
+            raise MaterializationDeliveryError(
+                "minio_object_delete_verification_failed"
+            )
         if event.entity_type in {"ingestion_file_source", "ingestion_file_normalized"}:
             from sqlalchemy.orm import object_session
 
@@ -128,7 +148,9 @@ def _minio_handler(event: CrossStoreOutboxEvent) -> str:
         ).encode("utf-8")
     else:
         try:
-            body = base64.b64decode(str(payload.get("body_base64") or ""), validate=True)
+            body = base64.b64decode(
+                str(payload.get("body_base64") or ""), validate=True
+            )
         except ValueError as exc:
             raise MaterializationDeliveryError("minio_object_payload_invalid") from exc
     expected_body_hash = str(payload.get("body_sha256") or "").strip()
@@ -169,7 +191,9 @@ def _minio_handler(event: CrossStoreOutboxEvent) -> str:
 
         session = object_session(event)
         audit_event = (
-            session.query(TruthAuditEvent).filter_by(event_id=event.entity_id).one_or_none()
+            session.query(TruthAuditEvent)
+            .filter_by(event_id=event.entity_id)
+            .one_or_none()
             if session is not None
             else None
         )
@@ -230,16 +254,25 @@ def _minio_handler(event: CrossStoreOutboxEvent) -> str:
         metadata_json = dict(artifact.metadata_json or {})
         metadata_json["bucket"] = bucket
         artifact.metadata_json = metadata_json
-        pending = session.query(SimulationArtifact).filter(
-            SimulationArtifact.session_id == artifact.session_id,
-            SimulationArtifact.id != artifact.id,
-            SimulationArtifact.state != "ready",
-        ).first()
+        pending = (
+            session.query(SimulationArtifact)
+            .filter(
+                SimulationArtifact.session_id == artifact.session_id,
+                SimulationArtifact.id != artifact.id,
+                SimulationArtifact.state != "ready",
+            )
+            .first()
+        )
         if pending is None:
-            simulation = session.query(SimulationSession).filter_by(
-                session_id=artifact.session_id
-            ).one_or_none()
-            if simulation is not None and simulation.status == "materialization_pending":
+            simulation = (
+                session.query(SimulationSession)
+                .filter_by(session_id=artifact.session_id)
+                .one_or_none()
+            )
+            if (
+                simulation is not None
+                and simulation.status == "materialization_pending"
+            ):
                 simulation.status = "completed"
                 simulation.artifact_state = "ready"
                 results = dict(simulation.results or {})

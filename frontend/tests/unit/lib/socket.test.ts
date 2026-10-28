@@ -28,6 +28,8 @@ describe('Socket Logic', () => {
     // Reset singleton private fields
     (socketClient as any).socket = null;
     (socketClient as any).handlers = {};
+    (socketClient as any).joinedRooms?.clear();
+    (socketClient as any).joinedRunRooms?.clear();
   });
 
   describe('SocketClient', () => {
@@ -51,12 +53,33 @@ describe('Socket Logic', () => {
       expect(io).toHaveBeenCalledTimes(2);
     });
 
+    it('restores only current chat rooms when the connection returns', () => {
+      socketClient.connect();
+      socketClient.joinRoom('chat_old');
+      socketClient.leaveRoom('chat_old');
+      socketClient.joinRoom('chat_current');
+      socketClient.joinRunRoom('run_old');
+      socketClient.leaveRunRoom('run_old');
+      socketClient.joinRunRoom('run_current');
+      mockSocket.emit.mockClear();
+
+      const onConnect = mockSocket.on.mock.calls.find((call: any) => call[0] === 'connect')?.[1];
+      expect(onConnect).toBeDefined();
+      onConnect();
+
+      expect(mockSocket.emit).toHaveBeenCalledWith('join', { room: 'chat_current' });
+      expect(mockSocket.emit).not.toHaveBeenCalledWith('join', { room: 'chat_old' });
+      expect(mockSocket.emit).toHaveBeenCalledWith('join_run_room', { run_id: 'run_current' });
+      expect(mockSocket.emit).not.toHaveBeenCalledWith('join_run_room', { run_id: 'run_old' });
+    });
+
     it('should initialize socket connection with correct options', () => {
       socketClient.connect('http://test-url.com');
       
       expect(io).toHaveBeenCalledWith('http://test-url.com', expect.objectContaining({
         transports: ['websocket', 'polling'],
-        reconnection: true
+        reconnection: true,
+        reconnectionAttempts: Infinity,
       }));
     });
 

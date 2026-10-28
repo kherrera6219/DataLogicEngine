@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.10 |
+| Document version | v1.22.13 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-27 |
+| Last reviewed | 2026-10-28 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.4 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.5 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
@@ -27,6 +27,135 @@
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
 ## Required first read
+
+Kevin approved the nested-ownership deletion repair on October 28. At source
+`ebf835d2`, the original adapter reproduction reports zero actual remnants;
+66 focused Windows tests pass, and the native PostgreSQL/Chroma/Neo4j probe
+passes with 602 synthetic search records and 601 graph nodes erased while a
+second owner in the same tenant is preserved. Shared ownership stops before
+mutation. Future ingestion IDs are owner-scoped, owner fields reach the graph
+and search records, and queued canonical knowledge rechecks retained authority
+and deletion receipts under the index lock. The original finding is retained
+in `reports/ingested-ownership-deletion-probe-20261028.json`; repaired and native
+evidence are `reports/ingested-ownership-deletion-fixed-probe-20261028.json` and
+`reports/native-owner-deletion-probe-20261028.json`. Native lifecycle effects were
+stubbed in that probe; full installed lifecycle acceptance remains open. The
+temporary services and internal test network were removed and the previously
+stopped data machine was stopped again. Customer records were not deleted.
+The full Windows run at `ebf835d2` passed 3,480 tests, 19 skipped, with zero
+failures/setup/collection errors (`reports/owner-deletion-windows-20261028.txt`).
+Later source `00dfebd6` preserves canonical SQL ownership and the user record
+when another store fails deletion, allowing a subsequent retry to finish;
+41 focused Windows checks pass. The full Windows run at `00dfebd6` passes
+3,481 tests, 19 skipped, 35 warnings, with zero failures/setup/collection errors
+(`reports/owner-deletion-final-windows-20261028.txt`). Retained data migration and activation remain unexecuted, not
+blocked on the ownership-repair approval.
+
+Recovery-copy correction: the actual Electron user-data folder is
+`C:\Users\kevin\AppData\Roaming\DataLogicEngine Desktop`, in addition to the
+older `DataLogicEngine` folder. The earlier recovery copy omitted this second
+folder. It now includes an ACL-restricted `desktop-user-data` component under
+the same recovery directory: all 217 files (108,580,368 bytes) match source
+SHA-256 hashes. The separate local inventory records their paths and hashes;
+no private contents were committed. Restore remains untested. Read-only
+inspection found three sessions and ten messages in the installation-owned
+managed PostgreSQL database, but none in the older desktop SQLite database.
+Neither store contains knowledge nodes or ingestion records at this checkpoint.
+The managed database was read in a rolled-back read-only transaction, then its
+container and data machine were stopped again. Migration must use managed
+authority rather than treating the empty SQLite fallback as the source.
+Read-only inventory of the retained Chroma service finds ten chat-history
+records and zero records in the six other existing collections. Its internal
+network and disabled telemetry were checked before start; it and the data
+machine were stopped again after inspection. Counts alone do not establish
+chat-ID/content/permission parity or qualify a migration.
+
+Next implementation notes: the persona cache currently reads one complete JSON
+payload from `search_collection`; blindly splitting that cache into semantic
+chunks would break its read contract. Preserve its existing exact-key behavior
+or qualify an explicit reconstruction path before routing changes. The shared
+index lock is currently non-reentrant; avoid nested acquisition in a future RAG
+router until tested coordination is in place. Reindex authoritative knowledge
+nodes and retained chats rather than blindly cloning stale vector materializations.
+
+October 28 semantic checkpoint: `feb6ca6c` includes model-sized document,
+chat, knowledge and text-item families, obsolete-chunk replacement, complete
+family deletion, and explicit over-limit rejection. A separate versioned store
+checks model fingerprints, dimensions, chunk revision and cosine configuration
+before use. Seventy-three focused Windows tests pass. A disposable real-service
+probe verifies metric calculations, preservation of legacy collections,
+owner-filtered chat recall, active-session exclusion, retry and deletion.
+The data machine and disposable container are stopped/removed. The active RAG
+factory remains hash-based; migration, cache compatibility, synchronized routing,
+full app packaging and installed acceptance remain open. The full 3,433-test
+checkpoint below predates these later R-3 changes; final full regression is
+required after the remaining source work.
+
+October 28 next-source checkpoint: `fa28f99f` adds model-token-bounded document
+chunking when a local embedding model is explicitly injected into RAG. Its
+32 focused tests pass, and the real offline tokenizer screen retains 32/32
+long-document targets with no input above the 256-token model limit. The
+active factory still selects the hash projection. Remaining R-3 work includes
+long chat/knowledge/text-item handling, versioned collection routing and metric
+validation, deletion-aware migration/cutover/rollback, full application model
+packaging, and installed acceptance. Do not activate a model against old vectors.
+
+A restricted local recovery copy was created at
+`C:\Users\kevin\Documents\DataLogicEngine-recovery\20261028-071116` while
+the app and data machine were stopped. All 22 copied files were SHA-256 checked,
+including the data-machine disk and application state. The copy's local
+`inventory.json` records the components; no secrets or backup contents were
+committed. This is copy verification, not a tested restore or installed recovery.
+
+October 28 verified recovery checkpoint: runtime source `ae4c2978`, with
+diagnostics from `fe870b5c`, passed the full Windows suite: 3,433 passed,
+19 skipped, 35 warnings, and zero failures/setup/collection errors. Forty-one
+focused recovery/deletion checks pass. One prior full run failed the persona
+causality test; its original cause is unconfirmed. The three-test module, the
+1,056-test governance group, twenty isolated repetitions, and the final full
+run pass with assertions intact. Preserve the failure and retest reports in
+`reports/chat-*20261028.txt`; this is not an installed acceptance claim.
+Kevin approved the starting search corpus and criteria and their extension.
+The long-document prototype retains 32/32 synthetic targets with no input
+over the model limit; application integration, permission/lifecycle checks,
+retained-data migration, and the updated installer remain open.
+
+October 28 recovery checkpoint: runtime source `d0847d74` saves chat-index
+work in the existing SQL outbox in the same transaction as the transcript.
+Requests contain no chat text; delivery rechecks the retained source, its
+fingerprint, and user-deletion receipts under the shared index lock. Processing
+is bounded and retention removes pending records. Forty focused Windows tests
+pass. The full Windows run reported 3,431 passed, 19 skipped, and one document
+classification failure introduced by the new evaluation note. That note was
+then classified and all nine documentation-authority tests passed. This is not
+a claim of a later all-green full run or installed recovery acceptance.
+The broader synthetic search candidate and owner-approved criteria are in
+`docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`. Historical
+transcripts without outbox records are not automatically backfilled by this
+change. Semantic activation and an updated installer remain open.
+
+October 28: Kevin approved the session-retention repair. Source now verifies
+removal from the chat index before deleting a transcript, coordinates active
+gateway indexing and profile deletion with cleanup, and reports unfinished
+batches. Archive-required session and trace cleanup stops explicitly because
+archival is not implemented. The 44 focused Windows tests cover failures and
+concurrent synthetic writes. The full locked-environment Windows suite passed
+3,423 tests (19 skipped; 35 warnings) at runtime source `b6f2632d`. An isolated
+cached Chroma container verified removal, preservation of another synthetic
+session, and an idempotent retry; the container was removed and the previously
+stopped data-service machine was stopped again. Installed qualification remains
+open. Customer data was not used for cleanup tests. Installed chat-index retry
+qualification, search-model qualification and migration remain open.
+
+The current review-repair branch has additional source fixes for index-write
+acknowledgments, redacted failure logs, and reconnection of current chat and
+trace rooms. Focused backend (66) and frontend (70) tests pass; the sequential
+Windows suite passed 3,410 tests with 19 skipped, and all 521 frontend tests and
+the Electron-mode frontend build passed at source checkpoint `e25170a9`. A small offline
+public-document screen further demonstrates that the existing threshold can
+exclude relevant MiniLM results; it is not threshold or migration acceptance.
+Installed chat-index recovery qualification, local-model
+packaging, migration, and installed/provider validation remain open.
 
 October 27 owner-approved frontend/retrieval fast-track source work was merged
 to main in PR #98; see

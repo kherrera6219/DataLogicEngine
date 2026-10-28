@@ -92,6 +92,38 @@ def test_vector_only_contract_never_sends_embedding_configuration():
     client.close()
 
 
+def test_explicit_cosine_index_configuration_carries_no_embedding_code():
+    def handler(request):
+        body = json.loads(request.content)
+        assert body["configuration"] == {"hnsw":{"space":"cosine"}}
+        assert body["schema"] is None
+        assert "embedding_function" not in body
+        return httpx.Response(200, json=_model(configuration_json=body["configuration"]))
+    client = _client(handler)
+    try:
+        result = client.create_collection("knowledge_nodes", configuration={"hnsw":{"space":"cosine"}})
+        assert result._model.configuration_json["hnsw"]["space"] == "cosine"
+    finally:
+        client.close()
+
+
+@pytest.mark.parametrize("config", [
+    {"embedding_function":{"name":"remote"}},
+    {"hnsw":{"space":"cosine", "embedding_function":"remote"}},
+    {"hnsw":{"space":"l2"}},
+    {"hnsw":{"space":"cosine"},"trust_remote_code":True},
+])
+def test_metric_support_does_not_enable_arbitrary_collection_configuration(config):
+    def unexpected(request):
+        pytest.fail("unsafe configuration must be rejected before transport")
+    client = _client(unexpected)
+    try:
+        with pytest.raises(ChromaHttpError, match="embedding_configuration_rejected"):
+            client.create_collection("knowledge_nodes", configuration=config)
+    finally:
+        client.close()
+
+
 @pytest.mark.parametrize(
     "hostile_model",
     [

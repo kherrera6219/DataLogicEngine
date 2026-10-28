@@ -106,7 +106,17 @@ class IngestionControlRequested(RuntimeError):
         self.action = str(action)
         super().__init__(f"ingestion_{self.action}_requested")
 
-SUPPORTED_TEXT_EXTENSIONS = {".txt", ".md", ".markdown", ".csv", ".json", ".yaml", ".yml", ".log"}
+
+SUPPORTED_TEXT_EXTENSIONS = {
+    ".txt",
+    ".md",
+    ".markdown",
+    ".csv",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".log",
+}
 SUPPORTED_BINARY_EXTENSIONS = {".pdf", ".docx"}
 SUPPORTED_EXTENSIONS = SUPPORTED_TEXT_EXTENSIONS | SUPPORTED_BINARY_EXTENSIONS
 
@@ -181,9 +191,7 @@ class IngestionKADecision:
             "stage_evidence": dict(self.stage_evidence),
             "trace_states": {
                 canonical_id: [event.state.value for event in trace.events]
-                for canonical_id, trace in sorted(
-                    self.execution.report.traces.items()
-                )
+                for canonical_id, trace in sorted(self.execution.report.traces.items())
             },
             "authoritative_effect_receipt": None,
         }
@@ -333,7 +341,10 @@ class LocalKnowledgeIngestionService:
                         relative_path=relative_path,
                         source_path=relative_path,
                         document_uid=self._document_uid(
-                            tenant_id, job.source_digest, relative_path
+                            tenant_id,
+                            job.source_digest,
+                            relative_path,
+                            owner_user_id=user_id,
                         ),
                         status="rejected",
                         error_code=reason,
@@ -350,7 +361,10 @@ class LocalKnowledgeIngestionService:
                         relative_path=rejected.relative_path,
                         source_path=rejected.relative_path,
                         document_uid=self._document_uid(
-                            tenant_id, job.source_digest, rejected.relative_path
+                            tenant_id,
+                            job.source_digest,
+                            rejected.relative_path,
+                            owner_user_id=user_id,
                         ),
                         status="rejected",
                         error_code=rejected.reason,
@@ -358,7 +372,10 @@ class LocalKnowledgeIngestionService:
                 )
             if not acquired.files and not acquired.rejected:
                 result.rejected_files.append(
-                    RejectedFile(path=str(source_label or source.name), reason="No supported files found")
+                    RejectedFile(
+                        path=str(source_label or source.name),
+                        reason="No supported files found",
+                    )
                 )
                 result.files_rejected = 1
 
@@ -366,7 +383,8 @@ class LocalKnowledgeIngestionService:
             chunking_revision = (
                 f"{getattr(rag, 'chunking_revision', 'configured-chunker-v1')}"
                 f":size={self.chunk_size}:overlap={min(50, self.chunk_size // 10)}"
-                if rag else "whole-document-v1"
+                if rag
+                else "whole-document-v1"
             )
             for acquired_file in acquired.files:
                 self._raise_if_controlled(control_check)
@@ -378,7 +396,10 @@ class LocalKnowledgeIngestionService:
                     relative_path=acquired_file.relative_path,
                     source_path=acquired_file.relative_path,
                     document_uid=self._document_uid(
-                        tenant_id, job.source_digest, acquired_file.relative_path
+                        tenant_id,
+                        job.source_digest,
+                        acquired_file.relative_path,
+                        owner_user_id=user_id,
                     ),
                     source_revision=f"sha256:{acquired_file.sha256}",
                     source_sha256=acquired_file.sha256,
@@ -429,7 +450,10 @@ class LocalKnowledgeIngestionService:
                 if not chunks:
                     result.files_rejected += 1
                     result.rejected_files.append(
-                        RejectedFile(path=str(original_path), reason="No text after normalization")
+                        RejectedFile(
+                            path=str(original_path),
+                            reason="No text after normalization",
+                        )
                     )
                     file_record.status = "rejected"
                     file_record.error_code = "no_text_after_normalization"
@@ -459,7 +483,9 @@ class LocalKnowledgeIngestionService:
                 original_spool = spool_dir / f"original{staged_path.suffix.lower()}"
                 normalized_spool = spool_dir / "normalized.txt"
                 shutil.copy2(staged_path, original_spool)
-                normalized_spool.write_text(cleaned_text, encoding="utf-8", newline="\n")
+                normalized_spool.write_text(
+                    cleaned_text, encoding="utf-8", newline="\n"
+                )
 
                 object_reference = persist_object_artifact(
                     entity_type="ingestion_file_source",
@@ -508,7 +534,9 @@ class LocalKnowledgeIngestionService:
                 )
                 file_record.normalized_object_bucket = normalized_reference["bucket"]
                 file_record.normalized_object_key = normalized_reference["key"]
-                file_record.normalized_object_sha256 = normalized_reference["body_sha256"]
+                file_record.normalized_object_sha256 = normalized_reference[
+                    "body_sha256"
+                ]
                 file_record.normalized_object_status = normalized_reference["status"]
                 if normalized_reference["status"] == "pending":
                     result.materializations_pending += 1
@@ -523,9 +551,7 @@ class LocalKnowledgeIngestionService:
                 embedding_revision = str(
                     getattr(rag, "embedding_revision", "unavailable") or "unavailable"
                 )
-                embedding_dimensions = int(
-                    getattr(rag, "embedding_dimensions", 0) or 0
-                )
+                embedding_dimensions = int(getattr(rag, "embedding_dimensions", 0) or 0)
                 file_record.embedding_revision = (
                     f"{embedding_revision}:{embedding_dimensions}"
                     if embedding_dimensions
@@ -540,6 +566,9 @@ class LocalKnowledgeIngestionService:
                         ":".join(
                             (
                                 tenant_id or "owner",
+                                f"user:{user_id}"
+                                if user_id is not None
+                                else "anonymous",
                                 acquired_file.relative_path,
                                 acquired_file.sha256,
                                 chunking_revision,
@@ -552,11 +581,10 @@ class LocalKnowledgeIngestionService:
                     existing = KnowledgeGraphNode.query.filter_by(uid=uid).first()
                     node_id = f"KI-{document_chunk_hash[:16]}"
                     title = f"{source_label or original_path.name} [{index + 1}/{len(chunks)}]"
-                    source_revision = (
-                        f"sha256:{acquired_file.sha256}:{content_hash}:{chunk_hash}:{chunking_revision}"
-                    )
+                    source_revision = f"sha256:{acquired_file.sha256}:{content_hash}:{chunk_hash}:{chunking_revision}"
                     node_metadata = {
                         **(metadata or {}),
+                        "user_id": user_id,
                         "ingestion_ka": ka_decision.node_metadata(),
                         "ingestion_id": result.ingestion_id,
                         "source": "local_file_ingestion",
@@ -568,7 +596,8 @@ class LocalKnowledgeIngestionService:
                         "source_revision": source_revision,
                         "detected_type": acquired_file.detected_type,
                         "file_name": original_path.name,
-                        "mime_type": mimetypes.guess_type(original_path.name)[0] or "text/plain",
+                        "mime_type": mimetypes.guess_type(original_path.name)[0]
+                        or "text/plain",
                         "content_hash": content_hash,
                         "chunk_hash": chunk_hash,
                         "chunk_index": index,
@@ -604,16 +633,30 @@ class LocalKnowledgeIngestionService:
                     from backend.storage.outbox import CrossStoreOutbox
 
                     material_node_metadata = (
-                        dict(existing.node_metadata or {}) if existing else node_metadata
+                        dict(existing.node_metadata or {})
+                        if existing
+                        else node_metadata
                     )
-                    material_title = str(existing.title or existing.label) if existing else title
-                    material_content = str(existing.content or "") if existing else chunk
+                    material_title = (
+                        str(existing.title or existing.label) if existing else title
+                    )
+                    material_content = (
+                        str(existing.content or "") if existing else chunk
+                    )
                     materialization_metadata = {
                         **material_node_metadata,
                         "node_id": node_id,
                         "title": material_title,
                         "tenant_id": tenant_id or "",
                     }
+                    from backend.storage.knowledge_ownership import ownership_ids
+
+                    material_owners, _ = ownership_ids(material_node_metadata)
+                    if len(material_owners) > 1:
+                        raise RuntimeError("ingestion_ownership_conflict")
+                    material_owner = (
+                        next(iter(material_owners)) if material_owners else None
+                    )
                     outbox = CrossStoreOutbox(db.session)
                     chroma_event = outbox.enqueue(
                         entity_type="knowledge_graph_node",
@@ -648,6 +691,7 @@ class LocalKnowledgeIngestionService:
                                 "content": material_content,
                                 "content_type": "text/plain",
                                 "tenant_id": tenant_id,
+                                "user_id": material_owner,
                             },
                         },
                         correlation_id=result.ingestion_id,
@@ -692,7 +736,9 @@ class LocalKnowledgeIngestionService:
                     file_record.status = "materialization_pending"
                 else:
                     file_record.status = "duplicate"
-                self._publish_progress(progress_callback, "materialization_queued", result)
+                self._publish_progress(
+                    progress_callback, "materialization_queued", result
+                )
 
             self._write_manifest(result)
             job.files_scanned = result.files_scanned
@@ -707,9 +753,7 @@ class LocalKnowledgeIngestionService:
                 else "completed"
             )
             job.current_checkpoint = job.status
-            job.completed_at = (
-                datetime.now(UTC) if job.status == "completed" else None
-            )
+            job.completed_at = datetime.now(UTC) if job.status == "completed" else None
             self._bind_ingestion_effect_receipt(
                 decision=ka_decision,
                 result=result,
@@ -830,8 +874,13 @@ class LocalKnowledgeIngestionService:
 
         outputs = {canonical_id: output(canonical_id) for canonical_id in required_ids}
         admission = outputs["KA-071"]
-        if admission.get("applied") is not False or admission.get("records_ingested") != 0:
-            raise KnowledgeLifecycleError("KA-071 claimed an unapplied ingestion effect")
+        if (
+            admission.get("applied") is not False
+            or admission.get("records_ingested") != 0
+        ):
+            raise KnowledgeLifecycleError(
+                "KA-071 claimed an unapplied ingestion effect"
+            )
         for canonical_id in required_ids[1:]:
             if outputs[canonical_id].get("dependency_consumed") is not True:
                 raise KnowledgeLifecycleError(
@@ -840,14 +889,18 @@ class LocalKnowledgeIngestionService:
         if outputs["KA-074"].get("admission_allowed") is not True:
             raise KnowledgeLifecycleError("KA-074 rejected secure ingestion metadata")
         if outputs["KA-076"].get("resolution_allowed") is not True:
-            raise KnowledgeLifecycleError("KA-076 found conflicting ingestion identities")
+            raise KnowledgeLifecycleError(
+                "KA-076 found conflicting ingestion identities"
+            )
         archive = outputs["KA-078"]
         if (
             archive.get("applied") is not False
             or archive.get("records_archived") != 0
             or archive.get("eligible_record_count") != 0
         ):
-            raise KnowledgeLifecycleError("KA-078 produced an invalid fresh-record decision")
+            raise KnowledgeLifecycleError(
+                "KA-078 produced an invalid fresh-record decision"
+            )
 
         expected_by_id = {
             str(record["record_id"]): dict(record) for record in source_records
@@ -896,7 +949,9 @@ class LocalKnowledgeIngestionService:
                         )
         evaluated_ids = archive.get("evaluated_record_ids")
         if evaluated_ids != sorted(expected_by_id):
-            raise KnowledgeLifecycleError("KA-078 did not evaluate the admitted record set")
+            raise KnowledgeLifecycleError(
+                "KA-078 did not evaluate the admitted record set"
+            )
 
         canonical_chain = [expected_by_id[key] for key in sorted(expected_by_id)]
         chain_sha256 = hashlib.sha256(
@@ -926,29 +981,21 @@ class LocalKnowledgeIngestionService:
                     "dropped_count": outputs["KA-072"].get("dropped_count"),
                 },
                 "KA-073": {
-                    "records_transformed": outputs["KA-073"].get(
-                        "records_transformed"
-                    ),
+                    "records_transformed": outputs["KA-073"].get("records_transformed"),
                     "conversion_failure_count": len(
                         outputs["KA-073"].get("conversion_failures") or []
                     ),
                 },
                 "KA-074": {
-                    "admission_allowed": outputs["KA-074"].get(
-                        "admission_allowed"
-                    ),
-                    "validation_summary": outputs["KA-074"].get(
-                        "validation_summary"
-                    ),
+                    "admission_allowed": outputs["KA-074"].get("admission_allowed"),
+                    "validation_summary": outputs["KA-074"].get("validation_summary"),
                 },
                 "KA-075": {
                     "records_mapped": outputs["KA-075"].get("records_mapped"),
                     "target_schema": outputs["KA-075"].get("target_schema"),
                 },
                 "KA-076": {
-                    "resolution_allowed": outputs["KA-076"].get(
-                        "resolution_allowed"
-                    ),
+                    "resolution_allowed": outputs["KA-076"].get("resolution_allowed"),
                     "unique_entities_count": outputs["KA-076"].get(
                         "unique_entities_count"
                     ),
@@ -1064,7 +1111,9 @@ class LocalKnowledgeIngestionService:
                 status="queued",
                 source_path=str(source),
                 source_label=source_label,
-                source_digest=str(source_digest or self._sha256(str(source).casefold())),
+                source_digest=str(
+                    source_digest or self._sha256(str(source).casefold())
+                ),
                 recursive=bool(recursive),
                 chunk_size=self.chunk_size,
                 max_file_bytes=self.max_file_bytes,
@@ -1082,10 +1131,10 @@ class LocalKnowledgeIngestionService:
         job.status = "running"
         job.current_checkpoint = "acquisition"
         job.started_at = job.started_at or datetime.now(UTC)
-        runtime = current_app.extensions.get("dle_runtime") if has_app_context() else None
-        attempt_number = (
-            IngestionAttempt.query.filter_by(job_id=job.id).count() + 1
+        runtime = (
+            current_app.extensions.get("dle_runtime") if has_app_context() else None
         )
+        attempt_number = IngestionAttempt.query.filter_by(job_id=job.id).count() + 1
         attempt = IngestionAttempt(
             job_id=job.id,
             attempt_number=attempt_number,
@@ -1194,12 +1243,20 @@ class LocalKnowledgeIngestionService:
 
     @classmethod
     def _document_uid(
-        cls, tenant_id: str | None, source_digest: str, relative_path: str
+        cls,
+        tenant_id: str | None,
+        source_digest: str,
+        relative_path: str,
+        *,
+        owner_user_id: int | None = None,
     ) -> str:
         digest = cls._sha256(
             ":".join(
                 (
                     tenant_id or "owner",
+                    f"user:{owner_user_id}"
+                    if owner_user_id is not None
+                    else "anonymous",
                     str(source_digest),
                     str(relative_path).casefold(),
                 )
@@ -1220,23 +1277,23 @@ class LocalKnowledgeIngestionService:
         prior_files = IngestionFile.query.filter(
             IngestionFile.document_uid == current_file.document_uid,
             IngestionFile.id != current_file.id,
-            IngestionFile.status.in_(
-                ("ready", "materialization_pending", "duplicate")
-            ),
+            IngestionFile.status.in_(("ready", "materialization_pending", "duplicate")),
         ).all()
         pending = 0
         from backend.storage.outbox import CrossStoreOutbox
 
         outbox = CrossStoreOutbox(db.session)
         for prior in prior_files:
-            if (
-                prior.source_sha256 == current_file.source_sha256
-                and (prior.parser_result or {}).get("chunking_revision")
-                == (current_file.parser_result or {}).get("chunking_revision")
+            if prior.source_sha256 == current_file.source_sha256 and (
+                prior.parser_result or {}
+            ).get("chunking_revision") == (current_file.parser_result or {}).get(
+                "chunking_revision"
             ):
                 continue
             delete_revision = f"delete:{replacement_revision}"
-            for chunk in IngestionChunk.query.filter_by(job_id=prior.job_id, file_id=prior.id):
+            for chunk in IngestionChunk.query.filter_by(
+                job_id=prior.job_id, file_id=prior.id
+            ):
                 chroma_event = outbox.enqueue(
                     entity_type="knowledge_graph_node",
                     entity_id=chunk.node_uid,
@@ -1258,8 +1315,7 @@ class LocalKnowledgeIngestionService:
                     correlation_id=correlation_id,
                 )
                 pending += sum(
-                    event.status != "succeeded"
-                    for event in (chroma_event, neo4j_event)
+                    event.status != "succeeded" for event in (chroma_event, neo4j_event)
                 )
                 chunk.materialization_state = "deletion_pending"
             if prior.object_bucket and prior.object_key:
@@ -1306,7 +1362,10 @@ class LocalKnowledgeIngestionService:
             return
         iterator = source.rglob("*") if recursive else source.glob("*")
         for file_path in iterator:
-            if file_path.is_file() and file_path.suffix.lower() in self.supported_extensions:
+            if (
+                file_path.is_file()
+                and file_path.suffix.lower() in self.supported_extensions
+            ):
                 yield file_path
 
     def _extract_text(self, file_path: Path) -> tuple[str, str | None]:
@@ -1337,7 +1396,9 @@ class LocalKnowledgeIngestionService:
             return "", f"Cannot read file: {exc}"
 
     def _extract_via_document_processor(
-        self, file_path: Path, suffix: str,
+        self,
+        file_path: Path,
+        suffix: str,
     ) -> tuple[str, str | None]:
         """Extract text from binary documents using DocumentProcessor."""
         mime_map = {
@@ -1380,9 +1441,13 @@ class LocalKnowledgeIngestionService:
                 output.close()
             if status != "ok":
                 return "", str(value)
-            return (str(value), None) if str(value).strip() else (
-                "",
-                "document_processor_returned_no_text",
+            return (
+                (str(value), None)
+                if str(value).strip()
+                else (
+                    "",
+                    "document_processor_returned_no_text",
+                )
             )
 
         processor = self._get_document_processor()
@@ -1426,7 +1491,11 @@ class LocalKnowledgeIngestionService:
             return Path(explicit).expanduser().resolve()
         settings_path = os.environ.get("DATALOGIC_STORAGE_SETTINGS_PATH")
         if settings_path:
-            return Path(settings_path).expanduser().resolve().parent / "ingestion" / "manifests"
+            return (
+                Path(settings_path).expanduser().resolve().parent
+                / "ingestion"
+                / "manifests"
+            )
         return Path.cwd() / "reports" / "ingestion"
 
     def _write_manifest(self, result: IngestionResult) -> None:
@@ -1434,7 +1503,9 @@ class LocalKnowledgeIngestionService:
         manifest_dir.mkdir(parents=True, exist_ok=True)
         manifest_path = manifest_dir / f"{result.ingestion_id}.json"
         result.manifest_path = str(manifest_path)
-        manifest_path.write_text(json.dumps(result.to_dict(), indent=2), encoding="utf-8")
+        manifest_path.write_text(
+            json.dumps(result.to_dict(), indent=2), encoding="utf-8"
+        )
 
     # ------------------------------------------------------------------
     # KI-7: Async ingestion with background threading + Neo4j sync

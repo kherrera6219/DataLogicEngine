@@ -103,7 +103,24 @@ class LocalSentenceEmbedding:
         if not isinstance(text, str) or not text.strip():
             raise LocalEmbeddingError("local_embedding_text_empty")
         try:
-            vector = self._load().encode(
+            model = self._load()
+            limit = model.max_seq_length
+            tokens = model.tokenizer(
+                text,
+                add_special_tokens=True,
+                truncation=False,
+                verbose=False,  # [R-3] Capacity is explicitly checked before inference.
+            )["input_ids"]
+            if (
+                not isinstance(limit, int)
+                or isinstance(limit, bool)
+                or limit < 1
+                or not isinstance(tokens, (list, tuple))
+            ):
+                raise LocalEmbeddingError("local_embedding_input_budget_invalid")
+            if len(tokens) > limit:
+                raise LocalEmbeddingError("local_embedding_input_exceeds_model_limit")
+            vector = model.encode(
                 text, normalize_embeddings=True, show_progress_bar=False
             )
             result = [float(value) for value in vector]
@@ -116,3 +133,37 @@ class LocalSentenceEmbedding:
         ):
             raise LocalEmbeddingError("local_embedding_vector_invalid")
         return result
+
+    def chunk_text(
+        self,
+        text: str,
+        *,
+        max_tokens: int | None = None,
+        overlap_tokens: int | None = None,
+    ) -> list[str]:
+        """Fit exact source spans to the loaded model's actual input limit."""
+        from backend.services.model_text_chunking import (
+            ModelChunkingError,
+            model_text_chunks,
+        )
+
+        model = self._load()
+        try:
+            limit = model.max_seq_length
+            if not isinstance(limit, int) or isinstance(limit, bool):
+                raise ModelChunkingError("model_chunk_budget_invalid")
+            if max_tokens is not None:
+                if not isinstance(max_tokens, int) or isinstance(max_tokens, bool):
+                    raise ModelChunkingError("model_chunk_budget_invalid")
+                limit = min(limit, max_tokens)
+            budget = limit - model.tokenizer.num_special_tokens_to_add(pair=False)
+            overlap = (
+                min(32, max(0, budget // 5))
+                if overlap_tokens is None
+                else overlap_tokens
+            )
+            return model_text_chunks(
+                text, model.tokenizer, limit, overlap_tokens=overlap
+            )
+        except (ModelChunkingError, AttributeError, TypeError, ValueError) as exc:
+            raise LocalEmbeddingError("local_embedding_chunking_failed") from exc

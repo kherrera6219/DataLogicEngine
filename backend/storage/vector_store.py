@@ -12,13 +12,21 @@ from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 
 from backend.storage.chroma_http import ChromaHttpClient
-from backend.storage.chroma_security import safe_get_or_create_collection
+from backend.storage.chroma_security import safe_get_collection, safe_get_or_create_collection
 
 logger = logging.getLogger(__name__)
 
 
 class VectorSearchError(RuntimeError):
     """A vector query failed rather than successfully returning no matches."""
+
+
+class VectorDeleteError(RuntimeError):
+    """A vector deletion failed or could not be verified."""
+
+
+class VectorWriteError(RuntimeError):
+    """A vector replacement failed or could not be verified."""
 
 
 @dataclass
@@ -189,6 +197,80 @@ class ChromaDBBackend(VectorBackend):
         except Exception:
             logger.error("Failed to delete vectors")
             return False
+
+    def delete_chat_session(self, session_id: str) -> None:
+        """Delete and verify all chat vectors for one globally unique session."""
+        if not isinstance(session_id, str) or not session_id or len(session_id) > 128:
+            raise VectorDeleteError("chat_index_session_invalid")
+        try:
+            collection = safe_get_collection(self.client, name="chat_history")
+            selector = {"session_id": {"$eq": session_id}}
+            collection.delete(where=selector)
+            remaining = collection.get(where=selector, limit=1, include=["metadatas"])
+            if not isinstance(remaining, dict) or remaining.get("ids") != []:
+                raise VectorDeleteError("chat_index_deletion_unverified")
+        except VectorDeleteError:
+            raise
+        except Exception as exc:
+            raise VectorDeleteError("chat_index_deletion_unavailable") from exc
+
+    @staticmethod
+    def _delete_parent(collection, parent_id):
+        selector = {"vector_parent_id": {"$eq": parent_id}}
+        collection.delete(where=selector)
+        remaining = collection.get(where=selector, limit=1, include=["metadatas"])
+        if not isinstance(remaining, dict) or remaining.get("ids") != []:
+            raise VectorDeleteError("vector_family_deletion_unverified")
+
+    def delete_parent_embeddings(self, collection: str, parent_id: str) -> None:
+        if not isinstance(parent_id, str) or not parent_id or len(parent_id) > 255:
+            raise VectorDeleteError("vector_family_parent_invalid")
+        try:
+            self._delete_parent(safe_get_collection(self.client, name=collection), parent_id)
+        except VectorDeleteError:
+            raise
+        except Exception as exc:
+            raise VectorDeleteError("vector_family_deletion_unavailable") from exc
+
+    def replace_embeddings(self, collection: str, parent_id: str, *, ids, texts, embeddings, metadata):
+        """Replace a parent family; partial failure is an explicit retryable error."""
+        import json
+        import math
+
+        if (not isinstance(parent_id, str) or not parent_id or len(parent_id) > 255
+            or not isinstance(ids, list) or not ids
+            or any(not isinstance(value, str) or not value or len(value) > 512 for value in ids)
+            or len(set(ids)) != len(ids)
+            or any(not isinstance(values, list) or len(values) != len(ids) for values in (texts, embeddings, metadata))
+            or any(not isinstance(text, str) or not text.strip() for text in texts)
+            or any(not isinstance(meta, dict) or meta.get("vector_parent_id") != parent_id for meta in metadata)
+            or any(not isinstance(vector, list) or not vector for vector in embeddings)):
+            raise VectorWriteError("vector_family_input_invalid")
+        dimension = len(embeddings[0])
+        if any(len(vector) != dimension or any(isinstance(value, bool) or not isinstance(value, (float, int))
+            or not math.isfinite(value) for value in vector) for vector in embeddings):
+            raise VectorWriteError("vector_family_input_invalid")
+        try:
+            json.dumps(metadata, allow_nan=False)
+        except (ValueError, TypeError) as exc:
+            raise VectorWriteError("vector_family_input_invalid") from exc
+        try:
+            target = self._get_collection(collection)
+            self._delete_parent(target, parent_id)
+            for start in range(0, len(ids), 500):
+                end = start + 500
+                batch_ids = ids[start:end]
+                target.upsert(ids=batch_ids, documents=texts[start:end],
+                              embeddings=embeddings[start:end], metadatas=metadata[start:end])
+                result = target.get(ids=batch_ids, include=["metadatas"])
+                if (not isinstance(result, dict) or not isinstance(result.get("ids"), list)
+                    or len(result["ids"]) != len(batch_ids) or set(result["ids"]) != set(batch_ids)):
+                    raise VectorWriteError("vector_family_write_unverified")
+            return ids
+        except VectorWriteError:
+            raise
+        except Exception as exc:
+            raise VectorWriteError("vector_family_write_unavailable") from exc
     
     def get_collection_stats(self, collection: str) -> Dict[str, Any]:
         """Get collection statistics from ChromaDB."""
@@ -419,6 +501,26 @@ class VectorStore:
     def delete(self, collection: str, ids: List[str]) -> bool:
         """Delete vectors by ID."""
         return self._backend.delete(collection, ids)
+
+    def delete_chat_session(self, session_id: str) -> None:
+        """Delete only when the selected backend supports verified cleanup."""
+        delete_session = getattr(self._backend, "delete_chat_session", None)
+        if not callable(delete_session):
+            raise VectorDeleteError("chat_index_deletion_unsupported")
+        delete_session(session_id)
+
+    def replace_embeddings(self, collection, parent_id, *, ids, texts, embeddings, metadata):
+        replace = getattr(self._backend, "replace_embeddings", None)
+        if not callable(replace):
+            raise VectorWriteError("vector_family_replacement_unsupported")
+        return replace(collection, parent_id, ids=ids, texts=texts,
+                       embeddings=embeddings, metadata=metadata)
+
+    def delete_parent_embeddings(self, collection, parent_id) -> None:
+        delete = getattr(self._backend, "delete_parent_embeddings", None)
+        if not callable(delete):
+            raise VectorDeleteError("vector_family_deletion_unsupported")
+        delete(collection, parent_id)
     
     def get_collection_stats(self, collection: str) -> Dict[str, Any]:
         """Get collection statistics."""

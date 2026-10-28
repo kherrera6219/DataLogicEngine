@@ -79,8 +79,9 @@ export interface SocketEventHandlers {
 class SocketClient {
   private socket: Socket | null = null;
   private handlers: SocketEventHandlers = {};
+  private joinedRooms = new Set<string>();
+  private joinedRunRooms = new Set<string>();
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
 
   /**
    * Connect to the WebSocket server
@@ -99,7 +100,7 @@ class SocketClient {
     this.socket = io(socketUrl, {
       transports: ["websocket", "polling"],
       reconnection: true,
-      reconnectionAttempts: this.maxReconnectAttempts,
+      reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
     });
@@ -114,6 +115,8 @@ class SocketClient {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
+      this.joinedRooms.clear();
+      this.joinedRunRooms.clear();
     }
   }
 
@@ -135,6 +138,7 @@ class SocketClient {
    * Join a room for targeted updates
    */
   joinRoom(room: string): void {
+    this.joinedRooms.add(room);
     this.socket?.emit("join", { room });
   }
 
@@ -142,14 +146,17 @@ class SocketClient {
    * Leave a room
    */
   leaveRoom(room: string): void {
+    this.joinedRooms.delete(room);
     this.socket?.emit("leave", { room });
   }
 
   joinRunRoom(runId: string): void {
+    this.joinedRunRooms.add(runId);
     this.socket?.emit("join_run_room", { run_id: runId });
   }
 
   leaveRunRoom(runId: string): void {
+    this.joinedRunRooms.delete(runId);
     this.socket?.emit("leave_run_room", { run_id: runId });
   }
 
@@ -173,6 +180,12 @@ class SocketClient {
     // Connection events
     this.socket.on("connect", () => {
       this.reconnectAttempts = 0;
+      for (const room of this.joinedRooms) {
+        this.socket?.emit("join", { room });
+      }
+      for (const runId of this.joinedRunRooms) {
+        this.socket?.emit("join_run_room", { run_id: runId });
+      }
       console.log("[Socket] Connected");
     });
 

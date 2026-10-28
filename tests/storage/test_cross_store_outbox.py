@@ -210,6 +210,45 @@ def test_dispatcher_commits_success_and_safe_failure_per_event():
         assert failed.safe_reason == "neo4j_delivery_failed"
 
 
+def test_knowledge_index_unacknowledged_write_is_retryable(monkeypatch):
+    from backend.services.rag_service import RAGService
+
+    class Store:
+        acknowledged = False
+
+        def add_embeddings(self, **kwargs):
+            return kwargs["ids"] if self.acknowledged else []
+
+    store = Store()
+    rag = RAGService(vector_store=store, embedding_provider=lambda _text: [0.1])
+    monkeypatch.setattr("backend.services.rag_service.get_rag_service", lambda: rag)
+    app = _app()
+    with app.app_context():
+        db.create_all()
+        event = CrossStoreOutbox(db.session).enqueue(
+            entity_type="knowledge_node",
+            entity_id="node-unacknowledged",
+            destination="chroma",
+            operation="upsert_knowledge_node",
+            schema_version="knowledge-node.v1",
+            source_revision="revision-1",
+            payload={"node_uid": "node-unacknowledged", "content": "test content"},
+            correlation_id="corr-1",
+        )
+        db.session.commit()
+        dispatcher = CrossStoreMaterializationDispatcher(db.session)
+        assert dispatcher.run_once() == {"claimed": 1, "succeeded": 0, "failed": 1}
+        failed = db.session.get(CrossStoreOutboxEvent, event.id)
+        assert failed.status == "failed"
+        assert failed.safe_reason == "chroma_delivery_failed"
+
+        store.acknowledged = True
+        failed.available_at = None
+        db.session.commit()
+        assert dispatcher.run_once() == {"claimed": 1, "succeeded": 1, "failed": 0}
+        assert db.session.get(CrossStoreOutboxEvent, event.id).status == "succeeded"
+
+
 def test_required_frost_snapshot_is_queued_without_direct_cross_store_write(monkeypatch):
     app = _app()
     app.config["DLE_DATA_PLANE_DRIVER"] = "podman"

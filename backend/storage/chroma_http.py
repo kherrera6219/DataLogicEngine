@@ -465,7 +465,13 @@ class ChromaHttpClient:
         schema: dict[str, Any] | None = None,
         get_or_create: bool = False,
     ) -> ChromaCollection:
-        if embedding_function is not None or configuration or schema:
+        if embedding_function is not None or schema:
+            raise ChromaHttpError("chroma_server_embedding_configuration_rejected")
+        if configuration is None or configuration == {}:
+            vector_configuration = None
+        elif isinstance(configuration, dict) and configuration == {"hnsw": {"space": "cosine"}}:
+            vector_configuration = {"hnsw": {"space": "cosine"}}
+        else:
             raise ChromaHttpError("chroma_server_embedding_configuration_rejected")
         value = self._request(
             "POST",
@@ -473,7 +479,7 @@ class ChromaHttpClient:
             {
                 "name": _collection_name(name),
                 "metadata": _metadata(metadata),
-                "configuration": None,
+                "configuration": vector_configuration,
                 "schema": None,
                 "get_or_create": bool(get_or_create),
             },

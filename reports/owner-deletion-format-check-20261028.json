@@ -1,0 +1,67 @@
+{
+  "baseline_commit": "00dfebd6573a268eaf73eb17de033506cb3f5ba5",
+  "comparison": "Python AST without source positions",
+  "all_equivalent": true,
+  "files": [
+    {
+      "path": "backend/ingestion/local_ingestion.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "6d0c9b6e4103d4bfb3526d6254ec5231ea4b0ac2f2186569243165e425eb4c54"
+    },
+    {
+      "path": "backend/storage/knowledge_materialization.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "faee82b6711f902baad420530dc5b7f1cc42ba9932c6861ded1618a73d5c0092"
+    },
+    {
+      "path": "backend/storage/knowledge_ownership.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "761038c90c9808a4855a522be52086dcf1d45a875ecf24a70ad7e42bf1b1bd23"
+    },
+    {
+      "path": "backend/storage/materialization_dispatcher.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "7ea77cdd5485a9d025e6817b8dd4f909fa8f97179714a70d3dd6d6b11b342112"
+    },
+    {
+      "path": "backend/storage/retention.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "1292226fffdfed11442928c40555785a4719d592b8e9c069d3c3553e6004726a"
+    },
+    {
+      "path": "backend/storage/user_deletion.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "c4582d2a5db9c5973ab47fcfac9e57bc717600f12fc3c9d5f59afed9a1d544c8"
+    },
+    {
+      "path": "scripts/probe_ingested_owner_deletion.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "5c4e9f38f945929033595acdbf674fbcf534e2eccd600c54e4c02b6e315e5860"
+    },
+    {
+      "path": "scripts/probe_native_owner_deletion.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "bf981b614d2ddbd7157f6a68b80155949b228b7067186b9dc6909cc41cf27919"
+    },
+    {
+      "path": "tests/integration/test_owned_knowledge_materialization.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "336094e4eef7242ecd973157efbecad40c246f0e7a2b0de13a2a8d83798e20ce"
+    },
+    {
+      "path": "tests/storage/test_ingested_owner_deletion.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "e168bda2cea036de00ea41ea1dd979af8c7b1a3b81927fc4b8574f608ad6563f"
+    },
+    {
+      "path": "tests/storage/test_retention_delete_parity.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "6c4785b78b0f4375e4acdc4741ef23e0b8674da3c925549c576a82c931d49688"
+    },
+    {
+      "path": "tests/unit/test_ki_local_ingestion.py",
+      "syntax_tree_equal": true,
+      "current_sha256": "46c20829773ccd076f89dcfb1ac8669eb86cfac459b53fbbbe84d134c2753f90"
+    }
+  ]
+}

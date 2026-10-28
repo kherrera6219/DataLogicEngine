@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-REVIEW-2026-10-26 |
-| Document version | v1.1.1 |
+| Document version | v1.1.4 |
 | Product version | 4.4.6 at review |
 | Review baseline | main `f91dd4919c6a5c3265c9fc82bdbb388f15a3b5aa` |
 | Date | 2026-10-26 |
@@ -26,6 +26,117 @@ These results do not establish search quality or installed acceptance.
 
 ## October 27 progress checkpoint
 
+Kevin approved the additional ownership-deletion repair on October 28. Source
+`ebf835d2` resolves nested/JSON ownership and database-confirmed legacy IDs,
+keeps user scope separate from tenant scope, and blocks shared/conflicting
+ownership before mutation. Ingestion IDs now include owner scope and scalar
+owner fields reach new materializations. Canonical queued knowledge delivery
+rechecks the retained SQL source and deletion receipts under the shared lock.
+Sixty-six focused Windows tests pass, including concurrent delivery/deletion.
+The original adapter reproduction now reports zero actual remnants. The native
+PostgreSQL/Chroma/Neo4j probe deletes 602 synthetic search records and 601 graph
+nodes, preserves another owner in the same tenant, and blocks shared ownership.
+Its cache lifecycle effect was stubbed, so it is not installed lifecycle proof.
+See `reports/ingested-ownership-deletion-fixed-probe-20261028.json` and
+`reports/native-owner-deletion-probe-20261028.json`. The isolated test services
+and network were removed and the data machine restored to stopped. The full
+Windows run at `ebf835d2` passes 3,480 tests, 19 skipped, zero failures/setup/
+collection errors; output is `reports/owner-deletion-windows-20261028.txt`.
+Later source `00dfebd6` retains canonical SQL ownership and the user record
+after an external-store failure so deletion can be retried. Forty-one focused
+checks pass; its full Windows regression passes 3,481 tests, 19 skipped,
+35 warnings, zero failures/setup/collection errors. Output is
+`reports/owner-deletion-final-windows-20261028.txt`. No customer cleanup or
+retained-data migration ran.
+The subsequent formatting cleanup passes the complete configured Ruff rule
+set for all twelve repair Python files; Python syntax trees match `00dfebd6`
+(`reports/owner-deletion-format-check-20261028.json`). All 54 selected ownership,
+ingestion, materialization and documentation-authority checks pass afterward.
+
+Migration preflight also corrected the recovery-copy scope: Electron uses
+`DataLogicEngine Desktop`, not only the older `DataLogicEngine` user-data
+folder. The added restricted recovery component has 217 hash-verified files
+(108,580,368 bytes). Restore is untested. A rolled-back read-only transaction
+finds three sessions and ten messages in installation-owned PostgreSQL; the
+older SQLite copy has none. Both have zero knowledge/ingestion records. The
+managed source must drive retained-chat migration; the empty fallback must not
+be mistaken for authority. The PostgreSQL container and data machine were
+returned to stopped, and neither source was cleaned up or reindexed.
+Read-only Chroma inventory finds ten chat-history records; all six other
+existing collections are empty. Internal networking and disabled telemetry
+were verified before starting that retained service, and its stopped state
+was restored. Exact source/permission parity and restore still need proof;
+matching counts are not migration acceptance.
+
+October 28 final recovery gate: runtime `ae4c2978` and diagnostic test changes
+from `fe870b5c` pass 3,433 Windows tests, 19 skipped, 35 warnings, and zero
+failures/setup/collection errors. Forty-one focused checks pass. Preserve the
+prior persona-causality failure and its unconfirmed cause: the module, 1,056
+governance tests, twenty isolated repetitions and final full run subsequently
+pass. Reports are `reports/chat-*20261028.txt`. No assertion, budget or policy
+was weakened. Installed restart/outage recovery remains open.
+
+October 28 recovery checkpoint: source `d0847d74` adds atomic, content-free
+chat-message outbox records and bounded recovery through the existing worker.
+Delivery rechecks retained source ownership/fingerprint and user-deletion
+receipts under the shared lock. Retention clears retry envelopes. Forty focused
+Windows tests pass, including delayed and interrupted recovery. The full Windows
+run reported 3,431 passed, 19 skipped and one documentation-authority failure
+for the new candidate note; the missing classification was corrected and the
+nine authority tests pass. Final full-suite and installed recovery acceptance
+remain open. This only queues newly persisted turns, not a backfill of old chats.
+The broader synthetic R-3 candidate is documented in
+`docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`; its acceptance
+starting corpus and criteria were approved by Kevin on October 28. The existing locked embedding stack was
+inventoried and audited without adding dependencies: about 745 MiB installed,
+excluding model files, and no known advisories in the candidate audit. A source
+model probe with socket connections blocked loaded 384-dimensional embeddings,
+ranked a relevant passage above an unrelated one, and attempted no connections.
+Frozen packaging is still being qualified; the active app is unchanged.
+
+October 28 retention checkpoint: Kevin approved fail-closed cross-store session
+cleanup. Source verifies chat-index deletion before transcript deletion and
+coordinates the active gateway writer, profile deletion and session cleanup
+through a shared runtime lock. Partial batches are reported, and policies that
+require unavailable session or trace archival stop rather than report a false
+archive. Forty-four focused Windows tests pass, including concurrent synthetic
+writes. The full Windows suite using locked dependencies passed 3,423 tests,
+19 skipped, 35 warnings, and no failures or setup/collection errors at runtime
+source `b6f2632d`. A disposable cached Chroma container verified deletion of a
+synthetic session, preservation of another session, and repeat deletion. The
+container was removed and the data-service machine was restored to stopped.
+This does not establish installed behavior, durable chat-index retries, or
+coordination with non-cooperating processes.
+
+Later source work corrects unacknowledged document and knowledge-node vector
+writes: documents report an explicit internal retrieval error for incomplete
+writes, and failed knowledge-node materializations remain retryable. Index
+failure logs no longer include exception text. A focused recovery test and 66
+related backend tests pass. The chat client also restores current chat and
+trace rooms after a connection returns; 70 focused frontend tests pass. The
+sequential Windows backend suite at `e25170a9` passed 3,410 tests with 19
+skipped, 35 warnings, and no test/setup/collection errors. The frontend suite
+passed 521 tests, and the Electron-mode frontend build passed at the same
+source checkpoint. Installed verification remains open.
+
+A reproducible offline screen of 12 public documentation sections and 12
+manually written questions found hash ranking top-1 1/12 and top-4 4/12,
+lexical top-1 4/12 and top-4 8/12, and MiniLM top-1 10/12 and top-4 12/12.
+Using simulated squared-L2 ranking with the existing 0.15 threshold retained
+the target for 0/12 hash and 1/12 MiniLM questions. Model truncation applies.
+This small screen uses public documents, not retained customer data; it does
+not qualify a threshold, approve an index cutover, or measure production accuracy.
+The reproducible tool is `scripts/evaluate_project_docs_retrieval.py`.
+The same screen includes eight manually chosen unrelated questions. On this
+small set, MiniLM thresholds 0.15, 0.00, -0.25, and -0.50 retained 1/12,
+7/12, 11/12, and 11/12 known targets respectively, while none of the eight
+unrelated questions crossed those thresholds. These queries and sections are
+too few and too easy to establish false-positive rates or select a threshold.
+The optional production-style chunker produced 12 pieces for these short
+sections; MiniLM retained the same 10/12 top-1 and 1/12 at 0.15. The hash
+top-4 result changed from 4/12 to 1/12 after chunk normalization, illustrating
+that this projection is sensitive to exact text representation.
+
 Kevin authorized this repair as a separate fast-track while Phase A and release
 gates remain open, and approved an offline MiniLM model with a separate,
 recoverable index. Source changes now cover session-scoped chat and trace,
@@ -40,7 +151,7 @@ the captured summary did not retain the error detail. The test and its full
 six-test module pass when rerun independently. The cause is not established.
 A subsequent sequential Windows backend run at `04885301` passed 3,401 tests,
 with 19 skipped, 35 warnings and zero failures, setup or collection errors. The
-backend and backend tests are unchanged since that run. At `1767a887` the full
+backend and backend tests have since changed. At `1767a887` the full
 frontend suite passed 520 tests across 93 files, and frontend lint and type
 checking passed. The unrestricted Python lint and format
 gates have existing failures on both main and the repair branch, and `mypy` is
@@ -89,12 +200,17 @@ to its prior stopped state. This is not installed or retained-data qualification
 **Still open:** qualification and packaging of the complete local ML stack
 (the existing installer spec excludes it), a broader approved relevance and
 threshold evaluation, coordinated write/deletion/retention and race-safe
-cutover, installed recovery/rollback, index synchronization retry, installed
+cutover, installed recovery/rollback and index synchronization retry, installed
 graph-use visibility, final quality gates,
 and exact rebuilt/installed/provider acceptance. The active app continues to
 use the existing hash projection and index. No user data has been migrated and
 no new installer has been built for this repair. Do not treat the shadow-index
 tool or this source checkpoint as enabling semantic retrieval in the app.
+
+A separate source review found that session cleanup could leave `chat_history`
+vectors and report an archive that was never created. Kevin approved the
+repair described in the October 28 checkpoint above. No user-data cleanup was
+performed during review or synthetic testing.
 
 During the index-lifecycle review, a newly discovered deletion defect was
 reproduced: a failed Chroma lookup could be treated as zero remnants. Kevin

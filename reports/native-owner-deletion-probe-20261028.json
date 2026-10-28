@@ -1,0 +1,41 @@
+{
+  "status": "pass",
+  "synthetic_only": true,
+  "native_stores": [
+    "PostgreSQL",
+    "Chroma",
+    "Neo4j"
+  ],
+  "coordinator_receipt": "completed",
+  "store_results": {
+    "chroma": {
+      "status": "pass",
+      "deleted_count": 602,
+      "retained_count": 0,
+      "retention_basis": null
+    },
+    "neo4j": {
+      "status": "pass",
+      "deleted_count": 601,
+      "retained_count": 0,
+      "retention_basis": null
+    },
+    "postgresql": {
+      "status": "pass",
+      "deleted_count": 5,
+      "retained_count": 0,
+      "retention_basis": null
+    }
+  },
+  "other_owner_same_tenant_preserved": true,
+  "historical_uid_mapping_verified": true,
+  "nested_json_owner_verified": true,
+  "multi_batch_deletion_verified": true,
+  "shared_reference_blocked": true,
+  "lifecycle_effects": "synthetic stub; installed lifecycle not qualified",
+  "source_sha256": {
+    "backend/storage/user_deletion.py": "f3e2a77db04179c738afa466415fbd826b5716a97fd24411fe02ec08e5d3cf8e",
+    "backend/storage/knowledge_ownership.py": "761038c90c9808a4855a522be52086dcf1d45a875ecf24a70ad7e42bf1b1bd23",
+    "backend/storage/retention.py": "24a96b23a164c6383a7f56229d078ac274175d9cceb6043c407a66d245002f92"
+  }
+}
