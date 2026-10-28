@@ -232,8 +232,8 @@ class RAGService:
         """
         store = self._get_vector_store()
         if store is None:
-            logger.warning("VectorStore not available, skipping ingestion")
-            return 0
+            logger.warning("VectorStore not available for document ingestion")
+            raise RetrievalError("vector_store_unavailable")
         
         chunks = self.chunk_text(text, chunk_size)
         
@@ -259,18 +259,26 @@ class RAGService:
                     "chunk_count": len(chunks)
                 })
 
-            store.add_embeddings(
+            stored_ids = store.add_embeddings(
                 collection=self.COLLECTION_DOCUMENTS,
                 ids=ids,
                 texts=texts,
                 embeddings=embeddings,
                 metadata=chunk_metadata
             )
-            logger.info(f"Ingested document {doc_id}: {len(chunks)} chunks")
+            if (
+                not isinstance(stored_ids, list)
+                or len(stored_ids) != len(ids)
+                or set(stored_ids) != set(ids)
+            ):
+                raise RetrievalError("document_index_write_incomplete")
+            logger.info("Document ingestion acknowledged %s chunks", len(chunks))
             return len(chunks)
-        except Exception as e:
-            logger.error(f"Failed to ingest document {doc_id}: {e}")
-            return 0
+        except RetrievalError:
+            raise
+        except Exception as exc:
+            logger.error("Document ingestion failed")
+            raise RetrievalError("document_index_unavailable") from exc
     
     def search_documents(
         self,
