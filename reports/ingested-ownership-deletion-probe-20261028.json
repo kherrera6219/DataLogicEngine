@@ -1,0 +1,14 @@
+{
+  "status": "finding_reproduced",
+  "synthetic_only": true,
+  "relational_probe": "PostgreSQL adapter logic on disposable SQLite",
+  "vector_probe": "Chroma adapter with synthetic collection transport",
+  "relational_reported_remnants": 0,
+  "relational_actual_remnants": 1,
+  "vector_reported_remnants": 0,
+  "vector_actual_remnants": 1,
+  "source_sha256": {
+    "backend/storage/user_deletion.py": "c2fedaab8438f324eaad8f8217cfe60e0888612835d997b91e9753ed56352912",
+    "backend/services/rag_service.py": "2ef1c4e26b3a340563dcd9ae6034bcfe1ab0cbc021a07a57c61a1388e6a28fa7"
+  }
+}

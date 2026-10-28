@@ -26,6 +26,17 @@ These results do not establish search quality or installed acceptance.
 
 ## October 27 progress checkpoint
 
+Owner disposition pending (local checkpoint): a further ownership-deletion
+defect was reproduced using synthetic adapter data. Ingested knowledge may
+have ownership only in `permissions.owner_user_id`; deletion selectors that
+only inspect direct `user_id` can report zero remnants while owned content
+remains. See `reports/ingested-ownership-deletion-probe-20261028.json` and its
+reproducer script. The relational probe uses in-memory SQLite to exercise the
+PostgreSQL adapter, and the vector probe uses synthetic transport; real-store
+and graph qualification remain open. Kevin was asked for approval under AGENTS
+section 5. No production fix, customer deletion, or retained-data migration was
+performed. Keep this unpatched finding local pending the owner's disposition.
+
 October 28 final recovery gate: runtime `ae4c2978` and diagnostic test changes
 from `fe870b5c` pass 3,433 Windows tests, 19 skipped, 35 warnings, and zero
 failures/setup/collection errors. Forty-one focused checks pass. Preserve the

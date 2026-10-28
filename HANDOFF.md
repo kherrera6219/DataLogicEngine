@@ -28,6 +28,27 @@
 
 ## Required first read
 
+Owner decision pending, retained locally: the additional nested-ownership
+deletion finding is reproduced in
+`reports/ingested-ownership-deletion-probe-20261028.json` by
+`scripts/probe_ingested_owner_deletion.py`. The PostgreSQL deletion adapter's
+selector logic was exercised on disposable in-memory SQLite, and the Chroma
+adapter on a synthetic collection transport. For knowledge owned only through
+`permissions.owner_user_id`, both report zero remnants while one synthetic
+record remains. This is not yet a real PostgreSQL/Neo4j qualification. Kevin
+was asked to authorize the database/search/graph ownership-deletion repair
+under AGENTS section 5; no production repair or customer cleanup was performed.
+Do not proceed with retained-data migration or activation before disposition.
+Keep this unpatched finding/evidence local pending the owner decision.
+
+Next implementation notes: the persona cache currently reads one complete JSON
+payload from `search_collection`; blindly splitting that cache into semantic
+chunks would break its read contract. Preserve its existing exact-key behavior
+or qualify an explicit reconstruction path before routing changes. The shared
+index lock is currently non-reentrant; avoid nested acquisition in a future RAG
+router until tested coordination is in place. Reindex authoritative knowledge
+nodes and retained chats rather than blindly cloning stale vector materializations.
+
 October 28 semantic checkpoint: `feb6ca6c` includes model-sized document,
 chat, knowledge and text-item families, obsolete-chunk replacement, complete
 family deletion, and explicit over-limit rejection. A separate versioned store

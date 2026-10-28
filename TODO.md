@@ -29,6 +29,11 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
+- [ ] Obtain Kevin's disposition of the locally retained nested-ownership
+      deletion finding before migration. Synthetic adapter tests show ingested
+      knowledge owned through `permissions.owner_user_id` can remain after a
+      zero-remnants report. No production fix or customer cleanup has run.
+      Owner approval for database/search/graph repair is pending under AGENTS.
 - [ ] Qualify the new durable chat-index recovery in the installed app. Source
       now saves content-free retry records atomically with transcripts, limits
       attempts, rechecks source fingerprints and deletion receipts, and removes
@@ -44,10 +49,9 @@ conditions, and exit gates remain authoritative in the active root plan.
       October 28; the long-document prototype passes its synthetic screen.
       Candidate details and limitations are in
       `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
-- [ ] Complete semantic source integration after `fa28f99f`: configured local
-      document chunks now fit the model tokenizer (32 focused tests pass), but
-      long chat/knowledge/text items, versioned collection routing, metric
-      validation, synchronized migration/rollback and full app packaging remain
+- [ ] Complete semantic source integration after `feb6ca6c`: model-sized document,
+      chat/knowledge/text families and metric-bound stores are prepared; active
+      routing, synchronized migration/rollback and full app packaging remain
       open. The default model is still the hash projection. A stopped-data
       recovery copy was hash-verified locally; restore is not yet tested.
 - [ ] Finish migration/routing after `feb6ca6c`: model-sized families and
