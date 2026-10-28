@@ -89,3 +89,44 @@ def test_retention_removes_chat_retry_records(app, monkeypatch):
         assert service.cleanup_sessions()["deleted_count"] == 1
         assert CrossStoreOutboxEvent.query.filter_by(entity_id=result.message_id).count() == 0
         assert CrossStoreMaterializationState.query.filter_by(entity_id=result.message_id).count() == 0
+
+
+def test_partial_profile_deletion_blocks_retry(app, monkeypatch):
+    import hashlib
+    import hmac
+    from models import DataDeletionTombstone
+
+    with app.app_context():
+        result, owner = _save(app, monkeypatch)
+        runtime = app.extensions["dle_runtime"]
+        identity = runtime.ownership.identity
+        key = identity.installation_id if identity is not None else runtime.instance_id
+        digest = hmac.new(str(key).encode(), f"user:{owner}".encode(), hashlib.sha256).hexdigest()
+        db.session.add(DataDeletionTombstone(subject_type="user", subject_digest=digest,
+            policy_version="test-v1", status="partial_failure", store_status={}))
+        db.session.commit()
+        calls = []
+        monkeypatch.setattr("backend.services.rag_service.get_rag_service",
+            lambda: SimpleNamespace(store_chat_message=lambda *a, **k: calls.append(a) or True))
+        assert CrossStoreMaterializationDispatcher(db.session).run_once()["failed"] == 1
+        assert calls == []
+        assert db.session.get(ChatMessage, uuid.UUID(result.message_id)) is not None
+
+
+def test_crashed_claim_is_recovered_without_duplicate_vectors(app, monkeypatch):
+    from backend.storage.outbox import CrossStoreOutbox
+
+    with app.app_context():
+        result, _ = _save(app, monkeypatch)
+        event = CrossStoreOutbox(db.session).claim_batch(limit=1)[0]
+        event.locked_at = datetime.now(UTC) - timedelta(minutes=10)
+        db.session.commit()
+        db.session.remove()
+        vectors = {}
+        def store(session_id, message_id, role, content, **kwargs):
+            vectors[message_id] = content
+            return True
+        monkeypatch.setattr("backend.services.rag_service.get_rag_service",
+                            lambda: SimpleNamespace(store_chat_message=store))
+        assert CrossStoreMaterializationDispatcher(db.session).run_once()["succeeded"] == 1
+        assert vectors == {result.message_id: "synthetic private transcript"}
