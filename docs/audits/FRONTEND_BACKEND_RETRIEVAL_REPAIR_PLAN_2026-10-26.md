@@ -134,11 +134,10 @@ use the existing hash projection and index. No user data has been migrated and
 no new installer has been built for this repair. Do not treat the shadow-index
 tool or this source checkpoint as enabling semantic retrieval in the app.
 
-A separate source review of session retention found that `cleanup_sessions`
-deletes relational sessions without deleting their `chat_history` vectors and
-can count sessions as archived without creating an archive. The retention route
-can invoke this code. The owner's decision on the additional repair is pending;
-no cleanup or user-data mutation was performed during this review.
+A separate source review found that session cleanup could leave `chat_history`
+vectors and report an archive that was never created. Kevin approved the
+repair described in the October 28 checkpoint above. No user-data cleanup was
+performed during review or synthetic testing.
 
 During the index-lifecycle review, a newly discovered deletion defect was
 reproduced: a failed Chroma lookup could be treated as zero remnants. Kevin
