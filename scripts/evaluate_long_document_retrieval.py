@@ -8,42 +8,10 @@ import json
 from pathlib import Path
 
 from backend.services.local_sentence_embedding import LocalSentenceEmbedding
+from backend.services.model_text_chunking import model_text_chunks as model_chunks
 from backend.services.text_chunking import split_text
 from scripts.evaluate_local_retrieval_candidates import cosine
 from scripts.probe_offline_embedding_bundle import MANIFEST, WEIGHTS
-
-
-def model_chunks(text, tokenizer, model_limit, overlap=32):
-    """Prototype exact-source spans bounded by the actual tokenizer limit."""
-    budget = model_limit - tokenizer.num_special_tokens_to_add(pair=False)
-    if budget <= overlap:
-        raise ValueError("model_chunk_budget_invalid")
-    offsets = tokenizer(
-        text, add_special_tokens=False, truncation=False, return_offsets_mapping=True
-    )["offset_mapping"]
-    chunks = []
-    start = 0
-    while start < len(offsets):
-        end = min(start + budget, len(offsets))
-        while end > start:
-            chunk = text[offsets[start][0] : offsets[end - 1][1]].strip()
-            if (
-                len(
-                    tokenizer(chunk, add_special_tokens=True, truncation=False)[
-                        "input_ids"
-                    ]
-                )
-                <= model_limit
-            ):
-                break
-            end -= 1
-        if end == start:
-            raise ValueError("model_chunk_cannot_fit")
-        chunks.append(chunk)
-        if end == len(offsets):
-            break
-        start = max(start + 1, end - overlap)
-    return chunks
 
 
 def main():
@@ -118,6 +86,9 @@ def main():
                 "corpus_sha256": hashlib.sha256(raw).hexdigest(),
                 "script_sha256": hashlib.sha256(
                     Path(__file__).read_bytes()
+                ).hexdigest(),
+                "chunker_sha256": hashlib.sha256(
+                    Path("backend/services/model_text_chunking.py").read_bytes()
                 ).hexdigest(),
                 "model_manifest_sha256": MANIFEST,
                 "results": results,

@@ -116,3 +116,37 @@ class LocalSentenceEmbedding:
         ):
             raise LocalEmbeddingError("local_embedding_vector_invalid")
         return result
+
+    def chunk_text(
+        self,
+        text: str,
+        *,
+        max_tokens: int | None = None,
+        overlap_tokens: int | None = None,
+    ) -> list[str]:
+        """Fit exact source spans to the loaded model's actual input limit."""
+        from backend.services.model_text_chunking import (
+            ModelChunkingError,
+            model_text_chunks,
+        )
+
+        model = self._load()
+        try:
+            limit = model.max_seq_length
+            if not isinstance(limit, int) or isinstance(limit, bool):
+                raise ModelChunkingError("model_chunk_budget_invalid")
+            if max_tokens is not None:
+                if not isinstance(max_tokens, int) or isinstance(max_tokens, bool):
+                    raise ModelChunkingError("model_chunk_budget_invalid")
+                limit = min(limit, max_tokens)
+            budget = limit - model.tokenizer.num_special_tokens_to_add(pair=False)
+            overlap = (
+                min(32, max(0, budget // 5))
+                if overlap_tokens is None
+                else overlap_tokens
+            )
+            return model_text_chunks(
+                text, model.tokenizer, limit, overlap_tokens=overlap
+            )
+        except (ModelChunkingError, AttributeError, TypeError, ValueError) as exc:
+            raise LocalEmbeddingError("local_embedding_chunking_failed") from exc

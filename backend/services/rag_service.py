@@ -182,10 +182,18 @@ class RAGService:
         """
         Split text into chunks for embedding.
         
-        Uses the same local sentence boundaries on every installation.
+        Uses the selected local model's tokenizer limit, or sentence units
+        for the existing deterministic projection.
         """
         if not text or len(text.strip()) == 0:
             return []
+
+        from backend.services.local_sentence_embedding import LocalSentenceEmbedding
+
+        if isinstance(self._embedding_provider, LocalSentenceEmbedding):
+            return self._embedding_provider.chunk_text(
+                text, max_tokens=chunk_size, overlap_tokens=overlap,
+            )
         
         resolved_overlap = min(50, chunk_size // 10) if overlap is None else overlap
         return split_text(text, chunk_size, resolved_overlap)
