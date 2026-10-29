@@ -116,3 +116,12 @@ and zero failures/setup/collection errors. The test environment differed from
 the dependency lock, including Authlib and cryptography, and was not a fully
 lock-synchronized gate. Raw output is
 `reports/r3-final-windows-20261029.txt`.
+
+The subsequent hash-locked Windows source run passed 3,535 tests, 18 skipped,
+35 warnings and zero failures/setup/collection errors with the approved
+separate test-only Chroma environment. Chroma 1.5.9 has four unpatched
+advisories, retained without suppression in
+`reports/r3-test-chroma-dependency-audit-20261029.json`. The runtime-only
+packaging environment has no Chroma Python package. A 4.4.6 engineering build
+from `94fc938b` was installed; its installed payload check passed, but startup
+was blocked by automatic approval review and installed acceptance remains open.

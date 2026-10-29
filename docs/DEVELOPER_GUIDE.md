@@ -22,6 +22,20 @@
 
 Provide the developer onboarding path and daily engineering workflow for DataLogicEngine.
 
+The October 29 engineering installer was built from clean commit `94fc938b`
+with the runtime-only hash-locked Python environment and lockfile-restored
+frontend dependencies. Its integrity, packaged resources, NSIS configuration
+and backend payload checks pass. The unsigned build was installed per-machine;
+three key installed files match the built payload. Startup was blocked by
+automatic approval review, so installed readiness remains open. The separate
+test-only Chroma environment must never be used to package the app because the
+PyInstaller spec collects installed Chroma; it carries four unpatched
+advisories documented in `reports/r3-test-chroma-dependency-audit-20261029.json`.
+The locked Windows source suite passed 3,535 tests with 18 skipped; the locked
+frontend suite passed 521 tests. Production/public release remains NO-GO.
+
+Historical October 26 checkpoint:
+
 The October 26 4.4.6 source passed a full Windows coverage run of
 3,373 Python tests with 19 skipped and zero test/setup/collection errors, plus 506 frontend
 tests. It selects OpenAI `gpt-6-sol`

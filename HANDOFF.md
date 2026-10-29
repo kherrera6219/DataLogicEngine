@@ -26,6 +26,39 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
+## October 29 local engineering rebuild and installation
+
+PR #103 merged at `e9e0fc61e2092d4b428b4832c1c14faec2b54753`, and the
+isolated test-dependency repair merged in PR #104 at
+`94fc938bcaf76d7689f49790916394e0204be061`. PR #104 checks passed, and its
+post-merge CI/CD (`40947258733`), Deploy (`40947258707`) and Security
+(`40947258660`) runs passed. The locked Windows source suite
+passed 3,535 tests with 18 skipped and zero failures/setup/collection errors;
+the locked frontend suite passed 521 tests. The Windows suite used the separate
+owner-approved test-only Chroma environment described below. The installer was
+built with the runtime-only environment, which does not contain `chromadb`.
+
+From clean commit `94fc938b`, unsigned `DataLogicEngine Setup 4.4.6.exe`
+was rebuilt (350,265,586 bytes; SHA-256
+`223726c1e31aa26322430d377965699e7a3492d1a89cff0fcc33fe83931aa549`).
+Integrity, packaged resources, NSIS configuration and packaged-payload checks
+passed. A prior build attempt failed because the local Node dependency tree and
+packaging shim were stale; a locked `npm ci` and writable copy of the existing
+Node tools corrected the build environment. The successful installer's
+per-machine installation exited 0 and registers version 4.4.6 at
+`C:\Program Files\DataLogicEngine Desktop`. The installed desktop executable,
+application bundle and backend executable match the unpacked built files.
+No registered previous installation or uninstaller was found, so no uninstall
+was performed. Startup verification was blocked by automatic approval review;
+no `/ready`, provider, UI or installed-lifecycle acceptance is claimed.
+
+Before installation, the stopped VM disk, both desktop data profiles, existing
+installers and primary build outputs were copied and hash-verified under
+`C:\Users\kevin\Documents\DataLogicEngine-recovery\20261029-pre-reinstall-080624`.
+This is a verified copy, not a complete multi-store restore test. Preserve it
+outside the repository. The build is an unsigned engineering artifact;
+CP19-M, Phase A, signing and production/public release remain open/NO-GO.
+
 ## October 29 R-3 source-authority qualification
 
 PR #103 merged at `e9e0fc61e2092d4b428b4832c1c14faec2b54753`. Its
@@ -37,8 +70,8 @@ GHSA-36p7-vc44-83pf, GHSA-xph7-9rjv-w5fr and GHSA-2wm9-hf6c-p5cr.
 `reports/r3-test-chroma-dependency-audit-20261029.json` records the findings
 without suppressions. Never use that test environment for packaging: the
 PyInstaller spec collects installed Chroma. Runtime dependency audit and
-test-only advisory disposition are distinct. The follow-up CI/Deploy results
-and installed rebuild must be verified independently.
+test-only advisory disposition are distinct. PR #104 and its post-merge
+CI/CD, Deploy and Security checks pass; installed acceptance remains open.
 
 The next-action compatibility concern has now been reproduced at base
 `416cf77b`: model-split knowledge vectors fail governed SQL authority checks,

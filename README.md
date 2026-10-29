@@ -50,6 +50,14 @@ update check, crash-reporting egress, or phone-home.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
+An unsigned 4.4.6 engineering installer built from commit `94fc938b` was
+installed on October 29. Its checksum, packaged resources, NSIS configuration
+and 5,032-file backend payload checks passed; three key installed files match
+the built payload. Startup verification was blocked by automatic approval
+review, so installed readiness and acceptance remain unverified. The locked
+Windows source suite passed 3,535 tests with 18 skipped; the locked frontend
+suite passed 521. This is not a production or public release.
+
 The October 29 R-3 source checkpoint validates model-sized ingestion spans
 against their canonical SQL source and preserves source-specific citation
 locations. The full Windows source suite passed **3,534 tests**, with 19
@@ -78,8 +86,8 @@ store fails deletion. A separate disposable native PostgreSQL/Chroma/Neo4j
 probe verifies ownership-based deletion and preservation of another owner.
 Installed recovery and
 lifecycle acceptance remain open. A separate frozen Windows MiniLM
-probe passed with network connections blocked, but the app's search model and
-installer have not been changed. The starting search corpus and acceptance
+probe passed with network connections blocked; the app's search model was not
+activated. The starting search corpus and acceptance
 criteria are owner-approved; small profiled tests now include local database
 query time and competing-owner deletion. The broader qualification, recoverable
 migration and full app packaging remain open. Post-merge CI/CD, Deploy and
@@ -100,8 +108,8 @@ tracks each finding and the work still open.
 The existing application continues to use its hash-based vector index. An
 offline MiniLM model and a separate test-only index preparation tool have been
 screened, but the model is not packaged or activated. Search qualification,
-safe index migration and recovery, installed testing, and a new build remain
-open. No existing user data has been migrated by this work.
+safe index migration and recovery and installed testing remain open. No
+existing user data has been migrated by this work.
 
 The October 26 [4.4.6 repair](https://github.com/kherrera6219/DataLogicEngine/pull/94)
 merged into `main` at `57c7b4b0`. It refreshes the Python and NPM locks and
