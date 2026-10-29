@@ -1,0 +1,63 @@
+app.py:675:5: F841 Local variable `swagger_candidates` is assigned to but never used
+scripts\build_ka_qualification_matrix.py:20:1: E402 Module level import not at top of file
+scripts\build_ka_qualification_matrix.py:21:1: E402 Module level import not at top of file
+scripts\build_ka_runtime_manifest.py:18:1: E402 Module level import not at top of file
+scripts\build_ka_runtime_manifest.py:21:1: E402 Module level import not at top of file
+scripts\build_ka_selector_fixtures.py:17:1: E402 Module level import not at top of file
+scripts\inventory_migration_surfaces.py:15:1: E402 Module level import not at top of file
+scripts\qualify_object_store_replacement.py:38:1: E402 Module level import not at top of file
+scripts\qualify_object_store_replacement.py:45:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:24:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:25:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:26:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:27:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:31:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:32:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:33:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:34:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:35:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:36:1: E402 Module level import not at top of file
+scripts\qualify_phase4_data_lifecycle.py:37:1: E402 Module level import not at top of file
+scripts\verify_ka_integration_authority.py:17:1: E402 Module level import not at top of file
+scripts\verify_ka_integration_authority.py:18:1: E402 Module level import not at top of file
+scripts\verify_ka_integration_authority.py:29:1: E402 Module level import not at top of file
+scripts\verify_ka_runtime_authority.py:17:1: E402 Module level import not at top of file
+scripts\verify_ka_runtime_authority.py:18:1: E402 Module level import not at top of file
+scripts\verify_ka_selector_dag.py:16:1: E402 Module level import not at top of file
+scripts\verify_ka_selector_dag.py:17:1: E402 Module level import not at top of file
+scripts\verify_ka_selector_dag.py:21:1: E402 Module level import not at top of file
+scripts\verify_ka_upgrades.py:20:1: E402 Module level import not at top of file
+scripts\verify_ka_upgrades.py:23:1: E402 Module level import not at top of file
+scripts\verify_phase19_cp19k_qualification.py:17:1: E402 Module level import not at top of file
+tests\knowledge_algorithms\test_ka_bulk.py:20:1: E402 Module level import not at top of file
+tests\storage\test_semantic_index_profile.py:66:23: E702 Multiple statements on one line (semicolon)
+tests\storage\test_semantic_index_profile.py:80:23: E702 Multiple statements on one line (semicolon)
+tests\storage\test_semantic_index_profile.py:92:23: E702 Multiple statements on one line (semicolon)
+tests\unit\test_axis_manager_contracts.py:104:5: F841 Local variable `sic` is assigned to but never used
+tests\unit\test_core_simulation_engine_contracts.py:5:8: F401 [*] `pytest` imported but unused
+tests\unit\test_graph_manager_contracts.py:18:38: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:19:45: E702 Multiple statements on one line (semicolon)
+tests\unit\test_graph_manager_contracts.py:21:63: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:22:57: E702 Multiple statements on one line (semicolon)
+tests\unit\test_graph_manager_contracts.py:24:38: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:27:38: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:28:45: E702 Multiple statements on one line (semicolon)
+tests\unit\test_graph_manager_contracts.py:30:63: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:31:57: E702 Multiple statements on one line (semicolon)
+tests\unit\test_graph_manager_contracts.py:33:38: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:95:38: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:96:40: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:97:40: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:98:40: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:99:40: E701 Multiple statements on one line (colon)
+tests\unit\test_graph_manager_contracts.py:100:13: E701 Multiple statements on one line (colon)
+tests\unit\test_location_context_contracts.py:3:19: F401 [*] `types.SimpleNamespace` imported but unused
+tests\unit\test_logging_and_persona_contracts.py:9:8: F401 [*] `pytest` imported but unused
+tests\unit\test_phase3_api_surface_governance.py:9:8: F401 [*] `os` imported but unused
+tests\unit\test_phase3_api_surface_governance.py:10:21: F401 [*] `pathlib.Path` imported but unused
+tests\unit\test_phase3_api_surface_governance.py:15:57: F401 [*] `tests._helpers.TEST_DATABASE_URL` imported but unused
+tests\unit\test_recursive_self_awareness_contracts.py:5:8: F401 [*] `pytest` imported but unused
+tests\unit\test_viewpoint_query_neural_contracts.py:36:52: E702 Multiple statements on one line (semicolon)
+tests\unit\test_viewpoint_query_neural_contracts.py:39:21: E701 Multiple statements on one line (colon)
+Found 61 errors.
+[*] 7 fixable with the `--fix` option (2 hidden fixes can be enabled with the `--unsafe-fixes` option).

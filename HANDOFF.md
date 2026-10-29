@@ -26,7 +26,20 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
-## October 28 stopping checkpoint and restart instructions
+## October 28 R-3 source-authority qualification
+
+The next-action compatibility concern has now been reproduced at base
+`416cf77b`: model-split knowledge vectors fail governed SQL authority checks,
+and their citation positions overwrite the original ingestion positions.
+Eight new characterization cases and the existing focused group pass (21
+tests). See `docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md`
+for the concrete repair proposal and validation record.
+
+Kevin approved proceeding with precise span citations on October 29, including
+`parent_source_id`, `source_span_start`, and `source_span_end`. Existing R-3
+approvals persist. Runtime repair, migration and activation remain pending.
+
+## October 28 prior stopping checkpoint and restart instructions
 
 PR #101 is merged at `ff2a03b09deb8de790dbc2bd095b1203b472b99d`.
 Post-merge CI/CD (`40748990256`), Deploy (`40748990250`) and Security

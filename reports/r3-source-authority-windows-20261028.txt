@@ -1,0 +1,1815 @@
+........................................................................ [  2%]
+..........................................................FFs........... [  4%]
+........................................................................ [  6%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+FFFFFFFFFFF.....FFFFFFFFFFFFFFFFF.....FF..........FFFF................FF [ 18%]
+F...F..F.............................................F.................. [ 20%]
+F.F..................................................................... [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 30%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 38%]
+........................................................................ [ 41%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+..............................................F......................... [ 63%]
+........................................................................ [ 65%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+.....................F.................................................. [ 77%]
+............F........................................................... [ 80%]
+........................................................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 96%]
+.....s....ssssssssssssssss.............................................. [ 98%]
+....................................................                     [100%]
+================================== FAILURES ===================================
+_ test_runtime_api_contract_smoke[POST-/api/v1/gateway/chat-payload3-expected_statuses3] _
+tests\contract\test_api_contract.py:79: in test_runtime_api_contract_smoke
+    assert (
+E   AssertionError: Unexpected status for POST /api/v1/gateway/chat: 500
+E   assert 500 in {400, 401, 403}
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_ceaa6355ecb746c8a37426ecfad06627): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+WARNING  UKG-Audit:audit_logger.py:282 Failed to persist audit event to DB: (sqlite3.OperationalError) no such table: audit_logs
+[SQL: INSERT INTO audit_logs (timestamp, user_id, windows_sid, action, details, ip_address) VALUES (?, ?, ?, ?, ?, ?)]
+[parameters: ('2026-10-29 04:32:00.710259', None, None, 'request', '{"endpoint": "gateway.gateway_chat", "method": "POST", "status_code": 500}', '127.0.0.1')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+_ test_runtime_api_contract_smoke[POST-/api/v1/gateway/chat/stream-payload4-expected_statuses4] _
+tests\contract\test_api_contract.py:79: in test_runtime_api_contract_smoke
+    assert (
+E   AssertionError: Unexpected status for POST /api/v1/gateway/chat/stream: 500
+E   assert 500 in {400, 401, 403}
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_eb82a4fb4e554e39ad2c621db9e01d1d): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+WARNING  UKG-Audit:audit_logger.py:282 Failed to persist audit event to DB: (sqlite3.OperationalError) no such table: audit_logs
+[SQL: INSERT INTO audit_logs (timestamp, user_id, windows_sid, action, details, ip_address) VALUES (?, ?, ?, ?, ?, ?)]
+[parameters: ('2026-10-29 04:32:01.810906', None, None, 'request', '{"endpoint": "gateway.gateway_chat_stream", "method": "POST", "status_code": 500}', '127.0.0.1')]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+__________________________ test_api_key_auth_header ___________________________
+tests\integration\test_gateway_api_coverage.py:132: in test_api_key_auth_header
+    resp = app_client.post('/api/v1/gateway/chat',
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+____________________________ test_api_key_invalid _____________________________
+tests\integration\test_gateway_api_coverage.py:158: in test_api_key_invalid
+    resp = app_client.post('/api/v1/gateway/chat',
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_________________________ test_gateway_chat_endpoint __________________________
+tests\integration\test_gateway_api_coverage.py:196: in test_gateway_chat_endpoint
+    resp = app_client.post('/api/v1/gateway/chat',
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_______ test_desktop_chat_passes_gemini_output_cap_to_governed_request ________
+tests\integration\test_gateway_api_coverage.py:238: in test_desktop_chat_passes_gemini_output_cap_to_governed_request
+    result = app_client.post('/api/v1/gateway/chat', json={
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+________________________ test_gateway_chat_no_messages ________________________
+tests\integration\test_gateway_api_coverage.py:253: in test_gateway_chat_no_messages
+    resp = app_client.post('/api/v1/gateway/chat',
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_______________ test_gateway_chat_provider_failure_returns_503 ________________
+tests\integration\test_gateway_api_coverage.py:290: in test_gateway_chat_provider_failure_returns_503
+    resp = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+____________ test_gateway_chat_rejects_disallowed_provider_policy _____________
+tests\integration\test_gateway_api_coverage.py:314: in test_gateway_chat_rejects_disallowed_provider_policy
+    resp = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+______________ test_gateway_chat_rejects_disallowed_model_policy ______________
+tests\integration\test_gateway_api_coverage.py:342: in test_gateway_chat_rejects_disallowed_model_policy
+    resp = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_________________ test_gateway_chat_rejects_max_tokens_policy _________________
+tests\integration\test_gateway_api_coverage.py:366: in test_gateway_chat_rejects_max_tokens_policy
+    resp = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_____________ test_gateway_chat_rejects_permission_denied_policy ______________
+tests\integration\test_gateway_api_coverage.py:394: in test_gateway_chat_rejects_permission_denied_policy
+    resp = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_________________ test_gateway_chat_enforces_daily_rate_limit _________________
+tests\integration\test_gateway_api_coverage.py:421: in test_gateway_chat_enforces_daily_rate_limit
+    resp = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+______________________________ test_health_check ______________________________
+tests\integration\test_gateway_api_coverage.py:557: in test_health_check
+    resp = app_client.get('/api/v1/gateway/health')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1162: in get
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_______________ test_gateway_chat_failure_includes_audit_trail ________________
+tests\integration\test_gateway_api_coverage.py:593: in test_gateway_chat_failure_includes_audit_trail
+    resp = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_____________ test_gateway_stream_done_event_includes_audit_trail _____________
+tests\integration\test_gateway_api_coverage.py:622: in test_gateway_stream_done_event_includes_audit_trail
+    resp = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_ test_phase8_stream_idempotency_is_explicitly_unavailable_until_resume_exists _
+tests\integration\test_gateway_api_coverage.py:647: in test_phase8_stream_idempotency_is_explicitly_unavailable_until_resume_exists
+    response = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+________________ test_phase8_read_only_key_cannot_invoke_model ________________
+tests\integration\test_gateway_api_coverage.py:674: in test_phase8_read_only_key_cannot_invoke_model
+    response = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+____ test_phase8_direct_model_override_requires_scope_and_server_allowlist ____
+tests\integration\test_gateway_api_coverage.py:699: in test_phase8_direct_model_override_requires_scope_and_server_allowlist
+    missing_scope = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_______________ test_phase8_unknown_request_field_fails_closed ________________
+tests\integration\test_gateway_api_coverage.py:729: in test_phase8_unknown_request_field_fails_closed
+    response = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_____ test_phase8_oversized_request_is_rejected_before_validation_or_work _____
+tests\integration\test_gateway_api_coverage.py:754: in test_phase8_oversized_request_is_rejected_before_validation_or_work
+    response = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_____ test_phase8_capability_discovery_is_content_free_and_scope_filtered _____
+tests\integration\test_gateway_api_coverage.py:777: in test_phase8_capability_discovery_is_content_free_and_scope_filtered
+    response = app_client.get(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1162: in get
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_ test_phase8_external_clients_cannot_enter_desktop_control_plane[/api/v1/gateway/providers] _
+tests\integration\test_gateway_api_coverage.py:810: in test_phase8_external_clients_cannot_enter_desktop_control_plane
+    response = app_client.get(path, headers={'X-API-Key': 'ukg_client'})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1162: in get
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_ test_phase8_external_clients_cannot_enter_desktop_control_plane[/api/v1/gateway/sessions] _
+tests\integration\test_gateway_api_coverage.py:810: in test_phase8_external_clients_cannot_enter_desktop_control_plane
+    response = app_client.get(path, headers={'X-API-Key': 'ukg_client'})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1162: in get
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_ test_phase8_external_clients_cannot_enter_desktop_control_plane[/api/v1/gateway/sessions/00000000-0000-0000-0000-000000000001/messages] _
+tests\integration\test_gateway_api_coverage.py:810: in test_phase8_external_clients_cannot_enter_desktop_control_plane
+    response = app_client.get(path, headers={'X-API-Key': 'ukg_client'})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1162: in get
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+___ test_phase8_production_admission_fails_closed_when_redis_is_unavailable ___
+tests\integration\test_gateway_api_coverage.py:833: in test_phase8_production_admission_fails_closed_when_redis_is_unavailable
+    response = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_________ test_phase8_production_concurrency_limit_denies_before_work _________
+tests\integration\test_gateway_api_coverage.py:867: in test_phase8_production_concurrency_limit_denies_before_work
+    response = app_client.post(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+________ test_async_run_create_is_encrypted_idempotent_and_cancellable ________
+tests\integration\test_gateway_async_runs.py:32: in test_async_run_create_is_encrypted_idempotent_and_cancellable
+    assert created.status_code == 202
+E   assert 500 == 202
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_30e3555e3afb42339f61be2048d8d33b): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+______ test_async_result_is_returned_only_from_authenticated_ciphertext _______
+tests\integration\test_gateway_async_runs.py:75: in test_async_result_is_returned_only_from_authenticated_ciphertext
+    job_id = created.get_json()['job_id']
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'job_id'
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_354c852978094321bf8ea3ede0214f2f): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_______ test_large_async_result_is_verified_from_app_owned_object_store _______
+tests\integration\test_gateway_async_runs.py:105: in test_large_async_result_is_verified_from_app_owned_object_store
+    job_id = created.get_json()['job_id']
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'job_id'
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_6df9146bb7bf413aa57423675b23273f): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+________ test_desktop_session_create_is_idempotent_and_principal_owned ________
+tests\integration\test_gateway_chat_sessions.py:140: in test_desktop_session_create_is_idempotent_and_principal_owned
+    assert created.status_code == 201, created.get_json()
+E   AssertionError: {'error': {'code': 'INTERNAL_SERVER_ERROR', 'crash_id': 'crash_96ee2d5347f54745a808df16da066f67', 'message': 'An internal error occurred. Please try again later.'}, 'success': False}
+E   assert 500 == 201
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_96ee2d5347f54745a808df16da066f67): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_17a0983c104e432db0c70bb46913f5c2): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+________ test_desktop_session_create_hides_another_principals_session _________
+tests\integration\test_gateway_chat_sessions.py:174: in test_desktop_session_create_hides_another_principals_session
+    assert response.status_code == 404
+E   assert 500 == 404
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_cd909bf440c24e63bb381a40afca57d9): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_____ test_openai_models_exposes_virtual_models_not_provider_credentials ______
+tests\integration\test_gateway_openai_compatibility.py:36: in test_openai_models_exposes_virtual_models_not_provider_credentials
+    assert response.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_def26e886b8a463aabf5c557c48f03f6): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_____ test_openai_chat_adapts_to_the_governed_contract_and_is_idempotent ______
+tests\integration\test_gateway_openai_compatibility.py:75: in test_openai_chat_adapts_to_the_governed_contract_and_is_idempotent
+    assert response.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_67ebd9b07b96488da2d91b4201ade5d1): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_f17874a68c3d44b1aa6201e5273a9505): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+____ test_openai_chat_rejects_unsupported_fields_instead_of_ignoring_them _____
+tests\integration\test_gateway_openai_compatibility.py:100: in test_openai_chat_rejects_unsupported_fields_instead_of_ignoring_them
+    assert response.status_code == 422
+E   assert 500 == 422
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_2f8a9e09211148d99d1995ff989b76fb): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+________ test_external_trace_read_is_client_owned_and_evidence_scoped _________
+tests\integration\test_gateway_trace_access.py:75: in test_external_trace_read_is_client_owned_and_evidence_scoped
+    assert response.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_3b94ed6a2d0c4238b5ecfe25ca1f4a45): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+________________ test_gateway_health_rejects_anonymous_client _________________
+tests\integration\test_llm_gateway_coverage.py:4: in test_gateway_health_rejects_anonymous_client
+    assert client.get('/api/v1/gateway/health').status_code == 401
+E   AssertionError: assert 500 == 401
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+E    +    where <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]> = get('/api/v1/gateway/health')
+E    +      where get = <FlaskClient <Flask 'app'>>.get
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_5e7cfa6e6a124bc689dbafe26e71477b): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_____________________________ test_gateway_health _____________________________
+tests\integration\test_llm_gateway_coverage.py:10: in test_gateway_health
+    assert response.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_8e2f7ee8edf44216ab6466569d15dc4d): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_____________________________ test_list_providers _____________________________
+tests\integration\test_llm_gateway_coverage.py:18: in test_list_providers
+    assert response.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_6bc8709db58a4ce99355ddef489104ce): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+________________________ test_gateway_chat_validation _________________________
+tests\integration\test_llm_gateway_coverage.py:47: in test_gateway_chat_validation
+    assert response.status_code == 400
+E   assert 500 == 400
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_df8db7c26ef84345a83446b98a4f67d0): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+____ test_phase8_sync_idempotency_replays_without_duplicate_provider_spend ____
+tests\integration\test_llm_gateway_coverage.py:193: in test_phase8_sync_idempotency_replays_without_duplicate_provider_spend
+    assert first.status_code == 200
+E   assert 500 == 200
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_c5e67444f5b549ab99f696de97f4be36): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_ccce9755189e426fa34f9f7e13af8d1e): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_304b28f5e4b643ceab5f6052376b0ba8): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+_______________________ test_truth_engine_session_flow ________________________
+tests\integration\test_truth_engine_api.py:58: in test_truth_engine_session_flow
+    assert response.status_code in [403, 400]
+E   assert 500 in [403, 400]
+E    +  where 500 = <WrapperTestResponse streamed [500 INTERNAL SERVER ERROR]>.status_code
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_119d37fb649a4c0abab847352405bb65): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+__________________________ test_gateway_chat_stream ___________________________
+tests\integration_routes\test_api_routers.py:98: in test_gateway_chat_stream
+    resp = router_app_client.post('/api/v1/gateway/chat/stream',
+.venv-release311\Lib\site-packages\werkzeug\test.py:1167: in post
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+____________________________ test_gateway_sessions ____________________________
+tests\integration_routes\test_api_routers.py:149: in test_gateway_sessions
+    resp = router_app_client.get('/api/v1/gateway/sessions')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1162: in get
+    return self.open(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\testing.py:235: in open
+    response = super().open(
+.venv-release311\Lib\site-packages\werkzeug\test.py:1116: in open
+    response_parts = self.run_wsgi_app(request.environ, buffered=buffered)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:988: in run_wsgi_app
+    rv = run_wsgi_app(self.application, environ, buffered=buffered)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\werkzeug\test.py:1264: in run_wsgi_app
+    app_rv = app(environ, start_response)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1536: in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1514: in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:1511: in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:919: in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:917: in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:902: in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:976: in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+.venv-release311\Lib\site-packages\flask\app.py:997: in async_to_sync
+    raise RuntimeError(
+E   RuntimeError: Install Flask with the 'async' extra in order to use async views.
+____________ test_every_live_mutation_rule_denies_anonymous_access ____________
+tests\security\test_phase1_anonymous_mutations.py:93: in test_every_live_mutation_rule_denies_anonymous_access
+    assert not failures, "Anonymous mutations reached application logic:\n" + "\n".join(failures)
+E   AssertionError: Anonymous mutations reached application logic:
+E     POST /api/v1/gateway/chat (gateway.gateway_chat) -> 500
+E     POST /api/v1/gateway/runs (gateway.create_gateway_run) -> 500
+E     POST /api/v1/gateway/runs/<job_id>/cancel (gateway.cancel_gateway_run) -> 500
+E     POST /api/v1/gateway/requests/<request_id>/cancel (gateway.cancel_gateway_request) -> 500
+E     POST /api/v1/gateway/chat/stream (gateway.gateway_chat_stream) -> 500
+E     POST /api/v1/gateway/sessions (gateway.create_user_session) -> 500
+E     POST /v1/chat/completions (openai_compat.openai_compatible_chat_completions) -> 500
+E   assert not ['POST /api/v1/gateway/chat (gateway.gateway_chat) -> 500', 'POST /api/v1/gateway/runs (gateway.create_gateway_run) ->...tream (gateway.gateway_chat_stream) -> 500', 'POST /api/v1/gateway/sessions (gateway.create_user_session) -> 500', ...]
+---------------------------- Captured stderr call -----------------------------
+ERROR [app] 500 Internal Server Error (crash_id=crash_27795dc889244ca181fe507c5b342455): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR [app] 500 Internal Server Error (crash_id=crash_5585871fee514924b1c7de9e17581334): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR [app] 500 Internal Server Error (crash_id=crash_6b4f195ddd8746789b1d04ef016fa1db): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR [app] 500 Internal Server Error (crash_id=crash_066e4e9ae778479a924342dea48db2e9): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR [app] 500 Internal Server Error (crash_id=crash_812eea62b16a4b17b02454af52b0f326): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR [app] 500 Internal Server Error (crash_id=crash_e025c53e16cf46bda49a451d1c24fb18): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR [app] 500 Internal Server Error (crash_id=crash_7e1363ccda49489bb99c1f682530332e): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+------------------------------ Captured log call ------------------------------
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_27795dc889244ca181fe507c5b342455): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_5585871fee514924b1c7de9e17581334): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_6b4f195ddd8746789b1d04ef016fa1db): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_066e4e9ae778479a924342dea48db2e9): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_812eea62b16a4b17b02454af52b0f326): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_e025c53e16cf46bda49a451d1c24fb18): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ERROR    app:app.py:1464 500 Internal Server Error (crash_id=crash_7e1363ccda49489bb99c1f682530332e): Install Flask with the 'async' extra in order to use async views.
+Traceback (most recent call last):
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask\app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+____________ test_every_root_and_docs_markdown_has_one_disposition ____________
+tests\unit\test_documentation_authority.py:29: in test_every_root_and_docs_markdown_has_one_disposition
+    assert inventory["unclassified"] == []
+E   AssertionError: assert ['docs/evalua...026-10-28.md'] == []
+E     
+E     Left contains one more item: 'docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md'
+E     Use -v to get more diff
+________ test_unverified_inspection_cannot_disable_later_claim_checks _________
+tests\unit\test_jwt_claim_verification.py:19: in test_unverified_inspection_cannot_disable_later_claim_checks
+    assert options == {"verify_signature": False}
+E   AssertionError: assert {'verify_aud'...': False, ...} == {'verify_signature': False}
+E     
+E     Omitting 1 identical items, use -vv to show
+E     Left contains 7 more items:
+E     {'verify_aud': False,
+E      'verify_exp': False,
+E      'verify_iat': False,
+E      'verify_iss': False,...
+E     
+E     ...Full output truncated (4 lines hidden), use '-vv' to show
+============================== warnings summary ===============================
+tests/integration_routes/test_ka_route_auth_boundaries.py: 19 warnings
+tests/integration_routes/test_phase19_cp19j_ka_product_workflow.py: 13 warnings
+  C:\software\DataLogicEngine\backend\auth\api_decorators.py:211: LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    user = User.query.get(key_record.user_id)
+
+tests/security/test_session_security.py::test_session_cookie_security_defaults
+tests/unit/test_runtime_endpoints.py::test_session_manager_prefers_managed_app_endpoint
+tests/unit/test_runtime_lifecycle.py::test_runtime_advances_supported_candidate_version_only_after_migration
+  C:\software\DataLogicEngine\.venv-release311\Lib\site-packages\flask_session\base.py:172: DeprecationWarning: The 'use_signer' option is deprecated and will be removed in the next minor release. Please update your configuration accordingly or open an issue.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+47 failed, 3443 passed, 18 skipped, 35 warnings in 550.45s (0:09:10)

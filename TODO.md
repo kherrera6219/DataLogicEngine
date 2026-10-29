@@ -29,6 +29,11 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
+R-3 authority/span incompatibility is reproduced. Kevin approved proceeding with
+the precise-span citation contract in
+`docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md` on October 29.
+Existing R-3 approvals remain applicable; the runtime repair remains open.
+
 Next implementation: R-3 authority/span compatibility, then resumable migration,
 synchronized routing/rollback, full app packaging and installed acceptance.
 The ordered restart and completed approvals are in `HANDOFF.md`. This
@@ -1939,7 +1944,11 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 - The normal frontend test command passes 435 tests. Keep tests in their normal
   test environment; `NODE_ENV=production` is not the supported Vitest mode.
 
-## Exact next action
+## Historical 4.4.3 next action — superseded by the October 28 R-3 restart
+
+The artifact-specific sequence below is retained history. Follow the current
+October 28 restart at the top of `HANDOFF.md` and the R-3 work above; do not
+resume implementation from this older installer checkpoint.
 
 The documentation/evidence closure is published and its replacement GitHub
 jobs pass. Continue only with `DataLogicEngine Setup 4.4.3.exe` bound to commit
