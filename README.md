@@ -23,7 +23,7 @@
 [![Deploy](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/deploy.yml/badge.svg)](https://github.com/kherrera6219/DataLogicEngine/actions/workflows/deploy.yml)
 [![Python](https://img.shields.io/badge/python-3.11-3776AB)](requirements.txt)
 [![Node](https://img.shields.io/badge/node-24-339933)](frontend/package.json)
-[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Governed AI for organizations that need evidence, control, and
 accountability—not just a model response.**

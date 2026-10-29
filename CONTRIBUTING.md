@@ -615,7 +615,7 @@ test/mcp-oauth-scope-enforcement
 
 ## License Agreement
 
-By submitting a contribution to this repository, you agree that your work will be licensed under the same terms as the project: the **PolyForm Noncommercial License 1.0.0**. See [`LICENSE`](LICENSE) for full terms.
+By submitting a contribution to this repository, you agree that your work will be licensed under the same terms as the project: the **MIT License**. See [`LICENSE`](LICENSE) for full terms.
 
 ---
 
