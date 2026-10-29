@@ -1,0 +1,1 @@
+C:\software\DataLogicEngine\.venv-release311\Scripts\python.exe: No module named mypy

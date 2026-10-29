@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased source after 4.4.6 - 2026-10-29
+
+- Verify model-sized knowledge spans against canonical SQL content, source
+  checksums, revision, eligibility and ownership before governed retrieval;
+  citations carry the approved parent and exact text offsets.
+- Add a disabled SQL staging prototype and independently check staged family
+  text, metadata, vectors and orphaned IDs. Synthetic embedded-Chroma checks
+  block network connections; customer migration and activation have not run.
+- The final Windows source suite passed 3,534 tests, 19 skipped, 35 warnings
+  and zero failures/setup/collection errors. Its environment differed from
+  the dependency lock, including Authlib and cryptography. Installed acceptance, safe
+  inactive-index deletion, destination binding, full recovery and coordinated
+  cutover remain open. Production/public release remains NO-GO.
+
 ## Unreleased source after 4.4.6 - 2026-10-28
 
 - PR #101 (`ff2a03b0`) merges explicit vector-write failure reporting,

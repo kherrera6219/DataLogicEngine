@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-002 |
 | Title | Data architecture and schema specification |
-| Document version | v1.2.3 |
+| Document version | v1.2.4 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Data, platform, security, privacy, quality, operations, and professional reviewers |
@@ -14,11 +14,18 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Implemented store adapters/schemas, migration and lifecycle contracts, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-29 |
 | Next-review trigger | Store, schema, migration, classification, retention, encryption, backup/restore, or object-store decision change |
 | Requirements and evidence | Product requirements, schema/migration tests, lifecycle reports, ADR-0006/0010, and Phase 3/4/9/11 evidence |
 
 ## Scope and invariants
+
+The October 29 source checkpoint verifies model-sized ingestion spans against
+the retained SQL node and chunk checksum before selection, preserving canonical
+ingestion positions and the approved parent/character-offset citation. The
+default search factory remains hash-based. The semantic staging prototype is
+disabled until inactive-index deletion, destination binding, recovery and
+coordinated cutover are qualified; no customer migration or activation has run.
 
 Production data is app-owned, installation-bound, and local to the supported
 Windows desktop or VM. PostgreSQL, Redis, Neo4j, ChromaDB, and app-owned S3-compatible object store are required

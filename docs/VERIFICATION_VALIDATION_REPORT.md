@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.7 |
+| Document version | v1.8.8 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,11 +14,23 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-28 |
+| Last reviewed | 2026-10-29 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
 ## Purpose
+
+The October 29 R-3 Windows source run passed **3,534 tests, 19 skipped,
+35 warnings, zero failures/setup/collection errors**, without coverage
+collection (`reports/r3-final-windows-20261029.txt`). Focused tests exercise
+SQL-backed span and citation verification, tampering, ownership and source
+eligibility. The test environment differed from the dependency lock, including
+Authlib and cryptography; the run is not a lock-synchronized gate. A synthetic
+embedded-Chroma check blocks network connections.
+The SQL staging prototype remains disabled, with PostgreSQL integration,
+deletion, destination, recovery, coordinated cutover and installed testing
+open. These results do not qualify the earlier 4.4.6 installer or authorize
+production/public release.
 
 The October 28 PR #101 checkpoint merged at `ff2a03b0`, with post-merge CI/CD,
 Deploy and Security passing. The full Windows run at runtime `00dfebd6` reports

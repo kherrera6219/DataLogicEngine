@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`, with post-merge CI/CD, Deploy and Security passing. Installed acceptance, Phase A and CP19-M remain open |
+| Current phase | Phase 19; PR #101 merged at `ff2a03b0` with CI/CD, Deploy and Security passing. Local R-3 source qualification passed 3,534 Windows tests in an environment not fully matched to the dependency lock; staging is disabled. Installed acceptance, Phase A and CP19-M remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -28,6 +28,21 @@ This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
+
+R-3 authority/span incompatibility is reproduced. Kevin approved proceeding with
+the precise-span citation contract in
+`docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md` on October 29.
+Existing R-3 approvals remain applicable. SQL-backed span verification and
+focused tests are implemented; installed acceptance remains open. Full Windows
+source validation passed 3,530 tests, 19 skipped and zero errors before the
+staging safety guard; the final source run passed 3,534 tests, 19 skipped and
+zero failures/setup/collection errors. Its environment differed from the
+dependency lock, including Authlib and cryptography.
+
+The staging prototype remains deliberately disabled pending inactive-index
+retention, destination binding, bounded lock work, complete-family inventory,
+global parity, and synchronized cutover/rollback qualification. Disposable
+PostgreSQL staging was unavailable when Docker's Linux engine returned errors.
 
 Next implementation: R-3 authority/span compatibility, then resumable migration,
 synchronized routing/rollback, full app packaging and installed acceptance.
@@ -1939,7 +1954,11 @@ before further Algorithms, manifest, security-wiring, API-contract, or axis work
 - The normal frontend test command passes 435 tests. Keep tests in their normal
   test environment; `NODE_ENV=production` is not the supported Vitest mode.
 
-## Exact next action
+## Historical 4.4.3 next action — superseded by the October 28 R-3 restart
+
+The artifact-specific sequence below is retained history. Follow the current
+October 28 restart at the top of `HANDOFF.md` and the R-3 work above; do not
+resume implementation from this older installer checkpoint.
 
 The documentation/evidence closure is published and its replacement GitHub
 jobs pass. Continue only with `DataLogicEngine Setup 4.4.3.exe` bound to commit

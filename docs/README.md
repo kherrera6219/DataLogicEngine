@@ -6,12 +6,12 @@
 
 ## Authority and release status
 
-- Generated: `2026-10-27`
+- Generated: `2026-10-29`
 - Documentation authority: `2026.08.10-cp19l-installed-evidence` (`approved_phase16_replacement_closed`)
 - Canonical hand-maintained documents: `30` of `30`
 - CP16-F replacement status: `pass`
 - Routed sources: `72`; archived: `72`; unmigrated links: `0`
-- Current program checkpoint: Phase 19; 4.4.6 repair PR #94 and timing PR #96 merged. Main CI/CD, Deploy, and Security pass at `73187a8d`. Installed acceptance and signing/lifecycle/provider CP19-M rows remain open
+- Current program checkpoint: Phase 19; PR #101 merged at `ff2a03b0` with CI/CD, Deploy and Security passing. Local R-3 source qualification passed 3,534 Windows tests in an environment not fully matched to the dependency lock; staging is disabled. Installed acceptance, Phase A and CP19-M remain open
 - Current evidence: all 213/213 KAs are individually qualified and the 186-row baseline backlog is closed through 36 dependency-safe groups. The 4.4.6 clean-source engineering build from commit `0f0d51d1fea7aadfb1f739c98c1b1565063b880c` produced `DataLogicEngine Setup 4.4.6.exe` (350186546 bytes; SHA-256 `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`). Its packaged-payload check passed, but it is unsigned. Portable smoke: not run; installed-mode acceptance: not run; live-provider acceptance: not run. Earlier 4.4.3 build reports do not bind to it. It has not passed installed-mode acceptance and does not replace the distinct 2026-08-10 installed qualification artifact recorded in the release and V&V records. The earlier 2026-08-10 installed candidate's one-time retained-data adoption preserved 22,068 listed relational rows, 20 graph nodes/18 relationships, and eight objects. The reviewed dataset exporter remains supporting owner tooling and does not satisfy installed training/provider acceptance. CP19-M remains open for the signed exact artifact and every retained installed/manual/external/provider/pilot/soak gate.
 - Production/public release: **NO-GO** until the installed, accessibility, security, signing, external-review, and release gates in root `TODO.md` pass.
 
@@ -88,6 +88,8 @@ not current product or operating authority.
 These current findings and work queues inform remediation but do not
 supersede the root production plan, TODO, or handoff:
 
+- `docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md`
+- `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`
 - `CODEX_WORK_QUEUE_2026-08-10.md`
 - `docs/AUTH_SURFACE_MATRIX.md`
 - `docs/CI_QUALITY_POLICY.md`

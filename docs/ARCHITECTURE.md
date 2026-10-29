@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-001 |
 | Title | System architecture description |
-| Document version | v5.2.1 |
+| Document version | v5.2.2 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Architecture, engineering, security, operations, quality, and professional reviewers |
@@ -14,11 +14,17 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, implemented runtime, ADRs, and qualification evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-10-29 |
 | Next-review trigger | Runtime boundary, service, interface, data-flow, or deployment-architecture change |
 | Requirements and evidence | Root plan, source tree, ADRs, diagrams, and production-readiness reports |
 
 ## Purpose
+
+The October 29 R-3 source repair verifies model-sized knowledge spans against
+canonical SQL content and emits the approved exact-span locator. The active
+search factory remains hash-based. Semantic staging is disabled pending
+deletion, managed-destination, recovery and coordinated-cutover qualification;
+neither customer migration nor model activation has run.
 
 The 2026-08-10 clean unsigned qualification candidate installed and reached readiness with
 the real app-owned PostgreSQL, Redis, Neo4j, ChromaDB, and SeaweedFS services.
@@ -411,7 +417,7 @@ flowchart TD
 | Model access | `backend/llm_gateway/`, MCP server modules | Cloud model execution (OpenAI gpt-6-sol / Google gemini-3.8-flash), tool execution, connector integration. |
 | Relational store | PostgreSQL production authority; SQLite bootstrap/development/repair only | Users, sessions, traces, artifacts, graph rows, audit records. |
 | Graph store | Neo4j + USKD NetworkX memory graph | Durable and RAM-resident graph reasoning context. |
-| Vector store | ChromaDB PersistentClient | Local embeddings and semantic search. |
+| Vector store | App-owned managed ChromaDB; embedded mode is development/repair only | Derived vector indexing and retrieval; the active source factory uses a hash projection. |
 | Object store | app-owned S3-compatible object store production authority; filesystem bootstrap/development/repair only | Deliverables, graphs, eval data, audit logs, trace exports. |
 | Cache/queue | Required Redis production service | Session/cache/rate-limit/streams/queue behavior. |
 | Governance | GitHub Actions, pytest, Vitest, Playwright, packaging smoke, release checks | Validation and release safety. |

@@ -26,7 +26,34 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
-## October 28 stopping checkpoint and restart instructions
+## October 29 R-3 source-authority qualification
+
+The next-action compatibility concern has now been reproduced at base
+`416cf77b`: model-split knowledge vectors fail governed SQL authority checks,
+and their citation positions overwrite the original ingestion positions.
+Eight new characterization cases and the existing focused group pass (21
+tests). See `docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md`
+for the concrete repair proposal and validation record.
+
+Kevin approved proceeding with precise span citations on October 29, including
+`parent_source_id`, `source_span_start`, and `source_span_end`. Existing R-3
+approvals persist. The SQL-backed span repair is implemented with focused
+tampering, owner, source readiness and citation checks. A full Windows source
+run passed 3,530 tests, 19 skipped, 35 warnings and zero errors before the
+subsequent staging safety guard. The final source run with that guard and the
+independent inventory tests passed 3,534 tests, 19 skipped, 35 warnings and
+zero failures/setup/collection errors. The test environment differed from the
+dependency lock, including Authlib and cryptography, so this was not a fully
+lock-synchronized gate. Installed qualification remains open.
+
+An inactive staging prototype and its family verifier are under development.
+Staging is explicitly disabled: retention of staged data, destination identity,
+bounded lock work, complete inventory/parity and cutover need proof first.
+Disposable PostgreSQL/Chroma staging is unverified because the Docker Linux
+engine returned errors. Do not run migration against customer data or activate
+a profile until these gates and the existing recovery requirements are met.
+
+## October 28 prior stopping checkpoint and restart instructions
 
 PR #101 is merged at `ff2a03b09deb8de790dbc2bd095b1203b472b99d`.
 Post-merge CI/CD (`40748990256`), Deploy (`40748990250`) and Security
