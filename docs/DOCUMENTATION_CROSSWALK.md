@@ -194,3 +194,8 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `README.md` | `product_public` | authoritative input | `README.md` | selected canonical document |
 | `SECURITY.md` | `product_public` | authoritative input | `SECURITY.md` | selected canonical document |
 | `TODO.md` | `engineering_maintenance` | authoritative input | `TODO.md` | selected canonical document |
+
+
+## Current source-code licensing (October 29, 2026)
+
+The project-owned DataLogicEngine source is licensed under [MIT](../LICENSE), following [PR #106](https://github.com/kherrera6219/DataLogicEngine/pull/106). Commercial use of MIT-licensed code does not require a separate DataLogicEngine license. See [licensing details and historical terms](../COMMERCIAL_LICENSE.md) and [third-party licensing obligations](THIRD_PARTY_SOFTWARE_INDEX.md). Historical archives and prior qualification records preserve their original licensing descriptions as evidence of the status at the time; they are not the current license authority. The product remains `release_blocked` for public installer distribution and production release.

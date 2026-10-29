@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.13 |
+| Document version | v1.13.14 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -181,7 +181,7 @@ open.
 | Integrate an application or agent | [API](#api), [interface contract](docs/INTERFACE_INTEGRATION.md), and [OpenAPI specification](docs/openapi.yaml) |
 | Build or install the Windows application | [Build the Windows installer](#build-the-windows-installer) and the [Installation Guide](docs/INSTALLATION_GUIDE.md) |
 | Contribute or report a problem | [Contributing and support](#contributing-and-support), [CONTRIBUTING.md](CONTRIBUTING.md), and [SECURITY.md](SECURITY.md) |
-| Understand permitted use | [Repository license](#repository-license), [LICENSE](LICENSE), and [commercial licensing](COMMERCIAL_LICENSE.md) |
+| Understand permitted use | [Repository license](#repository-license), [LICENSE](LICENSE), and [MIT licensing details](COMMERCIAL_LICENSE.md) |
 
 ## Who it is for
 
@@ -641,26 +641,17 @@ submit a focused pull request.
 
 ## Repository license
 
-DataLogicEngine is a **source-available** project licensed under the [PolyForm
-Noncommercial License 1.0.0](LICENSE). It is not distributed under an OSI
-open-source license.
+DataLogicEngine's **project-owned source code is open source under the [MIT License](LICENSE)**. You may use, study, modify, copy, redistribute, and commercially use that code, including in paid products and internal business systems, subject to retaining the MIT copyright and permission notice. **No separate commercial license is required for the MIT-licensed code.**
 
-| Use | License position |
+| Use | MIT-licensed project-owned source |
 |---|---|
-| Personal study, research, experimentation, and other noncommercial use | Permitted under the PolyForm Noncommercial terms |
-| Educational, charitable, public-research, public-safety, health, environmental, and government-institution use | Permitted for qualifying noncommercial organizations as defined by the license |
-| Internal business use supporting commercial operations | Requires a separate commercial license |
-| Integration into a paid product or service | Requires a separate commercial license |
-| Hosted or managed commercial access | Requires a separate commercial license |
+| Personal, educational, academic, research, nonprofit, and government use | Permitted |
+| Internal commercial/business use | Permitted |
+| Commercial products, integrations, redistribution, and hosted services | Permitted under MIT conditions |
+| Modification and redistribution of source | Permitted under MIT conditions |
 
-The repository moved from MIT to PolyForm Noncommercial effective
-**January 15, 2026**. The required notice is:
+**Scope:** MIT applies to code and other materials for which DataLogicEngine has the right to grant that license. Third-party packages, models, assets, bundled services, and provider APIs retain their own licenses, access requirements, and redistribution conditions. See [third-party software index](docs/THIRD_PARTY_SOFTWARE_INDEX.md), [SDK license notice](sdk/LICENSE_NOTICE.md), and [licensing details/history](COMMERCIAL_LICENSE.md).
 
-> Copyright (c) 2026 DataLogicEngine Team
+**Source availability is not release approval.** Product 4.4.6 remains engineering-evaluation-only and `release_blocked`. Public distribution of a Windows installer, production deployment, and claims of security or regulatory certification remain subject to the documented release gates; see [release readiness](docs/RELEASE_READINESS_RECORD.md).
 
-Review the complete [LICENSE](LICENSE) before using, modifying, or distributing
-the software. Commercial deployment, internal business use, paid-product
-integration, and enterprise support are available under a separate agreement;
-see [Commercial Licensing](COMMERCIAL_LICENSE.md) for inquiry options. Bundled
-dependencies and generated SDK packages may carry their own license terms in
-their respective files.
+**License history:** Versions 1.4.0 and earlier were MIT; the repository subsequently declared PolyForm Noncommercial effective January 15, 2026; MIT was restored for the current project-owned source through [PR #106](https://github.com/kherrera6219/DataLogicEngine/pull/106). Git history retains historical notices.
