@@ -1,11 +1,11 @@
 ﻿{
-    "generated_at":  "2026-10-26T16:29:19.9674174Z",
-    "unpacked_root":  "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\frontend\\dist\\win-unpacked",
-    "resources_root":  "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources",
+    "generated_at":  "2026-10-29T20:25:23.0373007Z",
+    "unpacked_root":  "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked",
+    "resources_root":  "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources",
     "required_checked":  [
-                             "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\backend\\DataLogic_Backend.exe",
-                             "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\config\\release-trust-policy.json",
-                             "C:\\Users\\kevin\\.codex\\worktrees\\ci-chat-repair-20261026\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\config\\release-channel.json"
+                             "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\backend\\DataLogic_Backend.exe",
+                             "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\config\\release-trust-policy.json",
+                             "C:\\software\\DataLogicEngine\\frontend\\dist\\win-unpacked\\resources\\config\\release-channel.json"
                          ],
     "rego_count":  1,
     "missing":  [

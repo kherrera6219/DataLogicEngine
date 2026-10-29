@@ -1,5 +1,22 @@
 # Changelog
 
+## 4.4.6 local engineering rebuild - 2026-10-29
+
+- Rebuilt an unsigned installer from `94fc938b` with the locked runtime build
+  environment and installed it per-machine. The installer exited 0, registered
+  version 4.4.6 and three key installed files match the built payload. Integrity,
+  packaging resources, NSIS and the 5,032-file installed backend payload check
+  pass. Startup was blocked by automatic approval review; no installed readiness
+  or production acceptance is claimed.
+- The full Windows source suite passed 3,535 tests with 18 skipped in the
+  owner-approved, hash-locked isolated test environment; all 521 frontend tests
+  passed with restored lockfile dependencies. The test-only Chroma package has
+  four unpatched advisories and is excluded from the packaging environment.
+- PR #103 merged the source and documentation; PR #104 merged the isolated
+  test dependency repair. Its post-merge CI/CD (`40947258733`), Deploy
+  (`40947258707`) and Security (`40947258660`) pass. Production/public release
+  remains NO-GO.
+
 ## Unreleased source after 4.4.6 - 2026-10-29
 
 - Verify model-sized knowledge spans against canonical SQL content, source

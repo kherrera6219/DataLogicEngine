@@ -4,10 +4,10 @@
   "status": "approved_phase16_replacement_closed",
   "current_engineering_candidate": {
     "product_version": "4.4.6",
-    "source_commit": "0f0d51d1fea7aadfb1f739c98c1b1565063b880c",
+    "source_commit": "94fc938bcaf76d7689f49790916394e0204be061",
     "installer": "DataLogicEngine Setup 4.4.6.exe",
-    "size_bytes": 350186546,
-    "sha256": "303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e",
+    "size_bytes": 350265586,
+    "sha256": "223726c1e31aa26322430d377965699e7a3492d1a89cff0fcc33fe83931aa549",
     "signature": "unsigned",
     "packaged_payload_check": "pass",
     "portable_smoke": "not_run",

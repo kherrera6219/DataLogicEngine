@@ -22,6 +22,14 @@
 
 **Production/public release: NO-GO.**
 
+The unsigned October 29 engineering build from `94fc938b` was installed
+per-machine and registered as 4.4.6. Integrity, packaging resources, NSIS and
+the 5,032-file installed backend payload checks pass; the desktop executable,
+application bundle and backend executable match the built payload. Startup was
+blocked by automatic approval review. Readiness, signed installed/provider,
+recovery and release acceptance remain open. PR #104's post-merge CI/CD
+(`40947258733`), Deploy (`40947258707`) and Security (`40947258660`) pass.
+
 The October 29 R-3 source checkpoint verifies model-sized ingestion spans
 against canonical SQL authority and supplies approved parent/offset citation
 locations. The Windows source suite passed 3,534 tests, with 19 skipped,
@@ -150,19 +158,24 @@ accepted installed evidence. Different-hash artifacts are separate candidates.
 
 | Item | Current local build record |
 |---|---|
-| Runtime source input | Exact clean commit `0f0d51d1fea7aadfb1f739c98c1b1565063b880c` |
+| Runtime source input | Exact clean commit `94fc938bcaf76d7689f49790916394e0204be061` |
 | Artifact | `DataLogicEngine Setup 4.4.6.exe` |
-| Size | 350,186,546 bytes |
-| SHA-256 | `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e` |
-| Integrity | Packaged-payload, required resources, NSIS policy, and local checksum checks pass |
+| Size | 350,265,586 bytes |
+| SHA-256 | `223726c1e31aa26322430d377965699e7a3492d1a89cff0fcc33fe83931aa549` |
+| Integrity | Packaged-payload, required resources, NSIS policy, and local checksum checks pass; installed backend payload: 5,032 files, zero issues (`reports/r3-installed-payload-20261029.json`) |
 | Packaging governance | Current-candidate installed and release-governance gates remain open |
 | Signature | `NotSigned`; production signing remains unauthorized |
 | Portable smoke | Not run for this artifact |
-| Installed-mode observation | Not installed or provider-tested; earlier Program Files observations belong to a different artifact |
+| Installed-mode observation | Per-machine install exited 0; registration and three key file matches verified. Startup was blocked by automatic approval review; readiness and provider testing not performed |
 | Release use | Engineering build only; not a production artifact and not a substitute for the installed artifact above |
 
-This physical local build includes the owner-approved October 26 dependency
-and chat repair. It is bound to its source commit but unsigned. No live Google or OpenAI
+The earlier October 26 engineering installer, built from `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`,
+was 350,186,546 bytes with SHA-256
+`303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`.
+Its evidence remains historical and does not bind to the new build.
+
+This physical local build includes the owner-approved source repairs through
+`94fc938b`. It is bound to its source commit but unsigned. No live Google or OpenAI
 result for the 4.4.6 models, installed, provider-corpus/human, accessibility,
 recovery, independent-review, pilot, or soak result from an earlier hash is
 attributed to this artifact. The next CP19-M release-candidate run must bind every

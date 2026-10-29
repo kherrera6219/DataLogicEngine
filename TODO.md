@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; PR #101 merged at `ff2a03b0` with CI/CD, Deploy and Security passing. Local R-3 source qualification passed 3,534 Windows tests in an environment not fully matched to the dependency lock; staging is disabled. Installed acceptance, Phase A and CP19-M remain open |
+| Current phase | Phase 19; PR #104 merged at `94fc938b`. Locked Windows source tests passed 3,535 and a new unsigned 4.4.6 engineering build was installed; startup and installed acceptance remain unverified. Staging is disabled; Phase A and CP19-M remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -29,12 +29,21 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
+- [ ] Verify startup and installed readiness of the unsigned 4.4.6 engineering
+      build from `94fc938bcaf76d7689f49790916394e0204be061` (SHA-256
+      `223726c1e31aa26322430d377965699e7a3492d1a89cff0fcc33fe83931aa549`).
+      Installation exited 0, registration reports 4.4.6 and three key installed
+      files match the unpacked payload. Startup was blocked by automatic approval
+      review; provider, UI, lifecycle and recovery acceptance remain open.
+- [x] Verify post-merge CI/CD (`40947258733`), Deploy (`40947258707`) and
+      Security (`40947258660`) at `94fc938b` independently; all pass.
+
 PR #103 merged at `e9e0fc61`; post-merge CI and Deploy exposed a missing
 test-only Chroma package. Kevin approved a separately locked, socket-blocked
 synthetic test environment after disclosure of four unpatched advisories;
 see `HANDOFF.md` and `reports/r3-test-chroma-dependency-audit-20261029.json`.
-The test environment must not be used for packaging. Verify follow-up checks,
-the runtime-only build and installed acceptance independently.
+The test environment must not be used for packaging. PR #104 merged the fix;
+its post-merge CI/CD, Deploy and Security pass. Installed acceptance remains open.
 
 R-3 authority/span incompatibility is reproduced. Kevin approved proceeding with
 the precise-span citation contract in

@@ -6,14 +6,14 @@
     "total_issues": 0
   },
   "results": {
-    "expected_installer": "DataLogicEngine Setup 4.4.3.exe",
-    "source_commit": "171ba1db39a915aacc5a2ca1c108d03d4d9cb15b",
+    "expected_installer": "DataLogicEngine Setup 4.4.6.exe",
+    "source_commit": "94fc938bcaf76d7689f49790916394e0204be061",
     "installers": [
       {
-        "artifact": "DataLogicEngine Setup 4.4.3.exe",
-        "size_bytes": 359111112,
-        "sha256": "a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a",
-        "checksum_file": "DataLogicEngine Setup 4.4.3.exe.sha256",
+        "artifact": "DataLogicEngine Setup 4.4.6.exe",
+        "size_bytes": 350265586,
+        "sha256": "223726c1e31aa26322430d377965699e7a3492d1a89cff0fcc33fe83931aa549",
+        "checksum_file": "DataLogicEngine Setup 4.4.6.exe.sha256",
         "blockmap_present": true,
         "valid": true
       }

@@ -22,15 +22,16 @@
 
 DataLogicEngine 4.4.6 is not approved for production or public installation.
 The current engineering installer is `DataLogicEngine Setup 4.4.6.exe`
-(350,186,546 bytes; SHA-256
-`303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`),
+(350,265,586 bytes; SHA-256
+`223726c1e31aa26322430d377965699e7a3492d1a89cff0fcc33fe83931aa549`),
 built from clean source commit
-`0f0d51d1fea7aadfb1f739c98c1b1565063b880c`. It is unsigned. The
-packaged-payload check passes, but portable, installed-mode, provider-chat,
-upgrade, repair, uninstall, and retained-data acceptance have not been run
-for this exact artifact.
+`94fc938bcaf76d7689f49790916394e0204be061`. It is unsigned. The
+packaged-payload check passes. A per-machine install exited 0, registered
+version 4.4.6, and three key installed files match the built payload. Startup
+was blocked by automatic approval review; readiness, provider-chat, upgrade,
+repair, uninstall, retained-data and installed-mode acceptance remain open.
 
-This artifact includes the owner-approved PR #94 dependency and chat repair.
+The preceding October 26 artifact included the owner-approved PR #94 dependency and chat repair.
 Local and GitHub dependency scans pass without exceptions, and the replacement
 Linux suite passes the previously failing refinement module. Build evidence is
 recorded in `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`; it does not establish

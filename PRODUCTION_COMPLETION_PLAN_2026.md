@@ -19,6 +19,18 @@
 
 ### Current execution checkpoint
 
+The October 29 engineering installer was rebuilt from clean commit
+`94fc938bcaf76d7689f49790916394e0204be061` and installed per-machine. It is
+unsigned, 350,265,586 bytes, with SHA-256
+`223726c1e31aa26322430d377965699e7a3492d1a89cff0fcc33fe83931aa549`.
+Integrity, packaging resources, NSIS and payload checks pass; installation
+exited 0 and three key installed files match the built payload. Startup was
+blocked by automatic approval review, so readiness, provider and installed
+acceptance remain open. Locked Windows source tests passed 3,535 with 18 skipped
+and zero failures/setup/collection errors; the locked frontend suite passed 521.
+The test-only Chroma environment is separate from the runtime build environment.
+This installation is not production/public release authorization.
+
 October 29 R-3 source work verifies model-sized knowledge spans against retained
 SQL authority and carries the approved precise citation locator. Focused checks
 and the final Windows run pass (3,534 passed, 19 skipped, zero failures or

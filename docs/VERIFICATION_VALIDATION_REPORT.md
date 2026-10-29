@@ -20,6 +20,22 @@
 
 ## Purpose
 
+The October 29 lock-synchronized Windows source run passed **3,535 tests,
+18 skipped, 35 warnings, zero failures/setup/collection errors** using a
+separate test environment with both runtime and owner-approved test-only locks.
+The locked frontend suite passed 521 tests. The test-only Chroma audit retains
+four unpatched advisories; the runtime build environment does not contain that
+package. PR #104's post-merge CI/CD (`40947258733`), Deploy (`40947258707`)
+and Security (`40947258660`) all pass.
+
+The unsigned 4.4.6 installer built from `94fc938b` passed integrity, required
+resources, NSIS configuration and packaged-payload checks. Its per-machine
+install exited 0, registered version 4.4.6 and three key installed files match
+the built payload. The installed backend payload check passed 5,032 files with
+zero issues (`reports/r3-installed-payload-20261029.json`). Startup was blocked
+by automatic approval review; no installed readiness, provider, UI or lifecycle
+acceptance is established. Production/public release remains NO-GO.
+
 The October 29 R-3 Windows source run passed **3,534 tests, 19 skipped,
 35 warnings, zero failures/setup/collection errors**, without coverage
 collection (`reports/r3-final-windows-20261029.txt`). Focused tests exercise
