@@ -142,9 +142,18 @@ class LocalSentenceEmbedding:
         overlap_tokens: int | None = None,
     ) -> list[str]:
         """Fit exact source spans to the loaded model's actual input limit."""
+        return [chunk for chunk, _, _ in self.chunk_spans(
+            text, max_tokens=max_tokens, overlap_tokens=overlap_tokens
+        )]
+
+    def chunk_spans(
+        self, text: str, *, max_tokens: int | None = None,
+        overlap_tokens: int | None = None,
+    ) -> list[tuple[str, int, int]]:
+        """Return exact zero-based character spans in the original text."""
         from backend.services.model_text_chunking import (
             ModelChunkingError,
-            model_text_chunks,
+            model_text_spans,
         )
 
         model = self._load()
@@ -162,7 +171,7 @@ class LocalSentenceEmbedding:
                 if overlap_tokens is None
                 else overlap_tokens
             )
-            return model_text_chunks(
+            return model_text_spans(
                 text, model.tokenizer, limit, overlap_tokens=overlap
             )
         except (ModelChunkingError, AttributeError, TypeError, ValueError) as exc:

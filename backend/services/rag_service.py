@@ -193,7 +193,8 @@ class RAGService:
         store = self._get_vector_store()
         if store is None:
             raise RetrievalError("vector_store_unavailable")
-        chunks = self.chunk_text(text)
+        spans = self._embedding_provider.chunk_spans(text, max_tokens=512)
+        chunks = [chunk for chunk, _, _ in spans]
         if not chunks:
             raise RetrievalError("vector_item_text_empty")
         parent_id = str(item_id)
@@ -205,8 +206,17 @@ class RAGService:
                  "dle_embedding_weights":self._embedding_provider.expected_weights_sha256,
                  "dle_embedding_dimensions":self._embedding_provider.dimensions,
                  "dle_chunking_revision":CHUNKING_REVISION}
-        metas = [{**self._metadata_for_chroma(metadata), **proof, "vector_parent_id":parent_id,
-                  "chunk_index":i, "chunk_count":len(chunks)} for i in range(len(chunks))]
+        metas = []
+        for i, (chunk, start, end) in enumerate(spans):
+            meta = {**self._metadata_for_chroma(metadata), **proof,
+                    "vector_parent_id": parent_id,
+                    "vector_chunk_index": i, "vector_chunk_count": len(chunks),
+                    "source_span_start": start, "source_span_end": end,
+                    "source_span_sha256": hashlib.sha256(chunk.encode("utf-8")).hexdigest(),
+                    "source_parent_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()}
+            if not parent_id.startswith("ki_"):
+                meta.update(chunk_index=i, chunk_count=len(chunks))
+            metas.append(meta)
         stored = store.replace_embeddings(collection, parent_id, ids=ids, texts=chunks,
                                           embeddings=vectors, metadata=metas)
         if stored != ids:

@@ -190,9 +190,21 @@ def retrieve_evidence(
             )
             continue
         metadata = {**metadata, **authority_metadata}
+        authority_locator = authority_metadata.get("_authority_locator")
+        if authority_locator:
+            origin = authority_metadata["_authority_source_path"]
+            citation = {
+                **citation,
+                "locator": authority_locator,
+                "source_title": authority_metadata["_authority_title"],
+                "ingestion_id": authority_metadata["_authority_ingestion_id"],
+            }
+            content_hash = authority_metadata["_authority_content_hash"]
         if source_id.startswith("ki_") and request.constraints.get("use_graph_context") is True:
             graph_attempts += 1
-            graph_context, graph_error = _load_graph_context(source_id)
+            graph_context, graph_error = _load_graph_context(
+                authority_locator["parent_source_id"] if authority_locator else source_id
+            )
             if graph_error:
                 graph_failures += 1
                 warnings.append(f"graph_context_unavailable:{source_id}:{graph_error}")
@@ -210,6 +222,11 @@ def retrieve_evidence(
             )
             continue
         bounded_text = text[: min(4_000, remaining_characters)]
+        if authority_locator:
+            citation["locator"] = {
+                **authority_locator,
+                "source_span_end": authority_locator["source_span_start"] + len(bounded_text),
+            }
         permissions = _json_object(metadata.get("permissions"))
         transformation_chain = metadata.get("transformation_chain")
         if not isinstance(transformation_chain, list):
@@ -307,6 +324,8 @@ def _validate_ingestion_authority(
 ) -> tuple[dict[str, Any], str | None]:
     """Fail closed for ingestion vectors unless PostgreSQL confirms eligibility."""
     if not source_id.startswith("ki_"):
+        if str(metadata.get("vector_parent_id") or "").startswith("ki_"):
+            return {}, "source_span_invalid"
         return {}, None
     try:
         from flask import has_app_context
@@ -314,12 +333,25 @@ def _validate_ingestion_authority(
         if not has_app_context():
             return {}, "postgresql_authority_unavailable"
         from extensions import db
-        from models import IngestionChunk, IngestionFile, IngestionJob
+        from models import IngestionChunk, IngestionFile, IngestionJob, KnowledgeGraphNode
 
         vector_revision = str(metadata.get("source_revision") or "").strip()
         if not vector_revision:
             return {}, "source_revision_missing"
-        candidates = IngestionChunk.query.filter_by(node_uid=source_id).all()
+        span_keys = ("source_span_start", "source_span_end", "source_span_sha256",
+                     "source_parent_sha256", "vector_chunk_index", "vector_parent_id")
+        is_span = any(key in metadata for key in span_keys)
+        parent_id = metadata.get("vector_parent_id") if is_span else source_id
+        if is_span:
+            start = metadata.get("source_span_start")
+            end = metadata.get("source_span_end")
+            index = metadata.get("vector_chunk_index")
+            if (not isinstance(parent_id, str) or not parent_id.startswith("ki_")
+                or type(start) is not int or type(end) is not int
+                or type(index) is not int or index < 0 or start < 0 or end <= start
+                or source_id != (parent_id if index == 0 else f"{parent_id}:chunk:{index}")):
+                return {}, "source_span_invalid"
+        candidates = IngestionChunk.query.filter_by(node_uid=parent_id).all()
         for chunk in candidates:
             if chunk.source_revision != vector_revision:
                 continue
@@ -343,7 +375,19 @@ def _validate_ingestion_authority(
                 or not defense.get("safe_for_retrieval")
             ):
                 return {}, "content_defense_not_approved"
-            if sha256(text.encode("utf-8")).hexdigest() != chunk.chunk_sha256:
+            if is_span:
+                node = KnowledgeGraphNode.query.filter_by(uid=parent_id).one_or_none()
+                if node is None or not isinstance(node.content, str):
+                    return {}, "source_parent_unavailable"
+                parent_text = node.content
+                parent_hash = sha256(parent_text.encode("utf-8")).hexdigest()
+                if (parent_hash != chunk.chunk_sha256
+                    or metadata.get("source_parent_sha256") != parent_hash):
+                    return {}, "content_hash_mismatch"
+                if (end > len(parent_text) or parent_text[start:end] != text
+                    or metadata.get("source_span_sha256") != sha256(text.encode("utf-8")).hexdigest()):
+                    return {}, "source_span_mismatch"
+            elif sha256(text.encode("utf-8")).hexdigest() != chunk.chunk_sha256:
                 return {}, "content_hash_mismatch"
             if job.user_id is not None and request.user_id != job.user_id:
                 return {}, "owner_permission_denied"
@@ -355,7 +399,7 @@ def _validate_ingestion_authority(
                 request.metadata.get("_trace_id") or ""
             ) or None
             db.session.flush()
-            return {
+            authority = {
                 "source_revision": chunk.source_revision,
                 "document_uid": source_file.document_uid,
                 "retention_class": "ingested_content",
@@ -364,7 +408,22 @@ def _validate_ingestion_authority(
                     "owner_user_id": job.user_id,
                     "tenant_id": job.tenant_id,
                 },
-            }, None
+            }
+            if is_span:
+                authority["_authority_content_hash"] = chunk.content_sha256
+                authority["_authority_source_path"] = source_file.relative_path
+                authority["_authority_title"] = node.title or node.label or source_file.relative_path
+                authority["_authority_ingestion_id"] = str(job.id)
+                authority["_authority_locator"] = {
+                    "chunk_index": chunk.chunk_index,
+                    "chunk_count": chunk.chunk_count,
+                    "node_id": node.node_id,
+                    "uid": node.uid,
+                    "parent_source_id": parent_id,
+                    "source_span_start": start,
+                    "source_span_end": end,
+                }
+            return authority, None
         return {}, "postgresql_revision_not_eligible"
     except Exception:
         return {}, "postgresql_authority_unavailable"

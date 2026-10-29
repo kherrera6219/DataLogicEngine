@@ -10,6 +10,12 @@ class ModelChunkingError(RuntimeError):
 
 
 def model_text_chunks(text, tokenizer, model_limit, *, overlap_tokens=32):
+    return [chunk for chunk, _, _ in model_text_spans(
+        text, tokenizer, model_limit, overlap_tokens=overlap_tokens
+    )]
+
+
+def model_text_spans(text, tokenizer, model_limit, *, overlap_tokens=32):
     """Reserve required special tokens and use all remaining model capacity."""
     if not isinstance(text, str):
         raise ModelChunkingError("model_chunk_text_invalid")
@@ -55,7 +61,12 @@ def model_text_chunks(text, tokenizer, model_limit, *, overlap_tokens=32):
     while start < len(offsets):
         end = min(start + budget, len(offsets))
         while end > start:
-            chunk = text[offsets[start][0] : offsets[end - 1][1]].strip()
+            span_start, span_end = offsets[start][0], offsets[end - 1][1]
+            while span_start < span_end and text[span_start].isspace():
+                span_start += 1
+            while span_end > span_start and text[span_end - 1].isspace():
+                span_end -= 1
+            chunk = text[span_start:span_end]
             ids = tokenizer(chunk, add_special_tokens=True, truncation=False).get(
                 "input_ids"
             )
@@ -66,7 +77,7 @@ def model_text_chunks(text, tokenizer, model_limit, *, overlap_tokens=32):
             end -= 1
         if end == start:
             raise ModelChunkingError("model_chunk_cannot_fit")
-        chunks.append(chunk)
+        chunks.append((chunk, span_start, span_end))
         if end == len(offsets):
             break
         start = max(start + 1, end - overlap_tokens)
