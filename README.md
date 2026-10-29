@@ -63,6 +63,12 @@ cutover. The active search factory remains hash-based; no customer index has
 been migrated and the source checks do not establish installed acceptance. See
 the [R-3 qualification record](docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md).
 
+An owner-approved isolated test environment includes Chroma 1.5.9 for the
+socket-blocked synthetic family test. Its dependency audit reports four
+unpatched advisories; that environment is separate from the runtime and
+installer build. See the [test dependency audit](reports/r3-test-chroma-dependency-audit-20261029.json)
+and `HANDOFF.md` for its limits and CI status.
+
 The October 28 repair, merged in [PR #101](https://github.com/kherrera6219/DataLogicEngine/pull/101)
 at `ff2a03b0`, adds durable, bounded chat-index retries, deletion
 checks, and retention coordination. The ownership-deletion checkpoint passes

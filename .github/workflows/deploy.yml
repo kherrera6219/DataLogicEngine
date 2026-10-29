@@ -72,7 +72,10 @@ jobs:
 
     - name: Run tests
       run: |
-        python -m pytest tests/ -v --no-cov
+        python -m venv "$RUNNER_TEMP/dle-isolated-tests"
+        "$RUNNER_TEMP/dle-isolated-tests/bin/python" -m pip install --require-hashes -r requirements.lock -r requirements-test-chroma.lock
+        "$RUNNER_TEMP/dle-isolated-tests/bin/python" -m pip check
+        "$RUNNER_TEMP/dle-isolated-tests/bin/python" -m pytest tests/ -v --no-cov
       env:
         PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"
