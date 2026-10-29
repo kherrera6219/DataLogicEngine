@@ -10,6 +10,7 @@ import pytest
 
 from backend.governed_execution.retrieval import retrieve_evidence
 from extensions import db
+from models import KnowledgeGraphNode
 from tests.governed_execution.test_phase9_retrieval_authority import (
     _authority,
     _request,
@@ -22,6 +23,7 @@ def _round_trip(app, tmp_path, monkeypatch, text):
     job, source_file, chunk, item = _authority(app, text)
     chunk.chunk_index = 7
     chunk.chunk_count = 12
+    db.session.add(KnowledgeGraphNode(uid=chunk.node_uid, content=text))
     db.session.commit()
     metadata = {
         **item["metadata"],
@@ -63,6 +65,22 @@ def test_split_model_knowledge_is_not_yet_eligible(app, tmp_path, monkeypatch):
             app, tmp_path, monkeypatch, text
         )
         assert len(store.rows) > 1
+        # Replay the pre-repair model-vector format: it carried neither span
+        # proof nor separate canonical and vector chunk indexes. Keep the
+        # original failure expectations for this unsafe legacy representation.
+        for index, (_, _, metadata) in enumerate(store.rows.values()):
+            for field in (
+                "source_span_start",
+                "source_span_end",
+                "source_span_sha256",
+                "source_parent_sha256",
+                "vector_chunk_index",
+                "vector_chunk_count",
+                "vector_parent_id",
+            ):
+                metadata.pop(field, None)
+            metadata["chunk_index"] = index
+            metadata["chunk_count"] = len(store.rows)
         request = _request()
         evidence, warnings = retrieve_evidence(request, "policy", rag_service=service)
         assert evidence == []
