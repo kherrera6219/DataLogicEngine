@@ -1,0 +1,15 @@
+{
+  "qualification": "profiled_semantic_owner_competition_and_deletion",
+  "synthetic_only": true,
+  "source_documents": 16,
+  "competing_other_owner_vectors": 1000,
+  "held_out_hits": 32,
+  "held_out_queries": 32,
+  "other_owner_leaks": 0,
+  "warm_query_p95_seconds": 0.085446184999455,
+  "target_deleted": 16,
+  "target_remnants": 0,
+  "other_owner_remaining": 1000,
+  "active_factory_changed": false,
+  "corpus_sha256": "bf755478f6b4b2b7872abaf6ea4954d213d5fcd99dc7d71c142eb47dcff31b8d"
+}

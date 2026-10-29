@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.13 |
+| Document version | v1.20.14 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -17,10 +17,10 @@
 | Last reviewed | 2026-10-28 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.5 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; 4.4.6 repair PR #94 and timing PR #96 merged. Main CI/CD, Deploy, and Security pass at `73187a8d`. Installed acceptance and signing/lifecycle/provider CP19-M rows remain open |
+| Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`, with post-merge CI/CD, Deploy and Security passing. Installed acceptance, Phase A and CP19-M remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -28,6 +28,11 @@ This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
+
+Next implementation: R-3 authority/span compatibility, then resumable migration,
+synchronized routing/rollback, full app packaging and installed acceptance.
+The ordered restart and completed approvals are in `HANDOFF.md`. This
+documentation checkpoint adds no migration runtime code.
 
 - [ ] Complete installed acceptance of the owner-approved
       nested-ownership deletion repair. Source `ebf835d2` passes 3,480 Windows
@@ -49,28 +54,31 @@ conditions, and exit gates remain authoritative in the active root plan.
       an earlier full run. Diagnostic assertions preserve the failure details;
       its module, 1,056 governance tests, twenty repetitions and the final full
       suite pass. Do not claim an established root cause or a runtime fix.
-- [ ] Complete the owner-approved synthetic search extension and its
-      access/lifecycle cases. The starting corpus and criteria were approved
-      October 28; the long-document prototype passes its synthetic screen.
-      Candidate details and limitations are in
-      `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
-- [ ] Complete semantic source integration after `feb6ca6c`: model-sized document,
-      chat/knowledge/text families and metric-bound stores are prepared; active
-      routing, synchronized migration/rollback and full app packaging remain
-      open. The default model is still the hash projection. A stopped-data
-      recovery copy was hash-verified locally; restore is not yet tested. The
-      previously omitted `DataLogicEngine Desktop` user-data folder is now
-      included (217 hash-verified files). Read-only managed authority contains
-      three sessions and ten messages; the older SQLite copy has none. Use the
-      managed source for migration, preserving both copies. Read-only Chroma
-      inventory finds ten chat-history records and no records in the other
-      six existing collections; counts alone do not prove source parity.
-- [ ] Finish migration/routing after `feb6ca6c`: model-sized families and
-      profile-bound cosine collections pass 73 focused Windows checks and a
-      disposable real-service probe. The active RAG factory remains hash-based.
-      Rebuild from authoritative sources, qualify derived cache compatibility,
-      and demonstrate interruption, deletion, cutover and rollback before
-      activation. Re-run full regression after this later R-3 source work.
+- [ ] Extend qualification beyond the small approved corpus. Short/long profiled
+      RAG tests pass 32/32 held-out targets, 0/12 unrelated matches and p95
+      0.103/0.091 seconds including HTTP vector search. Another test with 1,000
+      competing other-owner records has zero leaks, 32/32 hits and p95 0.085
+      seconds; deleting 16 target records preserves the other 1,000. Fresh
+      held-out/version-conflict/larger same-owner/installed cases remain open.
+      See `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
+- [ ] First qualify original SQL source identity/hash and citation locators for
+      model-split ingestion spans through governed retrieval. Static review
+      identifies a compatibility concern between original `ki_` authority chunks
+      and model-sized child IDs/text; reproduce before editing and preserve the
+      existing source, owner, revision, object and content-defense checks.
+- [ ] Build bounded, resumable migration, synchronized routing and verified
+      cutover/rollback from retained SQL authority. Profile-bound model-sized
+      families are prepared, but the active factory remains hash-based. Preserve
+      legacy vectors and complete JSON cache behavior; test interruption and
+      deletion during migration. No customer migration has run.
+- [ ] Finish recovery qualification and full application model packaging. Both
+      user-data folders and the stopped data disk are copied/hash-verified.
+      Locked read-only inspection verifies all ten managed chat records against
+      search by text/session/role/owner; the old SQLite copy has no chats. A fresh
+      SQL dump passes isolated PostgreSQL 18 restore (88 tables / 36,062 rows,
+      counts and sorted row digests match). Full multi-store/disk/user-data
+      restore and installed recovery remain unqualified. Private backup contents
+      stay outside the repository; aggregate reports are in `reports/r3-*`.
 - [ ] Qualify the owner-approved session-retention repair in the installed app.
       An isolated real index passed synthetic deletion, preservation and retry
       checks; the full locked-environment Windows suite passed 3,423 tests
@@ -85,10 +93,10 @@ conditions, and exit gates remain authoritative in the active root plan.
       3,410 tests with 19 skipped, all 521 frontend tests passed, and the
       Electron-mode frontend build passed. The later backend source also passes
       the 3,481-test full Windows run; installed verification remains open.
-- [ ] Qualify a search threshold and representative held-out evaluation. A
-      small public-document screen found 10/12 MiniLM top-1 but only 1/12
-      retained at the existing simulated squared-L2 threshold; it is not an
-      approved production-quality or customer-data evaluation.
+- [ ] Complete representative threshold acceptance without treating cosine
+      scores as answer confidence. The approved small corpus passes at cosine
+      0.25; the historical squared-L2 screen is not a compatible threshold or
+      production-quality/customer-data evaluation.
 - [ ] Complete and validate the owner-approved
       `docs/audits/FRONTEND_BACKEND_RETRIEVAL_REPAIR_PLAN_2026-10-26.md`.
       Session/trace scoping, recent-session search, metric display and explicit

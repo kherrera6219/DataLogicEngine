@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.83.5 |
+| Document version | v1.83.6 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -19,6 +19,19 @@
 
 ### Current execution checkpoint
 
+PR #101 merged at `ff2a03b0`; post-merge CI/CD, Deploy and Security pass.
+Windows source verification is 3,481 passed / 19 skipped / zero failures or
+setup/collection errors. The current checkpoint records preparation only.
+Retained SQL/search parity and a separate isolated SQL logical restore pass.
+The profiled synthetic RAG test passes 32/32 held-out queries for short and long
+sources, 0/12 unrelated matches each, p95 0.103/0.091 seconds including local
+HTTP vector search. A separate 1,000-competing-owner test preserves all other
+owner records while deleting the target's 16 records. These are bounded
+synthetic checks, not installed or general-accuracy acceptance. Active routing,
+source-span authority compatibility, recoverable migration and full model app
+packaging remain open; no customer index was migrated. See `HANDOFF.md` for the
+ordered restart and existing owner approvals.
+
 The October 28 owner-approved knowledge-ownership deletion repair passes 3,480
 Windows tests with 19 skipped and zero failures/setup/collection errors at
 `ebf835d2`, plus a disposable native PostgreSQL/Chroma/Neo4j deletion probe.
@@ -28,7 +41,7 @@ scope now includes the actual Electron desktop user-data folder omitted from
 the earlier copy. Read-only inspection identifies managed PostgreSQL as the
 retained-chat source; no customer cleanup or semantic cutover has run.
 
-The October 28 draft review-repair branch adds durable, bounded chat-index
+The October 28 review-repair source merged in PR #101 adds durable, bounded chat-index
 recovery and session-retention coordination. Focused recovery checks pass;
 installed restart/outage recovery remains open. A separate frozen Windows
 MiniLM probe passed with network connections blocked. That probe does not

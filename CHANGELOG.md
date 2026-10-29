@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased source after 4.4.6 - 2026-10-28
+
+- PR #101 (`ff2a03b0`) merges explicit vector-write failure reporting,
+  chat/trace reconnect, bounded durable chat indexing, coordinated retention,
+  nested-owner deletion, stale knowledge-delivery protection and safe deletion
+  retries across SQL/search/graph stores. Full Windows verification passes
+  3,481 tests with 19 skipped and zero failures/setup/collection errors;
+  post-merge CI/CD, Deploy and Security pass.
+- Prepare offline model-sized vector families and separately versioned,
+  model/metric-bound collections. Small real-service retrieval/owner/deletion
+  checks, retained-chat parity and an isolated SQL logical restore pass.
+  The active search factory remains hash-based; migration/activation, complete
+  application model packaging and installed acceptance remain open.
+- Update the README, TODO, release/V&V records and handoff with evidence,
+  existing approvals and ordered restart instructions. No customer cleanup,
+  retained-index migration, version bump or replacement local installer ran.
+  The next major packaged update is planned as 4.4.7. Release remains NO-GO.
+
 ## 4.4.6 engineering candidate - 2026-10-26
 
 - Refreshed the Python and NPM dependency locks; local audits report zero
@@ -96,7 +114,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.13.3 |
+| Document version | v1.13.4 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -104,7 +122,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-26 |
+| Last reviewed | 2026-10-28 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 

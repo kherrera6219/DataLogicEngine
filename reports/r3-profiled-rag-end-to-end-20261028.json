@@ -1,0 +1,37 @@
+{
+  "qualification": "synthetic_profiled_rag_end_to_end",
+  "application_commit": "1da51dbb9068a2e3132642b3e69d75434b151304",
+  "corpus_sha256": "bf755478f6b4b2b7872abaf6ea4954d213d5fcd99dc7d71c142eb47dcff31b8d",
+  "profile_id": "7f0f60b20363b1c52141107147920a33b2999bf64f4380de49a3a7d8b2fbfa7c",
+  "min_score": 0.25,
+  "results": {
+    "short": {
+      "documents": 16,
+      "vector_chunks": 16,
+      "held_out_hits": 32,
+      "held_out_queries": 32,
+      "unrelated_matches": 0,
+      "unrelated_queries": 12,
+      "warm_rag_query_p95_seconds": 0.1028214649988513,
+      "ingest_seconds": 16.087433100001363,
+      "wrong_owner_results": 0,
+      "approved_numeric_gates_pass": true
+    },
+    "long": {
+      "documents": 16,
+      "vector_chunks": 80,
+      "held_out_hits": 32,
+      "held_out_queries": 32,
+      "unrelated_matches": 0,
+      "unrelated_queries": 12,
+      "warm_rag_query_p95_seconds": 0.09116831999926944,
+      "ingest_seconds": 6.183208599999489,
+      "wrong_owner_results": 0,
+      "approved_numeric_gates_pass": true
+    }
+  },
+  "external_connection_attempts": 0,
+  "customer_data_used": false,
+  "active_factory_changed": false,
+  "latency_excludes": "application gateway, UI and provider; includes model encoding, HTTP vector search and RAG result mapping"
+}

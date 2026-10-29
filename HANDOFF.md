@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.13 |
+| Document version | v1.22.14 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -17,14 +17,87 @@
 | Last reviewed | 2026-10-28 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.5 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; 4.4.6 repair PR #94 and test timing PR #96 are merged. At main `73187a8d`, CI/CD, Deploy, and Security pass. Installed acceptance, signing, lifecycle, and retained CP19-M gates remain open. |
+| Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`. Its post-merge CI/CD, Deploy and Security workflows pass. Installed acceptance, signing, lifecycle, Phase A and CP19-M remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
+
+## October 28 stopping checkpoint and restart instructions
+
+PR #101 is merged at `ff2a03b09deb8de790dbc2bd095b1203b472b99d`.
+Post-merge CI/CD (`40748990256`), Deploy (`40748990250`) and Security
+(`40748990346`) pass. The primary checkout `C:\software\DataLogicEngine`
+was fast-forwarded to that commit and matched GitHub main with zero ahead/behind
+commits. This later checkpoint changes documentation/evidence only; no migration
+runtime implementation was begun. At the next chat, fetch and verify the latest
+main and any newer workflow results before coding.
+
+Completed source: explicit retrieval/write failures, chat/trace reconnect,
+bounded durable chat indexing, coordinated session retention, nested-owner
+SQL/search/graph deletion, stale-delivery prevention and deletion retry safety.
+Windows source `00dfebd6` passes 3,481 tests (19 skipped, 35 warnings; zero
+failures/setup/collection errors). Formatting preserves its syntax trees;
+54 focused ownership/ingestion/materialization/documentation checks pass.
+
+Completed preparation: offline model/frozen-probe and token-capacity checks,
+replaceable vector families, metric/model-bound separate collections, synthetic
+RAG quality/latency/owner/deletion checks, retained-chat parity and an isolated
+SQL logical restore. Evidence and limits are in the candidate note below.
+**The active factory is still hash-based. No customer index was migrated,
+no model was activated, and no new local app installer was built.**
+
+Resume R-3 in this order:
+
+1. First reproduce/qualify canonical ingestion authority for model-split `ki_`
+   records through governed retrieval. Static review shows
+   `backend/governed_execution/retrieval.py::_validate_ingestion_authority`
+   matches the vector ID and returned text hash to the original SQL chunk;
+   `RAGService._store_local_item` produces shorter text and `:chunk:N` children.
+   Parent identity, exact source spans/checksums and citation locators need an
+   integrated test before activation. This is a static compatibility concern,
+   not an observed failure in the installed hash-based app. Preserve all owner,
+   source-revision, object-readiness and content-defense checks.
+2. Build a bounded, resumable migration from retained SQL chat and eligible
+   knowledge authority, with source-drift checks, complete-family verification,
+   interruption recovery and preserved legacy collections. Do not clone stale
+   vector text or use the empty SQLite fallback as authority.
+3. Implement synchronized routing/cutover/rollback. Keep structured persona,
+   citation and audit caches compatible; the persona reader needs complete JSON.
+   Preserve the non-reentrant raw index lock; test inherited writer coordination.
+4. Package the model and locked runtime in the full app, qualify fresh held-out
+   and larger-index cases, then run final Windows/frontend/build/audit gates.
+5. Apply the owner's patch-version rule for the next major packaged update
+   (planned 4.4.7), preserve old installers/data, rebuild, install and run installed
+   mission/UI/restart/outage/deletion/upgrade/recovery acceptance.
+
+All existing owner approvals remain applicable: the fast-track, offline MiniLM
+preparation/migration, starting corpus/numeric criteria, ownership-deletion repair,
+retention fix, corrected error-path assertions, metric label and per-run graph
+status. Do not re-request those approvals. New dependencies/destinations/public
+contracts and other genuine human gates still require their specified decisions.
+Phase A, CP19-M, signing and production/public release remain open/NO-GO.
+
+Local resources for the next session:
+
+- Model cache: `C:\Users\kevin\.cache\huggingface\hub\models--sentence-transformers--all-MiniLM-L6-v2\snapshots\1110a243fdf4706b3f48f1d95db1a4f5529b4d41`.
+  Expected weights/manifest hashes are the `WEIGHTS`/`MANIFEST` constants in
+  `scripts/probe_offline_embedding_bundle.py`; do not accept a changed model.
+- The separate frozen probe is under ignored
+  `build/embedding-qualification/dist/DLE_Embedding_Probe`. It is not the app.
+  Root `backend.spec` still excludes the ML libraries; full packaging is open.
+- Private recovery set: `C:\Users\kevin\Documents\DataLogicEngine-recovery\20261028-071116`.
+  It contains the original component inventory, added desktop-user-data inventory,
+  private SQL dump and local preflight results. Only aggregate reports were
+  copied into the repository; never commit the dump, vault or desktop data.
+- The data machine `datalogicengine` is stopped, as before the probes. Verify
+  current process/install inventory before any uninstall. Preserve the older
+  ignored installer outside the worktree before using
+  `frontend/scripts/copy-installer-to-root.ps1`, which removes older ignored
+  setup files from that worktree.
 
 ## Required first read
 
@@ -57,7 +130,7 @@ older `DataLogicEngine` folder. The earlier recovery copy omitted this second
 folder. It now includes an ACL-restricted `desktop-user-data` component under
 the same recovery directory: all 217 files (108,580,368 bytes) match source
 SHA-256 hashes. The separate local inventory records their paths and hashes;
-no private contents were committed. Restore remains untested. Read-only
+no private contents were committed. Full multi-store recovery remains untested. Read-only
 inspection found three sessions and ten messages in the installation-owned
 managed PostgreSQL database, but none in the older desktop SQLite database.
 Neither store contains knowledge nodes or ingestion records at this checkpoint.
@@ -68,7 +141,18 @@ Read-only inventory of the retained Chroma service finds ten chat-history
 records and zero records in the six other existing collections. Its internal
 network and disabled telemetry were checked before start; it and the data
 machine were stopped again after inspection. Counts alone do not establish
-chat-ID/content/permission parity or qualify a migration.
+chat-ID/content/permission parity or qualify a migration. A subsequent locked,
+read-only comparison verifies all ten records by text, session, role and owner
+with zero mismatches (`reports/r3-retained-chat-parity-20261028.json`). A fresh
+SQL logical dump was restored in an isolated PostgreSQL 18 container with no
+network/host ports; all 88 application-table counts and sorted row digests
+(36,062 rows) match. The private dump remains in the restricted recovery folder;
+only aggregate evidence is committed in
+`reports/r3-postgresql-logical-restore-20261028.json`. This does not restore the
+entire disk/user-data/multi-store recovery set. Initial disposable startup used
+the wrong pre-18 data mount; the successful probe uses the PostgreSQL 18 parent
+mount. All disposable containers/networks were removed and the data machine
+returned to stopped. Customer application rows were not modified.
 
 Next implementation notes: the persona cache currently reads one complete JSON
 payload from `search_collection`; blindly splitting that cache into semantic
@@ -91,21 +175,22 @@ full app packaging and installed acceptance remain open. The full 3,433-test
 checkpoint below predates these later R-3 changes; final full regression is
 required after the remaining source work.
 
-October 28 next-source checkpoint: `fa28f99f` adds model-token-bounded document
+Historical October 28 source checkpoint: `fa28f99f` adds model-token-bounded document
 chunking when a local embedding model is explicitly injected into RAG. Its
 32 focused tests pass, and the real offline tokenizer screen retains 32/32
 long-document targets with no input above the 256-token model limit. The
 active factory still selects the hash projection. Remaining R-3 work includes
-long chat/knowledge/text-item handling, versioned collection routing and metric
-validation, deletion-aware migration/cutover/rollback, full application model
-packaging, and installed acceptance. Do not activate a model against old vectors.
+long chat/knowledge/text-item handling and metric binding, subsequently added
+at `feb6ca6c`; active routing, migration/cutover/rollback, full application
+packaging and installed acceptance remain open. Do not activate a model against old vectors.
 
 A restricted local recovery copy was created at
 `C:\Users\kevin\Documents\DataLogicEngine-recovery\20261028-071116` while
 the app and data machine were stopped. All 22 copied files were SHA-256 checked,
 including the data-machine disk and application state. The copy's local
 `inventory.json` records the components; no secrets or backup contents were
-committed. This is copy verification, not a tested restore or installed recovery.
+committed. This verifies the original recovery copy, not full multi-store/installed
+recovery; the later separate SQL logical restore is qualified above.
 
 October 28 verified recovery checkpoint: runtime source `ae4c2978`, with
 diagnostics from `fe870b5c`, passed the full Windows suite: 3,433 passed,

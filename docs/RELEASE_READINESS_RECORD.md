@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.6 |
+| Document version | v1.8.7 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,13 +14,26 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-27 |
+| Last reviewed | 2026-10-28 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
 ## Current decision
 
 **Production/public release: NO-GO.**
+
+The October 28 review-repair source merged in PR #101 at `ff2a03b0`, whose
+post-merge CI/CD, Deploy and Security workflows pass. Windows runtime source
+`00dfebd6` passes 3,481 tests, 19 skipped, with zero failures/setup/collection
+errors; later formatting preserves its syntax trees and 54 focused checks pass.
+This source includes indexing/retention/ownership-deletion repairs and separate
+semantic-index preparation. Small synthetic real-service search checks and an
+isolated retained SQL logical restore pass; full multi-store recovery, live
+index migration/activation, full model packaging and installed acceptance remain
+open. These results do not update the physical 4.4.6 installer recorded below.
+The next major packaged update is planned as 4.4.7 under the owner's version rule;
+no version bump or new local installer ran at this checkpoint. See the current
+handoff and `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`.
 
 The October 26 4.4.6 repair clears the source dependency audits without
 exceptions, passes 3,373 Windows tests (19 skipped; zero test/setup/collection

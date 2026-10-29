@@ -7,7 +7,8 @@ This candidate supports R-3 of the frontend/backend/retrieval repair plan.
 `retrieval_qualification_v1.json` contains sixteen manually authored fictional
 policies, sixteen calibration questions, thirty-two held-out questions, and
 twelve unrelated questions. These are fictional test facts, not application
-capability claims. No retained customer data is read or changed.
+capability claims. These synthetic evaluation runs read or change no retained
+customer data; the separate authorized migration preflight is described below.
 
 The generated record is
 `reports/retrieval-qualification-candidate-20261028.json`. It includes corpus,
@@ -103,3 +104,69 @@ approval of every file collected into the frozen directory. Full application
 bundle inventory, licenses, model inclusion, offline enforcement and installed
 startup still need qualification. No dependency pin or installer spec was
 changed for this probe.
+
+## End-to-end profiled retrieval and ownership checks
+
+At the source tree merged by PR #101 (`ff2a03b0`), a disposable real Chroma
+service and explicitly injected local model test the RAG layer, including model
+encoding, loopback HTTP vector search and result mapping. The active factory is
+unchanged. The threshold remains cosine 0.25; these runs do not tune against
+the held-out questions. They reuse the approved small corpus and its repeated
+long-document extension, rather than adding independent accuracy examples.
+
+| Case | Held-out top-four targets | Unrelated queries matched | Warm query p95 |
+|---|---|---|---|
+| Sixteen short sources / 16 vectors | 32/32 | 0/12 | 0.103 s |
+| Sixteen long sources / 80 vectors | 32/32 | 0/12 | 0.091 s |
+| Sixteen sources plus 1,000 competing other-owner vectors | 32/32 | Not remeasured | 0.085 s |
+
+The first probe reports zero attempted external connections and no results for
+a nonexistent owner. The competition probe adds 1,000 other-owner records with
+the same source texts/vectors: no record leaks into the target owner's results.
+Deleting the target owner removes all 16 target vectors, reports zero remnants,
+and preserves the other 1,000; the other owner's recall still returns results.
+The competition test exercises metadata filtering, not a large same-owner
+knowledge base. Neither result includes the application gateway, UI, provider,
+SQL source-eligibility checks or installed startup. Fresh held-out/version-
+conflict, larger same-owner, migration/rollback and installed cases remain open.
+
+Generated aggregate evidence:
+
+- `reports/r3-profiled-rag-end-to-end-20261028.json`
+- `reports/r3-semantic-owner-competition-20261028.json`
+
+Temporary containers and internal networks were removed and the previously
+stopped data machine was returned to stopped. Customer indexes were untouched.
+
+## Separate retained-data migration preflight
+
+The actual Electron data folder is `DataLogicEngine Desktop`, alongside the
+older `DataLogicEngine` folder. The recovery set was extended with 217 desktop
+files (108,580,368 bytes), all SHA-256 checked, under the restricted local
+recovery directory recorded in `HANDOFF.md`. Private database/configuration/
+secret contents are not committed.
+
+Read-only managed PostgreSQL inspection finds three sessions and ten messages;
+the older SQLite copy has none. Both have zero knowledge/ingestion records.
+Chroma has ten chat-history records and no records in its other six existing
+collections. With runtime ownership held, a rolled-back read-only SQL transaction
+and search comparison find no missing, unmatched or changed text/session/role/
+owner values across those ten records. See
+`reports/r3-retained-chat-parity-20261028.json`.
+
+A fresh custom-format SQL logical backup was restored into a temporary
+PostgreSQL 18 container with no network, no host ports and memory-only data
+storage. All 88 application-table counts and sorted JSON row digests match
+(36,062 rows). The first disposable setup used the wrong pre-18 data mount;
+after inspecting the startup log, the successful setup mounted the parent
+`/var/lib/postgresql` required by the retained PostgreSQL 18 image. The clone was
+removed and the source container/data machine stopped again. Only aggregate
+evidence is committed in `reports/r3-postgresql-logical-restore-20261028.json`;
+the private dump remains in the restricted recovery directory. This qualifies
+that logical SQL backup, not the entire disk/user-data/multi-store recovery set.
+
+No customer cleanup, customer reindex, cutover, model activation, version bump
+or new local application installer ran. Governed source-span/identity and
+citation compatibility must be qualified before migration, as listed first in
+the current handoff. Source gates, permissions and content-defense controls
+must not be weakened to make a derived chunk pass.
