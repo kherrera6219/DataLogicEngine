@@ -76,8 +76,11 @@ jobs:
 
     - name: Run Tests with Python coverage
       run: |
-        python -m pytest tests/ --cov=backend --cov=core --cov-report=json:coverage-python.json
-        python scripts/verify_python_coverage.py --report coverage-python.json --minimum 80
+        python -m venv "$RUNNER_TEMP/dle-isolated-tests"
+        "$RUNNER_TEMP/dle-isolated-tests/bin/python" -m pip install --require-hashes -r requirements.lock -r requirements-test-chroma.lock
+        "$RUNNER_TEMP/dle-isolated-tests/bin/python" -m pip check
+        "$RUNNER_TEMP/dle-isolated-tests/bin/python" -m pytest tests/ --cov=backend --cov=core --cov-report=json:coverage-python.json
+        "$RUNNER_TEMP/dle-isolated-tests/bin/python" scripts/verify_python_coverage.py --report coverage-python.json --minimum 80
       env:
         PYTHONPATH: "."
         DATABASE_URL: "sqlite:///:memory:"

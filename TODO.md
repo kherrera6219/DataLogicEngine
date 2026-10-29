@@ -29,6 +29,13 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## October 27 frontend and retrieval fast-track
 
+PR #103 merged at `e9e0fc61`; post-merge CI and Deploy exposed a missing
+test-only Chroma package. Kevin approved a separately locked, socket-blocked
+synthetic test environment after disclosure of four unpatched advisories;
+see `HANDOFF.md` and `reports/r3-test-chroma-dependency-audit-20261029.json`.
+The test environment must not be used for packaging. Verify follow-up checks,
+the runtime-only build and installed acceptance independently.
+
 R-3 authority/span incompatibility is reproduced. Kevin approved proceeding with
 the precise-span citation contract in
 `docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md` on October 29.

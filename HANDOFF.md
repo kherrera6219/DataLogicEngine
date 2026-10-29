@@ -28,6 +28,18 @@
 
 ## October 29 R-3 source-authority qualification
 
+PR #103 merged at `e9e0fc61e2092d4b428b4832c1c14faec2b54753`. Its
+post-merge CI and Deploy backend suites failed because the embedded-Chroma test
+imports a package absent from the runtime lock. Kevin approved a separate,
+hash-locked test-only Chroma environment, with synthetic data and sockets
+blocked, after disclosure of four unpatched advisories: GHSA-f4j7-r4q5-qw2c,
+GHSA-36p7-vc44-83pf, GHSA-xph7-9rjv-w5fr and GHSA-2wm9-hf6c-p5cr.
+`reports/r3-test-chroma-dependency-audit-20261029.json` records the findings
+without suppressions. Never use that test environment for packaging: the
+PyInstaller spec collects installed Chroma. Runtime dependency audit and
+test-only advisory disposition are distinct. The follow-up CI/Deploy results
+and installed rebuild must be verified independently.
+
 The next-action compatibility concern has now been reproduced at base
 `416cf77b`: model-split knowledge vectors fail governed SQL authority checks,
 and their citation positions overwrite the original ingestion positions.
