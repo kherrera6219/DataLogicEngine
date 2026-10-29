@@ -32,7 +32,16 @@ conditions, and exit gates remain authoritative in the active root plan.
 R-3 authority/span incompatibility is reproduced. Kevin approved proceeding with
 the precise-span citation contract in
 `docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md` on October 29.
-Existing R-3 approvals remain applicable; the runtime repair remains open.
+Existing R-3 approvals remain applicable. SQL-backed span verification and
+focused tests are implemented; installed acceptance remains open. Full Windows
+source validation passed 3,530 tests, 19 skipped and zero errors before the
+staging safety guard; the final source run passed 3,534 tests, 19 skipped and
+zero failures/setup/collection errors.
+
+The staging prototype remains deliberately disabled pending inactive-index
+retention, destination binding, bounded lock work, complete-family inventory,
+global parity, and synchronized cutover/rollback qualification. Disposable
+PostgreSQL staging was unavailable when Docker's Linux engine returned errors.
 
 Next implementation: R-3 authority/span compatibility, then resumable migration,
 synchronized routing/rollback, full app packaging and installed acceptance.

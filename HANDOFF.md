@@ -37,7 +37,19 @@ for the concrete repair proposal and validation record.
 
 Kevin approved proceeding with precise span citations on October 29, including
 `parent_source_id`, `source_span_start`, and `source_span_end`. Existing R-3
-approvals persist. Runtime repair, migration and activation remain pending.
+approvals persist. The SQL-backed span repair is implemented with focused
+tampering, owner, source readiness and citation checks. A full Windows source
+run passed 3,530 tests, 19 skipped, 35 warnings and zero errors before the
+subsequent staging safety guard. The final source run with that guard and the
+independent inventory tests passed 3,534 tests, 19 skipped, 35 warnings and
+zero failures/setup/collection errors. Installed qualification remains open.
+
+An inactive staging prototype and its family verifier are under development.
+Staging is explicitly disabled: retention of staged data, destination identity,
+bounded lock work, complete inventory/parity and cutover need proof first.
+Disposable PostgreSQL/Chroma staging is unverified because the Docker Linux
+engine returned errors. Do not run migration against customer data or activate
+a profile until these gates and the existing recovery requirements are met.
 
 ## October 28 prior stopping checkpoint and restart instructions
 

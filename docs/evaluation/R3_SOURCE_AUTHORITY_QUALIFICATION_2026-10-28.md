@@ -82,3 +82,35 @@ retained in the corresponding `reports/r3-source-authority-*` files.
 
 No customer records, runtime behavior, model activation, installer, dependency declaration,
 or outbound destination was changed.
+
+## October 29 span repair
+
+The runtime now verifies a model span against the canonical SQL knowledge node,
+the SQL chunk checksum and source revision, then enforces existing readiness,
+content-defense, owner and tenant checks. It emits the approved parent/offset
+locator and uses the verified parent for graph lookup. The prior rejection
+behavior is retained as a legacy-vector test. A focused group of 63 tests
+passed; a full Windows run with the repair and prototype passed 3,530 tests,
+19 skipped, 35 warnings, and zero errors
+(`reports/r3-span-repair-windows-20261029.txt`). This is source verification,
+not installed acceptance.
+
+The new SQL staging prototype is disabled pending proof of inactive-collection
+retention/deletion, binding to the managed local destination, bounded lock work,
+complete inventory/parity and synchronized routing and rollback. It has not
+been run against customer records. Disposable PostgreSQL integration could not
+be performed because the Docker Linux engine was unavailable. The SQL-source
+tests and staged-family tests use isolated synthetic data.
+
+The family verifier independently scans collection IDs so that an orphan with
+corrupted parent metadata cannot evade detection. A synthetic ephemeral Chroma
+test covers that case with network connections blocked. The inventory is capped
+at 100,000 IDs and scans the collection for each family, so large-index
+performance remains unqualified. Its consistency assumes all writers honor the
+shared lock. A legacy app factory registers a chat writer whose reachability
+and coordination must be established before cutover.
+
+The final Windows source run, including the disabled staging guard and the
+independent family inventory, passed 3,534 tests with 19 skipped, 35 warnings,
+and zero failures/setup/collection errors. Raw output is
+`reports/r3-final-windows-20261029.txt`.

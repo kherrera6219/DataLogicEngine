@@ -19,6 +19,14 @@
 
 ### Current execution checkpoint
 
+October 29 R-3 source work verifies model-sized knowledge spans against retained
+SQL authority and carries the approved precise citation locator. Focused checks
+and the final Windows run pass (3,534 passed, 19 skipped, zero failures or
+setup/collection errors); installed qualification remains open. The separate
+staging prototype remains disabled pending its deletion, destination, inventory,
+recovery, and coordinated cutover gates. See `HANDOFF.md` and the R-3
+qualification report for limits and follow-up.
+
 PR #101 merged at `ff2a03b0`; post-merge CI/CD, Deploy and Security pass.
 Windows source verification is 3,481 passed / 19 skipped / zero failures or
 setup/collection errors. The current checkpoint records preparation only.
