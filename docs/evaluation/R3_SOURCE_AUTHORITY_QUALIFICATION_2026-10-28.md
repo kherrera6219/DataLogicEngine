@@ -112,5 +112,7 @@ and coordination must be established before cutover.
 
 The final Windows source run, including the disabled staging guard and the
 independent family inventory, passed 3,534 tests with 19 skipped, 35 warnings,
-and zero failures/setup/collection errors. Raw output is
+and zero failures/setup/collection errors. The test environment differed from
+the dependency lock, including Authlib and cryptography, and was not a fully
+lock-synchronized gate. Raw output is
 `reports/r3-final-windows-20261029.txt`.

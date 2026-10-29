@@ -22,14 +22,16 @@
 October 29 R-3 source work verifies model-sized knowledge spans against retained
 SQL authority and carries the approved precise citation locator. Focused checks
 and the final Windows run pass (3,534 passed, 19 skipped, zero failures or
-setup/collection errors); installed qualification remains open. The separate
+setup/collection errors). Its environment differed from the dependency lock,
+including Authlib and cryptography, so it does not establish a fully
+lock-synchronized gate; installed qualification remains open. The separate
 staging prototype remains disabled pending its deletion, destination, inventory,
 recovery, and coordinated cutover gates. See `HANDOFF.md` and the R-3
 qualification report for limits and follow-up.
 
 PR #101 merged at `ff2a03b0`; post-merge CI/CD, Deploy and Security pass.
 Windows source verification is 3,481 passed / 19 skipped / zero failures or
-setup/collection errors. The current checkpoint records preparation only.
+setup/collection errors. That earlier checkpoint recorded preparation only.
 Retained SQL/search parity and a separate isolated SQL logical restore pass.
 The profiled synthetic RAG test passes 32/32 held-out queries for short and long
 sources, 0/12 unrelated matches each, p95 0.103/0.091 seconds including local

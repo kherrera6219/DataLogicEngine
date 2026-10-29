@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.12 |
+| Document version | v1.13.13 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-28 |
+| Last reviewed | 2026-10-29 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -49,6 +49,19 @@ update check, crash-reporting egress, or phone-home.
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
+
+The October 29 R-3 source checkpoint validates model-sized ingestion spans
+against their canonical SQL source and preserves source-specific citation
+locations. The full Windows source suite passed **3,534 tests**, with 19
+skipped, 35 warnings, and zero failures or setup/collection errors. A synthetic
+embedded-Chroma test checked family verification with network connections
+blocked. The test environment differed from the dependency lock in several
+packages, including Authlib and cryptography, so this is not a fully
+lock-synchronized test result. The semantic staging prototype remains disabled pending safe deletion,
+managed-destination verification, bounded work, recovery and coordinated
+cutover. The active search factory remains hash-based; no customer index has
+been migrated and the source checks do not establish installed acceptance. See
+the [R-3 qualification record](docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md).
 
 The October 28 repair, merged in [PR #101](https://github.com/kherrera6219/DataLogicEngine/pull/101)
 at `ff2a03b0`, adds durable, bounded chat-index retries, deletion
@@ -558,7 +571,9 @@ npm --prefix frontend audit --audit-level=high
 ```
 
 Coverage is measured separately for Python and TypeScript; the repository does
-not claim one blended whole-app percentage. The October 27 source checkpoint
+not claim one blended whole-app percentage. The October 29 source run passed
+3,534 Windows tests with 19 skipped, 35 warnings and zero failures or
+setup/collection errors; coverage was not collected for that run. The October 27 source checkpoint
 passed 3,401 Python tests with 19 skipped and zero test/setup/collection
 errors, and 520 frontend tests. The earlier 3,373-test coverage run measures
 `backend/` at **80.45%**, `backend/security/` at **80.67%**,

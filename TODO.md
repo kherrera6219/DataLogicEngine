@@ -20,7 +20,7 @@
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`, with post-merge CI/CD, Deploy and Security passing. Installed acceptance, Phase A and CP19-M remain open |
+| Current phase | Phase 19; PR #101 merged at `ff2a03b0` with CI/CD, Deploy and Security passing. Local R-3 source qualification passed 3,534 Windows tests in an environment not fully matched to the dependency lock; staging is disabled. Installed acceptance, Phase A and CP19-M remain open |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
@@ -36,7 +36,8 @@ Existing R-3 approvals remain applicable. SQL-backed span verification and
 focused tests are implemented; installed acceptance remains open. Full Windows
 source validation passed 3,530 tests, 19 skipped and zero errors before the
 staging safety guard; the final source run passed 3,534 tests, 19 skipped and
-zero failures/setup/collection errors.
+zero failures/setup/collection errors. Its environment differed from the
+dependency lock, including Authlib and cryptography.
 
 The staging prototype remains deliberately disabled pending inactive-index
 retention, destination binding, bounded lock work, complete-family inventory,

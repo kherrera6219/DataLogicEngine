@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.7 |
+| Document version | v1.8.8 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,13 +14,27 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-28 |
+| Last reviewed | 2026-10-29 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
 ## Current decision
 
 **Production/public release: NO-GO.**
+
+The October 29 R-3 source checkpoint verifies model-sized ingestion spans
+against canonical SQL authority and supplies approved parent/offset citation
+locations. The Windows source suite passed 3,534 tests, with 19 skipped,
+35 warnings and zero failures/setup/collection errors. The test environment
+differed from the dependency lock, including Authlib and
+cryptography; this result does not establish a lock-synchronized source gate.
+The separate staging
+prototype is disabled pending inactive-index deletion, managed-destination
+binding, bounded execution, complete inventory and coordinated cutover.
+Neither customer migration nor model activation has run; installed, recovery,
+provider and signing acceptance remain open. These source results do not bind
+to the earlier 4.4.6 installer. See
+`docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md`.
 
 The October 28 review-repair source merged in PR #101 at `ff2a03b0`, whose
 post-merge CI/CD, Deploy and Security workflows pass. Windows runtime source
