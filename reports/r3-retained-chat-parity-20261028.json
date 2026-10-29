@@ -1,0 +1,18 @@
+{
+  "inspection": "retained_chat_source_index_parity",
+  "writes_to_source_or_index": false,
+  "runtime_ownership_lock_held": true,
+  "postgres_transaction": "read_only_repeatable_read_rolled_back",
+  "source_records": 10,
+  "indexed_records": 10,
+  "missing_index_records": 0,
+  "unmatched_index_records": 0,
+  "mismatches": {
+    "text": 0,
+    "session_id": 0,
+    "role": 0,
+    "user_id": 0
+  },
+  "private_content_or_identifiers_exported": false,
+  "migration_or_activation": false
+}

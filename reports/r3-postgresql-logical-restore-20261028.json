@@ -1,0 +1,16 @@
+{
+  "qualification": "isolated_retained_postgresql_logical_restore",
+  "all_application_tables_match": true,
+  "table_count": 88,
+  "row_count": 36062,
+  "comparison": "per-table counts and sorted JSON row digests",
+  "image_id": "646c746f3bfbad9bba5cd22c10a43e0cf5b219adfadab09fabc6432a9e961bc0",
+  "dump_bytes": 1079354,
+  "dump_sha256": "ebc1c5331a7c7494b132dc92a80ded04d1405ebecc92d605eec539e37babed47",
+  "clone_network": "none",
+  "clone_host_ports": 0,
+  "clone_storage": "temporary_memory_filesystem",
+  "source_data_changed": false,
+  "full_multistore_restore_qualified": false,
+  "initial_probe_correction": "PostgreSQL 18 requires parent mount at /var/lib/postgresql"
+}

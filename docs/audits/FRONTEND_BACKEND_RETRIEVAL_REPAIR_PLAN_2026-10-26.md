@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Document ID | DLE-PLAN-REVIEW-2026-10-26 |
-| Document version | v1.1.4 |
+| Document version | v1.1.5 |
 | Product version | 4.4.6 at review |
 | Review baseline | main `f91dd4919c6a5c3265c9fc82bdbb388f15a3b5aa` |
 | Date | 2026-10-26 |
@@ -25,6 +25,28 @@ The focused backend suite passed 34 tests; the frontend suite passed 506 tests.
 These results do not establish search quality or installed acceptance.
 
 ## October 27 progress checkpoint
+
+PR #101 merged at `ff2a03b0`; post-merge CI/CD, Deploy and Security pass.
+The full Windows gate is 3,481 passed, 19 skipped, zero failures/setup/collection
+errors at `00dfebd6`, followed by syntax-preserving formatting and 54 passing
+focused checks. The primary local main checkout was synchronized to GitHub.
+The later handoff checkpoint changes documentation/evidence only.
+
+Additional R-3 preparation now qualifies retained chat/index parity, a separate
+isolated SQL logical restore, short/long profiled RAG latency and a 1,000-record
+competing-owner/deletion scenario. Aggregate evidence is listed in
+`docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md`; private backup
+contents remain outside the repository. These checks do not activate a model,
+migrate retained indexes, qualify full recovery or update the local installer.
+
+Next, reproduce the original SQL chunk identity/hash and citation-locator
+compatibility of model-sized `ki_` child spans through governed retrieval. This
+is a static review concern, not an observed installed-app failure. Preserve the
+existing source/owner/revision/object-readiness/content-defense gates. Then build
+resumable authority-based migration, synchronized routing and rollback, retain
+structured-cache compatibility, package the full model runtime, and perform
+fresh/installed qualification. `HANDOFF.md` provides the ordered restart and
+the already granted approvals; Phase A and CP19-M remain open.
 
 Kevin approved the additional ownership-deletion repair on October 28. Source
 `ebf835d2` resolves nested/JSON ownership and database-confirmed legacy IDs,
@@ -56,7 +78,7 @@ ingestion, materialization and documentation-authority checks pass afterward.
 Migration preflight also corrected the recovery-copy scope: Electron uses
 `DataLogicEngine Desktop`, not only the older `DataLogicEngine` user-data
 folder. The added restricted recovery component has 217 hash-verified files
-(108,580,368 bytes). Restore is untested. A rolled-back read-only transaction
+(108,580,368 bytes). Full multi-store recovery remains untested. A rolled-back read-only transaction
 finds three sessions and ten messages in installation-owned PostgreSQL; the
 older SQLite copy has none. Both have zero knowledge/ingestion records. The
 managed source must drive retained-chat migration; the empty fallback must not
@@ -65,8 +87,10 @@ returned to stopped, and neither source was cleaned up or reindexed.
 Read-only Chroma inventory finds ten chat-history records; all six other
 existing collections are empty. Internal networking and disabled telemetry
 were verified before starting that retained service, and its stopped state
-was restored. Exact source/permission parity and restore still need proof;
-matching counts are not migration acceptance.
+was restored. A later locked comparison confirms text/session/role/owner parity
+for all ten chats, and an isolated SQL logical restore passes; full multi-store
+recovery and actual migration remain unqualified. Aggregate reports are listed
+in the current candidate note.
 
 October 28 final recovery gate: runtime `ae4c2978` and diagnostic test changes
 from `fe870b5c` pass 3,433 Windows tests, 19 skipped, 35 warnings, and zero
@@ -92,7 +116,8 @@ inventoried and audited without adding dependencies: about 745 MiB installed,
 excluding model files, and no known advisories in the candidate audit. A source
 model probe with socket connections blocked loaded 384-dimensional embeddings,
 ranked a relevant passage above an unrelated one, and attempted no connections.
-Frozen packaging is still being qualified; the active app is unchanged.
+The later standalone frozen probe passes; full application model packaging
+remains open and the active factory is unchanged.
 
 October 28 retention checkpoint: Kevin approved fail-closed cross-store session
 cleanup. Source verifies chat-index deletion before transcript deletion and
@@ -230,8 +255,8 @@ remain open.
 | New Chat can retain another run's trace | Chat panel scoped to the selected run; fresh-draft and saved-run tests pass | Installed live streaming, saved history and trace isolation |
 | Truth Engine shows unavailable confidence as zero and labels recent runs active | Unmeasured/error/zero are distinguished and metric labeled **Average Run Confidence**, approved by Kevin; targeted tests pass | Installed display and accessibility |
 | Recent-session search does not filter | Title filter and no-match state added; targeted tests pass | Installed keyboard and session-selection checks |
-| Default hash projection does not provide semantic search | Offline MiniLM screened and test-only separate-index preparation implemented; active app is unchanged | Packaged model, broader evaluation, live-data migration, lifecycle and safe cutover |
-| Vector query failure looks like an empty search | Typed failure, existing warning path and trace narrative added; backend suite passes | Installed outage/recovery and final exact-source suite |
+| Default hash projection does not provide semantic search | Model-sized families and profile-bound collections prepared; small real-service quality/latency/ownership checks pass; active factory unchanged | Packaged model, broader evaluation, live-data migration, lifecycle and safe cutover |
+| Vector query failure looks like an empty search | Typed failure, existing warning path and trace narrative added; backend suite passes | Installed outage/recovery and regression after future runtime changes |
 | Failed chat index writes can appear successful | Write acknowledgment, backend status and current-answer warning added; targeted tests pass | Durable bounded retry/reconciliation, deletion safety, and installed verification |
 | Active-session results crowd out earlier chat recall | Owner/session filter applied before limit; focused tests and isolated Chroma synthetic check pass | Installed retained-data and authorization coverage |
 | Graph use and limitations are unclear | Conditions explained in chat; per-run status narrative added with Kevin's approval and focused tests | Installed graph-enabled, disabled, missing-source and outage checks |

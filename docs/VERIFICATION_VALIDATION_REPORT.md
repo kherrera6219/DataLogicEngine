@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.6 |
+| Document version | v1.8.7 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,11 +14,30 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-27 |
+| Last reviewed | 2026-10-28 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
 ## Purpose
+
+The October 28 PR #101 checkpoint merged at `ff2a03b0`, with post-merge CI/CD,
+Deploy and Security passing. The full Windows run at runtime `00dfebd6` reports
+**3,481 passed, 19 skipped, 35 warnings, zero failures/setup/collection errors**;
+no coverage was collected for that local run. Syntax-preserving formatting and
+54 focused ownership/ingestion/materialization/documentation checks pass later.
+Raw output and syntax comparison are `reports/owner-deletion-final-windows-20261028.txt`
+and `reports/owner-deletion-format-check-20261028.json`. Frontend verification at
+`e25170a9` passed 521 tests and the Electron-mode build; PR #101 and main also
+pass their independent frontend/packaging gates. No installed acceptance is
+inferred from those source/CI results.
+
+Additional bounded qualification covers profiled short/long RAG queries,
+competing-owner filtering/deletion, retained chat/index parity and an isolated
+SQL logical restore. Aggregate evidence is `reports/r3-*20261028.json`, with
+methods and limitations in the current retrieval candidate note. These checks
+do not qualify general search accuracy, full multi-store recovery, live index
+migration, model activation, a new full-app installer or installed provider/UI
+behavior. Phase A and CP19-M remain open; production/public release is NO-GO.
 
 The October 26 owner-approved 4.4.6 repair passes the full Windows coverage
 suite: **3,373 passed, 19 skipped**, zero test/setup/collection errors. The

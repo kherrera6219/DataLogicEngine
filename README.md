@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.11 |
+| Document version | v1.13.12 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -50,16 +50,21 @@ update check, crash-reporting egress, or phone-home.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
-The October 28 draft repair adds durable, bounded chat-index retries, deletion
+The October 28 repair, merged in [PR #101](https://github.com/kherrera6219/DataLogicEngine/pull/101)
+at `ff2a03b0`, adds durable, bounded chat-index retries, deletion
 checks, and retention coordination. The ownership-deletion checkpoint passes
 3,481 Windows tests (19 skipped; zero failures or setup/collection errors),
 including retry protection that preserves canonical records when another
 store fails deletion. A separate disposable native PostgreSQL/Chroma/Neo4j
-probe verifies ownership-based deletion and preservation of another owner. Installed recovery and
+probe verifies ownership-based deletion and preservation of another owner.
+Installed recovery and
 lifecycle acceptance remain open. A separate frozen Windows MiniLM
 probe passed with network connections blocked, but the app's search model and
 installer have not been changed. The starting search corpus and acceptance
-criteria are owner-approved; the broader qualification remains in progress.
+criteria are owner-approved; small profiled tests now include local database
+query time and competing-owner deletion. The broader qualification, recoverable
+migration and full app packaging remain open. Post-merge CI/CD, Deploy and
+Security pass at `ff2a03b0`; later documentation commits have their own checks.
 
 The October 27 frontend and retrieval review repairs are in progress. Source
 changes address chat-session and trace isolation, session search, confidence
