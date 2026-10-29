@@ -438,4 +438,4 @@ Tests use Vitest + Testing Library. Storybook runs on port 6006 with a11y and in
 
 ## License
 
-PolyForm Noncommercial License 1.0.0. See the root [LICENSE](../LICENSE).
+The project-owned frontend source is licensed under the **MIT License**. See the root [LICENSE](../LICENSE) and [licensing details](../COMMERCIAL_LICENSE.md). Third-party components retain their own licenses. This does not change the application's `release_blocked` installer/distribution status.
