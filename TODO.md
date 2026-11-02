@@ -29,10 +29,12 @@ conditions, and exit gates remain authoritative in the active root plan.
 
 ## November 1 review-repair checkpoint
 
-- [ ] Disposition the newly reported GitHub dependency advisories: seven high
-      `pypdf` alerts affecting locked 6.21.2 and moderate `langgraph` and
-      `minimatch` alerts. Obtain the required owner decision for new security
-      findings; verify affected frontend versions before changing dependencies.
+- [ ] Verify updated dependency-lock checks on GitHub. Python runtime audit and
+      the frontend production audit pass locally; 38 moderate frontend
+      build/lint findings remain for `minimatch` and `glob`. Preserve the
+      isolated test-only Chroma boundary and its disclosed advisory status.
+      The first new-lock Windows run had one unexplained failure; the test
+      passed alone and the full retry passed 3,535 tests with 18 skipped.
 - [ ] Verify draft PR #108 hosted checks and arrange the required Windows
       branch-protection check. CR-A0, the CR-A1 premise check, strict CR-A2
       local Windows suite and CR-A3 targeted tests passed; Phase A remains open.

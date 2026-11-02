@@ -26,7 +26,38 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
-## November 1 review-repair checkpoint
+## November 2 dependency-repair checkpoint
+
+Kevin approved investigating and fixing the newly reported dependency
+advisories. `requirements.txt` and its hash lock now select `pypdf==6.21.4`,
+`langgraph==1.2.14`, and `pyasn1==0.6.5`; the frontend lock selects
+`joi==18.3.1`. The runtime-only Python lock audit reports no known
+vulnerabilities. The frontend production-only audit reports zero findings;
+the full frontend audit reports 38 moderate transitive build/lint findings
+associated with `minimatch` and `glob`, with zero high/critical findings.
+Their upstream fixes require newer major versions that existing build tools do
+not declare compatible; no blanket override or suppression was introduced.
+The separately locked Chroma test environment still reports its four previously
+disclosed unpatched advisories and is never used for packaging.
+
+The first full Windows run in the new isolated test environment had one
+`L4_PERSONA_CONTEXT_FAILURE` instead of the expected trace-persistence failure
+(3,534 passed, 18 skipped); the test passed alone. A full retry without the
+concurrent frontend install/tests passed 3,535 tests with 18 skipped and zero
+errors. The first failure's cause is not established. Frontend lint,
+typecheck, 521 tests, dependency-tree validation and production build passed.
+Raw before/after audits and Windows outputs are in `reports/` with prefix
+`security-dependency-`. These are source/build checks, not installed acceptance.
+
+The Windows backend and packaging smoke jobs passed on PR #108's preceding
+commit; its old Python and NPM security jobs failed before these lock updates.
+New hosted results must be checked against the updated commit. The active
+repository ruleset has no required status checks; do not treat Phase A as
+formally dispositioned until its required owner-controlled protection is set.
+The audit, metric and semantic migration repairs, retained-data recovery point,
+rebuild, reinstall and installed acceptance remain open.
+
+## November 1 review-repair checkpoint (superseded in part)
 
 Draft PR #108 (`remediation/phase-a`) contains the CR-A0 Windows baseline,
 the CR-A2 Windows CI job, and the CR-A3 security-test disposition. Baseline
@@ -45,8 +76,8 @@ the remediation plan: seven high-severity `pypdf` alerts affecting locked
 6.21.2 (patched versions 6.21.3/6.21.4), and moderate alerts for locked
 `langgraph` 1.2.4 (patched 1.2.14) and `minimatch` in the frontend lock.
 Verify exact affected frontend versions and exposure before changing locks.
-The repository's new-security-finding stop requires Kevin's decision before
-remediation. Do not conflate GitHub alerts with an executed runtime audit.
+Kevin subsequently approved remediation; see the November 2 checkpoint above.
+Do not conflate GitHub alerts with an executed runtime audit.
 
 The review's L2 score, hash-based retrieval, and audit-chain restart defects
 remain unfixed. The active semantic migration remains disabled pending its

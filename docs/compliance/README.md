@@ -26,8 +26,9 @@ An independent code review on August 16, 2026 reported three things that matter:
 **2026-11-01 checkpoint:** Draft PR #108 records CR-A0 and CR-A3 evidence and
 adds the CR-A2 Windows CI job. The local baseline and strict Windows suite each
 passed 3,535 tests with 18 skipped and zero errors. Hosted checks and required
-branch protection remain unverified; Phase A is still open. New GitHub
-dependency alerts require the owner decision recorded in `HANDOFF.md`.
+branch protection remain unverified; Phase A is still open. Kevin approved the
+new dependency repair; updated audit results and remaining moderate build-tool
+findings are recorded in `HANDOFF.md`.
 
 **2026-10-26 checkpoint:** The owner-approved 4.4.6 repair removed the NLTK
 dependency path; replacement Python/NPM audits and the affected Linux
