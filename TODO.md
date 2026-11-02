@@ -27,6 +27,23 @@
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
+## November 1 review-repair checkpoint
+
+- [ ] Disposition the newly reported GitHub dependency advisories: seven high
+      `pypdf` alerts affecting locked 6.21.2 and moderate `langgraph` and
+      `minimatch` alerts. Obtain the required owner decision for new security
+      findings; verify affected frontend versions before changing dependencies.
+- [ ] Verify draft PR #108 hosted checks and arrange the required Windows
+      branch-protection check. CR-A0, the CR-A1 premise check, strict CR-A2
+      local Windows suite and CR-A3 targeted tests passed; Phase A remains open.
+- [ ] Repair the reviewed vector distance scoring, complete the safe SQL-backed
+      semantic migration and activation, and repair audit-chain restart/read
+      verification. Preserve the migration staging guard until its lifecycle
+      and cutover prerequisites are proven.
+- [ ] Complete documentation, source and installed validation, then rebuild and
+      reinstall only after a current recovery point is verified. The previous
+      4.4.6 installer is preserved in the private recovery set. See `HANDOFF.md`.
+
 ## October 27 frontend and retrieval fast-track
 
 PR #103 merged at `e9e0fc61`; post-merge CI and Deploy exposed a missing

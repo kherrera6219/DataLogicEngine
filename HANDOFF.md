@@ -26,6 +26,38 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
+## November 1 review-repair checkpoint
+
+Draft PR #108 (`remediation/phase-a`) contains the CR-A0 Windows baseline,
+the CR-A2 Windows CI job, and the CR-A3 security-test disposition. Baseline
+source `a64603a9` passed 3,535 tests with 18 skipped and zero errors; the
+historical CR-A1 lock failure did not reproduce in a second full run. The
+strict CR-A2 Windows run also passed 3,535 tests with 18 skipped and zero
+errors; individual CR-A3 groups and its 27-test combined gate passed. See
+`reports/remediation/BASELINE.md` and `reports/remediation/A3_TRIAGE.md`.
+These runs used the separately approved test-only Chroma environment, never
+the packaging environment. Repository-wide Ruff reports 61 errors and the
+isolated mypy 1.18.2 check reports 986 diagnostics. The hosted PR checks and
+required branch-protection setting are not yet verified; Phase A remains open.
+
+GitHub reported new open Dependabot advisories not previously dispositioned in
+the remediation plan: seven high-severity `pypdf` alerts affecting locked
+6.21.2 (patched versions 6.21.3/6.21.4), and moderate alerts for locked
+`langgraph` 1.2.4 (patched 1.2.14) and `minimatch` in the frontend lock.
+Verify exact affected frontend versions and exposure before changing locks.
+The repository's new-security-finding stop requires Kevin's decision before
+remediation. Do not conflate GitHub alerts with an executed runtime audit.
+
+The review's L2 score, hash-based retrieval, and audit-chain restart defects
+remain unfixed. The active semantic migration remains disabled pending its
+documented safety gates. The installed app has not been uninstalled or rebuilt.
+On November 1 the Podman machine was running; Chroma and object-store containers
+were up while PostgreSQL, Neo4j and Redis were stopped. Re-inventory and create
+a verified current recovery point before replacement. The existing 4.4.6
+installer was preserved in the private recovery directory with SHA-256
+`329ec796c0f66aaa8df21bef5f3a402d99de60229a55c051955bf22be4ffadb5`.
+Installed acceptance, signing, Phase A and production release remain NO-GO.
+
 ## October 29 R-3 source-authority qualification
 
 PR #103 merged at `e9e0fc61e2092d4b428b4832c1c14faec2b54753`. Its

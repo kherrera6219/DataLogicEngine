@@ -23,6 +23,12 @@ Generated evidence goes in `/reports/remediation/`, never here. This directory i
 
 An independent code review on August 16, 2026 reported three things that matter: 40 security tests erroring at setup on its Windows baseline; a confidence score gated at 0.995 that is a weighted average of pass-rate fractions with a `0.5` fallback on exception and no calibration behind it; and 1,444 lines of "live pipeline engine" whose core imports failed. The setup-error count is historical: the 2026-08-27 4.4.3 qualification completed 3,317 Windows tests with 19 skipped and zero failures or setup errors, so CR-A0 must capture a fresh commit-bound baseline before CR-A1 is treated as open work. Deploy, Security, and CI/CD workflows passed at the older documentation/evidence commit `43fd86df...`; that result is historical, not the current source checkpoint, and it did not disposition the human gate. A compliance blueprint written the next day established that DataLogicEngine is installed software rather than SaaS — which removes FedRAMP, SOC 2, HITRUST, and multi-tenancy obligations entirely, and makes product-manufacturer duties (supply chain, signing, egress proof, honest documentation) the whole game. A market decision on August 18 excluded the EU, removing the Cyber Resilience Act, EU AI Act, GDPR, NIS2, and DORA. What remains is a verification-first 44-task program whose common purpose is making the system's claims about itself as strong as the claims it makes about everything else.
 
+**2026-11-01 checkpoint:** Draft PR #108 records CR-A0 and CR-A3 evidence and
+adds the CR-A2 Windows CI job. The local baseline and strict Windows suite each
+passed 3,535 tests with 18 skipped and zero errors. Hosted checks and required
+branch protection remain unverified; Phase A is still open. New GitHub
+dependency alerts require the owner decision recorded in `HANDOFF.md`.
+
 **2026-10-26 checkpoint:** The owner-approved 4.4.6 repair removed the NLTK
 dependency path; replacement Python/NPM audits and the affected Linux
 refinement module pass. The test timing correction is merged in PR #96. This
