@@ -12,6 +12,7 @@ dependencies = []
 asyncio_default_fixture_loop_scope = "function"
 asyncio_mode = "auto"
 filterwarnings = [
+    "error::pytest.PytestUnraisableExceptionWarning",
     "ignore::DeprecationWarning:pytest_asyncio.*:",
     "ignore:websockets\\.legacy is deprecated.*:DeprecationWarning:websockets\\.legacy:",
     "ignore:datetime\\.datetime\\.utcnow\\(\\) is deprecated.*:DeprecationWarning:flask_login\\.login_manager:",
