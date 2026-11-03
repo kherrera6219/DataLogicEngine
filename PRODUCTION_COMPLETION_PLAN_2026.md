@@ -19,6 +19,14 @@
 
 ### Current execution checkpoint
 
+November 2 review-repair work stopped at the repository's three-failure gate.
+Dependency and Windows CI updates passed hosted checks on draft PR #108 at
+`330b849c`; the proposed metric repair was reverted and its patch/logs preserved
+after three full Windows gate failures. The repeated gateway failure's cause is
+unresolved. Windows required-status protection, semantic migration, audit-chain
+repair and installed rebuild/acceptance remain open. See `HANDOFF.md` and
+`TODO.md`; this does not change the production/public release NO-GO decision.
+
 October 29 R-3 source work verifies model-sized knowledge spans against retained
 SQL authority and carries the approved precise citation locator. Focused checks
 and the final Windows run pass (3,534 passed, 19 skipped, zero failures or

@@ -26,6 +26,39 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
+## November 2 metric-repair stop and handoff
+
+The owner approved proceeding with the new dependency advisories and the
+remaining review repairs. PR #108 (`remediation/phase-a`) reached commit
+`330b849c`: all hosted checks passed, including Windows backend, Linux backend,
+Windows packaging smoke and Python/NPM security scans. It remains an open draft,
+not merged to `main`. Its local Windows dependency-lock retry passed 3,535 tests
+with 18 skipped; the earlier unexplained persona-context failure is retained in
+the evidence below. The active `UKG branch Rules` ruleset has no required status
+checks, so the owner-controlled Windows branch-protection step remains open.
+
+An L2/cosine scoring repair was attempted on a separate branch. Synthetic
+metric tests and the related retrieval/transport group passed, but the full
+Windows gate failed three times across the work: first due to the new test's
+conflicting embedded-Chroma settings, then twice in
+`test_gateway_persists_full_governed_trace_when_legacy_bypass_is_requested`.
+An intermediate full run passed 3,547 tests with 18 skipped; the repeated
+gateway test passed alone and in its integration file. The root cause of the
+full-suite gateway failures is not established. Per `AGENTS.md`, work stopped
+and the metric source/test changes were reverted to the last green commit
+`330b849c`; no metric repair is included in PR #108. The exact candidate patch,
+new test and raw logs are preserved privately under
+`C:\Users\kevin\Documents\DataLogicEngine-recovery\20261028-071116\metric-repair-stopped-20261102`.
+Further metric-gate attempts require owner direction after this stop.
+
+The semantic migration/activation and audit-chain repair remain unimplemented.
+The full frontend audit still reports 38 moderate build/lint findings for
+`minimatch`/`glob`; the runtime-only audit is clean. Repository-wide Ruff and
+mypy debt remain as recorded below. The application has not been uninstalled,
+rebuilt or reinstalled; the previous installer is preserved. Re-inventory live
+services and obtain a verified current recovery point before replacement.
+Installed acceptance, Phase A protection, signing and release remain open/NO-GO.
+
 ## November 2 dependency-repair checkpoint
 
 Kevin approved investigating and fixing the newly reported dependency

@@ -27,9 +27,23 @@
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
+## November 2 metric-repair stop
+
+- [ ] Follow the `AGENTS.md` three-failure stop: source was restored to green
+      `330b849c`. Investigate the repeated full-suite gateway failure using the
+      preserved patch/logs referenced by `HANDOFF.md` before further metric
+      gate attempts; do not weaken the test or bypass the stop.
+- [ ] Complete the L2/cosine scoring repair, SQL-authority semantic migration,
+      audit-chain repair, documentation, and installed rebuild/acceptance. No
+      metric code was committed or installed at this checkpoint.
+- [ ] Have the owner configure the required Windows status check. PR #108's
+      checks passed at `330b849c`, but the active ruleset has no required checks
+      and the PR is still a draft. Preserve the distinction from release proof.
+
 ## November 1 review-repair checkpoint
 
-- [ ] Verify updated dependency-lock checks on GitHub. Python runtime audit and
+- [ ] Reverify GitHub checks for the final PR commit; they passed at `330b849c`.
+      Python runtime audit and
       the frontend production audit pass locally; 38 moderate frontend
       build/lint findings remain for `minimatch` and `glob`. Preserve the
       isolated test-only Chroma boundary and its disclosed advisory status.

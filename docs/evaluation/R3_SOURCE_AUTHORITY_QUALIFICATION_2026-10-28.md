@@ -1,5 +1,12 @@
 # R-3 model-split ingestion authority qualification
 
+**November 2 review-repair stop:** A proposed metric-aware L2/cosine scoring
+change was reverted to source commit `330b849c` after three full Windows gate
+failures, including two occurrences of the same gateway integration failure.
+The candidate patch and raw logs are preserved in the private recovery
+directory identified in `HANDOFF.md`. The cause is unconfirmed; the metric
+fix and the guarded semantic migration/activation are not implemented.
+
 Base: `416cf77b3a79429004e5c16a9c667ba15cc3c43f`, Windows, October 28, 2026.
 
 ## Observed result
