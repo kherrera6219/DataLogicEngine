@@ -29,8 +29,9 @@ The trace explorer requests recorded stages for the selected run.
 On November 4, the isolated Windows backend suite passed 3,546 tests with 19
 skipped, 35 warnings, and zero failures or setup/collection errors. The final
 frontend suite passed 533 tests, and frontend lint and type checking passed.
-The exact final commit, installer build, coordinated backup and
-installed acceptance must be recorded separately when complete. Repository-wide Ruff
+An unsigned engineering installer from clean commit `245658b6` passes checksum,
+frozen-payload and NSIS checks; its packaged UI contains the new feature markers.
+Coordinated backup and installed acceptance remain open. Repository-wide Ruff
 lint currently reports pre-existing errors outside the changed files, Ruff
 format reports pre-existing formatting differences, and the active Python
 environment does not contain mypy. These are not passing quality gates.

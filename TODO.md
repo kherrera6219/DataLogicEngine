@@ -39,9 +39,11 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Isolate the DMRF test tracking path by default. A Windows suite run
   appended test records to the installed application's tracking log; the
   current workaround sets `MLFLOW_TRACKING_URI` to a temporary directory.
-- [ ] Create and verify a coordinated retained-data backup, build the exact
-  approved commit, and complete replacement-install and live-provider acceptance.
-  Do not mark the earlier semantic retrieval repair or the release gate complete.
+- [ ] Create and verify a coordinated retained-data backup and complete
+  replacement-install and live-provider acceptance. An unsigned engineering
+  installer from clean commit `245658b6` passes payload and checksum checks;
+  it has not been installed. Do not mark the earlier semantic retrieval repair
+  or the release gate complete.
 
 ## November 2 metric-repair stop
 

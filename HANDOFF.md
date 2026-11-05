@@ -29,8 +29,9 @@
 ## November 2 chat provider and presentation work in progress
 
 November 4: PR #108 merged to `main` at
-`b69577c68f70761538ce6fde6812ac456c5650eb`; post-merge workflows are running
-and must be checked separately. The required Windows status protection remains
+`b69577c68f70761538ce6fde6812ac456c5650eb`; its Security Scan and Cosign
+job passed. CI/CD and Deploy were running when this checkpoint was recorded;
+check their final results independently. The required Windows status protection remains
 an owner-controlled open item. Earlier statements that PR #108 was a draft are
 historical descriptions of the November 2 checkpoint.
 
@@ -55,6 +56,13 @@ The isolated Windows backend suite then passed 3,546 tests, 19 skipped and 35
 warnings with zero failures or setup/collection errors. The final frontend suite
 passed 533 tests, and frontend lint and type checking passed. Installed
 qualification remains separate.
+
+The unsigned engineering installer rebuilt from clean source commit
+`245658b62ff7f2c094e8b1289bd75cb4630a1642` has SHA-256
+`efc1d04c3ccdffb5dc2fdd4f2d631491fe1902b398953b68138e42267e841190`;
+checksum, frozen-payload and NSIS checks pass.
+The packaged UI contains the new provider/fallback markers. This does not
+establish installation, startup, live-provider or retained-data acceptance.
 
 ## November 2 metric-repair stop and handoff
 
