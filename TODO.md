@@ -27,6 +27,39 @@
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
+## November 2 metric-repair stop
+
+- [ ] Follow the `AGENTS.md` three-failure stop: source was restored to green
+      `330b849c`. Investigate the repeated full-suite gateway failure using the
+      preserved patch/logs referenced by `HANDOFF.md` before further metric
+      gate attempts; do not weaken the test or bypass the stop.
+- [ ] Complete the L2/cosine scoring repair, SQL-authority semantic migration,
+      audit-chain repair, documentation, and installed rebuild/acceptance. No
+      metric code was committed or installed at this checkpoint.
+- [ ] Have the owner configure the required Windows status check. PR #108's
+      checks passed at `330b849c`, but the active ruleset has no required checks
+      and the PR is still a draft. Preserve the distinction from release proof.
+
+## November 1 review-repair checkpoint
+
+- [ ] Reverify GitHub checks for the final PR commit; they passed at `330b849c`.
+      Python runtime audit and
+      the frontend production audit pass locally; 38 moderate frontend
+      build/lint findings remain for `minimatch` and `glob`. Preserve the
+      isolated test-only Chroma boundary and its disclosed advisory status.
+      The first new-lock Windows run had one unexplained failure; the test
+      passed alone and the full retry passed 3,535 tests with 18 skipped.
+- [ ] Verify draft PR #108 hosted checks and arrange the required Windows
+      branch-protection check. CR-A0, the CR-A1 premise check, strict CR-A2
+      local Windows suite and CR-A3 targeted tests passed; Phase A remains open.
+- [ ] Repair the reviewed vector distance scoring, complete the safe SQL-backed
+      semantic migration and activation, and repair audit-chain restart/read
+      verification. Preserve the migration staging guard until its lifecycle
+      and cutover prerequisites are proven.
+- [ ] Complete documentation, source and installed validation, then rebuild and
+      reinstall only after a current recovery point is verified. The previous
+      4.4.6 installer is preserved in the private recovery set. See `HANDOFF.md`.
+
 ## October 27 frontend and retrieval fast-track
 
 PR #103 merged at `e9e0fc61`; post-merge CI and Deploy exposed a missing

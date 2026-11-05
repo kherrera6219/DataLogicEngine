@@ -26,6 +26,102 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
+## November 2 metric-repair stop and handoff
+
+The owner approved proceeding with the new dependency advisories and the
+remaining review repairs. PR #108 (`remediation/phase-a`) reached commit
+`330b849c`: all hosted checks passed, including Windows backend, Linux backend,
+Windows packaging smoke and Python/NPM security scans. It remains an open draft,
+not merged to `main`. Its local Windows dependency-lock retry passed 3,535 tests
+with 18 skipped; the earlier unexplained persona-context failure is retained in
+the evidence below. The active `UKG branch Rules` ruleset has no required status
+checks, so the owner-controlled Windows branch-protection step remains open.
+
+An L2/cosine scoring repair was attempted on a separate branch. Synthetic
+metric tests and the related retrieval/transport group passed, but the full
+Windows gate failed three times across the work: first due to the new test's
+conflicting embedded-Chroma settings, then twice in
+`test_gateway_persists_full_governed_trace_when_legacy_bypass_is_requested`.
+An intermediate full run passed 3,547 tests with 18 skipped; the repeated
+gateway test passed alone and in its integration file. The root cause of the
+full-suite gateway failures is not established. Per `AGENTS.md`, work stopped
+and the metric source/test changes were reverted to the last green commit
+`330b849c`; no metric repair is included in PR #108. The exact candidate patch,
+new test and raw logs are preserved privately under
+`C:\Users\kevin\Documents\DataLogicEngine-recovery\20261028-071116\metric-repair-stopped-20261102`.
+Further metric-gate attempts require owner direction after this stop.
+
+The semantic migration/activation and audit-chain repair remain unimplemented.
+The full frontend audit still reports 38 moderate build/lint findings for
+`minimatch`/`glob`; the runtime-only audit is clean. Repository-wide Ruff and
+mypy debt remain as recorded below. The application has not been uninstalled,
+rebuilt or reinstalled; the previous installer is preserved. Re-inventory live
+services and obtain a verified current recovery point before replacement.
+Installed acceptance, Phase A protection, signing and release remain open/NO-GO.
+
+## November 2 dependency-repair checkpoint
+
+Kevin approved investigating and fixing the newly reported dependency
+advisories. `requirements.txt` and its hash lock now select `pypdf==6.21.4`,
+`langgraph==1.2.14`, and `pyasn1==0.6.5`; the frontend lock selects
+`joi==18.3.1`. The runtime-only Python lock audit reports no known
+vulnerabilities. The frontend production-only audit reports zero findings;
+the full frontend audit reports 38 moderate transitive build/lint findings
+associated with `minimatch` and `glob`, with zero high/critical findings.
+Their upstream fixes require newer major versions that existing build tools do
+not declare compatible; no blanket override or suppression was introduced.
+The separately locked Chroma test environment still reports its four previously
+disclosed unpatched advisories and is never used for packaging.
+
+The first full Windows run in the new isolated test environment had one
+`L4_PERSONA_CONTEXT_FAILURE` instead of the expected trace-persistence failure
+(3,534 passed, 18 skipped); the test passed alone. A full retry without the
+concurrent frontend install/tests passed 3,535 tests with 18 skipped and zero
+errors. The first failure's cause is not established. Frontend lint,
+typecheck, 521 tests, dependency-tree validation and production build passed.
+Raw before/after audits and Windows outputs are in `reports/` with prefix
+`security-dependency-`. These are source/build checks, not installed acceptance.
+
+The Windows backend and packaging smoke jobs passed on PR #108's preceding
+commit; its old Python and NPM security jobs failed before these lock updates.
+New hosted results must be checked against the updated commit. The active
+repository ruleset has no required status checks; do not treat Phase A as
+formally dispositioned until its required owner-controlled protection is set.
+The audit, metric and semantic migration repairs, retained-data recovery point,
+rebuild, reinstall and installed acceptance remain open.
+
+## November 1 review-repair checkpoint (superseded in part)
+
+Draft PR #108 (`remediation/phase-a`) contains the CR-A0 Windows baseline,
+the CR-A2 Windows CI job, and the CR-A3 security-test disposition. Baseline
+source `a64603a9` passed 3,535 tests with 18 skipped and zero errors; the
+historical CR-A1 lock failure did not reproduce in a second full run. The
+strict CR-A2 Windows run also passed 3,535 tests with 18 skipped and zero
+errors; individual CR-A3 groups and its 27-test combined gate passed. See
+`reports/remediation/BASELINE.md` and `reports/remediation/A3_TRIAGE.md`.
+These runs used the separately approved test-only Chroma environment, never
+the packaging environment. Repository-wide Ruff reports 61 errors and the
+isolated mypy 1.18.2 check reports 986 diagnostics. The hosted PR checks and
+required branch-protection setting are not yet verified; Phase A remains open.
+
+GitHub reported new open Dependabot advisories not previously dispositioned in
+the remediation plan: seven high-severity `pypdf` alerts affecting locked
+6.21.2 (patched versions 6.21.3/6.21.4), and moderate alerts for locked
+`langgraph` 1.2.4 (patched 1.2.14) and `minimatch` in the frontend lock.
+Verify exact affected frontend versions and exposure before changing locks.
+Kevin subsequently approved remediation; see the November 2 checkpoint above.
+Do not conflate GitHub alerts with an executed runtime audit.
+
+The review's L2 score, hash-based retrieval, and audit-chain restart defects
+remain unfixed. The active semantic migration remains disabled pending its
+documented safety gates. The installed app has not been uninstalled or rebuilt.
+On November 1 the Podman machine was running; Chroma and object-store containers
+were up while PostgreSQL, Neo4j and Redis were stopped. Re-inventory and create
+a verified current recovery point before replacement. The existing 4.4.6
+installer was preserved in the private recovery directory with SHA-256
+`329ec796c0f66aaa8df21bef5f3a402d99de60229a55c051955bf22be4ffadb5`.
+Installed acceptance, signing, Phase A and production release remain NO-GO.
+
 ## October 29 R-3 source-authority qualification
 
 PR #103 merged at `e9e0fc61e2092d4b428b4832c1c14faec2b54753`. Its

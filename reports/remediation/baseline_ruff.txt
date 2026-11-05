@@ -1,0 +1,7 @@
+31	E402	[ ] module-import-not-at-top-of-file
+13	E701	[ ] multiple-statements-on-one-line-colon
+ 8	E702	[ ] multiple-statements-on-one-line-semicolon
+ 7	F401	[*] unused-import
+ 2	F841	[ ] unused-variable
+Found 61 errors.
+[*] 7 fixable with the `--fix` option (2 hidden fixes can be enabled with the `--unsafe-fixes` option).
