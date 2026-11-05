@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
-import { CheckCircle2, Clock, PlayCircle, ZoomIn } from 'lucide-react';
+import { CheckCircle2, Clock, PlayCircle, XCircle, ZoomIn } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { TracePipeline, TraceStep } from './types';
 
 interface TraceVisualizerProps {
   trace?: TracePipeline | null;
   hasExecutedQuery?: boolean;
+  loadState?: 'loading' | 'unavailable';
 }
 
 type TraceView = 'tree' | 'timeline';
@@ -13,10 +14,11 @@ type TraceView = 'tree' | 'timeline';
 function statusIcon(step: TraceStep) {
   if (step.status === 'completed') return <CheckCircle2 className="h-4 w-4 text-green-600" aria-hidden="true" />;
   if (step.status === 'processing') return <PlayCircle className="h-4 w-4 text-blue-600" aria-hidden="true" />;
+  if (step.status === 'error' || step.status === 'blocked' || step.status === 'cancelled') return <XCircle className="h-4 w-4 text-red-600" aria-hidden="true" />;
   return <Clock className="h-4 w-4 text-slate-500" aria-hidden="true" />;
 }
 
-export function TraceVisualizer({ trace, hasExecutedQuery = false }: TraceVisualizerProps) {
+export function TraceVisualizer({ trace, hasExecutedQuery = false, loadState }: TraceVisualizerProps) {
   const steps = trace?.steps || [];
   const [view, setView] = useState<TraceView>('tree');
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
@@ -74,7 +76,7 @@ export function TraceVisualizer({ trace, hasExecutedQuery = false }: TraceVisual
       <CardContent className="space-y-4 p-4">
         {steps.length === 0 ? (
           <div className="rounded-lg border border-dashed border-slate-300/80 bg-slate-50/80 px-4 py-8 text-center text-xs text-slate-500 dark:border-white/10 dark:bg-black/20">
-            {hasExecutedQuery ? 'No trace data returned for this query.' : 'Run a query to populate the trace timeline.'}
+            {loadState === 'loading' ? 'Loading recorded trace…' : loadState === 'unavailable' ? 'Recorded trace is unavailable.' : hasExecutedQuery ? 'No trace data returned for this query.' : 'Run a query to populate the trace timeline.'}
           </div>
         ) : (
           <>

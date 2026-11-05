@@ -25,13 +25,28 @@ Provide task-focused instructions for day-to-day use of DataLogicEngine by analy
 This guide reflects the current local-first product: dashboard, chat, Session Library, traces, graph/knowledge, simulations, Truth Engine, MCP, settings, privacy, Diagnostics, and admin workflows.
 
 The 4.4.6 source explains the refinement budget beside each answer. Standard
-uses one provider attempt and does not enable the 12-step rewrite workflow;
+normally uses one provider attempt and does not enable the 12-step rewrite workflow;
 this is not proof of high confidence. The visible **Enhanced** toggle allows
 one conditional refinement cycle within two attempts. Open **Reasoning Trace**
 for the recorded decision. Missing chat metrics do not mean a layer was skipped.
 Mechanism questions (“how does … work”) request comprehensive breadth without
 adding an attempt. Answers without governed sources remain allowed; review
 the evidence-support disclosure before relying on their factual claims.
+
+The candidate chat/provider update adds an opt-in fallback for desktop chat.
+In **AI Model Controls**, choose a configured primary provider, enable the
+fallback checkbox, and save preferences. The other configured provider may be
+used after an outage, network error, timeout, or rate limit, subject to the
+displayed attempt and usage limits. Both providers may receive the question
+and selected context. This behavior is under source validation and has not yet
+been verified in a replacement installation.
+
+The candidate answer view identifies the recorded provider and model, labels
+fallback use, and can show recorded citations under **Sources**. Prior chat is
+identified as conversation history rather than independent evidence. An
+unsupported-claims warning means the recorded evidence check did not establish
+support; it does not by itself prove a claim false. Equations shown as LaTeX
+are text and are not yet typeset.
 
 The 4.4.6 source selects OpenAI `gpt-6-sol` with High reasoning and Google
 `gemini-3.8-flash`. The unsigned 4.4.6 engineering installer includes the

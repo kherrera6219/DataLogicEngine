@@ -355,20 +355,207 @@ def _request(**kwargs):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "primary,alternate", [("openai", "google"), ("google", "openai")]
+)
+@pytest.mark.parametrize(
+    "error",
+    [
+        "provider outage: service unavailable",
+        "network error",
+        "request timeout",
+        "rate limit",
+    ],
+)
+async def test_desktop_fallback_uses_other_provider_and_records_attempts(
+    monkeypatch, primary, alternate, error
+):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha", citation_label="S1", text="alpha evidence"
+                )
+            ],
+            [],
+        ),
+    )
+
+    class FallbackGateway(_Gateway):
+        async def _get_eligible_providers(self, preferred=None, *args, **kwargs):
+            selected = preferred or primary
+            return [
+                SimpleNamespace(
+                    id=selected,
+                    name=selected,
+                    provider_type=selected,
+                    model_id="gpt-6-sol"
+                    if selected == "openai"
+                    else "gemini-3.8-flash",
+                )
+            ]
+
+        async def _direct_llm_call(
+            self, provider, model, messages, temperature, max_tokens
+        ):
+            if provider.provider_type == primary:
+                self.provider_calls += 1
+                return {"ok": False, "error": error}
+            return await super()._direct_llm_call(
+                provider, model, messages, temperature, max_tokens
+            )
+
+    gateway = FallbackGateway()
+    result = await _orchestrator(gateway).execute(
+        _request(
+            mode=GovernedMode.STANDARD,
+            user_id=1,
+            provider=primary,
+            metadata={"desktop_fallback_enabled": True},
+        )
+    )
+    assert result.ok is True
+    assert result.provider_used == alternate
+    assert gateway.provider_calls == 2
+    assert "provider_fallback_used" in result.warnings
+    stage = next(stage for stage in result.stages if stage.name == "provider_execution")
+    assert [attempt["provider"] for attempt in stage.outputs["attempts"]] == [
+        primary,
+        alternate,
+    ]
+
+
+@pytest.mark.asyncio
+async def test_desktop_fallback_does_not_bypass_policy_failure(monkeypatch):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha", citation_label="S1", text="alpha evidence"
+                )
+            ],
+            [],
+        ),
+    )
+
+    class BlockedGateway(_Gateway):
+        async def _get_eligible_providers(self, preferred=None, *args, **kwargs):
+            selected = preferred or "openai"
+            return [
+                SimpleNamespace(
+                    id=selected,
+                    name=selected,
+                    provider_type=selected,
+                    model_id="gpt-6-sol"
+                    if selected == "openai"
+                    else "gemini-3.8-flash",
+                )
+            ]
+
+        async def _direct_llm_call(
+            self, provider, model, messages, temperature, max_tokens
+        ):
+            self.provider_calls += 1
+            return {"ok": False, "error": "blocked by security policy"}
+
+    gateway = BlockedGateway()
+    result = await _orchestrator(gateway).execute(
+        _request(
+            mode=GovernedMode.STANDARD,
+            user_id=1,
+            metadata={"desktop_fallback_enabled": True},
+        )
+    )
+    assert result.ok is False
+    assert gateway.provider_calls == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("case", ["disabled", "external", "one_call_limit"])
+async def test_fallback_respects_opt_in_client_and_request_limit(monkeypatch, case):
+    import backend.governed_execution.orchestrator as module
+
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha", citation_label="S1", text="alpha evidence"
+                )
+            ],
+            [],
+        ),
+    )
+
+    class FailingGateway(_Gateway):
+        async def _get_eligible_providers(self, preferred=None, *args, **kwargs):
+            selected = preferred or "openai"
+            return [
+                SimpleNamespace(
+                    id=selected,
+                    name=selected,
+                    provider_type=selected,
+                    model_id="gpt-6-sol"
+                    if selected == "openai"
+                    else "gemini-3.8-flash",
+                )
+            ]
+
+        async def _direct_llm_call(
+            self, provider, model, messages, temperature, max_tokens
+        ):
+            self.provider_calls += 1
+            return {"ok": False, "error": "provider outage: service unavailable"}
+
+    gateway = FailingGateway()
+    result = await _orchestrator(gateway).execute(
+        _request(
+            mode=GovernedMode.STANDARD,
+            user_id=1,
+            api_key_id="external-client" if case == "external" else None,
+            principal_kind="external_client" if case == "external" else "desktop",
+            constraints={"max_provider_calls": 1} if case == "one_call_limit" else {},
+            metadata={"desktop_fallback_enabled": case != "disabled"},
+        )
+    )
+    assert result.ok is False
+    assert gateway.provider_calls == 1
+
+
+@pytest.mark.asyncio
 async def test_index_failure_is_visible_while_transcript_remains_available(monkeypatch):
     import backend.governed_execution.orchestrator as module
 
-    monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: (
-        [EvidenceRecord(source_id="source-alpha", citation_label="S1", text="alpha evidence")],
-        [],
-    ))
+    monkeypatch.setattr(
+        module,
+        "retrieve_evidence",
+        lambda *args, **kwargs: (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha", citation_label="S1", text="alpha evidence"
+                )
+            ],
+            [],
+        ),
+    )
     gateway = _Gateway()
 
     async def save(*args, **kwargs):
         return SimpleNamespace(ok=True, rag_status="failed")
 
     gateway._save_chat_message = save
-    result = await _orchestrator(gateway).execute(_request(session_id="session-1", user_id=1))
+    result = await _orchestrator(gateway).execute(
+        _request(session_id="session-1", user_id=1)
+    )
     assert result.ok is True
     assert "user_chat_index_unavailable" in result.warnings
     assert "assistant_chat_index_unavailable" in result.warnings
@@ -381,13 +568,28 @@ async def test_graph_status_reaches_the_recorded_layer_and_public_receipt(monkey
 
     def retrieve(request, *_args, **_kwargs):
         request.metadata["_graph_context_status"] = "relationships_included"
-        return ([EvidenceRecord(source_id="source-alpha", citation_label="S1", text="alpha evidence", metadata={"graph_context": [{"neighbor_uid": "x"}]})], [])
+        return (
+            [
+                EvidenceRecord(
+                    source_id="source-alpha",
+                    citation_label="S1",
+                    text="alpha evidence",
+                    metadata={"graph_context": [{"neighbor_uid": "x"}]},
+                )
+            ],
+            [],
+        )
 
     monkeypatch.setattr(module, "retrieve_evidence", retrieve)
     result = await _orchestrator(_Gateway()).execute(_request())
-    stage = next(item for item in result.stages if item.name == "layer_2_retrieve_context")
+    stage = next(
+        item for item in result.stages if item.name == "layer_2_retrieve_context"
+    )
     assert stage.outputs["graph_context_status"] == "relationships_included"
-    assert "Graph relationships were included" in present_stage_event(result.trace_id, stage, sequence=1)["narrative"]
+    assert (
+        "Graph relationships were included"
+        in present_stage_event(result.trace_id, stage, sequence=1)["narrative"]
+    )
 
 
 @pytest.mark.asyncio
@@ -423,14 +625,19 @@ async def test_evidence_dsqp_and_ka_are_causal_and_trace_matches_execution(monke
         "compliance",
     ]
     assert len({item["finding"] for item in contributions}) == 4
-    assert all(item["evidence_ids"] == [result.evidence[0].evidence_id] for item in contributions)
+    assert all(
+        item["evidence_ids"] == [result.evidence[0].evidence_id]
+        for item in contributions
+    )
     assert all(item["provider_generated"] is False for item in contributions)
     assert all(item["measurement_status"] == "not_measured" for item in contributions)
     assert all(
         item["synthesis_influence"]["disposition"] == "included_as_prompt_constraint"
         for item in contributions
     )
-    assert all(item["synthesis_influence"]["authority_weight"] > 0 for item in contributions)
+    assert all(
+        item["synthesis_influence"]["authority_weight"] > 0 for item in contributions
+    )
     assert [stage.name for stage in result.stages] == [
         "admission",
         "dmrf_routing",
@@ -891,16 +1098,16 @@ async def test_standard_run_records_refinement_not_enabled(monkeypatch):
 
     monkeypatch.setattr(module, "retrieve_evidence", lambda *args, **kwargs: ([], []))
     gateway = _Gateway()
-    result = await _orchestrator(gateway).execute(
-        _request(mode=GovernedMode.STANDARD)
-    )
+    result = await _orchestrator(gateway).execute(_request(mode=GovernedMode.STANDARD))
 
     disposition = result.metadata["refinement_disposition"]
     assert disposition["status"] == "not_enabled"
     assert disposition["reason"] == "standard_mode_provider_budget"
     assert disposition["enabled"] is False
     assert disposition["step_count"] == 0
-    assert not [stage for stage in result.stages if stage.stage_type == "refinement_step"]
+    assert not [
+        stage for stage in result.stages if stage.stage_type == "refinement_step"
+    ]
 
 
 @pytest.mark.asyncio

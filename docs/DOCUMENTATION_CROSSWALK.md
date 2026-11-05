@@ -144,6 +144,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/archive/wireframes/login-auth-2025.md` | `historical_research` | historical archive | `docs/archive/wireframes/login-auth-2025.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/archive/wireframes/README.md` | `historical_research` | historical archive | `docs/archive/wireframes/README.md` | historical audit, research, wireframe, whitepaper, or session material |
 | `docs/archive/wireframes/README__active-through-2026-07-15.md` | `historical_research` | historical archive | `docs/archive/wireframes/README__active-through-2026-07-15.md` | historical audit, research, wireframe, whitepaper, or session material |
+| `docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/audits/CI_CHAT_REPAIR_2026-10-26.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/audits/CURRENT_BUILD_DOCUMENTATION_RECONCILIATION_2026-08-11.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
@@ -165,6 +166,7 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `docs/DOCUMENTATION_BOM.md` | `engineering_maintenance` | generated replacement | `docs/DOCUMENTATION_BOM.md` | generated companion artifact |
 | `docs/DOCUMENTATION_CROSSWALK.md` | `engineering_maintenance` | generated replacement | `docs/DOCUMENTATION_CROSSWALK.md` | generated companion artifact |
 | `docs/evaluation/AI_SYSTEM_CARD.md` | `assurance_release_external` | authoritative input | `docs/evaluation/AI_SYSTEM_CARD.md` | selected canonical document |
+| `docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md` | `supporting_review` | supporting review input | `PRODUCTION_COMPLETION_PLAN_2026.md` | current findings or work queue; does not supersede canonical phase authority |
 | `docs/generated/PRODUCTION_CONTRACT_INDEX.md` | `engineering_maintenance` | generated replacement | `docs/generated/PRODUCTION_CONTRACT_INDEX.md` | generated companion artifact |
 | `docs/GENERATED_STRUCTURE.md` | `engineering_maintenance` | generated replacement | `docs/GENERATED_STRUCTURE.md` | generated companion artifact |
@@ -194,8 +196,3 @@ The 72-route controlled archive is authorized only by the passing CP16-F closure
 | `README.md` | `product_public` | authoritative input | `README.md` | selected canonical document |
 | `SECURITY.md` | `product_public` | authoritative input | `SECURITY.md` | selected canonical document |
 | `TODO.md` | `engineering_maintenance` | authoritative input | `TODO.md` | selected canonical document |
-
-
-## Current source-code licensing (October 29, 2026)
-
-The project-owned DataLogicEngine source is licensed under [MIT](../LICENSE), following [PR #106](https://github.com/kherrera6219/DataLogicEngine/pull/106). Commercial use of MIT-licensed code does not require a separate DataLogicEngine license. See [licensing details and historical terms](../COMMERCIAL_LICENSE.md) and [third-party licensing obligations](THIRD_PARTY_SOFTWARE_INDEX.md). Historical archives and prior qualification records preserve their original licensing descriptions as evidence of the status at the time; they are not the current license authority. The product remains `release_blocked` for public installer distribution and production release.

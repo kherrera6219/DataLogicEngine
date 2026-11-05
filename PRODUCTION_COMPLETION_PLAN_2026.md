@@ -19,6 +19,12 @@
 
 ### Current execution checkpoint
 
+Owner-requested chat/provider changes are under validation on a separate branch:
+optional desktop fallback, recorded model and evidence disclosure, answer
+formatting, and saved-trace presentation. They do not complete the earlier
+retrieval repair or installed/provider acceptance. See
+`docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md` for the current boundaries.
+
 November 2 review-repair work stopped at the repository's three-failure gate.
 Dependency and Windows CI updates passed hosted checks on draft PR #108 at
 `330b849c`; the proposed metric repair was reverted and its patch/logs preserved

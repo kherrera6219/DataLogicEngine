@@ -15,6 +15,7 @@ import {
   PROVIDER_MANIFEST,
 } from '@/lib/provider-manifest.generated';
 import { useToast } from '@/components/ui/use-toast';
+import { readLocalStorageItem, setLocalStorageItem } from '@/lib/state/storage';
 
 interface ProviderOption {
   id?: string;
@@ -132,6 +133,9 @@ export function AiModelSettings() {
   const [aiEnabled, setAiEnabled] = useState(true);
   const [storeHistory, setStoreHistory] = useState(true);
   const [savingPrefs, setSavingPrefs] = useState(false);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [preferredProvider, setPreferredProvider] = useState('');
+  const [fallbackEnabled, setFallbackEnabled] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -214,21 +218,36 @@ export function AiModelSettings() {
   }, [toast]);
 
   useEffect(() => {
-    request<{ ai_processing_enabled?: boolean; store_chat_history?: boolean }>('/settings/ai')
+    void Promise.resolve().then(() => {
+      const saved = readLocalStorageItem('dle.desktop.providerFallback');
+      if (saved.ok) setFallbackEnabled(saved.value === 'enabled');
+      else toast('Fallback preference could not be read on this computer.', 'error');
+    });
+    request<{ ai_processing_enabled?: boolean; store_chat_history?: boolean; preferred_provider?: string }>('/settings/ai')
       .then((data) => {
         if (typeof data.ai_processing_enabled === 'boolean') setAiEnabled(data.ai_processing_enabled);
         if (typeof data.store_chat_history === 'boolean') setStoreHistory(data.store_chat_history);
+        if (data.preferred_provider) setPreferredProvider(data.preferred_provider);
+        setPreferencesLoaded(true);
       })
-      .catch(() => {}); // non-fatal
-  }, []);
+      .catch(() => toast('AI preferences could not be loaded. Saving is unavailable.', 'error'));
+  }, [toast]);
 
   const handleSavePreferences = async () => {
     setSavingPrefs(true);
     try {
       await request('/settings/ai', {
         method: 'POST',
-        body: JSON.stringify({ ai_processing_enabled: aiEnabled, store_chat_history: storeHistory }),
+        body: JSON.stringify({
+          ai_processing_enabled: aiEnabled,
+          store_chat_history: storeHistory,
+          ...(preferredProvider ? { preferred_provider: preferredProvider, preferred_model: providers.find((item) => item.type === preferredProvider)?.model || null } : {}),
+        }),
       });
+      if (!setLocalStorageItem('dle.desktop.providerFallback', fallbackEnabled ? 'enabled' : 'disabled')) {
+        toast('Primary settings were saved, but the fallback setting could not be saved on this computer.', 'error');
+        return;
+      }
       toast('AI preferences saved.', 'success');
     } catch {
       toast('Failed to save AI preferences.', 'error');
@@ -408,6 +427,17 @@ export function AiModelSettings() {
           <CardDescription>Control whether AI requests are sent to configured third-party providers and whether chat history is stored locally.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="primary-provider" className="text-sm font-medium">Primary provider</label>
+            <Select id="primary-provider" value={preferredProvider || 'auto'} onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setPreferredProvider(event.target.value)}>
+              <option value="auto">Use configured default</option>
+              {providers.filter((entry) => isConfigurableProviderType(entry.type) && entry.has_api_key).map((entry) => <option key={entry.type} value={entry.type}>{entry.type} · {entry.model || 'default model'}</option>)}
+            </Select>
+          </div>
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" checked={fallbackEnabled} onChange={(event) => setFallbackEnabled(event.target.checked)} />
+            <span>Automatically use the other configured provider if the primary is unavailable. A second provider may receive the question and context, and an additional attempt may incur a charge. This setting applies to chat on this computer.</span>
+          </label>
           <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
             <div className="space-y-0.5">
               <p className="text-sm font-medium flex items-center gap-2">
@@ -446,7 +476,7 @@ export function AiModelSettings() {
             </button>
           </div>
 
-          <Button size="sm" onClick={() => void handleSavePreferences()} disabled={savingPrefs}>
+          <Button size="sm" onClick={() => void handleSavePreferences()} disabled={savingPrefs || !preferencesLoaded}>
             {savingPrefs ? <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1.5" />}
             {savingPrefs ? 'Saving...' : 'Save Preferences'}
           </Button>

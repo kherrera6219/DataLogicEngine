@@ -320,6 +320,37 @@ describe('AiModelSettings', () => {
     await waitFor(() => expect(toastMock).toHaveBeenCalledWith('Failed to save AI preferences.', 'error'));
   });
 
+  it('saves a primary provider without replacing its saved key and enables desktop fallback', async () => {
+    (vi.mocked(request) as any).mockImplementation((endpoint: string) => {
+      if (endpoint === '/gateway/providers') return Promise.resolve({ providers: [
+        { id: '1', name: 'OpenAI', type: 'openai', model: 'gpt-6-sol', has_api_key: true },
+        { id: '2', name: 'Google', type: 'google', model: 'gemini-3.8-flash', has_api_key: true },
+      ] });
+      if (endpoint === '/settings/ai') return Promise.resolve({ ai_processing_enabled: true, store_chat_history: true, preferred_provider: 'auto' });
+      return Promise.resolve({});
+    });
+    render(<AiModelSettings />);
+    const primary = await screen.findByLabelText('Primary provider');
+    await screen.findByRole('option', { name: /google · gemini/i });
+    fireEvent.change(primary, { target: { value: 'google' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: /automatically use the other configured provider/i }));
+    fireEvent.click(screen.getByRole('button', { name: /save preferences/i }));
+    await waitFor(() => expect(request).toHaveBeenCalledWith('/settings/ai', expect.objectContaining({
+      body: expect.stringContaining('"preferred_provider":"google"'),
+    })));
+    expect(localStorage.getItem('dle.desktop.providerFallback')).toBe('enabled');
+    localStorage.removeItem('dle.desktop.providerFallback');
+  });
+
+  it('does not overwrite preferences when their saved values cannot be loaded', async () => {
+    (vi.mocked(request) as any).mockImplementation((endpoint: string) =>
+      endpoint === '/settings/ai' ? Promise.reject(new Error('unavailable')) : Promise.resolve({ providers: [] }),
+    );
+    render(<AiModelSettings />);
+    await waitFor(() => expect(toastMock).toHaveBeenCalledWith('AI preferences could not be loaded. Saving is unavailable.', 'error'));
+    expect(screen.getByRole('button', { name: /save preferences/i })).toBeDisabled();
+  });
+
   it('saves a new key, reveals it, tests the provider, and marks it available', async () => {
     (vi.mocked(request) as any).mockImplementation((endpoint: string) => {
       if (endpoint === '/gateway/providers') return Promise.resolve({ providers: [] });

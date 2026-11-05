@@ -27,6 +27,22 @@
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
+## Chat provider and presentation candidate
+
+- [ ] Complete installed validation for the opt-in desktop fallback, model
+  identity, citation disclosure, answer rendering and saved trace work. On
+  November 4 the isolated Windows suite passed 3,546 tests, 19 skipped, 35
+  warnings and zero failures or setup/collection errors; 533 frontend tests,
+  frontend lint and type checking also passed.
+- [ ] Resolve the existing repository-wide lint/format and mypy gate failures;
+  they are not fixed by a targeted check of changed files.
+- [ ] Isolate the DMRF test tracking path by default. A Windows suite run
+  appended test records to the installed application's tracking log; the
+  current workaround sets `MLFLOW_TRACKING_URI` to a temporary directory.
+- [ ] Create and verify a coordinated retained-data backup, build the exact
+  approved commit, and complete replacement-install and live-provider acceptance.
+  Do not mark the earlier semantic retrieval repair or the release gate complete.
+
 ## November 2 metric-repair stop
 
 - [ ] Follow the `AGENTS.md` three-failure stop: source was restored to green

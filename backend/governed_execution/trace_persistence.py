@@ -224,6 +224,7 @@ def persist_governed_trace(
                 "governed_status": governed_status,
                 "provider_used": sdk_result.get("provider_used")
                 or metadata.get("provider_used"),
+                "warnings": sdk_result.get("warnings", []),
                 "failure": sdk_result.get("failure"),
                 "provider_call_count": metadata.get("provider_call_count", 0),
                 "source_ids": metadata.get("source_ids", []),

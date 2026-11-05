@@ -26,6 +26,30 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
+## November 2 chat provider and presentation work in progress
+
+The owner approved the separate chat/provider work and asked for a rebuild and
+replacement install. The prior desktop application was closed. Candidate source
+changes and their evidence boundaries are described in
+`docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md`. The source work is under
+validation; no replacement install or installed acceptance has been established.
+The pre-existing global Ruff lint/format debt and missing mypy remain visible
+quality-gate failures. Do not uninstall the retained installation or overwrite
+the previous installer before a verified recovery point and an appropriately
+validated replacement exist. The earlier three-failure metric-repair stop
+remains in force.
+
+November 4: a stopped-Podman-disk and desktop-data recovery copy, plus the
+previous installer, was hash-verified in the private
+`20261104-pre-chat-reinstall` recovery directory. It is not a tested restore
+or an encrypted coordinated backup. A Windows test run appended test records
+to the existing DMRF tracking log before its tracking path was isolated. The
+log was preserved; later test runs use a temporary tracking location.
+The isolated Windows backend suite then passed 3,546 tests, 19 skipped and 35
+warnings with zero failures or setup/collection errors. The final frontend suite
+passed 533 tests, and frontend lint and type checking passed. Installed
+qualification remains separate.
+
 ## November 2 metric-repair stop and handoff
 
 The owner approved proceeding with the new dependency advisories and the
