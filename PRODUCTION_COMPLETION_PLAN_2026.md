@@ -26,8 +26,8 @@ retrieval repair or installed/provider acceptance. See
 `docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md` for the current boundaries.
 
 November 2 review-repair work stopped at the repository's three-failure gate.
-Dependency and Windows CI updates passed hosted checks on draft PR #108 at
-`330b849c`; the proposed metric repair was reverted and its patch/logs preserved
+Dependency and Windows CI updates passed hosted checks before PR #108 merged at
+`b69577c6`; post-merge workflows must be checked. The proposed metric repair was reverted and its patch/logs preserved
 after three full Windows gate failures. The repeated gateway failure's cause is
 unresolved. Windows required-status protection, semantic migration, audit-chain
 repair and installed rebuild/acceptance remain open. See `HANDOFF.md` and

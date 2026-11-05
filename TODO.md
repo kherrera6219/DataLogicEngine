@@ -53,8 +53,8 @@ conditions, and exit gates remain authoritative in the active root plan.
       audit-chain repair, documentation, and installed rebuild/acceptance. No
       metric code was committed or installed at this checkpoint.
 - [ ] Have the owner configure the required Windows status check. PR #108's
-      checks passed at `330b849c`, but the active ruleset has no required checks
-      and the PR is still a draft. Preserve the distinction from release proof.
+      checks passed on its head before merge at `b69577c6`; post-merge workflows
+      must be checked. The active ruleset has no required checks; release proof is separate.
 
 ## November 1 review-repair checkpoint
 
@@ -65,7 +65,7 @@ conditions, and exit gates remain authoritative in the active root plan.
       isolated test-only Chroma boundary and its disclosed advisory status.
       The first new-lock Windows run had one unexplained failure; the test
       passed alone and the full retry passed 3,535 tests with 18 skipped.
-- [ ] Verify draft PR #108 hosted checks and arrange the required Windows
+- [ ] Verify PR #108 post-merge checks and arrange the required Windows
       branch-protection check. CR-A0, the CR-A1 premise check, strict CR-A2
       local Windows suite and CR-A3 targeted tests passed; Phase A remains open.
 - [ ] Repair the reviewed vector distance scoring, complete the safe SQL-backed

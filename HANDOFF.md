@@ -28,6 +28,12 @@
 
 ## November 2 chat provider and presentation work in progress
 
+November 4: PR #108 merged to `main` at
+`b69577c68f70761538ce6fde6812ac456c5650eb`; post-merge workflows are running
+and must be checked separately. The required Windows status protection remains
+an owner-controlled open item. Earlier statements that PR #108 was a draft are
+historical descriptions of the November 2 checkpoint.
+
 The owner approved the separate chat/provider work and asked for a rebuild and
 replacement install. The prior desktop application was closed. Candidate source
 changes and their evidence boundaries are described in
@@ -55,8 +61,8 @@ qualification remains separate.
 The owner approved proceeding with the new dependency advisories and the
 remaining review repairs. PR #108 (`remediation/phase-a`) reached commit
 `330b849c`: all hosted checks passed, including Windows backend, Linux backend,
-Windows packaging smoke and Python/NPM security scans. It remains an open draft,
-not merged to `main`. Its local Windows dependency-lock retry passed 3,535 tests
+Windows packaging smoke and Python/NPM security scans. It was an open draft at
+that checkpoint; its later merge is recorded above. Its local retry passed 3,535 tests
 with 18 skipped; the earlier unexplained persona-context failure is retained in
 the evidence below. The active `UKG branch Rules` ruleset has no required status
 checks, so the owner-controlled Windows branch-protection step remains open.
@@ -116,7 +122,7 @@ rebuild, reinstall and installed acceptance remain open.
 
 ## November 1 review-repair checkpoint (superseded in part)
 
-Draft PR #108 (`remediation/phase-a`) contains the CR-A0 Windows baseline,
+At this historical checkpoint, PR #108 (`remediation/phase-a`) contained the CR-A0 Windows baseline,
 the CR-A2 Windows CI job, and the CR-A3 security-test disposition. Baseline
 source `a64603a9` passed 3,535 tests with 18 skipped and zero errors; the
 historical CR-A1 lock failure did not reproduce in a second full run. The
