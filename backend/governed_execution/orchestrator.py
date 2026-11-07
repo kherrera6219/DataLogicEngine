@@ -56,7 +56,10 @@ from backend.llm_gateway.completion import (
 )
 from backend.llm_gateway.latency_metrics import record_ai_request
 from backend.llm_gateway.provider_budget import ProviderBudgetPolicy
-from backend.llm_gateway.provider_manifest import provider_model_definition
+from backend.llm_gateway.provider_manifest import (
+    provider_model_definition,
+    validate_provider_model,
+)
 from backend.llm_gateway.provider_errors import (
     ProviderFailureClass,
     classify_provider_failure,
@@ -463,7 +466,11 @@ class GovernedExecutionOrchestrator:
         if graph_status in {"relationships_included", "partial"} and not any(
             item.metadata.get("graph_context") for item in context.evidence
         ):
-            graph_status = "unavailable" if graph_status == "partial" else "no_selected_relationships"
+            graph_status = (
+                "unavailable"
+                if graph_status == "partial"
+                else "no_selected_relationships"
+            )
         l2 = self.layer_stages.l2(context)
         l2.outputs.update(
             {
@@ -629,6 +636,8 @@ class GovernedExecutionOrchestrator:
         )
         provider_result = await self._execute_provider(context)
         if not provider_result.get("ok"):
+            if self._cancel_requested(request):
+                return await self._cancel(context, provider_stage.name)
             self._finish(
                 context,
                 provider_stage,
@@ -690,8 +699,7 @@ class GovernedExecutionOrchestrator:
         )
         if (
             provider_completion is not None
-            and provider_completion.disposition
-            is not CompletionDisposition.COMPLETE
+            and provider_completion.disposition is not CompletionDisposition.COMPLETE
         ):
             max_refinements = 0
         requires_evidence = bool(request.constraints.get("requires_evidence")) or (
@@ -1856,8 +1864,26 @@ class GovernedExecutionOrchestrator:
             return {"ok": False, "error": "No active providers found", "attempts": []}
 
         first_provider = providers[0]
+        desktop_fallback = (
+            request.api_key_id is None
+            and request.principal_kind == "desktop"
+            and request.user_id is not None
+            and request.metadata.get("desktop_fallback_enabled") is True
+        )
+        if desktop_fallback:
+            alternate = (
+                "google" if first_provider.provider_type == "openai" else "openai"
+            )
+            providers += await self.gateway._get_eligible_providers(
+                alternate,
+                request.metadata,
+                allowed_provider_types=allowed_provider_types or None,
+                allowed_models=allowed_models or None,
+            )
         first_model = self.gateway._resolve_model(request, first_provider)
-        model_contract = provider_model_definition(first_provider.provider_type, first_model)
+        model_contract = provider_model_definition(
+            first_provider.provider_type, first_model
+        )
         if request.max_tokens > model_contract.max_output_tokens:
             return {
                 "ok": False,
@@ -1878,10 +1904,30 @@ class GovernedExecutionOrchestrator:
             )
         requested_input_limit = request.constraints.get("max_input_tokens")
         input_token_budget = (
-            min(self._bounded_int(requested_input_limit, model_input_limit, 1, model_input_limit), model_input_limit)
+            min(
+                self._bounded_int(
+                    requested_input_limit, model_input_limit, 1, model_input_limit
+                ),
+                model_input_limit,
+            )
             if requested_input_limit is not None
             else model_input_limit
         )
+        if desktop_fallback and len(providers) > 1:
+            alternate_contract = provider_model_definition(
+                providers[1].provider_type, getattr(providers[1], "model_id", None)
+            )
+            alternate_input_limit = alternate_contract.max_input_tokens
+            if alternate_contract.max_context_tokens is not None:
+                alternate_input_limit = min(
+                    alternate_input_limit,
+                    alternate_contract.max_context_tokens - request.max_tokens,
+                )
+            if (
+                request.max_tokens <= alternate_contract.max_output_tokens
+                and alternate_input_limit > 0
+            ):
+                input_token_budget = min(input_token_budget, alternate_input_limit)
 
         try:
             provider_plan = await self.extended_subsystems.plan_provider_request(
@@ -1941,7 +1987,9 @@ class GovernedExecutionOrchestrator:
                 context.warnings.append("user_chat_index_unavailable")
 
         budget_policy = ProviderBudgetPolicy(getattr(self.gateway, "db", None))
-        max_calls = budget_policy.request_call_limit(request.mode, request.constraints)
+        max_calls = budget_policy.request_call_limit(
+            request.mode, request.constraints, desktop_fallback=desktop_fallback
+        )
         request.metadata["_provider_call_limit"] = max_calls
         attempts: list[dict[str, Any]] = []
         last_error = "Provider failed to generate a response"
@@ -1951,11 +1999,47 @@ class GovernedExecutionOrchestrator:
         purpose = "refinement" if context.refinement_cycles else "answer"
         disclosed_categories = self._disclosed_categories(context)
 
-        for provider_record in providers:
+        for provider_index, provider_record in enumerate(providers):
             if context.provider_call_count >= max_calls:
                 break
-            model = self.gateway._resolve_model(request, provider_record)
+            if provider_index and last_failure.failure_class not in {
+                ProviderFailureClass.NETWORK,
+                ProviderFailureClass.PROVIDER_OUTAGE,
+                ProviderFailureClass.TIMEOUT,
+                ProviderFailureClass.RATE_LIMITED,
+            }:
+                break
+            model = (
+                validate_provider_model(
+                    provider_record.provider_type,
+                    getattr(provider_record, "model_id", None),
+                )
+                if provider_index
+                else self.gateway._resolve_model(request, provider_record)
+            )
             provider_type = str(getattr(provider_record, "provider_type", "unknown"))
+            if provider_index:
+                alternate_contract = provider_model_definition(provider_type, model)
+                alternate_input_limit = alternate_contract.max_input_tokens
+                if alternate_contract.max_context_tokens is not None:
+                    alternate_input_limit = min(
+                        alternate_input_limit,
+                        alternate_contract.max_context_tokens - request.max_tokens,
+                    )
+                input_bytes = sum(
+                    len(str(message.get("content") or "").encode("utf-8"))
+                    for message in context.provider_messages
+                )
+                if (
+                    request.max_tokens > alternate_contract.max_output_tokens
+                    or alternate_input_limit < input_token_budget
+                    or input_bytes > alternate_input_limit
+                ):
+                    return {
+                        "ok": False,
+                        "error": "Fallback model cannot accept this request within its configured limits",
+                        "attempts": attempts,
+                    }
             circuit = self.gateway._get_circuit_breaker(f"{provider_type}:{model}")
             if not circuit.can_execute():
                 attempts.append(
@@ -1983,10 +2067,28 @@ class GovernedExecutionOrchestrator:
             request.metadata["last_model_used"] = model
             timeout_seconds = self.gateway._provider_timeout_seconds(provider_record)
             max_attempts = min(
-                self.gateway._provider_max_retries(provider_record),
+                1
+                if desktop_fallback
+                else self.gateway._provider_max_retries(provider_record),
                 max_calls - context.provider_call_count,
             )
             for retry_index in range(max_attempts):
+                if self._cancel_requested(request):
+                    return {
+                        "ok": False,
+                        "error": "Request cancelled before provider attempt",
+                        "retryable": False,
+                        "attempts": attempts,
+                        "failure": {"class": ProviderFailureClass.CANCELLED.value},
+                    }
+                if self._remaining_seconds(context) <= 0:
+                    return {
+                        "ok": False,
+                        "error": "Request deadline exceeded before provider attempt",
+                        "retryable": False,
+                        "attempts": attempts,
+                        "failure": {"class": ProviderFailureClass.TIMEOUT.value},
+                    }
                 estimated_input_tokens = max(
                     1,
                     sum(
@@ -2004,6 +2106,7 @@ class GovernedExecutionOrchestrator:
                         estimated_input_tokens,
                         request.max_tokens,
                     ),
+                    desktop_fallback=desktop_fallback,
                 )
                 request.metadata["provider_budget"] = {
                     "code": budget.code,
@@ -2207,6 +2310,14 @@ class GovernedExecutionOrchestrator:
                             },
                         }
                     self._audit_success(context, provider_record, model, usage)
+                    if provider_index:
+                        context.warnings.append("provider_fallback_used")
+                        context.warnings.append(
+                            f"provider_fallback_reason:{last_failure.failure_class.value}"
+                        )
+                        context.warnings.append(
+                            f"provider_fallback_from:{first_provider.provider_type}"
+                        )
                     return {
                         "ok": True,
                         "answer": provider_output.get("answer", ""),

@@ -20,6 +20,11 @@
 
 ## Current decision
 
+The owner-requested chat/provider candidate remains under source and installed
+validation. Its optional cross-provider fallback and presentation changes do
+not close the existing recovery, signing, provider, or release gates. See
+`docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md` for status.
+
 **Production/public release: NO-GO.**
 
 The October 29 R-3 source checkpoint verifies model-sized ingestion spans

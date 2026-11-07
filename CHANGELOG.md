@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased source after 4.4.6 - 2026-11-04
+
+- Add an opt-in desktop-chat fallback between the configured OpenAI and Google
+  providers, with bounded attempts and clear disclosure when fallback occurs.
+- Restore recorded provider/model labels for saved answers, show cited
+  conversation history and unsupported-claim warnings, render a safe subset
+  of Markdown, and load recorded stages in the selected trace explorer.
+- The isolated Windows backend suite passed 3,546 tests with 19 skipped and
+  35 warnings; the frontend suite passed 533 tests. Frontend lint, typecheck,
+  build, changed-Python checks and documentation checks passed. Existing
+  repository-wide lint/format and mypy debt remain open.
+- An unsigned engineering installer built from source commit `245658b6` passed
+  payload and checksum checks. Installed/provider, recovery, signing and
+  production acceptance remain open.
+
 ## Unreleased source after 4.4.6 - 2026-10-29
 
 - Verify model-sized knowledge spans against canonical SQL content, source

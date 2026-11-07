@@ -20,6 +20,7 @@ vi.mock('@/lib/api', () => ({
       createSession: vi.fn(),
       sendMessage: vi.fn(),
     },
+    trace: { get: vi.fn(), getStages: vi.fn(), getBundle: vi.fn() },
   },
   request: vi.fn(),
   // ApiError must be exported so ChatInterface.tsx can use `instanceof ApiError`
@@ -68,7 +69,8 @@ vi.mock('./DetailedResponseView', () => ({
   DetailedResponseView: ({ message }: { message: { id: string } }) => <div data-testid="detailed-view">{message.id}</div>
 }));
 vi.mock('./TraceVisualizer', () => ({
-  TraceVisualizer: () => <div data-testid="trace-visualizer">Visualizer</div>
+  TraceVisualizer: ({ trace }: { trace?: { steps: Array<{ name: string }> } | null }) =>
+    <div data-testid="trace-visualizer">Visualizer{trace?.steps.map((step) => <span key={step.name}>{step.name}</span>)}</div>
 }));
 
 describe('ChatInterface', () => {
@@ -93,6 +95,8 @@ describe('ChatInterface', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    (api.trace.get as ReturnType<typeof vi.fn>).mockResolvedValue({ model_name: null });
+    (api.trace.getStages as ReturnType<typeof vi.fn>).mockResolvedValue({ stages: [] });
     (api.chat.listSessions as ReturnType<typeof vi.fn>).mockResolvedValue({ sessions: mockSessions });
     (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockResolvedValue({ 
       messages: [{ id: 'hist-1', role: 'assistant', content: '', finalAnswer: 'Session History' }] 
@@ -120,6 +124,73 @@ describe('ChatInterface', () => {
     renderChatInterface();
     await waitFor(() => expect(screen.getByText('Session 1')).toBeInTheDocument());
     expect(screen.getByText(/Graph relationships are used only when graph context is explicitly enabled/i)).toBeInTheDocument();
+  });
+
+  it('restores the recorded model for each saved answer', async () => {
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockResolvedValue({
+      messages: [{ id: 'answer-1', role: 'assistant', content: 'Saved answer', run_id: 'run-1' }],
+    });
+    (api.trace.get as ReturnType<typeof vi.fn>).mockResolvedValue({
+      model_name: 'gemini-3.8-flash', provider_used: 'google',
+      data_snapshot: { convergence: { unsupported_claim_ids: ['c1', 'c2'] }, warnings: ['provider_fallback_used', 'provider_fallback_from:openai', 'provider_fallback_reason:provider_outage'] },
+    });
+    renderChatInterface();
+    expect(await screen.findByText('Answered by google · gemini-3.8-flash')).toBeInTheDocument();
+    expect(screen.getByText(/Evidence support was not established for 2 identified claims/)).toBeInTheDocument();
+    expect(screen.getByText(/openai was unavailable \(service outage\)/)).toBeInTheDocument();
+    expect(api.trace.get).toHaveBeenCalledWith('run-1');
+  });
+
+  it('uses the saved fallback preference for a desktop chat request', async () => {
+    localStorage.setItem('dle.desktop.providerFallback', 'enabled');
+    renderChatInterface();
+    const composer = await screen.findByRole('textbox', { name: /message composer/i });
+    fireEvent.change(composer, { target: { value: 'Test fallback' } });
+    fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+    await waitFor(() => expect(api.chat.sendMessage).toHaveBeenCalledWith(expect.objectContaining({
+      meta: expect.objectContaining({ desktop_fallback_enabled: true }),
+    })));
+    localStorage.removeItem('dle.desktop.providerFallback');
+  });
+
+  it('shows that the model is unavailable when the trace cannot be read', async () => {
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockResolvedValue({
+      messages: [{ id: 'answer-1', role: 'assistant', content: 'Saved answer', run_id: 'run-1' }],
+    });
+    (api.trace.get as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('unavailable'));
+    renderChatInterface();
+    expect(await screen.findByText('Model unavailable for this answer.')).toBeInTheDocument();
+    expect(screen.getByText('Saved answer')).toBeInTheDocument();
+  });
+
+  it('loads the recorded stages for the selected conversation', async () => {
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockResolvedValue({
+      messages: [{ id: 'answer-1', role: 'assistant', content: 'Saved answer', run_id: 'run-1' }],
+    });
+    (api.trace.getStages as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stages: [{ stage_id: 'stage-1', name: 'Recorded provider stage', status: 'completed' }],
+    });
+    renderChatInterface();
+    expect(await screen.findByText('Recorded provider stage')).toBeInTheDocument();
+    expect(api.trace.getStages).toHaveBeenCalledWith('run-1');
+  });
+
+  it('does not show a late trace from a previously selected conversation', async () => {
+    let resolveOld!: (value: unknown) => void;
+    (api.chat.getSessionMessages as ReturnType<typeof vi.fn>).mockImplementation(async (id: string) => ({
+      messages: [{ id, role: 'assistant', content: `Answer ${id}`, run_id: `run-${id}` }],
+    }));
+    (api.trace.getStages as ReturnType<typeof vi.fn>).mockImplementation((id: string) =>
+      id === 'run-session-1'
+        ? new Promise((resolve) => { resolveOld = resolve; })
+        : Promise.resolve({ stages: [{ stage_id: 'new', name: 'Current trace', status: 'completed' }] }),
+    );
+    renderChatInterface();
+    await waitFor(() => expect(api.trace.getStages).toHaveBeenCalledWith('run-session-1'));
+    fireEvent.click(screen.getByRole('button', { name: 'Session 2' }));
+    expect(await screen.findByText('Current trace')).toBeInTheDocument();
+    await act(async () => resolveOld({ stages: [{ stage_id: 'old', name: 'Old trace', status: 'completed' }] }));
+    expect(screen.queryByText('Old trace')).not.toBeInTheDocument();
   });
 
   it('should handle switching sessions', async () => {

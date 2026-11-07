@@ -1,7 +1,7 @@
 export interface TraceStep {
   id: string;
   name: string;
-  status: 'pending' | 'processing' | 'completed' | 'error';
+  status: 'pending' | 'processing' | 'completed' | 'error' | 'skipped' | 'blocked' | 'cancelled';
   durationMs?: number;
   percentage: number;
   details?: Record<string, unknown>;
@@ -47,6 +47,8 @@ export interface ChatMessage {
   isEnhanced?: boolean;
   providerUsed?: string;
   modelUsed?: string;
+  modelStatus?: 'loading' | 'unavailable';
+  unsupportedClaimCount?: number;
   warnings?: string[];
   completion?: import('@/lib/api/types').ProviderCompletion | null;
   governedMode?: import('@/lib/api/types').GovernedMode;

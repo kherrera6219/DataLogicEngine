@@ -3,6 +3,7 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
   removeLocalStorageItem,
+  readLocalStorageItem,
 } from '@/lib/state/storage';
 
 describe('Storage utilities', () => {
@@ -68,6 +69,14 @@ describe('Storage utilities', () => {
       expect(result).toBeNull();
       global.window = originalWindow;
     });
+  });
+
+  it('distinguishes an absent preference from unavailable storage', () => {
+    expect(readLocalStorageItem('missing')).toEqual({ ok: true, value: null });
+    Object.defineProperty(window, 'localStorage', {
+      value: { getItem: vi.fn(() => { throw new Error('unavailable'); }) }, writable: true,
+    });
+    expect(readLocalStorageItem('missing')).toEqual({ ok: false });
   });
 
   describe('setLocalStorageItem', () => {

@@ -26,13 +26,51 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
+## November 2 chat provider and presentation work in progress
+
+November 4: PR #108 merged to `main` at
+`b69577c68f70761538ce6fde6812ac456c5650eb`; its Security Scan and Cosign
+job passed. CI/CD and Deploy were running when this checkpoint was recorded;
+check their final results independently. The required Windows status protection remains
+an owner-controlled open item. Earlier statements that PR #108 was a draft are
+historical descriptions of the November 2 checkpoint.
+
+The owner approved the separate chat/provider work and asked for a rebuild and
+replacement install. The prior desktop application was closed. Candidate source
+changes and their evidence boundaries are described in
+`docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md`. The source work is under
+validation; no replacement install or installed acceptance has been established.
+The pre-existing global Ruff lint/format debt and missing mypy remain visible
+quality-gate failures. Do not uninstall the retained installation or overwrite
+the previous installer before a verified recovery point and an appropriately
+validated replacement exist. The earlier three-failure metric-repair stop
+remains in force.
+
+November 4: a stopped-Podman-disk and desktop-data recovery copy, plus the
+previous installer, was hash-verified in the private
+`20261104-pre-chat-reinstall` recovery directory. It is not a tested restore
+or an encrypted coordinated backup. A Windows test run appended test records
+to the existing DMRF tracking log before its tracking path was isolated. The
+log was preserved; later test runs use a temporary tracking location.
+The isolated Windows backend suite then passed 3,546 tests, 19 skipped and 35
+warnings with zero failures or setup/collection errors. The final frontend suite
+passed 533 tests, and frontend lint and type checking passed. Installed
+qualification remains separate.
+
+The unsigned engineering installer rebuilt from clean source commit
+`245658b62ff7f2c094e8b1289bd75cb4630a1642` has SHA-256
+`efc1d04c3ccdffb5dc2fdd4f2d631491fe1902b398953b68138e42267e841190`;
+checksum, frozen-payload and NSIS checks pass.
+The packaged UI contains the new provider/fallback markers. This does not
+establish installation, startup, live-provider or retained-data acceptance.
+
 ## November 2 metric-repair stop and handoff
 
 The owner approved proceeding with the new dependency advisories and the
 remaining review repairs. PR #108 (`remediation/phase-a`) reached commit
 `330b849c`: all hosted checks passed, including Windows backend, Linux backend,
-Windows packaging smoke and Python/NPM security scans. It remains an open draft,
-not merged to `main`. Its local Windows dependency-lock retry passed 3,535 tests
+Windows packaging smoke and Python/NPM security scans. It was an open draft at
+that checkpoint; its later merge is recorded above. Its local retry passed 3,535 tests
 with 18 skipped; the earlier unexplained persona-context failure is retained in
 the evidence below. The active `UKG branch Rules` ruleset has no required status
 checks, so the owner-controlled Windows branch-protection step remains open.
@@ -92,7 +130,7 @@ rebuild, reinstall and installed acceptance remain open.
 
 ## November 1 review-repair checkpoint (superseded in part)
 
-Draft PR #108 (`remediation/phase-a`) contains the CR-A0 Windows baseline,
+At this historical checkpoint, PR #108 (`remediation/phase-a`) contained the CR-A0 Windows baseline,
 the CR-A2 Windows CI job, and the CR-A3 security-test disposition. Baseline
 source `a64603a9` passed 3,535 tests with 18 skipped and zero errors; the
 historical CR-A1 lock failure did not reproduce in a second full run. The

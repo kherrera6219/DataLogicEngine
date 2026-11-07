@@ -50,6 +50,14 @@ update check, crash-reporting egress, or phone-home.
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
 
+An owner-requested chat/provider source update adds an
+opt-in desktop fallback between configured providers and clearer recorded-model,
+source, and trace presentation. Windows backend and frontend source tests pass;
+an unsigned engineering installer from source `245658b6` passes payload and
+checksum checks. Broader repository lint/type debt and replacement-install
+acceptance remain open. See the [chat provider checkpoint](docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md)
+for the exact results and remaining gates.
+
 The October 29 R-3 source checkpoint validates model-sized ingestion spans
 against their canonical SQL source and preserves source-specific citation
 locations. The full Windows source suite passed **3,534 tests**, with 19

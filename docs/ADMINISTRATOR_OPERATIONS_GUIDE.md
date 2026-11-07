@@ -88,6 +88,13 @@ ports must not be exposed to client machines.
 
 ## Provider operations
 
+An owner-requested candidate adds an opt-in fallback for desktop chat between
+the already configured OpenAI and Google providers. Each attempt remains subject
+to the request, session, token, time, and spending controls. The second provider
+may receive the question and selected context, so review both providers' data
+handling and billing before enabling it. Installed fallback acceptance is open;
+see `audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md`.
+
 The supported providers are OpenAI and Google. The owner saves credentials
 through Provider Connections or the approved protected source. The renderer and
 gateway clients never receive plaintext provider credentials. A key may be

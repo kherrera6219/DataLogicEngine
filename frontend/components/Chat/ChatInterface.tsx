@@ -30,6 +30,9 @@ import { TraceVisualizer } from './TraceVisualizer';
 import { ChatTracePanel } from './ChatTracePanel';
 import { OfflineQueueManager } from './OfflineQueueManager';
 import { ConfidenceDisplayCard } from './ConfidenceDisplayCard';
+import { AnswerContent } from './AnswerContent';
+import { AnswerSources } from './AnswerSources';
+import { readLocalStorageItem } from '@/lib/state/storage';
 
 interface ChatInterfaceProps {
   autoOpenUpload?: boolean;
@@ -64,6 +67,19 @@ type GatewayTracePayload = {
     };
   } | null;
 };
+
+function unsupportedClaimCount(value: unknown): number | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const claims = (value as { unsupported_claim_ids?: unknown }).unsupported_claim_ids;
+  return Array.isArray(claims) ? claims.length : undefined;
+}
+
+function fallbackDescription(warnings: string[]): string {
+  const primary = warnings.find((item) => item.startsWith('provider_fallback_from:'))?.split(':')[1];
+  const reason = warnings.find((item) => item.startsWith('provider_fallback_reason:'))?.split(':')[1];
+  const reasons: Record<string, string> = { network: 'network error', provider_outage: 'service outage', timeout: 'timeout', rate_limited: 'rate limit' };
+  return `${primary || 'The primary provider'} was unavailable${reason && reasons[reason] ? ` (${reasons[reason]})` : ''}. The answer used the fallback provider shown above.`;
+}
 
 type ChatTraceFields = Pick<ChatMessage, 'runId' | 'providerUsed' | 'modelUsed' | 'auditTrail'>;
 
@@ -155,6 +171,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [historyRefresh, setHistoryRefresh] = useState(0);
   const [historyError, setHistoryError] = useState(false);
+  const [recordedTrace, setRecordedTrace] = useState<{ runId: string; trace: TracePipeline | null; unavailable: boolean } | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [sessionSearch, setSessionSearch] = useState('');
   const [tracePaneOpen, setTracePaneOpen] = useState(true);
@@ -246,7 +263,39 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         pendingHistoryRefreshRef.current.delete(currentSessionId);
         setHistoryError(false);
         if (data.messages?.length) {
-          setMessages(data.messages.map(normalizeApiMessage));
+          const history = data.messages.map(normalizeApiMessage).map((message) => (
+            message.role === 'assistant' && message.runId
+              ? { ...message, modelStatus: 'loading' as const }
+              : message
+          ));
+          setMessages(history);
+          const runIds = [...new Set(history.filter((message) => message.role === 'assistant' && message.runId).map((message) => message.runId!))];
+          // Bound concurrent local requests for long conversations.
+          let nextRun = 0;
+          const loadModels = async () => {
+            while (!cancelled && nextRun < runIds.length) {
+              const runId = runIds[nextRun++];
+              try {
+                const trace = await api.trace.get(runId);
+                if (cancelled) return;
+                const model = trace.model_name?.trim();
+                const available = model && !['unknown', 'none', 'offline-queue'].includes(model.toLowerCase());
+                setMessages((current) => current.map((message) => (
+                  message.role === 'assistant' && message.runId === runId
+                    ? { ...message, modelUsed: available ? model : undefined, providerUsed: available ? trace.provider_used || undefined : undefined, modelStatus: available ? undefined : 'unavailable', unsupportedClaimCount: unsupportedClaimCount(trace.data_snapshot?.convergence), warnings: Array.isArray(trace.data_snapshot?.warnings) ? trace.data_snapshot.warnings.filter((warning): warning is string => typeof warning === 'string') : undefined }
+                    : message
+                )));
+              } catch {
+                if (cancelled) return;
+                setMessages((current) => current.map((message) => (
+                  message.role === 'assistant' && message.runId === runId
+                    ? { ...message, modelStatus: 'unavailable' }
+                    : message
+                )));
+              }
+            }
+          };
+          void Promise.all(Array.from({ length: Math.min(4, runIds.length) }, () => loadModels()));
         } else {
           setMessages([]);
         }
@@ -304,6 +353,13 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
 
     if (!normalizedInput || isLoading) return;
 
+    const fallbackPreference = readLocalStorageItem('dle.desktop.providerFallback');
+    if (!fallbackPreference.ok) {
+      toast('The provider fallback setting is unavailable. Check your settings before sending.', 'error');
+      return;
+    }
+    const desktopFallbackEnabled = fallbackPreference.value === 'enabled';
+
     const budgetRatios = providerBudget
       ? [
           providerBudget.daily.calls / Math.max(1, providerBudget.limits.daily_calls),
@@ -345,7 +401,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
         mode: mode,
         session_id: sessionId,
         run_ukg_pipeline: true,
-        meta: { budget_warning_confirmed: budgetWarningConfirmed },
+        meta: { budget_warning_confirmed: budgetWarningConfirmed, ...(desktopFallbackEnabled ? { desktop_fallback_enabled: true } : {}) },
       });
       
       // If the API returns a direct response (not just via WS)
@@ -364,6 +420,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           confidenceDisplay: data.confidence_display,
           providerCallBudget: data.provider_call_budget,
           warnings: data.warnings,
+          unsupportedClaimCount: unsupportedClaimCount(data.convergence),
         };
         if (isCurrentView()) {
           setMessages(prev => [...prev, assistantMsg]);
@@ -603,21 +660,32 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
     }
   };
 
-  const latestTrace = useMemo<TracePipeline | null>(() => {
-    for (let i = messages.length - 1; i >= 0; i -= 1) {
-      const trace = messages[i].traces;
-      if (trace?.steps?.length) {
-        return trace;
-      }
-    }
-    return null;
-  }, [messages]);
-
   const hasExecutedQuery = useMemo(
     () => messages.some((message) => message.role === 'user'),
     [messages]
   );
   const selectedTraceId = activeRequestId || [...messages].reverse().find((message) => message.runId)?.runId || null;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!selectedTraceId || activeRequestId) return () => { cancelled = true; };
+    void api.trace.getStages(selectedTraceId).then(({ stages }) => {
+      if (cancelled) return;
+      const steps: TracePipeline['steps'] = (stages || []).map((stage) => {
+        const status: TracePipeline['steps'][number]['status'] =
+          ['completed', 'success', 'ok', 'pass'].includes(stage.status) ? 'completed' :
+          ['running', 'processing'].includes(stage.status) ? 'processing' :
+          ['failed', 'error'].includes(stage.status) ? 'error' :
+          ['cancelled', 'canceled'].includes(stage.status) ? 'cancelled' :
+          stage.status === 'blocked' ? 'blocked' :
+          ['skipped', 'not_enabled'].includes(stage.status) ? 'skipped' : 'pending';
+        return { id: stage.stage_id, name: stage.name, status, durationMs: stage.duration_ms ?? undefined,
+          percentage: status === 'completed' ? 100 : 0, timestamp: stage.occurred_at || stage.start_time || '', details: stage.outputs };
+      });
+      setRecordedTrace({ runId: selectedTraceId, trace: { steps, currentStepId: steps.at(-1)?.id || '', totalDurationMs: 0, estimatedTotalMs: 0, overallProgress: 0 }, unavailable: false });
+    }).catch(() => { if (!cancelled) setRecordedTrace({ runId: selectedTraceId, trace: null, unavailable: true }); });
+    return () => { cancelled = true; };
+  }, [selectedTraceId, activeRequestId]);
 
   return (
     <div className="flex h-full text-gray-900 dark:text-white font-sans overflow-hidden">
@@ -738,21 +806,42 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
                          </div>
                       )}
 
-                      {msg.role === 'assistant' && (msg.providerUsed || msg.modelUsed) && (
-                         <div className="flex items-center gap-1.5 text-xs text-violet-400 bg-violet-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-violet-500/20 font-mono">
+                      {msg.role === 'assistant' && msg.modelUsed && !['unknown', 'none', 'offline-queue'].includes(msg.modelUsed.toLowerCase()) && (
+                         <div className="flex items-center gap-1.5 text-xs text-violet-700 dark:text-violet-300 bg-violet-500/10 px-2 py-1 rounded-md w-fit mb-2 border border-violet-500/20 font-mono">
                             <Target className="h-3 w-3 shrink-0" />
                             <span>
-                              {msg.providerUsed && msg.modelUsed
-                                ? `${msg.providerUsed} / ${msg.modelUsed}`
-                                : msg.modelUsed ?? msg.providerUsed}
+                              Answered by {msg.providerUsed ? `${msg.providerUsed} · ` : ''}{msg.modelUsed}
                             </span>
                          </div>
+                      )}
+                      {msg.role === 'assistant' && msg.modelStatus === 'unavailable' && (
+                        <p className="text-xs text-slate-500">Model unavailable for this answer.</p>
+                      )}
+                      {msg.role === 'assistant' && msg.modelUsed === 'offline-queue' && (
+                        <p className="text-xs text-slate-500">Queue: offline-queue (no model has answered yet).</p>
                       )}
 
                       <div className="text-sm leading-relaxed text-slate-700 dark:text-gray-300">
                          {msg.role === 'assistant' ? (
                             <div className="space-y-4">
-                               <div>{msg.finalAnswer || msg.content}</div>
+                               <AnswerContent text={msg.finalAnswer || msg.content} />
+                               <button type="button" className="text-xs underline" onClick={() => {
+                                 if (!navigator.clipboard?.writeText) {
+                                   toast('Could not copy the answer.', 'error');
+                                   return;
+                                 }
+                                 void navigator.clipboard.writeText(msg.finalAnswer || msg.content).then(
+                                   () => toast('Answer copied.', 'success'),
+                                   () => toast('Could not copy the answer.', 'error'),
+                                 );
+                               }}>Copy answer</button>
+                               {typeof msg.unsupportedClaimCount === 'number' && msg.unsupportedClaimCount > 0 && (
+                                 <p role="status" className="text-xs text-amber-700 dark:text-amber-300">Evidence support was not established for {msg.unsupportedClaimCount} identified claims. This does not mean those claims are false.</p>
+                               )}
+                               {msg.runId && <AnswerSources runId={msg.runId} />}
+                               {msg.warnings?.includes('provider_fallback_used') && (
+                                 <p role="status" className="text-xs text-amber-700 dark:text-amber-300">{fallbackDescription(msg.warnings)}</p>
+                               )}
 
                                {msg.warnings?.some((warning) => /^(?:document|knowledge|chat_memory|truth_memory)_retrieval_failed:|^retrieval_unavailable:/.test(warning)) && (
                                  <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
@@ -921,7 +1010,7 @@ export function ChatInterface({ autoOpenUpload = false }: ChatInterfaceProps) {
           aria-label="Trace explorer pane"
         >
           <div className="border-b border-white/5 p-3">
-            <TraceVisualizer trace={latestTrace} hasExecutedQuery={hasExecutedQuery} />
+            <TraceVisualizer trace={recordedTrace?.runId === selectedTraceId && !activeRequestId ? recordedTrace.trace : null} hasExecutedQuery={hasExecutedQuery} loadState={activeRequestId ? 'loading' : selectedTraceId ? recordedTrace?.runId !== selectedTraceId ? 'loading' : recordedTrace.unavailable ? 'unavailable' : undefined : undefined} />
           </div>
           <div className="min-h-[32rem] flex-1">
             <LiveTracePanel key={selectedTraceId || 'empty'} activeRunId={selectedTraceId} scopeToRun isRequestActive={!!activeRequestId} />

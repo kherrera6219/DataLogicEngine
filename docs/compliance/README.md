@@ -23,9 +23,9 @@ Generated evidence goes in `/reports/remediation/`, never here. This directory i
 
 An independent code review on August 16, 2026 reported three things that matter: 40 security tests erroring at setup on its Windows baseline; a confidence score gated at 0.995 that is a weighted average of pass-rate fractions with a `0.5` fallback on exception and no calibration behind it; and 1,444 lines of "live pipeline engine" whose core imports failed. The setup-error count is historical: the 2026-08-27 4.4.3 qualification completed 3,317 Windows tests with 19 skipped and zero failures or setup errors, so CR-A0 must capture a fresh commit-bound baseline before CR-A1 is treated as open work. Deploy, Security, and CI/CD workflows passed at the older documentation/evidence commit `43fd86df...`; that result is historical, not the current source checkpoint, and it did not disposition the human gate. A compliance blueprint written the next day established that DataLogicEngine is installed software rather than SaaS — which removes FedRAMP, SOC 2, HITRUST, and multi-tenancy obligations entirely, and makes product-manufacturer duties (supply chain, signing, egress proof, honest documentation) the whole game. A market decision on August 18 excluded the EU, removing the Cyber Resilience Act, EU AI Act, GDPR, NIS2, and DORA. What remains is a verification-first 44-task program whose common purpose is making the system's claims about itself as strong as the claims it makes about everything else.
 
-**2026-11-02 checkpoint:** Draft PR #108 records CR-A0/CR-A3 evidence, adds the
-CR-A2 Windows job and updates vulnerable dependency locks. Hosted checks passed
-at `330b849c`; the active ruleset has no required status checks, so Phase A is
+**2026-11-04 checkpoint:** PR #108 records CR-A0/CR-A3 evidence, adds the
+CR-A2 Windows job and updates vulnerable dependency locks. It merged at
+`b69577c6`; post-merge checks must be verified. The active ruleset has no required status checks, so Phase A is
 still open. The metric-repair gate stopped after three full-run failures, with
 source restored to `330b849c`. Audit results, retained evidence and the remaining
 moderate build-tool findings are recorded in `HANDOFF.md`.

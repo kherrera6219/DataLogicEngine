@@ -87,6 +87,13 @@ preflight identifies applicable data categories before external processing. The
 renderer does not directly call model providers and does not receive provider
 credentials.
 
+An owner-requested candidate adds an optional desktop-chat fallback to the
+other configured provider after certain availability failures. When enabled,
+the same question and selected context may be sent to both providers in
+separate attempts, with separate billing and retention terms. This candidate
+has not completed replacement-install acceptance; review both provider
+accounts before enabling it.
+
 Provider processing is governed by the owner's provider account, API terms,
 region, enterprise agreement, retention settings, and billing controls. A key
 may be stored locally but is not reported available until a bounded live test

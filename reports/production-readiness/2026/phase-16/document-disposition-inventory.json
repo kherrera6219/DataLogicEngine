@@ -1,12 +1,12 @@
 {
   "schema_version": "dle.documentation-disposition-inventory.v1",
-  "generated_at": "2026-10-28T13:37:11.485759+00:00",
+  "generated_at": "2026-11-05T00:44:12.023833+00:00",
   "authority_version": "2026.08.10-cp19l-installed-evidence",
   "authority_status": "approved_phase16_replacement_closed",
   "manual_review_required": true,
   "status": "approved_map_pass",
   "summary": {
-    "markdown_file_count": 186,
+    "markdown_file_count": 188,
     "canonical_document_count": 30,
     "canonical_limit": 30,
     "existing_canonical_count": 30,
@@ -17,7 +17,7 @@
       "authoritative": 36,
       "generated": 6,
       "historical": 125,
-      "supporting": 19
+      "supporting": 21
     }
   },
   "unclassified": [],
@@ -1112,6 +1112,14 @@
       "basis": "historical audit, research, wireframe, whitepaper, or session material"
     },
     {
+      "path": "docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
+    },
+    {
       "path": "docs/audits/CI_CHAT_REPAIR_2026-10-26.md",
       "document_class": "supporting_review",
       "disposition": "supporting review input",
@@ -1278,6 +1286,14 @@
       "target": "docs/evaluation/AI_SYSTEM_CARD.md",
       "cap_counted": true,
       "basis": "selected canonical document"
+    },
+    {
+      "path": "docs/evaluation/R3_SOURCE_AUTHORITY_QUALIFICATION_2026-10-28.md",
+      "document_class": "supporting_review",
+      "disposition": "supporting review input",
+      "target": "PRODUCTION_COMPLETION_PLAN_2026.md",
+      "cap_counted": false,
+      "basis": "current findings or work queue; does not supersede canonical phase authority"
     },
     {
       "path": "docs/evaluation/RETRIEVAL_QUALIFICATION_CANDIDATE_2026-10-28.md",

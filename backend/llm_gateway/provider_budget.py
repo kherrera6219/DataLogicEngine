@@ -45,8 +45,14 @@ class ProviderBudgetPolicy:
         self.db = db_session
 
     @staticmethod
-    def request_call_limit(mode: Any, constraints: dict[str, Any]) -> int:
-        server_limit = 2 if str(getattr(mode, "value", mode)) == "enhanced" else 1
+    def request_call_limit(
+        mode: Any, constraints: dict[str, Any], *, desktop_fallback: bool = False
+    ) -> int:
+        server_limit = (
+            2
+            if desktop_fallback or str(getattr(mode, "value", mode)) == "enhanced"
+            else 1
+        )
         requested = constraints.get("max_provider_calls")
         try:
             requested_limit = int(requested)
@@ -59,10 +65,14 @@ class ProviderBudgetPolicy:
         cls,
         mode: Any = "standard",
         constraints: dict[str, Any] | None = None,
+        *,
+        desktop_fallback: bool = False,
     ) -> dict[str, int | float | None]:
         """Return the server-owned limits that the UI may display but not raise."""
         return {
-            "request_calls": cls.request_call_limit(mode, constraints or {}),
+            "request_calls": cls.request_call_limit(
+                mode, constraints or {}, desktop_fallback=desktop_fallback
+            ),
             "session_calls": _env_int("AI_PROVIDER_CALLS_PER_SESSION", 100),
             "daily_calls": _env_int("AI_PROVIDER_CALLS_PER_DAY", 500),
             "monthly_calls": _env_int("AI_PROVIDER_CALLS_PER_MONTH", 5000),
@@ -78,9 +88,12 @@ class ProviderBudgetPolicy:
         projected_input_tokens: int,
         projected_output_tokens: int,
         projected_cost_usd: float | None = None,
+        desktop_fallback: bool = False,
     ) -> BudgetDecision:
         request = context.request
-        limits = self.configured_limits(request.mode, request.constraints)
+        limits = self.configured_limits(
+            request.mode, request.constraints, desktop_fallback=desktop_fallback
+        )
         usage: dict[str, int | float | None] = {
             "request_calls": int(context.provider_call_count),
             "session_calls": 0,
@@ -106,8 +119,15 @@ class ProviderBudgetPolicy:
                 ) -> tuple[int, int, float, int]:
                     query = self.db.query(
                         func.count(LLMProviderUsage.id),
-                        func.coalesce(func.sum(LLMProviderUsage.tokens_in + LLMProviderUsage.tokens_out), 0),
-                        func.coalesce(func.sum(LLMProviderUsage.estimated_cost_usd), 0.0),
+                        func.coalesce(
+                            func.sum(
+                                LLMProviderUsage.tokens_in + LLMProviderUsage.tokens_out
+                            ),
+                            0,
+                        ),
+                        func.coalesce(
+                            func.sum(LLMProviderUsage.estimated_cost_usd), 0.0
+                        ),
                         func.coalesce(
                             func.sum(
                                 case(
@@ -121,9 +141,13 @@ class ProviderBudgetPolicy:
                     if start is not None:
                         query = query.filter(LLMProviderUsage.created_at >= start)
                     if request.user_id is not None:
-                        query = query.filter(LLMProviderUsage.user_id == request.user_id)
+                        query = query.filter(
+                            LLMProviderUsage.user_id == request.user_id
+                        )
                     if session_id:
-                        query = query.filter(LLMProviderUsage.session_id == str(session_id))
+                        query = query.filter(
+                            LLMProviderUsage.session_id == str(session_id)
+                        )
                     row = query.one()
                     return (
                         int(row[0] or 0),
@@ -133,9 +157,14 @@ class ProviderBudgetPolicy:
                     )
 
                 daily_calls, daily_tokens, _, _ = aggregate(day_start)
-                monthly_calls, monthly_tokens, monthly_spend, unknown_price_calls = aggregate(month_start)
+                monthly_calls, monthly_tokens, monthly_spend, unknown_price_calls = (
+                    aggregate(month_start)
+                )
                 usage["daily_calls"], usage["daily_tokens"] = daily_calls, daily_tokens
-                usage["monthly_calls"], usage["monthly_tokens"] = monthly_calls, monthly_tokens
+                usage["monthly_calls"], usage["monthly_tokens"] = (
+                    monthly_calls,
+                    monthly_tokens,
+                )
                 usage["monthly_spend_usd"] = monthly_spend
                 usage["monthly_unknown_price_calls"] = unknown_price_calls
                 if request.session_id:
@@ -144,9 +173,17 @@ class ProviderBudgetPolicy:
                     )
             except Exception:
                 # A ledger query failure cannot be represented as unused budget.
-                return BudgetDecision(False, "BUDGET_LEDGER_UNAVAILABLE", "Provider usage ledger unavailable", usage, limits)
+                return BudgetDecision(
+                    False,
+                    "BUDGET_LEDGER_UNAVAILABLE",
+                    "Provider usage ledger unavailable",
+                    usage,
+                    limits,
+                )
 
-        projected_tokens = max(0, projected_input_tokens) + max(0, projected_output_tokens)
+        projected_tokens = max(0, projected_input_tokens) + max(
+            0, projected_output_tokens
+        )
         checks = (
             ("request_calls", 1),
             ("session_calls", 1),
@@ -157,7 +194,13 @@ class ProviderBudgetPolicy:
         )
         for key, increment in checks:
             if int(usage[key] or 0) + increment > int(limits[key] or 0):
-                return BudgetDecision(False, f"{key.upper()}_HARD_LIMIT", f"Provider {key.replace('_', ' ')} limit exceeded", usage, limits)
+                return BudgetDecision(
+                    False,
+                    f"{key.upper()}_HARD_LIMIT",
+                    f"Provider {key.replace('_', ' ')} limit exceeded",
+                    usage,
+                    limits,
+                )
 
         spend_limit = limits.get("monthly_spend_usd")
         if spend_limit is not None and projected_cost_usd is not None:
@@ -180,11 +223,23 @@ class ProviderBudgetPolicy:
         ]
         if spend_limit is not None and projected_cost_usd is not None:
             ratios.append(
-                (float(usage.get("monthly_spend_usd") or 0.0) + max(0.0, projected_cost_usd))
+                (
+                    float(usage.get("monthly_spend_usd") or 0.0)
+                    + max(0.0, projected_cost_usd)
+                )
                 / max(0.01, float(spend_limit))
             )
         warning = max(ratios, default=0.0) >= 0.8
         confirmed = bool(request.metadata.get("budget_warning_confirmed"))
         if warning and not confirmed:
-            return BudgetDecision(False, "BUDGET_WARNING_CONFIRMATION_REQUIRED", "Provider usage warning threshold requires confirmation", usage, limits, True)
-        return BudgetDecision(True, "BUDGET_OK", "Provider budget available", usage, limits, warning)
+            return BudgetDecision(
+                False,
+                "BUDGET_WARNING_CONFIRMATION_REQUIRED",
+                "Provider usage warning threshold requires confirmation",
+                usage,
+                limits,
+                True,
+            )
+        return BudgetDecision(
+            True, "BUDGET_OK", "Provider budget available", usage, limits, warning
+        )

@@ -1,3 +1,12 @@
+export function readLocalStorageItem(key: string): { ok: true; value: string | null } | { ok: false } {
+  if (typeof window === 'undefined') return { ok: false };
+  try {
+    return { ok: true, value: window.localStorage.getItem(key) };
+  } catch {
+    return { ok: false };
+  }
+}
+
 export function getLocalStorageItem(key: string): string | null {
   if (typeof window === 'undefined') {
     return null;
