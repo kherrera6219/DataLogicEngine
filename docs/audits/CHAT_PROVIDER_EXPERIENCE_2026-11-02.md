@@ -44,8 +44,14 @@ production readiness from these checks.
 PR #109 merged at `8934d6929912881957187a6a8b98d3c7ce8c7534`. Its
 post-merge Cosign job passed, while the dependency scan reported
 `CVE-2026-49272` in `oauthlib` 4.0.0 (fixed in 4.0.1). The owner approved
-remediation; the source lock now pins 4.0.1 and its local security audit passes.
-The installed build still contains 4.0.0 and needs replacement.
+remediation; the runtime and test locks now pin 4.0.1. The local and hosted
+security scans pass, as do the full local Windows suite and hosted Windows test.
+An unsigned replacement from clean source `11af8185` was installed on November 6;
+its UI and backend hashes match the build, and local health and readiness pass
+with no blockers. The installer SHA-256 is
+`66f3ebb00bbd79ea0525e304b1385f8fdd862dc972a4fb4b0007d9323a385d39`.
+The prior build predates this dependency update; live-provider and full installed
+acceptance remain open.
 
 On November 4, the stopped Podman disk, desktop data, and prior installer were
 copied to a private recovery directory and hash-verified. The copy is not a

@@ -26,7 +26,27 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
-## November 6 installed chat provider checkpoint
+## November 6 oauthlib replacement checkpoint
+
+The owner approved remediation of `CVE-2026-49272`. Runtime and isolated test
+locks now select `oauthlib` 4.0.1. The local runtime security audit and hosted
+Security Scan passed, as did the full local Windows suite (3,546 passed, 19
+skipped, 35 warnings, zero failures or setup/collection errors) and hosted
+Windows Backend Tests. The first two hosted Windows jobs for the update failed
+installing mismatched runtime/test locks; those negative results are retained,
+and the synchronized test lock passed a combined-install dry run before retry.
+
+The unsigned engineering installer from clean commit `11af8185` is 350,281,694
+bytes, SHA-256 `66f3ebb00bbd79ea0525e304b1385f8fdd862dc972a4fb4b0007d9323a385d39`.
+Checksum, 5,033-file payload, and NSIS checks pass. On November 6 the prior app
+was uninstalled and this build installed with zero exit codes; installed UI and
+backend hashes match the build, and local health and readiness pass with no
+blockers. A fresh stopped-machine and desktop-data copy is
+hash-verified, but is neither restore-tested nor an encrypted coordinated backup.
+Live-provider, fallback, saved-chat, full installed, and release acceptance remain
+open. See `docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md`.
+
+## November 6 earlier installed chat provider checkpoint
 
 PR #109 merged to main at `8934d6929912881957187a6a8b98d3c7ce8c7534`.
 The old per-machine app was uninstalled and the unsigned engineering build from
@@ -40,9 +60,8 @@ hash-verified but neither restore-tested nor an encrypted coordinated backup.
 The post-merge Security Scan at `8934d692` passed Cosign but its dependency scan
 failed; CI/CD backend security audit also failed on the same finding. It reported `CVE-2026-49272` in `oauthlib` 4.0.0 (fixed version 4.0.1). The owner
 authorized remediation. Source now pins 4.0.1, its generated hash lock and local
-security audit pass, and full Windows and hosted validation are in progress. The
-currently installed build still contains 4.0.0 until rebuilt and replaced. See
-the chat checkpoint for details.
+security audit passed. At that earlier checkpoint Windows and hosted validation
+and replacement remained open; see the current checkpoint above.
 
 ## November 2 chat provider and presentation historical checkpoint
 

@@ -53,14 +53,14 @@ update check, crash-reporting egress, or phone-home.
 An owner-requested chat/provider source update adds an
 opt-in desktop fallback between configured providers and clearer recorded-model,
 source, and trace presentation. Windows backend and frontend source tests pass;
-an unsigned engineering installer from source `245658b6` passed payload and
-checksum checks and was installed locally on November 6. Its installed UI and
-backend match the build, and local health and readiness checks pass. Live-provider
-and full installed acceptance remain open. After a post-merge scan reported
-`CVE-2026-49272` in `oauthlib` 4.0.0, the source lock was updated to 4.0.1 and
-its local security audit passed. The installed build still contains 4.0.0; a
-replacement build and installed verification are pending. Repository-wide
-lint/type debt also remains. See the [chat provider checkpoint](docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md)
+an unsigned engineering installer from clean source `11af8185` passed payload
+and checksum checks and was installed locally on November 6. Its installed UI
+and backend match the build, and local health and readiness checks pass.
+Live-provider and full installed acceptance remain
+open. After a post-merge scan reported `CVE-2026-49272` in `oauthlib` 4.0.0,
+the source lock was updated to 4.0.1 and the local and GitHub security audits
+passed; the full Windows source suite passed 3,546 tests with 19 skipped.
+Repository-wide lint/type debt also remains. See the [chat provider checkpoint](docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md)
 for the exact results and remaining gates.
 
 The October 29 R-3 source checkpoint validates model-sized ingestion spans

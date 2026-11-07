@@ -16,8 +16,9 @@
   backend hashes match, and local health/readiness pass. Provider, recovery,
   signing and production acceptance remain open. Post-merge dependency scanning
   reported `CVE-2026-49272` in `oauthlib` 4.0.0; Cosign passed. The
-  owner-approved source lock now pins 4.0.1 and passes the local security audit;
-  the installed build still requires replacement.
+  owner-approved runtime and test locks now pin 4.0.1. Local and hosted security
+  audits and the full Windows suite pass. A replacement engineering installer
+  from `11af8185` was installed; installed UI and backend match the build.
 
 ## Unreleased source after 4.4.6 - 2026-10-29
 

@@ -173,7 +173,7 @@ recovery, independent-review, pilot, or soak result from an earlier hash is
 attributed to this artifact. The next CP19-M release-candidate run must bind every
 result to one exact signed artifact.
 
-### November 6 local engineering replacement
+### November 6 earlier local engineering replacement
 
 The unsigned 4.4.6 installer built from clean source commit `245658b6`
 (350,281,507 bytes, SHA-256
@@ -184,9 +184,19 @@ and backend hashes match the build, and the running app reports local health
 recovery and release acceptance remain open. The recovery copy is hash-verified
 but not restore-tested or an encrypted coordinated backup. Post-merge Security
 Scan passed Cosign but found `CVE-2026-49272` in `oauthlib` 4.0.0. The
-owner-approved source lock now pins 4.0.1 and passes the local audit; this
-installed artifact still contains 4.0.0. A replacement and its acceptance
-remain open.
+owner-approved source lock now pins 4.0.1 and passes the local audit. This
+earlier artifact predates that lock update; see the replacement below.
+
+### November 6 oauthlib engineering replacement
+
+The unsigned installer built from clean source commit `11af8185` is 350,281,694
+bytes, SHA-256 `66f3ebb00bbd79ea0525e304b1385f8fdd862dc972a4fb4b0007d9323a385d39`.
+Its source locks select `oauthlib` 4.0.1. Checksum, 5,033-file backend payload
+and NSIS checks pass. The prior app was uninstalled and this build installed;
+installed UI and backend hashes match the build, and local health and readiness
+pass with no blockers. The stopped-machine and desktop recovery copy is hash-verified but not restore-tested or an encrypted
+coordinated backup. Live-provider, full installed and release acceptance remain
+open.
 
 ## Gate summary
 

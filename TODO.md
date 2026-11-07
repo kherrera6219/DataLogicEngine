@@ -41,14 +41,15 @@ conditions, and exit gates remain authoritative in the active root plan.
   current workaround sets `MLFLOW_TRACKING_URI` to a temporary directory.
 - [ ] Create and verify a coordinated retained-data backup and complete
   live-provider, fallback, saved-chat and full installed acceptance. The unsigned
-  `245658b6` engineering build was installed on November 6; installed UI/backend
+  `11af8185` engineering build was installed on November 6; installed UI/backend
   hashes match the build and local health and readiness checks pass. The cold
   recovery copy is hash-verified but not restore-tested. Do not mark the earlier
   semantic retrieval repair or the release gate complete.
-- [ ] Complete Windows and hosted validation of the owner-approved
-  `oauthlib` 4.0.1 fix for `CVE-2026-49272`, then rebuild and replace the
-  installed 4.0.0 payload. The updated lock passes the local dependency audit;
-  the earlier post-merge dependency scan failed, while Cosign passed.
+- [ ] Complete remaining hosted and installed acceptance for the owner-approved
+  `oauthlib` 4.0.1 fix for `CVE-2026-49272`. The updated locks pass the local
+  audit and full Windows suite, and the hosted security and Windows tests pass.
+  The new engineering build was installed; the earlier post-merge dependency
+  scan failed, while Cosign passed.
 
 ## November 2 metric-repair stop
 
