@@ -183,8 +183,10 @@ and backend hashes match the build, and the running app reports local health
 `ok` and readiness `ready` with no blockers. Live-provider, full lifecycle,
 recovery and release acceptance remain open. The recovery copy is hash-verified
 but not restore-tested or an encrypted coordinated backup. Post-merge Security
-Scan passed Cosign but found `CVE-2026-49272` in `oauthlib` 4.0.0; owner
-direction is required.
+Scan passed Cosign but found `CVE-2026-49272` in `oauthlib` 4.0.0. The
+owner-approved source lock now pins 4.0.1 and passes the local audit; this
+installed artifact still contains 4.0.0. A replacement and its acceptance
+remain open.
 
 ## Gate summary
 

@@ -56,8 +56,11 @@ source, and trace presentation. Windows backend and frontend source tests pass;
 an unsigned engineering installer from source `245658b6` passed payload and
 checksum checks and was installed locally on November 6. Its installed UI and
 backend match the build, and local health and readiness checks pass. Live-provider
-and full installed acceptance remain open. A post-merge dependency scan reports
-`CVE-2026-49272` in `oauthlib` 4.0.0; repository-wide lint/type debt also remains. See the [chat provider checkpoint](docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md)
+and full installed acceptance remain open. After a post-merge scan reported
+`CVE-2026-49272` in `oauthlib` 4.0.0, the source lock was updated to 4.0.1 and
+its local security audit passed. The installed build still contains 4.0.0; a
+replacement build and installed verification are pending. Repository-wide
+lint/type debt also remains. See the [chat provider checkpoint](docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md)
 for the exact results and remaining gates.
 
 The October 29 R-3 source checkpoint validates model-sized ingestion spans

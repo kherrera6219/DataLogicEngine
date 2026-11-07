@@ -38,9 +38,11 @@ full lifecycle acceptance was performed. The pre-replacement cold copy is
 hash-verified but neither restore-tested nor an encrypted coordinated backup.
 
 The post-merge Security Scan at `8934d692` passed Cosign but its dependency scan
-failed; CI/CD backend security audit also failed on the same finding. It reported `CVE-2026-49272` in `oauthlib` 4.0.0 (fixed version 4.0.1). Treat this
-as a newly discovered security finding requiring owner direction under `AGENTS.md`;
-do not claim a clean dependency scan. See the chat checkpoint for details.
+failed; CI/CD backend security audit also failed on the same finding. It reported `CVE-2026-49272` in `oauthlib` 4.0.0 (fixed version 4.0.1). The owner
+authorized remediation. Source now pins 4.0.1, its generated hash lock and local
+security audit pass, and full Windows and hosted validation are in progress. The
+currently installed build still contains 4.0.0 until rebuilt and replaced. See
+the chat checkpoint for details.
 
 ## November 2 chat provider and presentation historical checkpoint
 

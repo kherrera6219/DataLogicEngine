@@ -15,7 +15,9 @@
   payload and checksum checks. It was installed November 6; installed UI and
   backend hashes match, and local health/readiness pass. Provider, recovery,
   signing and production acceptance remain open. Post-merge dependency scanning
-  reported `CVE-2026-49272` in `oauthlib` 4.0.0; Cosign passed.
+  reported `CVE-2026-49272` in `oauthlib` 4.0.0; Cosign passed. The
+  owner-approved source lock now pins 4.0.1 and passes the local security audit;
+  the installed build still requires replacement.
 
 ## Unreleased source after 4.4.6 - 2026-10-29
 

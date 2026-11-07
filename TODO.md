@@ -45,8 +45,10 @@ conditions, and exit gates remain authoritative in the active root plan.
   hashes match the build and local health and readiness checks pass. The cold
   recovery copy is hash-verified but not restore-tested. Do not mark the earlier
   semantic retrieval repair or the release gate complete.
-- [ ] Obtain owner direction for the newly reported `CVE-2026-49272` in
-  `oauthlib` 4.0.0. The post-merge dependency scan failed; Cosign passed.
+- [ ] Complete Windows and hosted validation of the owner-approved
+  `oauthlib` 4.0.1 fix for `CVE-2026-49272`, then rebuild and replace the
+  installed 4.0.0 payload. The updated lock passes the local dependency audit;
+  the earlier post-merge dependency scan failed, while Cosign passed.
 
 ## November 2 metric-repair stop
 

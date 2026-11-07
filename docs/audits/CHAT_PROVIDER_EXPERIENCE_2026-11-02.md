@@ -43,8 +43,9 @@ production readiness from these checks.
 
 PR #109 merged at `8934d6929912881957187a6a8b98d3c7ce8c7534`. Its
 post-merge Cosign job passed, while the dependency scan reported
-`CVE-2026-49272` in `oauthlib` 4.0.0 (fixed in 4.0.1). Owner direction is
-required for this newly discovered security finding.
+`CVE-2026-49272` in `oauthlib` 4.0.0 (fixed in 4.0.1). The owner approved
+remediation; the source lock now pins 4.0.1 and its local security audit passes.
+The installed build still contains 4.0.0 and needs replacement.
 
 On November 4, the stopped Podman disk, desktop data, and prior installer were
 copied to a private recovery directory and hash-verified. The copy is not a
