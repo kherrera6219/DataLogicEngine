@@ -1,6 +1,6 @@
 # Chat provider and answer presentation checkpoint
 
-Status: source changes under validation; installed acceptance and release remain open.
+Status: source merged and engineering build installed; live-provider, full installed acceptance and release remain open.
 
 The installed question reviewed in this work used Google `gemini-3.8-flash`.
 Its only cited source was earlier conversation history containing the same
@@ -31,12 +31,27 @@ skipped, 35 warnings, and zero failures or setup/collection errors. The final
 frontend suite passed 533 tests, and frontend lint and type checking passed.
 An unsigned engineering installer from clean commit `245658b6` passes checksum,
 frozen-payload and NSIS checks; its packaged UI contains the new feature markers.
-Coordinated backup and installed acceptance remain open. Repository-wide Ruff
+A November 6 replacement install succeeded; the installed UI and backend match
+the build hashes, and local health/readiness report healthy/ready. No live
+provider, fallback, saved-chat or full lifecycle acceptance was run. Coordinated
+backup and installed acceptance remain open. Repository-wide Ruff
 lint currently reports pre-existing errors outside the changed files, Ruff
 format reports pre-existing formatting differences, and the active Python
 environment does not contain mypy. These are not passing quality gates.
 No semantic migration or retrieval-scoring repair is included. Do not infer
-production readiness or a successful replacement installation from this note.
+production readiness from these checks.
+
+PR #109 merged at `8934d6929912881957187a6a8b98d3c7ce8c7534`. Its
+post-merge Cosign job passed, while the dependency scan reported
+`CVE-2026-49272` in `oauthlib` 4.0.0 (fixed in 4.0.1). The owner approved
+remediation; the runtime and test locks now pin 4.0.1. The local and hosted
+security scans pass, as do the full local Windows suite and hosted Windows test.
+An unsigned replacement from clean source `11af8185` was installed on November 6;
+its UI and backend hashes match the build, and local health and readiness pass
+with no blockers. The installer SHA-256 is
+`66f3ebb00bbd79ea0525e304b1385f8fdd862dc972a4fb4b0007d9323a385d39`.
+The prior build predates this dependency update; live-provider and full installed
+acceptance remain open.
 
 On November 4, the stopped Podman disk, desktop data, and prior installer were
 copied to a private recovery directory and hash-verified. The copy is not a
