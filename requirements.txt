@@ -42,7 +42,7 @@ neo4j==6.2.0
 Authlib==1.9.1
 flask-dance==7.1.0
 PyJWT==2.15.1
-oauthlib==4.0.0
+oauthlib==4.0.1
 cryptography==50.0.0
 pyotp==2.9.0
 qrcode==8.2
