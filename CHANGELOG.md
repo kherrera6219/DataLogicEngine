@@ -12,8 +12,10 @@
   build, changed-Python checks and documentation checks passed. Existing
   repository-wide lint/format and mypy debt remain open.
 - An unsigned engineering installer built from source commit `245658b6` passed
-  payload and checksum checks. Installed/provider, recovery, signing and
-  production acceptance remain open.
+  payload and checksum checks. It was installed November 6; installed UI and
+  backend hashes match, and local health/readiness pass. Provider, recovery,
+  signing and production acceptance remain open. Post-merge dependency scanning
+  reported `CVE-2026-49272` in `oauthlib` 4.0.0; Cosign passed.
 
 ## Unreleased source after 4.4.6 - 2026-10-29
 

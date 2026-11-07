@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved product boundary, live user workflows, and acceptance evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-27 |
+| Last reviewed | 2026-11-06 |
 | Next-review trigger | User workflow, UI, supported provider, installation, or release-status change |
 | Requirements and evidence | Root plan, product requirements, UI code, and acceptance evidence |
 
@@ -38,8 +38,8 @@ In **AI Model Controls**, choose a configured primary provider, enable the
 fallback checkbox, and save preferences. The other configured provider may be
 used after an outage, network error, timeout, or rate limit, subject to the
 displayed attempt and usage limits. Both providers may receive the question
-and selected context. This behavior is under source validation and has not yet
-been verified in a replacement installation.
+and selected context. The updated engineering build is installed locally, but this behavior has not
+yet been verified with a live provider in that installation.
 
 The candidate answer view identifies the recorded provider and model, labels
 fallback use, and can show recorded citations under **Sources**. Prior chat is

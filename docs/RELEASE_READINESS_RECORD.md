@@ -151,9 +151,9 @@ The final release record must replace candidate data with the exact clean signed
 artifact, source/tag, publisher, timestamp, manifests/SBOMs/attestations, and
 accepted installed evidence. Different-hash artifacts are separate candidates.
 
-### Current local engineering build
+### Previous local engineering build
 
-| Item | Current local build record |
+| Item | Previous local build record |
 |---|---|
 | Runtime source input | Exact clean commit `0f0d51d1fea7aadfb1f739c98c1b1565063b880c` |
 | Artifact | `DataLogicEngine Setup 4.4.6.exe` |
@@ -172,6 +172,19 @@ result for the 4.4.6 models, installed, provider-corpus/human, accessibility,
 recovery, independent-review, pilot, or soak result from an earlier hash is
 attributed to this artifact. The next CP19-M release-candidate run must bind every
 result to one exact signed artifact.
+
+### November 6 local engineering replacement
+
+The unsigned 4.4.6 installer built from clean source commit `245658b6`
+(350,281,507 bytes, SHA-256
+`efc1d04c3ccdffb5dc2fdd4f2d631491fe1902b398953b68138e42267e841190`)
+was installed per-machine after the old installation was removed. Installed UI
+and backend hashes match the build, and the running app reports local health
+`ok` and readiness `ready` with no blockers. Live-provider, full lifecycle,
+recovery and release acceptance remain open. The recovery copy is hash-verified
+but not restore-tested or an encrypted coordinated backup. Post-merge Security
+Scan passed Cosign but found `CVE-2026-49272` in `oauthlib` 4.0.0; owner
+direction is required.
 
 ## Gate summary
 

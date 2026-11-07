@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-28 |
+| Last reviewed | 2026-11-06 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 (release program) |
@@ -26,7 +26,23 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
-## November 2 chat provider and presentation work in progress
+## November 6 installed chat provider checkpoint
+
+PR #109 merged to main at `8934d6929912881957187a6a8b98d3c7ce8c7534`.
+The old per-machine app was uninstalled and the unsigned engineering build from
+`245658b6` installed on November 6, with both installer exit codes zero. The
+installed UI and backend hashes match the build; the launched desktop and backend
+processes run from Program Files. Loopback `/health` reported `ok` and `/ready`
+reported `ready` with no blockers. No live-provider, fallback, saved-chat or
+full lifecycle acceptance was performed. The pre-replacement cold copy is
+hash-verified but neither restore-tested nor an encrypted coordinated backup.
+
+The post-merge Security Scan at `8934d692` passed Cosign but its dependency scan
+failed; CI/CD backend security audit also failed on the same finding. It reported `CVE-2026-49272` in `oauthlib` 4.0.0 (fixed version 4.0.1). Treat this
+as a newly discovered security finding requiring owner direction under `AGENTS.md`;
+do not claim a clean dependency scan. See the chat checkpoint for details.
+
+## November 2 chat provider and presentation historical checkpoint
 
 November 4: PR #108 merged to `main` at
 `b69577c68f70761538ce6fde6812ac456c5650eb`; its Security Scan and Cosign
@@ -38,8 +54,8 @@ historical descriptions of the November 2 checkpoint.
 The owner approved the separate chat/provider work and asked for a rebuild and
 replacement install. The prior desktop application was closed. Candidate source
 changes and their evidence boundaries are described in
-`docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md`. The source work is under
-validation; no replacement install or installed acceptance has been established.
+`docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md`. At this historical checkpoint the source work was under
+validation; replacement installation had not yet been performed.
 The pre-existing global Ruff lint/format debt and missing mypy remain visible
 quality-gate failures. Do not uninstall the retained installation or overwrite
 the previous installer before a verified recovery point and an appropriately
@@ -61,7 +77,7 @@ The unsigned engineering installer rebuilt from clean source commit
 `245658b62ff7f2c094e8b1289bd75cb4630a1642` has SHA-256
 `efc1d04c3ccdffb5dc2fdd4f2d631491fe1902b398953b68138e42267e841190`;
 checksum, frozen-payload and NSIS checks pass.
-The packaged UI contains the new provider/fallback markers. This does not
+The packaged UI contains the new provider/fallback markers. At that historical checkpoint this did not
 establish installation, startup, live-provider or retained-data acceptance.
 
 ## November 2 metric-repair stop and handoff
@@ -92,9 +108,9 @@ Further metric-gate attempts require owner direction after this stop.
 The semantic migration/activation and audit-chain repair remain unimplemented.
 The full frontend audit still reports 38 moderate build/lint findings for
 `minimatch`/`glob`; the runtime-only audit is clean. Repository-wide Ruff and
-mypy debt remain as recorded below. The application has not been uninstalled,
-rebuilt or reinstalled; the previous installer is preserved. Re-inventory live
-services and obtain a verified current recovery point before replacement.
+mypy debt remain as recorded below. At that historical checkpoint the application
+had not been uninstalled, rebuilt or reinstalled; see the November 6 checkpoint
+above for the subsequent replacement and retained recovery copy.
 Installed acceptance, Phase A protection, signing and release remain open/NO-GO.
 
 ## November 2 dependency-repair checkpoint
