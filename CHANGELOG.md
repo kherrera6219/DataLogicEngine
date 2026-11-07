@@ -14,9 +14,15 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-06 |
+| Last reviewed | 2026-11-07 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
+
+## Unreleased source after 4.4.6 - 2026-11-07
+
+- Add bounded, test-specific Windows CI failure diagnostics for the intermittent
+  governed-trace integration test. The post-merge failure remains unresolved;
+  the diagnostic does not change the test result or application behavior.
 
 ## Unreleased source after 4.4.6 - 2026-11-04
 
