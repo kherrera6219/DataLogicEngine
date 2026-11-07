@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-29 |
+| Last reviewed | 2026-11-06 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -53,9 +53,14 @@ update check, crash-reporting egress, or phone-home.
 An owner-requested chat/provider source update adds an
 opt-in desktop fallback between configured providers and clearer recorded-model,
 source, and trace presentation. Windows backend and frontend source tests pass;
-an unsigned engineering installer from source `245658b6` passes payload and
-checksum checks. Broader repository lint/type debt and replacement-install
-acceptance remain open. See the [chat provider checkpoint](docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md)
+an unsigned engineering installer from clean source `11af8185` passed payload
+and checksum checks and was installed locally on November 6. Its installed UI
+and backend match the build, and local health and readiness checks pass.
+Live-provider and full installed acceptance remain
+open. After a post-merge scan reported `CVE-2026-49272` in `oauthlib` 4.0.0,
+the source lock was updated to 4.0.1 and the local and GitHub security audits
+passed; the full Windows source suite passed 3,546 tests with 19 skipped.
+Repository-wide lint/type debt also remains. See the [chat provider checkpoint](docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md)
 for the exact results and remaining gates.
 
 The October 29 R-3 source checkpoint validates model-sized ingestion spans
@@ -133,16 +138,16 @@ failed one Linux refinement-workflow test. The replacement PR #94 backend job
 passes the full Linux suite (3,366 passed, 26 skipped), including all three
 refinement-workflow tests; the historical failure is retained for comparison.
 
-The locally built engineering candidate is `DataLogicEngine Setup 4.4.6.exe`
+A previous locally built engineering candidate was `DataLogicEngine Setup 4.4.6.exe`
 (350,186,546 bytes; SHA-256
 `303148bf4f559937d1a49a8cd98c353e42d36e6c2f7b96bdd13a3a5d4f9b763e`).
 It was packaged from clean source commit
 `0f0d51d1fea7aadfb1f739c98c1b1565063b880c`.
 Its frozen backend declares 4.4.6, required packaging resources and NSIS policy
 checks pass, and payload verification reports zero issues across 5,029 backend
-files. The installer predates subsequent source, test, and documentation
-changes, including the October 27 review repairs; a new build is needed to
-include them.
+files. That earlier installer predates subsequent source, test, and documentation
+changes, including the October 27 review repairs; the November 6 replacement
+above supersedes it.
 This installer is unsigned and has not passed installed or live-provider
 acceptance. Source, build, and merge results do not establish release approval.
 
@@ -160,7 +165,7 @@ not receive direct database access. The dashboard reads governed-run and chat-
 session records. Independent spending quotas, the desktop request-size safety
 guard, and the existing external-client API limits still apply.
 
-The last independently recorded installed engineering build is `DataLogicEngine Setup 4.4.3.exe`
+An earlier independently recorded installed engineering build was `DataLogicEngine Setup 4.4.3.exe`
 (359,111,112 bytes; SHA-256
 `a9c803808dad8c7b552737a068bbbbd53dea421d33d170808ec3d11d6d377c5a`).
 It was rebuilt from exact source commit

@@ -1,5 +1,23 @@
 # Changelog
 
+## Document control
+
+| Field | Value |
+|---|---|
+| Document ID | DLE-ROOT-002 |
+| Title | Product change log |
+| Document version | v1.13.4 |
+| Product version | 4.4.6 |
+| Status | active |
+| Audience | Users, operators, integrators, maintainers, and release reviewers |
+| Owner | Release Engineering |
+| Approver | Kevin Herrera, Product Owner |
+| Source of authority | Merged source history, release manifests, and validated phase evidence |
+| Confidentiality | Public |
+| Last reviewed | 2026-11-06 |
+| Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
+| Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
+
 ## Unreleased source after 4.4.6 - 2026-11-04
 
 - Add an opt-in desktop-chat fallback between the configured OpenAI and Google
@@ -12,8 +30,13 @@
   build, changed-Python checks and documentation checks passed. Existing
   repository-wide lint/format and mypy debt remain open.
 - An unsigned engineering installer built from source commit `245658b6` passed
-  payload and checksum checks. Installed/provider, recovery, signing and
-  production acceptance remain open.
+  payload and checksum checks. It was installed November 6; installed UI and
+  backend hashes match, and local health/readiness pass. Provider, recovery,
+  signing and production acceptance remain open. Post-merge dependency scanning
+  reported `CVE-2026-49272` in `oauthlib` 4.0.0; Cosign passed. The
+  owner-approved runtime and test locks now pin 4.0.1. Local and hosted security
+  audits and the full Windows suite pass. A replacement engineering installer
+  from `11af8185` was installed; installed UI and backend match the build.
 
 ## Unreleased source after 4.4.6 - 2026-10-29
 
@@ -136,24 +159,6 @@
 - Current non-build qualification passes 3,101 backend tests with 19 skipped,
   435 frontend tests, 36 Python SDK tests, seven TypeScript SDK tests, lint,
   type checking, and zero-vulnerability Python/Node dependency audits.
-
-## Document control
-
-| Field | Value |
-|---|---|
-| Document ID | DLE-ROOT-002 |
-| Title | Product change log |
-| Document version | v1.13.4 |
-| Product version | 4.4.6 |
-| Status | active |
-| Audience | Users, operators, integrators, maintainers, and release reviewers |
-| Owner | Release Engineering |
-| Approver | Kevin Herrera, Product Owner |
-| Source of authority | Merged source history, release manifests, and validated phase evidence |
-| Confidentiality | Public |
-| Last reviewed | 2026-10-28 |
-| Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
-| Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
 
 All notable changes to this project will be documented in this file.
 

@@ -19,10 +19,15 @@
 
 ### Current execution checkpoint
 
-Owner-requested chat/provider changes are under validation on a separate branch:
-optional desktop fallback, recorded model and evidence disclosure, answer
-formatting, and saved-trace presentation. They do not complete the earlier
-retrieval repair or installed/provider acceptance. See
+Owner-requested chat/provider changes merged in PR #109 and an unsigned
+engineering build was installed November 6. Installed UI/backend hashes match
+the build and local health/readiness pass. Optional fallback, model and evidence
+disclosure, answer formatting and saved traces still require live-provider and
+installed acceptance. Post-merge dependency scanning reports `CVE-2026-49272`
+in `oauthlib` 4.0.0. The owner approved remediation; the 4.0.1 runtime and test
+locks pass the local audit and Windows suite, and a replacement engineering
+build was installed. Full installed acceptance remains open. This does not
+complete earlier retrieval or release gates. See
 `docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md` for the current boundaries.
 
 November 2 review-repair work stopped at the repository's three-failure gate.
