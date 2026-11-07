@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-06 |
+| Last reviewed | 2026-11-07 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 (release program) |
@@ -25,6 +25,26 @@
 | Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`. Its post-merge CI/CD, Deploy and Security workflows pass. Installed acceptance, signing, lifecycle, Phase A and CP19-M remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
+
+## November 7 Windows gateway diagnostic checkpoint
+
+PR #110 merged at `7351b3d51391745d24a654c57f33f6233cb2d4d2`. Post-merge
+Security Scan, Cosign and Deploy passed. The Windows backend job failed
+`test_gateway_persists_full_governed_trace_when_legacy_bypass_is_requested`
+(3,545 passed, 19 skipped); the PR Windows job passed. The failed response
+recorded no provider call and the log showed retrieval errors, but its failure
+code was truncated and no root cause is established. The same test appeared in
+the earlier stopped metric work; that stop remains in force.
+
+An isolated Windows run of the test passed, and a corrected full diagnostic
+run passed 3,547 tests with 18 skipped, 35 warnings and no failures or errors.
+An earlier diagnostic run was invalid because its temporary runner lacked the
+Windows multiprocessing main guard, causing an unrelated parser timeout; it is
+retained privately and is not treated as a product failure. A narrowly scoped
+CI plugin now records only bounded failure and stage identifiers when this
+specific mocked test fails; it does not alter test outcomes or fix the underlying
+gateway failure. With the plugin enabled, the full Windows suite passed 3,549
+tests, 18 skipped and 35 warnings, with zero failures or setup/collection errors. Installed/provider and release acceptance remain open.
 
 ## November 6 oauthlib replacement checkpoint
 

@@ -19,6 +19,11 @@
 
 ### Current execution checkpoint
 
+The post-merge Windows suite at `7351b3d5` failed the governed-trace
+integration test despite its passing PR and subsequent local full Windows run.
+The cause remains unresolved; targeted CI diagnostics report bounded failure
+identifiers if it recurs and do not change the test or release decision.
+
 Owner-requested chat/provider changes merged in PR #109 and an unsigned
 engineering build was installed November 6. Installed UI/backend hashes match
 the build and local health/readiness pass. Optional fallback, model and evidence

@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-06 |
+| Last reviewed | 2026-11-07 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 |
@@ -26,6 +26,15 @@
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
+
+## Post-merge Windows gateway failure
+
+- [ ] Determine the cause of the intermittent governed-trace test failure on
+  main `7351b3d5`. The post-merge Windows job failed once while the PR job,
+  isolated test and a corrected full local run passed. Targeted CI diagnostics
+  capture bounded failure and stage identifiers if the test fails again; they
+  do not fix or waive the finding. The plugin-enabled Windows suite passed 3,549
+  tests, 18 skipped and zero failures or errors. Preserve the metric-work stop.
 
 ## Chat provider and presentation installed checkpoint
 

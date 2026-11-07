@@ -55,7 +55,7 @@ jobs:
         $testPython = "$env:RUNNER_TEMP\dle-windows-tests\Scripts\python.exe"
         $testLog = "$env:RUNNER_TEMP\windows-pytest.txt"
         $PSNativeCommandUseErrorActionPreference = $false
-        & $testPython -m pytest tests/ --no-cov -q --tb=short -rEf --strict-markers 2>&1 | Tee-Object -FilePath $testLog
+        & $testPython -m pytest tests/ -p scripts.gateway_failure_diagnostics --no-cov -q --tb=short -rEf --strict-markers 2>&1 | Tee-Object -FilePath $testLog
         $testExit = $LASTEXITCODE
         if ($testExit -ne 0) { exit $testExit }
         if (Select-String -Path $testLog -Pattern '^ERROR\s') { throw 'Pytest reported setup or collection errors.' }
