@@ -20,9 +20,9 @@
 
 ## Unreleased source after 4.4.6 - 2026-11-13
 
-- Update Soup Sieve to 4.0 for CVE-2026-126190. Source and build
-  environments require Python 3.11.5 or newer. Release builds use the 3.11
-  series.
+- Update Soup Sieve to 4.0 for CVE-2026-126190, CVE-2026-126191, and
+  CVE-2026-126193. Source and build environments require Python 3.11.5
+  or newer. Release builds use the 3.11 series.
 - Update the transitive dnspython dependency to 2.9.2 for CVE-2026-128089.
 
 ## Unreleased source after 4.4.6 - 2026-11-07

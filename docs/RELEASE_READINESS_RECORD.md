@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.8 |
+| Document version | v1.8.9 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,11 +14,18 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-29 |
+| Last reviewed | 2026-11-14 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
 ## Current decision
+
+The dependency repair in [PR #112](https://github.com/kherrera6219/DataLogicEngine/pull/112)
+has a passing locked Python audit, full Windows/Linux backend suites, and
+installer/portable launch smoke at `b9fe82e1`. This is source and portable
+build evidence. The patched artifact still needs installed acceptance,
+coordinated backup and restore proof, and signing. Phase A remains open until
+the owner sets the required Windows check on `main` and records disposition.
 
 The owner-requested chat/provider candidate remains under source and installed
 validation. Its optional cross-provider fallback and presentation changes do
