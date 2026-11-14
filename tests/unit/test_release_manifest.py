@@ -42,6 +42,15 @@ def test_release_runtime_matching_is_exact_to_required_line():
     assert _node_runtime_matches(24, "v24.14.0")
     assert not _node_runtime_matches(24, "v22.22.0")
     assert not _node_runtime_matches(24, None)
+
+
+def test_release_runtime_matching_enforces_minimum_patch_in_required_line():
+    assert not _python_runtime_matches("3.11.5", "3.11.4")
+    assert _python_runtime_matches("3.11.5", "3.11.5")
+    assert _python_runtime_matches("3.11.5", "3.11.14")
+    assert not _python_runtime_matches("3.11.5", "3.12.0")
+
+
 def test_json_accepts_windows_powershell_utf8_bom(tmp_path):
     report = tmp_path / "report.json"
     report.write_bytes(b"\xef\xbb\xbf{\"status\": \"pass\"}")

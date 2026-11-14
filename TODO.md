@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.14 |
+| Document version | v1.20.15 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-07 |
+| Last reviewed | 2026-11-14 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.7 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
 | Current phase | Phase 19; PR #101 merged at `ff2a03b0` with CI/CD, Deploy and Security passing. Local R-3 source qualification passed 3,534 Windows tests in an environment not fully matched to the dependency lock; staging is disabled. Installed acceptance, Phase A and CP19-M remain open |
@@ -26,6 +26,21 @@
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
+
+## Dependency repair and next release gates
+
+- [ ] Review and integrate [PR #112](https://github.com/kherrera6219/DataLogicEngine/pull/112).
+      Candidate `b9fe82e1` passes hosted Windows, Linux, packaging/portable
+      smoke, frontend, Docker, and security checks. Verify the checks on the
+      final PR head and verify post-merge CI and dependency audit on `main`.
+- [ ] Require **Windows Backend Tests** on `main`, verify the effective rule,
+      and record the owner's Phase A disposition. PR #108's post-merge CI/CD,
+      Deploy, and Security runs passed. [Phase A checkpoint](docs/compliance/README.md)
+- [ ] Verify a current recovery point for the installed 4.4.6 retained data
+      before replacement. Bind the patched engineering candidate to its
+      source commit and digest, then execute installed acceptance for provider,
+      fallback, saved-chat, audit and lifecycle behavior. Signed CP19-M
+      acceptance and production release remain open.
 
 ## Post-merge Windows gateway failure
 
@@ -69,9 +84,6 @@ conditions, and exit gates remain authoritative in the active root plan.
 - [ ] Complete the L2/cosine scoring repair, SQL-authority semantic migration,
       audit-chain repair, documentation, and installed rebuild/acceptance. No
       metric code was committed or installed at this checkpoint.
-- [ ] Have the owner configure the required Windows status check. PR #108's
-      checks passed on its head before merge at `b69577c6`; post-merge workflows
-      must be checked. The active ruleset has no required checks; release proof is separate.
 
 ## November 1 review-repair checkpoint
 
@@ -82,9 +94,6 @@ conditions, and exit gates remain authoritative in the active root plan.
       isolated test-only Chroma boundary and its disclosed advisory status.
       The first new-lock Windows run had one unexplained failure; the test
       passed alone and the full retry passed 3,535 tests with 18 skipped.
-- [ ] Verify PR #108 post-merge checks and arrange the required Windows
-      branch-protection check. CR-A0, the CR-A1 premise check, strict CR-A2
-      local Windows suite and CR-A3 targeted tests passed; Phase A remains open.
 - [ ] Repair the reviewed vector distance scoring, complete the safe SQL-backed
       semantic migration and activation, and repair audit-chain restart/read
       verification. Preserve the migration staging guard until its lifecycle

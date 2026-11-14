@@ -4,7 +4,7 @@
     "reviewed_direct_source": "requirements.txt",
     "release_lock": "requirements.lock",
     "lock_generator": "uv 0.9.26",
-    "python_version": "3.11",
+    "python_version": "3.11.5",
     "universal_resolution": true,
     "hashes_required": true,
     "pyproject_runtime_dependencies": false,

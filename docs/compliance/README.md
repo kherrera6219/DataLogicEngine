@@ -23,12 +23,20 @@ Generated evidence goes in `/reports/remediation/`, never here. This directory i
 
 An independent code review on August 16, 2026 reported three things that matter: 40 security tests erroring at setup on its Windows baseline; a confidence score gated at 0.995 that is a weighted average of pass-rate fractions with a `0.5` fallback on exception and no calibration behind it; and 1,444 lines of "live pipeline engine" whose core imports failed. The setup-error count is historical: the 2026-08-27 4.4.3 qualification completed 3,317 Windows tests with 19 skipped and zero failures or setup errors, so CR-A0 must capture a fresh commit-bound baseline before CR-A1 is treated as open work. Deploy, Security, and CI/CD workflows passed at the older documentation/evidence commit `43fd86df...`; that result is historical, not the current source checkpoint, and it did not disposition the human gate. A compliance blueprint written the next day established that DataLogicEngine is installed software rather than SaaS — which removes FedRAMP, SOC 2, HITRUST, and multi-tenancy obligations entirely, and makes product-manufacturer duties (supply chain, signing, egress proof, honest documentation) the whole game. A market decision on August 18 excluded the EU, removing the Cyber Resilience Act, EU AI Act, GDPR, NIS2, and DORA. What remains is a verification-first 44-task program whose common purpose is making the system's claims about itself as strong as the claims it makes about everything else.
 
-**2026-11-04 checkpoint:** PR #108 records CR-A0/CR-A3 evidence, adds the
-CR-A2 Windows job and updates vulnerable dependency locks. It merged at
-`b69577c6`; post-merge checks must be verified. The active ruleset has no required status checks, so Phase A is
-still open. The metric-repair gate stopped after three full-run failures, with
-source restored to `330b849c`. Audit results, retained evidence and the remaining
-moderate build-tool findings are recorded in `HANDOFF.md`.
+**2026-11-14 checkpoint:** PR #108 merged at `b69577c6` with the CR-A0/CR-A3
+evidence and the CR-A2 Windows job. Its post-merge CI/CD, Deploy, and Security
+runs passed. The latest [PR #112 Windows result](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43544900982/job/132293823638)
+records 3,549 passing tests, 19 skipped, and zero setup or collection errors
+on `b9fe82e1`. [PR #108 CI/CD](https://github.com/kherrera6219/DataLogicEngine/actions/runs/41944785265) · [Deploy](https://github.com/kherrera6219/DataLogicEngine/actions/runs/41944785131) · [Security](https://github.com/kherrera6219/DataLogicEngine/actions/runs/41944785169)
+
+The active `main` ruleset lacks a required Windows check. The maintainer must
+enable **Require status checks to pass**, select **Windows Backend Tests**
+from GitHub Actions for `main`, and save the rule. Phase A remains open pending
+confirmation of enforcement and owner disposition. [Repository rulesets](https://github.com/kherrera6219/DataLogicEngine/settings/rules)
+
+The metric-repair gate stopped after three full-run failures, with source
+restored to `330b849c`. See [the handoff](../../HANDOFF.md) for retained
+evidence and remaining work.
 
 **2026-10-26 checkpoint:** The owner-approved 4.4.6 repair removed the NLTK
 dependency path; replacement Python/NPM audits and the affected Linux

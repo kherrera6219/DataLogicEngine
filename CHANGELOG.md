@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-002 |
 | Title | Product change log |
-| Document version | v1.13.4 |
+| Document version | v1.13.5 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Users, operators, integrators, maintainers, and release reviewers |
@@ -14,9 +14,16 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Merged source history, release manifests, and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-07 |
+| Last reviewed | 2026-11-13 |
 | Next-review trigger | Any user-visible, operational, security, migration, or compatibility change |
 | Requirements and evidence | Commit history and `reports/production-readiness/2026/` |
+
+## Unreleased source after 4.4.6 - 2026-11-13
+
+- Update Soup Sieve to 4.0 for CVE-2026-126190, CVE-2026-126191, and
+  CVE-2026-126193. Source and build environments require Python 3.11.5
+  or newer. Release builds use the 3.11 series.
+- Update the transitive dnspython dependency to 2.9.2 for CVE-2026-128089.
 
 ## Unreleased source after 4.4.6 - 2026-11-07
 

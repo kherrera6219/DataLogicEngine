@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.14 |
+| Document version | v1.22.15 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,10 +14,10 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-07 |
+| Last reviewed | 2026-11-14 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.6 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.7 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
@@ -25,6 +25,34 @@
 | Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`. Its post-merge CI/CD, Deploy and Security workflows pass. Installed acceptance, signing, lifecycle, Phase A and CP19-M remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
+
+## November 14 dependency repair and Phase A checkpoint
+
+[PR #112](https://github.com/kherrera6219/DataLogicEngine/pull/112) moves
+Soup Sieve to 4.0 and the transitive `dnspython` pin to 2.9.2. Python
+3.11.5 is the source/build minimum, and release tooling still uses the 3.11
+series. The November 14 scheduled audit on `main` at `987bd443` reported
+CVE-2026-126190, CVE-2026-126191 and CVE-2026-126193 for Soup Sieve 2.10,
+and CVE-2026-128089 for `dnspython` 2.9.0. [Scheduled audit](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43544087620)
+
+At candidate `b9fe82e1d9c1ce96b93bc5e557dfb062a1ca1d03`, the hosted Python
+audit reported zero known vulnerabilities. The Windows suite passed 3,549
+tests with 19 skipped and zero failures or setup/collection errors. Linux
+passed 3,542 tests with 26 skipped. Frontend and Docker builds, Windows
+installer build, and portable launch smoke passed. [CI/CD](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43544900982) · [Security Scan](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43544901000)
+
+PR #108's post-merge CI/CD, Deploy, and Security workflows passed at
+`b69577c6`. The required **Windows Backend Tests** check on `main` is still
+an owner action. Once the check is in force, verify it and record the owner's
+Phase A disposition before beginning CR-B. See the [Phase A checkpoint](docs/compliance/README.md).
+
+Installed preflight found the registered Windows 4.4.6 desktop executable and
+its packaged UI and backend. The earlier November 6 recovery copy is present.
+The patched candidate still needs an exact-source installed run. Verify a
+current recovery point before replacement, then bind installed health,
+provider, saved-chat, fallback, and lifecycle results to the artifact hash.
+Signing and CP19-M remain open. Keep the metric repair stopped and semantic
+staging disabled under their existing gates.
 
 ## November 7 Windows gateway diagnostic checkpoint
 

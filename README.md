@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.14 |
+| Document version | v1.13.15 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-07 |
+| Last reviewed | 2026-11-13 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -443,7 +443,7 @@ in the [Developer Guide](docs/DEVELOPER_GUIDE.md) and
 ### Requirements
 
 - Windows 11
-- Python 3.11
+- Python 3.11.5 or newer in the 3.11 series for release builds
 - Node.js 24 with npm
 - WSL2 with Podman Machine for the intended production container profile
 - Docker Desktop with Compose v2 for developer integration

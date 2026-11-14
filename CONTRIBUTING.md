@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-004 |
 | Title | Contribution controls |
-| Document version | v1.2.1 |
+| Document version | v1.2.2 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Contributors, maintainers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Repository governance, branch protections, and required validation workflows |
 | Confidentiality | Public |
-| Last reviewed | 2026-09-27 |
+| Last reviewed | 2026-11-13 |
 | Next-review trigger | Contribution workflow, toolchain, branch, or validation-gate change |
 | Requirements and evidence | CI workflows, root plan, and `docs/DEVELOPER_GUIDE.md` |
 
@@ -51,7 +51,7 @@ Before contributing, ensure you have the following installed and configured:
 
 | Requirement | Minimum Version | Notes |
 |-------------|----------------|-------|
-| Python | 3.11 | 3.12+ supported |
+| Python | 3.11.5 | Release builds use the 3.11 series |
 | Node.js | 24.x | Required for frontend and tooling |
 | PostgreSQL | 15+ | Required for integration tests (docker dev default is `postgres:15`; the native local stack installs 16) |
 | Git | 2.40+ | |

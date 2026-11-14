@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ENG-006 |
 | Title | Developer build, test, packaging, and reproducibility guide |
-| Document version | v3.8.3 |
+| Document version | v3.8.4 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Contributors, maintainers, quality engineers, release engineers, and reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Build scripts, exact dependency locks, CI workflows, and release controls |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-26 |
+| Last reviewed | 2026-11-13 |
 | Next-review trigger | Toolchain, build, test, packaging, reproducibility, or CI-policy change |
 | Requirements and evidence | Source tree, workflows, release locks, root plan, and phase evidence |
 
@@ -61,7 +61,7 @@ signing remains owner-gated; production release is still **NO-GO**.
 
 Required:
 
-1. Python `3.11`.
+1. Python `3.11.5` or newer in the 3.11 series for release builds.
 2. Node.js `24`.
 3. npm compatible with the checked-in `frontend/package-lock.json`.
 4. Windows PowerShell for Windows local stack and packaging scripts.
