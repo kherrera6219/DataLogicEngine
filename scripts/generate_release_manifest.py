@@ -51,9 +51,14 @@ NODE_COMPONENTS = (
 
 
 def _python_runtime_matches(required: str, detected: str) -> bool:
-    required_parts = required.split(".")
-    detected_parts = detected.split(".")
-    return len(required_parts) >= 2 and detected_parts[:2] == required_parts[:2]
+    minimum = re.fullmatch(r"(\d+)\.(\d+)(?:\.(\d+))?", required)
+    current = re.fullmatch(r"(\d+)\.(\d+)(?:\.(\d+))?", detected)
+    if minimum is None or current is None:
+        return False
+    return (
+        current.groups()[:2] == minimum.groups()[:2]
+        and int(current.group(3) or 0) >= int(minimum.group(3) or 0)
+    )
 
 
 def _node_runtime_matches(required_major: int, detected: str | None) -> bool:

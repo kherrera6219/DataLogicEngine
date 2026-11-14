@@ -2,7 +2,7 @@
 name = "datalogicengine"
 version = "4.4.6"
 description = "DataLogicEngine backend and repository tooling workspace"
-requires-python = ">=3.11"
+requires-python = ">=3.11.5"
 # Runtime dependency authority is requirements.txt plus its generated,
 # hash-locked requirements.lock. This root project metadata deliberately carries
 # no second dependency declaration. Editable installs must install the lock first.

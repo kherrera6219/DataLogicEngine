@@ -34,10 +34,11 @@ def print_error(message):
 def check_python_version():
     print_step("Checking Python Version")
     version = sys.version_info
-    if version.major < 3 or (version.major == 3 and version.minor < 11):
-        print_error(f"Python 3.11+ is required. You are running {version.major}.{version.minor}")
+    detected = f"{version.major}.{version.minor}.{version.micro}"
+    if version[:3] < (3, 11, 5):
+        print_error(f"Python 3.11.5 or newer is required. You are running {detected}")
         sys.exit(1)
-    print_success(f"Python {version.major}.{version.minor} detected")
+    print_success(f"Python {detected} detected")
 
 def setup_virtualenv():
     print_step("Setting up Virtual Environment")

@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_PYTHON = (3, 11)
+DEPENDENCY_AUTHORITY = ROOT / "config" / "dependency-authority.json"
 EXPECTED_NODE_MAJOR = 24
 
 
@@ -54,29 +54,24 @@ def _extract_version_tuple(raw: str | None) -> tuple[int, ...] | None:
 
 
 def _check_python(strict: bool) -> list[Finding]:
-    findings: list[Finding] = []
+    try:
+        required = json.loads(DEPENDENCY_AUTHORITY.read_text(encoding="utf-8"))[
+            "python"
+        ]["python_version"]
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return [Finding("ERROR", f"Invalid Python dependency authority: {exc}")]
+    if not isinstance(required, str) or not re.fullmatch(r"\d+\.\d+(?:\.\d+)?", required):
+        return [Finding("ERROR", f"Invalid Python minimum version: {required!r}")]
+    minimum = _extract_version_tuple(required)
+    assert minimum is not None
     current = sys.version_info[:3]
-    if strict:
-        if current[:2] != EXPECTED_PYTHON:
-            findings.append(
-                Finding(
-                    "ERROR",
-                    f"Python parity mismatch: expected {EXPECTED_PYTHON[0]}.{EXPECTED_PYTHON[1]}, got {current[0]}.{current[1]}",
-                )
-            )
-        else:
-            findings.append(Finding("OK", f"Python version matches CI parity: {current[0]}.{current[1]}"))
-    else:
-        if current[:2] < EXPECTED_PYTHON:
-            findings.append(
-                Finding(
-                    "ERROR",
-                    f"Python >= {EXPECTED_PYTHON[0]}.{EXPECTED_PYTHON[1]} required; found {current[0]}.{current[1]}",
-                )
-            )
-        else:
-            findings.append(Finding("OK", f"Python compatibility satisfied: {current[0]}.{current[1]}"))
-    return findings
+    detected = ".".join(map(str, current))
+    if current < minimum:
+        return [Finding("ERROR", f"Python >= {required} required; found {detected}")]
+    if strict and current[:2] != minimum[:2]:
+        expected_line = ".".join(map(str, minimum[:2]))
+        return [Finding("ERROR", f"Python parity requires {expected_line}; found {detected}")]
+    return [Finding("OK", f"Python compatibility satisfied: {detected}")]
 
 
 def _check_node(strict: bool) -> list[Finding]:
