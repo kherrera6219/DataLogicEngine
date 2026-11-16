@@ -13,6 +13,7 @@ import uuid
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from backend.services.text_chunking import CHUNKING_REVISION, split_text
+from core.security.egress_guard import loopback_service_url
 
 logger = logging.getLogger(__name__)
 
@@ -125,12 +126,15 @@ class RAGService:
     def _redis_embedding_client():
         if os.environ.get("USE_REDIS", "false").lower() not in {"1", "true", "yes", "on"}:
             return None
+        from backend.storage.runtime_endpoints import runtime_redis_url
+
+        redis_url = loopback_service_url(
+            runtime_redis_url(), schemes=frozenset({"redis", "rediss"})
+        )
         try:
             import redis
 
-            from backend.storage.runtime_endpoints import runtime_redis_url
-
-            client = redis.Redis.from_url(runtime_redis_url(), decode_responses=True)
+            client = redis.Redis.from_url(redis_url, decode_responses=True)
             client.ping()
             return client
         except Exception as exc:

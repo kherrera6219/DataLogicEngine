@@ -51,6 +51,27 @@ def require_loopback_host(host: str) -> str:
     return str(address)
 
 
+def loopback_service_url(url: str, *, schemes: frozenset[str]) -> str:
+    """Normalize an approved local service URL without DNS resolution."""
+    try:
+        parts = urlsplit(url)
+        if parts.scheme not in schemes or not parts.hostname or parts.fragment:
+            raise EgressDenied("Local service URL is not permitted")
+        host = require_loopback_host(parts.hostname)
+        port = parts.port
+    except ValueError as exc:
+        raise EgressDenied("Local service URL is not permitted") from exc
+    if port == 0:
+        raise EgressDenied("Local service URL is not permitted")
+    rendered_host = f"[{host}]" if ":" in host else host
+    userinfo, separator, _ = parts.netloc.rpartition("@")
+    authority = f"{userinfo}@" if separator else ""
+    authority += rendered_host
+    if port is not None:
+        authority += f":{port}"
+    return parts._replace(netloc=authority).geturl()
+
+
 def require_local_tracking_uri(uri: str) -> None:
     """Reject network-backed MLflow URIs before the optional SDK is invoked."""
     if not uri or uri.startswith(("//", "\\\\")):
