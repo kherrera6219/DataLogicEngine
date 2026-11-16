@@ -12,10 +12,10 @@ import logging
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Dict, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from urllib.parse import unquote, urlparse
 
-from core.security.egress_guard import EgressDenied, local_http_get
+from core.security.egress_guard import EgressDenied, local_http_get, require_loopback_host
 
 logger = logging.getLogger(__name__)
 
@@ -310,11 +310,12 @@ class ConnectionManager:
     
     def _check_postgres_health(self) -> bool:
         """Check authenticated PostgreSQL identity and query execution."""
+        config = replace(self.config.postgres, host=require_loopback_host(self.config.postgres.host))
         try:
             import psycopg2
 
             with psycopg2.connect(
-                self.config.postgres.connection_url,
+                config.connection_url,
                 connect_timeout=3,
             ) as connection:
                 with connection.cursor() as cursor:
@@ -327,11 +328,12 @@ class ConnectionManager:
     
     def _check_redis_health(self) -> bool:
         """Check authenticated Redis command execution."""
+        config = replace(self.config.redis, host=require_loopback_host(self.config.redis.host))
         try:
             import redis
 
             client = redis.Redis.from_url(
-                self.config.redis.connection_url,
+                config.connection_url,
                 socket_connect_timeout=3,
                 socket_timeout=3,
             )
@@ -342,11 +344,12 @@ class ConnectionManager:
     
     def _check_neo4j_health(self) -> bool:
         """Check authenticated Neo4j connectivity."""
+        config = replace(self.config.neo4j, host=require_loopback_host(self.config.neo4j.host))
         try:
             from neo4j import GraphDatabase
 
             driver = GraphDatabase.driver(
-                self.config.neo4j.connection_url,
+                config.connection_url,
                 auth=self.config.neo4j.credentials,
                 connection_timeout=3,
             )

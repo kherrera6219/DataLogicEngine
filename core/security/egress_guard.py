@@ -38,6 +38,19 @@ class _DisabledPasswordBreachHTTP:
 disabled_password_breach_http = _DisabledPasswordBreachHTTP()
 
 
+def require_loopback_host(host: str) -> str:
+    """Return a loopback IP literal without resolving a hostname over DNS."""
+    if host.lower() == "localhost":
+        return "127.0.0.1"
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError as exc:
+        raise EgressDenied("Local service host must be a loopback IP literal") from exc
+    if not address.is_loopback:
+        raise EgressDenied("Local service host must be a loopback IP literal")
+    return str(address)
+
+
 def require_local_tracking_uri(uri: str) -> None:
     """Reject network-backed MLflow URIs before the optional SDK is invoked."""
     if not uri or uri.startswith(("//", "\\\\")):
