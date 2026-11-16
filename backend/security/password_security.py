@@ -9,13 +9,18 @@ Provides enhanced password security features including:
 """
 
 import hashlib
-import requests
 from datetime import datetime, timedelta, UTC
 from typing import List, Tuple, Optional
 import logging
 
+from core.security.egress_guard import (
+    EgressDenied,
+    disabled_password_breach_http,
+    requests_exceptions,
+)
+
 logger = logging.getLogger(__name__)
-breach_http = requests
+breach_http = disabled_password_breach_http
 
 
 class PasswordSecurity:
@@ -78,7 +83,7 @@ class PasswordSecurity:
     @staticmethod
     def check_password_breach(password: str, timeout: int = 2) -> Tuple[bool, Optional[int]]:
         """
-        Check if password has been exposed in data breaches using Have I Been Pwned API.
+        Reject the external Have I Been Pwned lookup under the installed egress policy.
 
         Uses k-anonymity model - only sends first 5 chars of SHA-1 hash.
 
@@ -86,9 +91,8 @@ class PasswordSecurity:
             password: The password to check
             timeout: Request timeout in seconds
 
-        Returns:
-            Tuple of (is_breached, breach_count)
-            Returns (False, None) if API is unavailable
+        Raises:
+            EgressDenied: External password-breach lookups are not approved.
         """
         try:
             # HIBP range API requires SHA-1 prefix lookup (k-anonymity), not security hashing.
@@ -118,7 +122,9 @@ class PasswordSecurity:
                 logger.warning(f"HIBP API returned status {response.status_code}")
                 return (False, None)
 
-        except requests.exceptions.Timeout:
+        except EgressDenied:
+            raise
+        except requests_exceptions.Timeout:
             logger.warning("HIBP API timeout")
             return (False, None)
         except Exception as e:

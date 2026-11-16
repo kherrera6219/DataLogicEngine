@@ -5,11 +5,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 import ipaddress
 import re
+from typing import NoReturn
 from urllib.parse import unquote, urlsplit
 
 import httpx
+from requests import exceptions
 
 GuardedHTTPError = httpx.HTTPError
+requests_exceptions = exceptions
 
 
 class EgressDenied(RuntimeError):
@@ -20,6 +23,19 @@ class EgressDenied(RuntimeError):
         message: str = "Blocked by security policy: unapproved outbound HTTP destination",
     ) -> None:
         super().__init__(message)
+
+
+class _DisabledPasswordBreachHTTP:
+    """Reject the legacy external breach service under the installed policy."""
+
+    @staticmethod
+    def get(url: str, *, timeout: int) -> NoReturn:
+        raise EgressDenied(
+            "External password-breach lookup is disabled by the egress policy"
+        )
+
+
+disabled_password_breach_http = _DisabledPasswordBreachHTTP()
 
 
 def require_local_tracking_uri(uri: str) -> None:
