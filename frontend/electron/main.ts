@@ -20,6 +20,7 @@ import {
   desktopSecretVaultDir,
 } from './paths';
 import { envFlag } from './env-flag';
+import { isLocalServiceRequest } from './local-request-origin';
 
 // GUI launches do not guarantee that inherited stdout/stderr handles remain
 // writable. A closed parent pipe must never crash the Electron main process.
@@ -1036,17 +1037,11 @@ app.on('ready', async () => {
   // Tag desktop-originated requests so Next middleware can bypass web login redirects.
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     const requestHeaders = { ...details.requestHeaders };
-    if (
-      details.url.startsWith('http://localhost:3000') ||
-      details.url.startsWith('http://127.0.0.1:3000')
-    ) {
+    if (isLocalServiceRequest(details.url, 3000)) {
       setHeaderValue(requestHeaders, 'X-DataLogic-Desktop', 'true');
     }
 
-    if (
-      details.url.startsWith('http://localhost:5000') ||
-      details.url.startsWith('http://127.0.0.1:5000')
-    ) {
+    if (isLocalServiceRequest(details.url, 5000)) {
       setHeaderValue(requestHeaders, 'X-DataLogic-Desktop', 'true');
       const timestamp = Math.floor(Date.now() / 1000).toString();
       const requestNonce = crypto.randomBytes(24).toString('base64url');
