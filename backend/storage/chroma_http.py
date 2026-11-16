@@ -19,6 +19,8 @@ from urllib.parse import quote
 
 import httpx
 
+from core.security.egress_guard import EgressPolicy, GuardedHTTPTransport
+
 
 DEFAULT_TENANT = "default_tenant"
 DEFAULT_DATABASE = "default_database"
@@ -359,9 +361,12 @@ class ChromaHttpClient:
         self.database = _collection_name(database)
         rendered_host = f"[{address}]" if address.version == 6 else str(address)
         self._base_url = f"http://{rendered_host}:{port}/api/v2"
+        limits = httpx.Limits(max_connections=16, max_keepalive_connections=8)
         self._session = httpx.Client(
             timeout=httpx.Timeout(timeout_seconds, connect=min(timeout_seconds, 3.0)),
-            limits=httpx.Limits(max_connections=16, max_keepalive_connections=8),
+            transport=GuardedHTTPTransport(
+                EgressPolicy.for_endpoint(self._base_url), limits=limits
+            ),
             follow_redirects=False,
             trust_env=False,
             headers={"Content-Type": "application/json", "User-Agent": "DataLogicEngine-Chroma-Vector-Client/1"},

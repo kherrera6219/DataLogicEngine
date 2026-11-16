@@ -62,8 +62,13 @@ class EgressPolicy:
 class GuardedHTTPTransport(httpx.HTTPTransport):
     """Check the request before HTTPX resolves or connects to the destination."""
 
-    def __init__(self, policy: EgressPolicy) -> None:
-        super().__init__(trust_env=False)
+    def __init__(
+        self, policy: EgressPolicy, *, limits: httpx.Limits | None = None
+    ) -> None:
+        if limits is None:
+            super().__init__(trust_env=False)
+        else:
+            super().__init__(trust_env=False, limits=limits)
         self.policy = policy
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
