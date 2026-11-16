@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from backend.storage.chroma_http import ChromaHttpClient
-from core.security.egress_guard import EgressDenied
+from core.security.egress_guard import EgressDenied, loopback_http_client
 
 
 @pytest.mark.parametrize("host", ["127.0.0.1", "::1"])
@@ -25,3 +25,18 @@ def test_chroma_transport_allows_only_its_configured_origin(monkeypatch, host):
 
     assert len(contacted) == 1
     assert contacted[0].host == host
+
+
+@pytest.mark.parametrize(
+    "endpoint",
+    ["http://outside.example:8000", "http://192.0.2.1:8000", "https://127.0.0.1:8000"],
+)
+def test_local_client_factory_rejects_nonloopback_or_non_http(endpoint):
+    with pytest.raises(EgressDenied):
+        loopback_http_client(
+            endpoint,
+            timeout=5,
+            max_connections=16,
+            max_keepalive_connections=8,
+            headers={},
+        )
