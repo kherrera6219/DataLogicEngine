@@ -15,6 +15,7 @@ from typing import List, Tuple, Optional
 import logging
 
 logger = logging.getLogger(__name__)
+breach_http = requests
 
 
 class PasswordSecurity:
@@ -98,7 +99,7 @@ class PasswordSecurity:
 
             # Query the API with the prefix
             url = f"https://api.pwnedpasswords.com/range/{prefix}"
-            response = requests.get(url, timeout=timeout)
+            response = breach_http.get(url, timeout=timeout)
 
             if response.status_code == 200:
                 # Parse the response
