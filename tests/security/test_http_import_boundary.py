@@ -11,7 +11,23 @@ HTTP_CLIENTS = {"requests", "httpx", "aiohttp"}
 
 def _direct_client_imports(source: str) -> list[tuple[int, str]]:
     found = []
-    for node in ast.walk(ast.parse(source)):
+    tree = ast.parse(source)
+    module_aliases = {"importlib": {"importlib"}, "builtins": {"builtins"}}
+    loader_aliases = {"__import__"}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name in module_aliases:
+                    module_aliases[alias.name].add(alias.asname or alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            if node.module in {"importlib", "builtins"}:
+                for alias in node.names:
+                    if (node.module, alias.name) in {
+                        ("importlib", "import_module"),
+                        ("builtins", "__import__"),
+                    }:
+                        loader_aliases.add(alias.asname or alias.name)
+    for node in ast.walk(tree):
         names = []
         if isinstance(node, ast.Import):
             names = [alias.name for alias in node.names]
@@ -24,13 +40,21 @@ def _direct_client_imports(source: str) -> list[tuple[int, str]]:
             and isinstance(node.args[0].value, str)
         ):
             func = node.func
-            if isinstance(func, ast.Name) and func.id == "__import__":
+            if isinstance(func, ast.Name) and func.id in loader_aliases:
                 names = [node.args[0].value]
             elif (
                 isinstance(func, ast.Attribute)
                 and isinstance(func.value, ast.Name)
-                and func.value.id == "importlib"
-                and func.attr == "import_module"
+                and (
+                    (
+                        func.value.id in module_aliases["importlib"]
+                        and func.attr == "import_module"
+                    )
+                    or (
+                        func.value.id in module_aliases["builtins"]
+                        and func.attr == "__import__"
+                    )
+                )
             ):
                 names = [node.args[0].value]
         found.extend(
@@ -47,6 +71,9 @@ def _direct_client_imports(source: str) -> list[tuple[int, str]]:
         "def load():\n    import aiohttp",
         "__import__('requests.sessions')",
         "importlib.import_module('httpx')",
+        "import importlib as loader\nloader.import_module('requests')",
+        "from importlib import import_module as load\nload('httpx')",
+        "import builtins as b\nb.__import__('aiohttp')",
     ],
 )
 def test_import_scan_identifies_direct_and_literal_dynamic_imports(source):
