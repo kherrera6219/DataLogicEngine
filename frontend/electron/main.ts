@@ -21,6 +21,7 @@ import {
 } from './paths';
 import { envFlag } from './env-flag';
 import { isLocalServiceRequest } from './local-request-origin';
+import { desktopContentSecurityPolicy } from './content-security-policy';
 
 // GUI launches do not guarantee that inherited stdout/stderr handles remain
 // writable. A closed parent pipe must never crash the Electron main process.
@@ -1069,20 +1070,10 @@ app.on('ready', async () => {
   // styles in the packaged renderer. Mitigations: contextIsolation, sandbox,
   // no nodeIntegration, navigation lock, IPC allowlist. See docs/DESKTOP_CSP.md.
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    const scriptSrc = "'self' 'unsafe-inline' app:";
-    const styleSrc = "'self' 'unsafe-inline' app:";
-
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': [
-          "default-src 'self' app:; " +
-          `script-src ${scriptSrc}; ` +
-          `style-src ${styleSrc}; ` +
-          "img-src 'self' data: https: app:; " +
-          "connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 app:; " +
-          "font-src 'self' data: app:;"
-        ]
+        'Content-Security-Policy': [desktopContentSecurityPolicy()]
       }
     });
   });
