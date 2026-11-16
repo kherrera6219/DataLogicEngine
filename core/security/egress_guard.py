@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
+from urllib.parse import unquote, urlsplit
 
 import httpx
 
@@ -14,6 +16,28 @@ class EgressDenied(RuntimeError):
         super().__init__(
             "Blocked by security policy: unapproved outbound HTTP destination"
         )
+
+
+def require_local_tracking_uri(uri: str) -> None:
+    """Reject network-backed MLflow URIs before the optional SDK is invoked."""
+    if not uri or uri.startswith(("//", "\\\\")):
+        raise EgressDenied()
+    if re.match(r"^[A-Za-z]:[\\/]", uri):
+        return
+    try:
+        parsed = urlsplit(uri)
+    except ValueError as exc:
+        raise EgressDenied() from exc
+    if parsed.scheme:
+        if (
+            parsed.scheme != "file"
+            or parsed.netloc
+            or not parsed.path
+            or unquote(parsed.path).replace("\\", "/").startswith("//")
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise EgressDenied()
 
 
 def _origin(url: httpx.URL) -> tuple[str, bytes, int]:

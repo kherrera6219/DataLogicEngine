@@ -8,12 +8,15 @@ import os
 from pathlib import Path
 from typing import Any
 
+from core.security.egress_guard import require_local_tracking_uri
+
 
 class TruthMemoryMLflowTracker:
     """Track TruthMemory sessions through MLflow when available, JSONL otherwise."""
 
     def __init__(self, tracking_uri: str | None = None):
         self.tracking_uri = tracking_uri or self.default_tracking_uri()
+        require_local_tracking_uri(self.tracking_uri)
 
     @staticmethod
     def default_tracking_uri() -> str:
@@ -24,6 +27,7 @@ class TruthMemoryMLflowTracker:
         return str(base / "DataLogicEngine" / "mlruns")
 
     def record_session(self, session_data: dict[str, Any]) -> dict[str, Any]:
+        require_local_tracking_uri(self.tracking_uri)
         payload = {
             "session_id": str(session_data.get("session_id") or ""),
             "tier": str(session_data.get("tier") or "unknown"),
