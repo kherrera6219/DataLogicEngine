@@ -8,6 +8,8 @@ from urllib.parse import unquote, urlsplit
 
 import httpx
 
+GuardedHTTPError = httpx.HTTPError
+
 
 class EgressDenied(RuntimeError):
     """The transport refused an outbound request before opening a connection."""
@@ -111,6 +113,28 @@ class GuardedAsyncHTTPTransport(httpx.AsyncHTTPTransport):
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
         self.policy.check(request)
         return await super().handle_async_request(request)
+
+
+def local_http_get(url: str, *, timeout: float) -> httpx.Response:
+    """Fetch one loopback URL without proxies or automatic redirects."""
+    try:
+        request_url = httpx.URL(url)
+    except httpx.InvalidURL as exc:
+        raise EgressDenied() from exc
+    if request_url.scheme != "http" or request_url.host not in {
+        "localhost",
+        "127.0.0.1",
+        "::1",
+    }:
+        raise EgressDenied()
+    policy = EgressPolicy(frozenset({_origin(request_url)}))
+    with httpx.Client(
+        transport=GuardedHTTPTransport(policy),
+        trust_env=False,
+        follow_redirects=False,
+        timeout=timeout,
+    ) as client:
+        return client.get(request_url)
 
 
 def model_async_client(policy: EgressPolicy, *, timeout: float) -> httpx.AsyncClient:
