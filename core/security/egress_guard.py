@@ -12,10 +12,11 @@ import httpx
 class EgressDenied(RuntimeError):
     """The transport refused an outbound request before opening a connection."""
 
-    def __init__(self) -> None:
-        super().__init__(
-            "Blocked by security policy: unapproved outbound HTTP destination"
-        )
+    def __init__(
+        self,
+        message: str = "Blocked by security policy: unapproved outbound HTTP destination",
+    ) -> None:
+        super().__init__(message)
 
 
 def require_local_tracking_uri(uri: str) -> None:
