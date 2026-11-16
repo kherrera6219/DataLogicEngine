@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import ipaddress
 import re
 from urllib.parse import unquote, urlsplit
 
@@ -113,6 +114,36 @@ class GuardedAsyncHTTPTransport(httpx.AsyncHTTPTransport):
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
         self.policy.check(request)
         return await super().handle_async_request(request)
+
+
+def loopback_http_client(
+    endpoint: str,
+    *,
+    timeout: float,
+    max_connections: int,
+    max_keepalive_connections: int,
+    headers: dict[str, str],
+) -> httpx.Client:
+    """Create a guarded client for a literal loopback service endpoint."""
+    try:
+        url = httpx.URL(endpoint)
+        address = ipaddress.ip_address(url.host)
+    except (httpx.InvalidURL, ValueError) as exc:
+        raise EgressDenied() from exc
+    if url.scheme != "http" or not address.is_loopback:
+        raise EgressDenied()
+    policy = EgressPolicy.for_endpoint(endpoint)
+    limits = httpx.Limits(
+        max_connections=max_connections,
+        max_keepalive_connections=max_keepalive_connections,
+    )
+    return httpx.Client(
+        transport=GuardedHTTPTransport(policy, limits=limits),
+        timeout=httpx.Timeout(timeout, connect=min(timeout, 3.0)),
+        follow_redirects=False,
+        trust_env=False,
+        headers=headers,
+    )
 
 
 def local_http_get(url: str, *, timeout: float) -> httpx.Response:
