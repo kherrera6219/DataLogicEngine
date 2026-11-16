@@ -8,6 +8,8 @@ import logging
 import uuid
 from typing import Any, Dict, Optional
 
+from core.security.egress_guard import EgressDenied
+
 logger = logging.getLogger(__name__)
 
 _STATE: Dict[str, Any] = {
@@ -51,36 +53,14 @@ def initialize_crash_reporting(
         _STATE["init_error"] = None
         return crash_reporting_state()
 
-    try:
-        import sentry_sdk
-        from sentry_sdk.integrations.flask import FlaskIntegration
-        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
-    except Exception as exc:  # noqa: BLE001
-        _STATE["enabled"] = False
-        _STATE["provider"] = "none"
-        _STATE["init_error"] = f"sentry_import_failed: {exc}"
-        logger.warning("Sentry SDK import failed; crash reporting fallback mode only", exc_info=exc)
-        return crash_reporting_state()
-
-    try:
-        sentry_sdk.init(
-            dsn=dsn,
-            integrations=[FlaskIntegration(), SqlalchemyIntegration()],
-            traces_sample_rate=float(traces_sample_rate),
-            profiles_sample_rate=float(profiles_sample_rate),
-            environment=environment,
-            release=release,
-        )
-        _SENTRY_SDK = sentry_sdk
-        _STATE["enabled"] = True
-        _STATE["provider"] = "sentry"
-        _STATE["init_error"] = None
-    except Exception as exc:  # noqa: BLE001
-        _STATE["enabled"] = False
-        _STATE["provider"] = "none"
-        _STATE["init_error"] = f"sentry_init_failed: {exc}"
-        logger.error("Crash reporting provider initialization failed", exc_info=exc)
-    return crash_reporting_state()
+    _SENTRY_SDK = None
+    _STATE["enabled"] = False
+    _STATE["provider"] = "none"
+    _STATE["init_error"] = "external_crash_reporting_blocked"
+    raise EgressDenied(
+        "External crash reporting is unavailable under the installed-software "
+        "egress policy. Disable DLE_EXTERNAL_TELEMETRY_ENABLED to start."
+    )
 
 
 def capture_exception_with_fallback(
