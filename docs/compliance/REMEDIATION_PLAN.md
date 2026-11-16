@@ -302,18 +302,22 @@ New tests must cover: allowed host succeeds; denied host raises the typed except
 ### CR-B2 · Route every call site through the guard
 
 **Depends on:** CR-B1
-**Allowed paths:** call sites from `EGRESS_INVENTORY.md`
+**Allowed paths:** call sites from `EGRESS_INVENTORY.md`, the Python SDK package and its tests, and the CR-B2 plan and task definitions for the owner-approved gate correction below.
 **Sessions:** 1–2
 
 Migrate each inventoried call site to the guarded transport. Include MCP client transports — **each MCP server is a second egress path, and an unguarded one silently falsifies the product's one-outbound-flow claim.**
 
+**Owner-approved gate correction, 2026-11-16.** The installed application and the separately distributed SDK are different processes. The SDK wheel packages only `ukg_sdk`, so it cannot import the application's `core` module. Scan the installed backend and core for direct HTTP-client imports, and separately test the SDK's own client-to-DataLogicEngine boundary. Do not exclude any installed application path or relax the MCP, air-gap, audit, or full-suite requirements. Keep the SDK's existing tests. The SDK gate must verify its built wheel works without the application package, its owned clients contact only the explicitly configured API origin, and redirects and environment proxies cannot change that destination. If an SDK caller supplies its own HTTP client, document and test that its transport is controlled by that caller; do not claim the SDK enforces a policy over an injected transport.
+
 **Exit gate**
 
 ```bash
-# No direct HTTP client usage outside the guard module
-! grep -rEn "^\s*(import requests|import httpx|from requests|from httpx|import aiohttp)" \
-  backend/ core/ sdk/ --include="*.py" | grep -v "egress_guard.py"
-python -m pytest tests/ --no-cov -q 2>&1 | tail -2
+# Installed application: no direct HTTP client imports outside the guard.
+! grep -rEn "^[[:space:]]*(import requests|import httpx|from requests|from httpx|import aiohttp|from aiohttp)" \
+  backend/ core/ --include="*.py" | grep -v "core/security/egress_guard.py"
+# Separate SDK boundary and standalone wheel; these tests must exist and pass.
+python -m pytest tests/security/test_sdk_egress.py sdk/UKG_Python_SDK/tests/ --no-cov -q --tb=short -rE
+python -m pytest tests/ --no-cov -q --tb=short -rE
 ```
 
 ---
