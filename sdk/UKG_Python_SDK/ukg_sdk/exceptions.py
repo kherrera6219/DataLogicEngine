@@ -23,6 +23,10 @@ class UKGConfigError(UKGError):
     """Raised for invalid/missing configuration."""
 
 
+class SDKDestinationDenied(UKGError):
+    """An SDK-owned client refused an unapproved API destination."""
+
+
 class UKGValidationError(UKGError):
     """Raised when local validation fails."""
 

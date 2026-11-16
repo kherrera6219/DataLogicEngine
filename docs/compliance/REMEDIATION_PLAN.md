@@ -316,7 +316,7 @@ Migrate each inventoried call site to the guarded transport. Include MCP client 
 ! grep -rEn "^[[:space:]]*(import requests|import httpx|from requests|from httpx|import aiohttp|from aiohttp)" \
   backend/ core/ --include="*.py" | grep -v "core/security/egress_guard.py"
 # Separate SDK boundary and standalone wheel; these tests must exist and pass.
-python -m pytest tests/security/test_sdk_egress.py sdk/UKG_Python_SDK/tests/ --no-cov -q --tb=short -rE
+(cd sdk/UKG_Python_SDK && python -m pytest tests/ --no-cov -q --tb=short -rE && python tools/verify_standalone_wheel.py)
 python -m pytest tests/ --no-cov -q --tb=short -rE
 ```
 

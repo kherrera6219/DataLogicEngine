@@ -389,7 +389,7 @@
         "Migrate each inventoried call site to the guarded transport, including MCP client transports. Each MCP server is a second egress path that silently falsifies the one-outbound-flow claim if unguarded.",
         "Owner-approved 2026-11-16: verify the independently packaged SDK against its configured API origin and standalone wheel, retaining SDK tests; the installed-application import scan covers backend and core only. Injected SDK clients remain caller-controlled. No other Phase B gate is relaxed."
       ],
-      "exit_gate": "! grep -rEn '^[[:space:]]*(import requests|import httpx|from requests|from httpx|import aiohttp|from aiohttp)' backend/ core/ --include='*.py' | grep -v core/security/egress_guard.py && python -m pytest tests/security/test_sdk_egress.py sdk/UKG_Python_SDK/tests/ --no-cov -q --tb=short -rE && python -m pytest tests/ --no-cov -q --tb=short -rE"
+      "exit_gate": "! grep -rEn '^[[:space:]]*(import requests|import httpx|from requests|from httpx|import aiohttp|from aiohttp)' backend/ core/ --include='*.py' | grep -v core/security/egress_guard.py && (cd sdk/UKG_Python_SDK && python -m pytest tests/ --no-cov -q --tb=short -rE && python tools/verify_standalone_wheel.py) && python -m pytest tests/ --no-cov -q --tb=short -rE"
     },
     {
       "id": "CR-B3",

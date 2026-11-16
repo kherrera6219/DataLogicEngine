@@ -10,6 +10,7 @@ from typing import Any, Self, TypeVar
 
 import httpx
 
+from ukg_sdk.egress import async_client, sync_client
 from ukg_sdk.api_models import (
     AxisVector,
     ChatSession,
@@ -137,7 +138,7 @@ class UKGClient(BaseClient):
     
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
-        self._client = httpx.Client(timeout=self.timeout)
+        self._client = sync_client(self.base_url, timeout=self.timeout)
         
         # Initialize sub-clients
         self.sessions = SessionsClient(self)
@@ -237,7 +238,7 @@ class UKGAsyncClient(BaseClient):
     
     def __init__(self, **kwargs: Any):
         super().__init__(**kwargs)
-        self._client = httpx.AsyncClient(timeout=self.timeout)
+        self._client = async_client(self.base_url, timeout=self.timeout)
         
         # Initialize sub-clients
         self.sessions = AsyncSessionsClient(self)
