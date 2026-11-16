@@ -9,13 +9,13 @@ part of the runtime model.
 
 import os
 import logging
-import json
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
 from urllib.parse import unquote, urlparse
-import urllib.request
+
+from core.security.egress_guard import EgressDenied, local_http_get
 
 logger = logging.getLogger(__name__)
 
@@ -296,6 +296,8 @@ class ConnectionManager:
             else:
                 logger.warning(f"Unknown service: {service}")
                 return False
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"Health check failed for {service}: {e}")
             return False
@@ -365,12 +367,9 @@ class ConnectionManager:
                     f"http://{self.config.vector.host}:"
                     f"{self.config.vector.port}/api/v2/heartbeat"
                 )
-                # The app-owned data-plane configuration fixes this endpoint to loopback.
-                with urllib.request.urlopen(  # noqa: S310  # nosec B310
-                    url,
-                    timeout=3,
-                ) as response:
-                    payload = json.loads(response.read().decode("utf-8"))
+                response = local_http_get(url, timeout=3)
+                response.raise_for_status()
+                payload = response.json()
                 return "nanosecond heartbeat" in payload
             from backend.storage.vector_store import ChromaDBBackend
 
@@ -378,6 +377,8 @@ class ConnectionManager:
             collection = backend._get_collection("healthcheck")
             collection.count()
             return True
+        except EgressDenied:
+            raise
         except Exception as exc:
             logger.warning("Vector health check failed: %s", exc)
             return False
