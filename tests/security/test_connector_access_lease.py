@@ -235,3 +235,27 @@ def test_approved_root_cannot_include_private_journal(tmp_path):
     with pytest.raises(ConnectorIsolationError, match="overlap"):
         ConnectorAccessLease.create(tmp_path / "journal", [(tmp_path, True)])
     assert _acl(tmp_path) == before
+
+
+def test_cleanup_reports_a_child_that_keeps_connector_access(tmp_path):
+    if os.name != "nt":
+        with pytest.raises(ConnectorIsolationError, match="Windows"):
+            ConnectorAccessLease.create(tmp_path / "journal", [(tmp_path, True)])
+        return
+    root = tmp_path / "approved"
+    root.mkdir()
+    child = root / "protected.txt"
+    child.write_text("fixture", encoding="utf-8")
+    lease = ConnectorAccessLease.create(tmp_path / "journal", [(root, False)])
+    sid = lease.lease["sid"]
+    try:
+        subprocess.run(
+            ["icacls", str(child), "/inheritance:d"], check=True, capture_output=True
+        )
+        with pytest.raises(ConnectorIsolationError, match="access remains"):
+            lease.close()
+        assert lease.path.exists()
+        assert sid in _acl(child)
+    finally:
+        containment._windows_acl_change(child, sid, write=False, revoke=True)
+        lease.close()
