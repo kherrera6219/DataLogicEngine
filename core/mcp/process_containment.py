@@ -580,6 +580,14 @@ class ConnectorAccessLease:
                 raise ConnectorIsolationError(
                     "A drive root cannot be a connector access grant"
                 )
+            if (
+                directory == path
+                or directory.is_relative_to(path)
+                or path.is_relative_to(directory)
+            ):
+                raise ConnectorIsolationError(
+                    "Connector access cannot overlap its private journal"
+                )
             previous = normalized.get(path, ConnectorPathGrant(path))
             normalized[path] = ConnectorPathGrant(
                 path,
