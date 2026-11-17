@@ -224,3 +224,14 @@ def test_read_only_root_does_not_grant_file_write_or_execute(tmp_path):
         assert "(I)(R)" in sid_lines[0]
     finally:
         lease.close()
+
+
+def test_approved_root_cannot_include_private_journal(tmp_path):
+    if os.name != "nt":
+        with pytest.raises(ConnectorIsolationError, match="Windows"):
+            ConnectorAccessLease.create(tmp_path / "journal", [(tmp_path, True)])
+        return
+    before = _acl(tmp_path)
+    with pytest.raises(ConnectorIsolationError, match="overlap"):
+        ConnectorAccessLease.create(tmp_path / "journal", [(tmp_path, True)])
+    assert _acl(tmp_path) == before
