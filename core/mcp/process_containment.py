@@ -5,6 +5,7 @@ from __future__ import annotations
 import ctypes
 from ctypes import wintypes
 from contextlib import contextmanager
+from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
@@ -36,14 +37,26 @@ _SE_FILE_OBJECT = 1
 _GRANT_ACCESS = 1
 _REVOKE_ACCESS = 4
 _OBJECT_AND_CONTAINER_INHERIT = 3
-_FILE_READ_EXECUTE = 0x001200A9
-_FILE_MODIFY = 0x001301BF
+_CONTAINER_INHERIT = 2
+_FILE_GENERIC_READ = 0x00120089
+_FILE_GENERIC_WRITE = 0x00120116
+_FILE_GENERIC_EXECUTE = 0x001200A0
+_FILE_DELETE = 0x00010000
+_DIRECTORY_TRAVERSE = 0x00120020
 _PROFILE_PREFIX = "DataLogicEngine.Connector."
 _APP_CONTAINER_SID = re.compile(r"^S-1-15-2-(?:[0-9]+-){6}[0-9]+$")
 
 
 class ConnectorIsolationError(RuntimeError):
     """An isolated connector could not be safely started or cleaned up."""
+
+
+@dataclass(frozen=True)
+class ConnectorPathGrant:
+    path: Path
+    read: bool = False
+    write: bool = False
+    execute: bool = False
 
 
 class _FileTime(ctypes.Structure):
@@ -90,6 +103,8 @@ def _windows_acl_change(
     *,
     write: bool,
     revoke: bool | None,
+    read: bool = True,
+    execute: bool = True,
     expected_id: tuple[int, int, int] | None = None,
 ) -> tuple[int, int, int]:
     """Change only this identity's ACE through an opened, identity-checked handle."""
@@ -197,16 +212,37 @@ def _windows_acl_change(
             raise ConnectorIsolationError(
                 "Connector path has an unrestricted access list"
             )
-        entry = _ExplicitAccess(
-            0 if revoke else (_FILE_MODIFY if write else _FILE_READ_EXECUTE),
-            _REVOKE_ACCESS if revoke else _GRANT_ACCESS,
-            _OBJECT_AND_CONTAINER_INHERIT
-            if info.attributes & 0x10 and not revoke
-            else 0,
-            _Trustee(None, 0, 0, 0, sid.value),
-        )
+        trustee = _Trustee(None, 0, 0, 0, sid.value)
+        entries = []
+        if revoke:
+            entries.append(_ExplicitAccess(0, _REVOKE_ACCESS, 0, trustee))
+        else:
+            is_directory = bool(info.attributes & 0x10)
+            if is_directory:
+                entries.append(
+                    _ExplicitAccess(
+                        _DIRECTORY_TRAVERSE, _GRANT_ACCESS, _CONTAINER_INHERIT, trustee
+                    )
+                )
+            rights = (
+                (_FILE_GENERIC_READ if read else 0)
+                | ((_FILE_GENERIC_WRITE | _FILE_DELETE) if write else 0)
+                | (_FILE_GENERIC_EXECUTE if execute else 0)
+            )
+            if rights:
+                entries.append(
+                    _ExplicitAccess(
+                        rights,
+                        _GRANT_ACCESS,
+                        _OBJECT_AND_CONTAINER_INHERIT if is_directory else 0,
+                        trustee,
+                    )
+                )
+            if not entries:
+                raise ConnectorIsolationError("Connector file grant has no permissions")
+        entry_array = (_ExplicitAccess * len(entries))(*entries)
         result = advapi.SetEntriesInAclW(
-            1, ctypes.byref(entry), old_acl, ctypes.byref(new_acl)
+            len(entries), entry_array, old_acl, ctypes.byref(new_acl)
         )
         if result:
             raise ctypes.WinError(result)
@@ -461,6 +497,8 @@ def _validate_lease(lease: Any) -> None:
             or not isinstance(item.get("path"), str)
             or not Path(item["path"]).is_absolute()
             or not isinstance(item.get("write"), bool)
+            or not isinstance(item.get("read", True), bool)
+            or not isinstance(item.get("execute", True), bool)
             or not isinstance(item.get("id"), list)
             or len(item["id"]) != 3
             or not all(isinstance(part, int) for part in item["id"])
@@ -476,6 +514,8 @@ def _remove_lease(path: Path, lease: dict[str, Any]) -> None:
             lease["sid"],
             write=item["write"],
             revoke=True,
+            read=item.get("read", True),
+            execute=item.get("execute", True),
             expected_id=tuple(item["id"]),
         )
     if lease.get("preserve_profile", False):
@@ -521,20 +561,32 @@ class ConnectorAccessLease:
 
     @classmethod
     def create(
-        cls, directory: Path, paths: list[tuple[Path, bool]]
+        cls, directory: Path, paths: list[ConnectorPathGrant | tuple[Path, bool]]
     ) -> ConnectorAccessLease:
         if os.name != "nt":
             raise ConnectorIsolationError("Windows connector isolation is required")
         directory = Path(directory).resolve()
         recover_connector_access(directory)
-        normalized: dict[Path, bool] = {}
-        for original, write in paths:
+        normalized: dict[Path, ConnectorPathGrant] = {}
+        for entry in paths:
+            grant = (
+                entry
+                if isinstance(entry, ConnectorPathGrant)
+                else ConnectorPathGrant(entry[0], True, entry[1], True)
+            )
+            original = grant.path
             path = Path(original).resolve(strict=True)
             if path == Path(path.anchor):
                 raise ConnectorIsolationError(
                     "A drive root cannot be a connector access grant"
                 )
-            normalized[path] = normalized.get(path, False) or bool(write)
+            previous = normalized.get(path, ConnectorPathGrant(path))
+            normalized[path] = ConnectorPathGrant(
+                path,
+                previous.read or grant.read,
+                previous.write or grant.write,
+                previous.execute or grant.execute,
+            )
         if not normalized or len(normalized) > 64:
             raise ConnectorIsolationError("Invalid connector access grant count")
         profile = _PROFILE_PREFIX + uuid.uuid4().hex
@@ -556,16 +608,33 @@ class ConnectorAccessLease:
             }
             try:
                 _save_lease(path, lease)
-                for target, write in normalized.items():
+                for target, grant in normalized.items():
                     identity = _windows_acl_change(
-                        target, sid, write=write, revoke=None
+                        target,
+                        sid,
+                        write=grant.write,
+                        revoke=None,
+                        read=grant.read,
+                        execute=grant.execute,
                     )
                     lease["paths"].append(
-                        {"path": str(target), "write": write, "id": list(identity)}
+                        {
+                            "path": str(target),
+                            "read": grant.read,
+                            "write": grant.write,
+                            "execute": grant.execute,
+                            "id": list(identity),
+                        }
                     )
                     _save_lease(path, lease)
                     _windows_acl_change(
-                        target, sid, write=write, revoke=False, expected_id=identity
+                        target,
+                        sid,
+                        write=grant.write,
+                        revoke=False,
+                        expected_id=identity,
+                        read=grant.read,
+                        execute=grant.execute,
                     )
             except BaseException:
                 if path.exists():
