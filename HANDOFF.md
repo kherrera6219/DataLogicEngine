@@ -68,6 +68,23 @@ connection is denied. The targeted Windows connector, lifecycle and security
 suite passed 96 tests with one warning and zero errors on 2026-11-16. These
 checks do not establish the Phase B exit gate or installed acceptance.
 
+The full Windows suite on `bee22819` passed 3,715 tests, with 18 skipped,
+35 warnings, and zero failures or setup/collection errors. The separate SDK
+suite passed 53 tests and its built wheel imported without the application
+package after installing the SDK's declared build and runtime dependencies in
+an isolated development environment. GitHub's earlier Windows run at `57273910`
+failed one governed-execution assertion; its log did not identify the cause.
+The GitHub run on `bee22819` was still in progress at this checkpoint.
+
+A configuration-only probe found that a nonproduction legacy app could
+construct a database engine for a remote host; no remote connection was made.
+Managed production requires the supervised local data plane. CR-B2 now checks
+the application database URL before initializing the engine, permits local
+SQLite and loopback PostgreSQL, and rejects remote hosts and connection
+overrides that could redirect PostgreSQL. The targeted Windows database and
+runtime suite passed 61 tests, with three warnings and zero errors. A fresh
+full suite on the final source revision remains necessary.
+
 A previous local Windows check attached
 the existing Job Object before releasing a child process, and that child then
 connected to a loopback listener. This proves the Job Object does not deny all

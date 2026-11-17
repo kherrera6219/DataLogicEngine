@@ -52,6 +52,34 @@ def require_loopback_host(host: str) -> str:
     return str(address)
 
 
+def local_database_url(value: str) -> str:
+    """Keep the application database on this machine without resolving DNS."""
+    from sqlalchemy.engine import make_url
+    from sqlalchemy.exc import ArgumentError
+
+    try:
+        url = make_url(value)
+    except ArgumentError as exc:
+        raise EgressDenied("Invalid local database configuration") from exc
+    if url.drivername in {"sqlite", "sqlite+pysqlite"}:
+        name = (url.database or "").replace("\\", "/")
+        # SQLite URI filenames and UNC paths can name network filesystems.
+        if name.startswith("//") or name.lower().startswith("file:"):
+            raise EgressDenied("The application database must use a local file")
+        return value
+    if url.drivername not in {"postgresql", "postgresql+psycopg2"} or not url.host:
+        raise EgressDenied(
+            "The application database must use local PostgreSQL or SQLite"
+        )
+    forbidden = {"host", "hostaddr", "service", "servicefile"}
+    if any(key.lower() in forbidden for key in url.query):
+        raise EgressDenied("Database connection overrides are not permitted")
+    host = require_loopback_host(url.host)
+    # An explicit libpq hostaddr also overrides PGHOSTADDR from the environment.
+    normalized = url.set(host=host, query={**url.query, "hostaddr": host})
+    return normalized.render_as_string(hide_password=False)
+
+
 def loopback_service_url(url: str, *, schemes: frozenset[str]) -> str:
     """Normalize an approved local service URL without DNS resolution."""
     try:

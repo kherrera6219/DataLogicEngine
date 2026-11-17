@@ -1679,6 +1679,11 @@ def _rate_limit_storage_uri(app: Flask, redis_url: str, *, use_redis: bool) -> s
 
 def _configure_caching_and_extensions(app: Flask) -> None:
     """Initialize Flask extensions with per-application state."""
+    from core.security.egress_guard import local_database_url
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = local_database_url(
+        str(app.config["SQLALCHEMY_DATABASE_URI"])
+    )
     redis_url = app.config.get("DLE_REDIS_URL") or os.environ.get(
         "REDIS_URL", "redis://localhost:6379/0"
     )
