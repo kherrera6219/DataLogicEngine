@@ -59,10 +59,12 @@ listed the logging module only for its socket import and missed these paths.
 Kevin authorized restricting both forwarding paths to loopback and updating the
 affected tests; those changes are committed and included in the suite above.
 
-MCP child-process containment is implemented locally but CR-B2 remains open
-until its complete gate passes. Windows AppContainer launches use no network
-capabilities, apply the connector's approved file scopes, and recover stale
-access grants at application startup. The real connector fixture verified an
+MCP child-process containment is experimental and must not be considered
+qualified: GitHub Windows tests exposed changes to other ACL entries during
+grant cleanup. CR-B2 remains open. The implementation launches Windows
+AppContainers with no network capabilities, attempts connector-specific file
+grants, and includes stale-grant recovery at application startup. The real
+connector fixture verified an
 approved file is readable, an unapproved file is inaccessible, and a loopback
 connection is denied. The targeted Windows connector, lifecycle and security
 suite passed 96 tests with one warning and zero errors on 2026-11-16. These
