@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import ipaddress
 import re
-from typing import NoReturn
+from typing import Any, NoReturn
 from urllib.parse import unquote, urlsplit
 
 import httpx
@@ -208,6 +208,57 @@ def loopback_requests_session(endpoint: str) -> tuple[str, requests.Session]:
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return local_endpoint, session
+
+
+def loopback_s3_client(
+    endpoint: str | None,
+    *,
+    access_key: str | None,
+    secret_key: str | None,
+    region: str,
+    read_timeout: int = 3,
+    max_attempts: int = 1,
+) -> Any:
+    """Create an S3 client that can send only to one local HTTP origin."""
+    if not endpoint or not access_key or not secret_key:
+        raise EgressDenied("Local object storage endpoint and credentials are required")
+    local_endpoint = loopback_service_url(endpoint, schemes=frozenset({"http"}))
+    policy = EgressPolicy.for_endpoint(local_endpoint)
+
+    import boto3
+    from botocore.config import Config
+
+    client = boto3.client(
+        "s3",
+        endpoint_url=local_endpoint,
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
+        region_name=region,
+        config=Config(
+            signature_version="s3v4",
+            s3={"addressing_style": "path"},
+            connect_timeout=3,
+            read_timeout=read_timeout,
+            retries={"max_attempts": max_attempts, "mode": "standard"},
+            proxies={},
+        ),
+    )
+
+    def check_request(request: Any, **_kwargs: Any) -> None:
+        try:
+            url = httpx.URL(request.url)
+            if _origin(url) not in policy.allowed_origins:
+                raise EgressDenied()
+            host = request.headers.get("Host")
+            if host is not None:
+                host_text = host.decode("ascii") if isinstance(host, bytes) else host
+                if host_text != url.netloc.decode("ascii"):
+                    raise EgressDenied()
+        except (httpx.InvalidURL, UnicodeDecodeError) as exc:
+            raise EgressDenied() from exc
+
+    client.meta.events.register("before-send.s3.*", check_request)
+    return client
 
 
 def loopback_http_client(

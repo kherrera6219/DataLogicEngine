@@ -15,7 +15,7 @@ from typing import Optional, Dict, Any
 from dataclasses import dataclass, field, replace
 from urllib.parse import unquote, urlparse
 
-from core.security.egress_guard import EgressDenied, local_http_get, require_loopback_host
+from core.security.egress_guard import EgressDenied, local_http_get, loopback_s3_client, require_loopback_host
 
 logger = logging.getLogger(__name__)
 
@@ -390,22 +390,11 @@ class ConnectionManager:
         """Check the app-owned S3 contract or the bounded development backend."""
         try:
             if self.config.object_storage.endpoint_url:
-                import boto3
-                from botocore.config import Config
-
-                client = boto3.client(
-                    "s3",
-                    endpoint_url=self.config.object_storage.endpoint_url,
-                    aws_access_key_id=self.config.object_storage.access_key,
-                    aws_secret_access_key=self.config.object_storage.secret_key,
-                    region_name=self.config.object_storage.region,
-                    config=Config(
-                        signature_version="s3v4",
-                        s3={"addressing_style": "path"},
-                        connect_timeout=3,
-                        read_timeout=3,
-                        retries={"max_attempts": 1},
-                    ),
+                client = loopback_s3_client(
+                    self.config.object_storage.endpoint_url,
+                    access_key=self.config.object_storage.access_key,
+                    secret_key=self.config.object_storage.secret_key,
+                    region=self.config.object_storage.region,
                 )
                 for bucket in self.config.object_storage.buckets:
                     client.list_objects_v2(Bucket=bucket, MaxKeys=1)
@@ -416,6 +405,8 @@ class ConnectionManager:
             probe.write_bytes(b"ok")
             probe.unlink()
             return True
+        except EgressDenied:
+            raise
         except Exception as exc:
             logger.warning("Object storage health check failed: %s", exc)
             return False

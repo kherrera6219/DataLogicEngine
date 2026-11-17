@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
-from core.security.egress_guard import EgressDenied, GuardedHTTPError, local_http_get
+from core.security.egress_guard import EgressDenied, GuardedHTTPError, local_http_get, loopback_s3_client
 
 from .data_plane_delivery import (
     DataPlaneCredentialVault,
@@ -840,22 +840,11 @@ class PodmanDataPlaneManager:
                 raise PodmanDataPlaneError("chroma_heartbeat_failed") from exc
         if service == "minio":
             try:
-                import boto3
-                from botocore.config import Config
-
-                client = boto3.client(
-                    "s3",
-                    endpoint_url=settings["object_endpoint"],
-                    aws_access_key_id=settings["object_access_key"],
-                    aws_secret_access_key=settings["object_secret_key"],
-                    region_name=settings["object_region"],
-                    config=Config(
-                        signature_version="s3v4",
-                        s3={"addressing_style": "path"},
-                        connect_timeout=3,
-                        read_timeout=3,
-                        retries={"max_attempts": 1},
-                    ),
+                client = loopback_s3_client(
+                    settings["object_endpoint"],
+                    access_key=settings["object_access_key"],
+                    secret_key=settings["object_secret_key"],
+                    region=settings["object_region"],
                 )
                 for bucket in settings["object_buckets"]:
                     client.list_objects_v2(Bucket=bucket, MaxKeys=1)

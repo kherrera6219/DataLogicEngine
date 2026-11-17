@@ -20,6 +20,7 @@ from flask import Blueprint, current_app, jsonify, request
 from backend.auth.api_decorators import api_session_login_required
 from backend.runtime import get_application_runtime
 from backend.security.desktop_ipc import require_desktop_ipc_capability
+from core.security.egress_guard import loopback_s3_client
 
 storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
 logger = logging.getLogger(__name__)
@@ -664,12 +665,11 @@ def _test_object(data: dict) -> dict:
             }
         
         try:
-            import boto3
-            client = boto3.client(
-                's3',
-                endpoint_url=endpoint,
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key
+            client = loopback_s3_client(
+                endpoint,
+                access_key=access_key,
+                secret_key=secret_key,
+                region='us-east-1',
             )
             client.list_buckets()
             return {
