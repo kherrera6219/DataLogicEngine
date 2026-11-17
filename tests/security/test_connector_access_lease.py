@@ -11,6 +11,7 @@ import core.mcp.process_containment as containment
 from core.mcp.process_containment import (
     ConnectorAccessLease,
     ConnectorIsolationError,
+    ConnectorPathGrant,
     recover_connector_access,
 )
 
@@ -125,10 +126,20 @@ def test_partial_grant_failure_rolls_back_prior_entries(tmp_path, monkeypatch):
     before = _acl(first)
     change = containment._windows_acl_change
 
-    def fail_second(path, sid, *, write, revoke, expected_id=None):
+    def fail_second(
+        path, sid, *, write, revoke, expected_id=None, read=True, execute=True
+    ):
         if path == second and revoke is False:
             raise ConnectorIsolationError("simulated grant failure")
-        return change(path, sid, write=write, revoke=revoke, expected_id=expected_id)
+        return change(
+            path,
+            sid,
+            write=write,
+            revoke=revoke,
+            expected_id=expected_id,
+            read=read,
+            execute=execute,
+        )
 
     monkeypatch.setattr(containment, "_windows_acl_change", fail_second)
     with pytest.raises(ConnectorIsolationError, match="simulated grant failure"):
@@ -189,3 +200,27 @@ def test_started_connector_profile_is_retained_after_permissions_are_revoked(tmp
         marker.unlink(missing_ok=True)
         # This test profile was created solely for this test and holds no user data.
         containment._delete_appcontainer_profile(profile)
+
+
+def test_read_only_root_does_not_grant_file_write_or_execute(tmp_path):
+    if os.name != "nt":
+        with pytest.raises(ConnectorIsolationError, match="Windows"):
+            ConnectorAccessLease.create(
+                tmp_path / "journal", [ConnectorPathGrant(tmp_path, read=True)]
+            )
+        return
+    root = tmp_path / "approved"
+    root.mkdir()
+    target = root / "data.txt"
+    target.write_text("fixture", encoding="utf-8")
+    lease = ConnectorAccessLease.create(
+        tmp_path / "journal", [ConnectorPathGrant(root, read=True)]
+    )
+    try:
+        sid_lines = [
+            line for line in _acl(target).splitlines() if lease.lease["sid"] in line
+        ]
+        assert len(sid_lines) == 1
+        assert "(I)(R)" in sid_lines[0]
+    finally:
+        lease.close()
