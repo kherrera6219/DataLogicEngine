@@ -26,6 +26,26 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
+## November 16 Phase B egress checkpoint
+
+Owner authorized Phase B sequencing before Phase A disposition. On the local
+`remediation/phase-b` branch, CR-B1 now confines the legacy blockchain RPC and
+S3 clients to loopback, and legacy storage diagnostics reject external targets.
+The full Windows suite at `d23e254f` passed 3,670 tests with 18 skipped and zero
+errors; the subsequent storage-diagnostic change passed 77 targeted tests but
+has not had another full-suite run. Phase B remains incomplete.
+
+Source review found an unrecorded conditional syslog egress path:
+`backend/logging_config.py` creates a network SysLogHandler when
+`LOG_AGGREGATION_HOST` is set, and `app.py` normally enables that logging outside
+test mode. `backend/security/audit_logger.py` also exposes a remote syslog
+forwarding method, although no production caller was found in this review.
+No remote log transmission was performed or observed. The CR-B0 inventory
+listed the logging module only for its socket import and missed these paths.
+Stop for owner direction before changing the logging behavior or its existing
+remote-forwarding test. MCP child-process network isolation and the remaining
+CR-B gates are not yet established.
+
 ## November 16 Phase B sequencing decision
 
 Kevin authorized Phase B to proceed while Phase A remains open. This is a
