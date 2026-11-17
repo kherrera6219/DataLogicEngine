@@ -31,7 +31,7 @@ An active remediation program governs most work in this repo. **Read these befor
 
 **Picking work:** read `remediation_tasks.json`, find a task whose `depends_on` are all complete and whose `human_gate` is false, and execute it exactly as written in `REMEDIATION_PLAN.md`. Do not invent tasks.
 
-**Phase A blocks the remediation phases.** Historical 4.4.5 evidence includes 3,364 passing Windows tests, a separate failed Linux refinement test, and a red NLTK security scan. The owner-approved October 26 fast-track removes LlamaIndex/NLTK, passes 3,373 Windows tests (19 skipped; zero test/setup/collection errors), and clears local/GitHub dependency scans; see `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. It does not disposition Phase A. CR-A0 must still capture a fresh commit-bound remediation baseline before CR-A1 disposition; do not treat historical setup errors as current or start Phases B–G before Phase A is formally dispositioned.
+**Phase A remains open.** On 2026-11-16 Kevin authorized Phase B to proceed before its formal disposition. This changes sequencing only: the required Windows status check and Phase A disposition remain open, as do all Phase B gates. Other phase dependencies remain as documented in the plan.
 
 ---
 

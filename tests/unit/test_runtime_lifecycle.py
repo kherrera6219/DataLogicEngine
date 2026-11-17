@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import os
+import json
 import subprocess
 import sys
 
@@ -10,6 +11,7 @@ import pytest
 from app import create_app
 from backend.runtime import RuntimePhase, RuntimeOwnershipError
 from backend.runtime.ownership import InstallationIdentity
+from core.mcp.process_containment import ConnectorAccessLease
 
 
 def _runtime_app(runtime_root: Path, **overrides):
@@ -65,6 +67,34 @@ def test_repeated_start_status_stop_cycles_release_all_ownership(tmp_path):
         assert runtime.started_threads == ()
         assert runtime.bound_ports == ()
         assert runtime.ownership.lock and not runtime.ownership.lock.acquired
+
+
+def test_startup_recovers_stale_connector_access_before_readiness(tmp_path):
+    root = tmp_path / "runtime"
+    target = tmp_path / "approved.txt"
+    target.write_text("fixture", encoding="utf-8")
+    if os.name != "nt":
+        app = _runtime_app(root)
+        runtime = app.extensions["dle_runtime"]
+        runtime.start()
+        assert runtime.phase == RuntimePhase.READY
+        runtime.shutdown()
+        return
+    journal = root / "security" / "connector-access"
+    lease = ConnectorAccessLease.create(journal, [(target, False)])
+    try:
+        record = json.loads(lease.path.read_text(encoding="utf-8"))
+        record["owner_pid"] = 2147483647
+        lease.path.write_text(json.dumps(record), encoding="utf-8")
+        app = _runtime_app(root)
+        runtime = app.extensions["dle_runtime"]
+        runtime.start()
+        assert runtime.phase == RuntimePhase.READY
+        assert not lease.path.exists()
+        runtime.shutdown()
+    finally:
+        if lease.path.exists():
+            lease.close()
 
 
 @pytest.mark.parametrize("contending_role", ["renderer", "backend", "installer", "updater"])

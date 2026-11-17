@@ -1,7 +1,10 @@
 import hashlib
 import json
+import urllib.request
 import zipfile
 from pathlib import Path
+
+import httpx
 
 from backend.observability import support_bundle as bundle
 
@@ -62,7 +65,8 @@ def test_http_probe_rejects_non_loopback_or_non_http_targets(monkeypatch):
     def unexpected_network_call(*_args, **_kwargs):
         raise AssertionError("untrusted support probe reached the network")
 
-    monkeypatch.setattr(bundle.urllib.request, "urlopen", unexpected_network_call)
+    monkeypatch.setattr(urllib.request, "urlopen", unexpected_network_call)
+    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", unexpected_network_call)
 
     for target in ("https://example.com/health", "file:///etc/passwd"):
         result = bundle.probe_http_endpoint(target)

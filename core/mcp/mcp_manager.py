@@ -7,6 +7,7 @@ and orchestration layer for the DataLogicEngine MCP integration.
 
 from typing import Dict, List, Optional, Any
 import logging
+from pathlib import Path
 
 from .mcp_server import MCPServer
 from .mcp_client import MCPClient
@@ -24,8 +25,9 @@ class MCPManager:
     Provides server registry, client connections, and orchestration
     """
 
-    def __init__(self, app_orchestrator=None):
+    def __init__(self, app_orchestrator=None, *, journal_dir: Optional[Path] = None):
         self.app_orchestrator = app_orchestrator
+        self.journal_dir = journal_dir
 
         # Server and client registries
         self.servers: Dict[str, MCPServer] = {}
@@ -83,7 +85,7 @@ class MCPManager:
         version: str = "1.0.0"
     ) -> MCPClient:
         """Create and register a new MCP client"""
-        client = MCPClient(name=name, version=version)
+        client = MCPClient(name=name, version=version, journal_dir=self.journal_dir)
         self.clients[client.client_id] = client
         self.stats["clients_created"] += 1
 
@@ -177,6 +179,7 @@ class MCPManager:
         server_key: str,
         definition: Dict[str, Any],
         resolved_env: Dict[str, str],
+        approved_scopes: List[str],
     ) -> Dict[str, Any]:
         existing = self.external_clients.pop(server_key, None)
         if existing is not None:
@@ -190,6 +193,8 @@ class MCPManager:
                 {**definition.get("env", {}), **resolved_env},
                 cwd=definition["cwd"],
                 limits=definition.get("limits"),
+                file_roots=definition.get("file_roots", []),
+                approved_scopes=approved_scopes,
             )
             self.external_clients[server_key] = client
             self.external_configs[server_key] = dict(definition)
@@ -225,10 +230,11 @@ class MCPManager:
         server_key: str,
         definition: Dict[str, Any],
         resolved_env: Dict[str, str],
+        approved_scopes: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         timeout = (float(definition.get("limits", {}).get("request_timeout_seconds", 30)) * 4) + 5
         return self.runtime_loop.submit(
-            self._start_external_server(server_key, definition, resolved_env),
+            self._start_external_server(server_key, definition, resolved_env, approved_scopes or []),
             timeout=timeout,
         )
 

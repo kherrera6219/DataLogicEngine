@@ -12,7 +12,7 @@ Usage:
 Security:
     - Enforces strong password policy (12+ chars, complexity)
     - Validates username against common weak values
-    - Checks password against breach database (optional)
+    - Warns when breach checking is unavailable under the egress policy
     - Hashes password with bcrypt
     - Creates audit log entry
 """
@@ -198,13 +198,10 @@ def create_admin_user():
                         print(f"   - {error}")
                     continue
 
-                # Check password breach (optional warning)
-                is_breached, count = PasswordSecurity.check_password_breach(password)
-                if is_breached and count and count > 10:
-                    print(f"⚠️  WARNING: This password has been found in {count} data breaches")
-                    response = input("Use this password anyway? (yes/no): ")
-                    if response.lower() not in ['yes', 'y']:
-                        continue
+                print(
+                    "WARNING: This password was not checked against a breach "
+                    "database because external lookups are disabled for this tool."
+                )
 
                 break
 

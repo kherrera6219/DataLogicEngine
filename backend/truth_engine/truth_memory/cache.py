@@ -10,6 +10,7 @@ import json
 from typing import Dict, Any, Optional
 from collections import OrderedDict
 from backend.storage.runtime_endpoints import runtime_redis_url
+from core.security.egress_guard import loopback_service_url
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +51,12 @@ class TruthCache:
 
     @staticmethod
     def _build_redis_client():
+        redis_url = loopback_service_url(
+            runtime_redis_url(), schemes=frozenset({"redis", "rediss"})
+        )
         try:
             import redis
 
-            redis_url = runtime_redis_url()
             client = redis.Redis.from_url(redis_url, decode_responses=True)
             client.ping()
             return client

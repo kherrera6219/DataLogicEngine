@@ -17,7 +17,7 @@ import re
 from typing import Any
 from urllib.parse import quote
 
-import httpx
+from core.security.egress_guard import GuardedHTTPError, loopback_http_client
 
 
 DEFAULT_TENANT = "default_tenant"
@@ -359,11 +359,11 @@ class ChromaHttpClient:
         self.database = _collection_name(database)
         rendered_host = f"[{address}]" if address.version == 6 else str(address)
         self._base_url = f"http://{rendered_host}:{port}/api/v2"
-        self._session = httpx.Client(
-            timeout=httpx.Timeout(timeout_seconds, connect=min(timeout_seconds, 3.0)),
-            limits=httpx.Limits(max_connections=16, max_keepalive_connections=8),
-            follow_redirects=False,
-            trust_env=False,
+        self._session = loopback_http_client(
+            self._base_url,
+            timeout=timeout_seconds,
+            max_connections=16,
+            max_keepalive_connections=8,
             headers={"Content-Type": "application/json", "User-Agent": "DataLogicEngine-Chroma-Vector-Client/1"},
         )
 
@@ -389,7 +389,7 @@ class ChromaHttpClient:
                 raise ChromaHttpError("chroma_request_body_too_large")
         try:
             response = self._session.request(method, self._base_url + path, content=content)
-        except httpx.HTTPError as exc:
+        except GuardedHTTPError as exc:
             raise ChromaHttpError("chroma_transport_failure") from exc
         if response.is_redirect:
             raise ChromaHttpError("chroma_redirect_rejected")

@@ -1679,6 +1679,11 @@ def _rate_limit_storage_uri(app: Flask, redis_url: str, *, use_redis: bool) -> s
 
 def _configure_caching_and_extensions(app: Flask) -> None:
     """Initialize Flask extensions with per-application state."""
+    from core.security.egress_guard import local_database_url
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = local_database_url(
+        str(app.config["SQLALCHEMY_DATABASE_URI"])
+    )
     redis_url = app.config.get("DLE_REDIS_URL") or os.environ.get(
         "REDIS_URL", "redis://localhost:6379/0"
     )
@@ -2027,6 +2032,13 @@ def _register_runtime_callbacks(app: Flask, runtime: ApplicationRuntime) -> None
             else:
                 raise RuntimeError("installation_version_mismatch")
         _configure_owned_security_services(app, active_runtime)
+        if os.name == "nt":
+            from core.mcp.isolated_process import connector_journal_dir
+            from core.mcp.process_containment import recover_connector_access
+
+            connector_journal = connector_journal_dir(active_runtime.runtime_root)
+            if connector_journal.exists():
+                recover_connector_access(connector_journal)
         if app.config.get("DLE_CONFIGURE_LOGGING"):
             app.config.setdefault("LOG_FILE", str(active_runtime.runtime_root / "logs" / "app.log"))
             app.config.setdefault("SECURITY_LOG_FILE", str(active_runtime.runtime_root / "logs" / "security.log"))

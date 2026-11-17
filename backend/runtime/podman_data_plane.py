@@ -15,12 +15,12 @@ import os
 import socket
 import subprocess
 import time
-import urllib.error
-import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
+
+from core.security.egress_guard import EgressDenied, GuardedHTTPError, local_http_get, loopback_s3_client
 
 from .data_plane_delivery import (
     DataPlaneCredentialVault,
@@ -384,6 +384,8 @@ class PodmanDataPlaneManager:
             else:
                 self._run(self._container_arguments(spec))
             return self._wait_until_ready(service)
+        except EgressDenied:
+            raise
         except Exception as exc:
             self._last_failure[service] = self._safe_reason(exc)
             return False
@@ -423,6 +425,8 @@ class PodmanDataPlaneManager:
             self._last_failure.pop(service, None)
             container_id = str(inspected.get("Id") or "")[:12]
             return True, f"{spec.identity}:container={container_id}"
+        except EgressDenied:
+            raise
         except Exception as exc:
             self._last_failure[service] = self._safe_reason(exc)
             return False, None
@@ -826,35 +830,21 @@ class PodmanDataPlaneManager:
         if service == "chroma":
             url = f"http://{settings['chroma_host']}:{settings['chroma_port']}/api/v2/heartbeat"
             try:
-                # connection_settings fixes this service endpoint to loopback.
-                with urllib.request.urlopen(  # noqa: S310  # nosec B310
-                    url,
-                    timeout=3,
-                ) as response:
-                    payload = json.loads(response.read().decode("utf-8"))
+                response = local_http_get(url, timeout=3)
+                response.raise_for_status()
+                payload = response.json()
                 if "nanosecond heartbeat" not in payload:
                     raise PodmanDataPlaneError("chroma_heartbeat_invalid")
                 return
-            except (OSError, ValueError, urllib.error.URLError) as exc:
+            except (OSError, ValueError, GuardedHTTPError) as exc:
                 raise PodmanDataPlaneError("chroma_heartbeat_failed") from exc
         if service == "minio":
             try:
-                import boto3
-                from botocore.config import Config
-
-                client = boto3.client(
-                    "s3",
-                    endpoint_url=settings["object_endpoint"],
-                    aws_access_key_id=settings["object_access_key"],
-                    aws_secret_access_key=settings["object_secret_key"],
-                    region_name=settings["object_region"],
-                    config=Config(
-                        signature_version="s3v4",
-                        s3={"addressing_style": "path"},
-                        connect_timeout=3,
-                        read_timeout=3,
-                        retries={"max_attempts": 1},
-                    ),
+                client = loopback_s3_client(
+                    settings["object_endpoint"],
+                    access_key=settings["object_access_key"],
+                    secret_key=settings["object_secret_key"],
+                    region=settings["object_region"],
                 )
                 for bucket in settings["object_buckets"]:
                     client.list_objects_v2(Bucket=bucket, MaxKeys=1)

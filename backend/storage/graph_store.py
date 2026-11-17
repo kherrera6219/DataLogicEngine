@@ -7,6 +7,7 @@ import time
 from typing import List, Dict, Any, Optional
 from neo4j import GraphDatabase, Driver
 from backend.storage.runtime_endpoints import runtime_neo4j_settings, runtime_redis_url
+from core.security.egress_guard import EgressDenied, loopback_service_url
 
 logger = logging.getLogger(__name__)
 
@@ -53,13 +54,16 @@ class GraphStore:
 
     def connect(self):
         """Establish connection to the Neo4j instance."""
+        uri = loopback_service_url(
+            self.uri, schemes=frozenset({"bolt", "bolt+s", "bolt+ssc"})
+        )
         try:
             if self._is_production_env() and str(self.password).strip().lower() in _DISALLOWED_DEFAULT_PASSWORDS:
                 logger.error("Refusing Neo4j connection with default password in production")
                 self.driver = None
                 return
 
-            self.driver = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
+            self.driver = GraphDatabase.driver(uri, auth=(self.user, self.password))
             self.driver.verify_connectivity()
             logger.info(f"Connected to Neo4j at {self.uri}")
             self.ensure_schema()
@@ -148,6 +152,8 @@ class GraphStore:
             cache.set(cache_key, result, timeout=timeout)
             self._redis_cache_set(cache_key, result, timeout)
             return result
+        except EgressDenied:
+            raise
         except Exception:
             result = self.run_query(query, parameters)
             self._redis_cache_set(cache_key, result, timeout)
@@ -161,10 +167,13 @@ class GraphStore:
     def _redis_client():
         if not GraphStore._redis_enabled():
             return None
+        redis_url = loopback_service_url(
+            runtime_redis_url(), schemes=frozenset({"redis", "rediss"})
+        )
         try:
             import redis
 
-            client = redis.Redis.from_url(runtime_redis_url(), decode_responses=True)
+            client = redis.Redis.from_url(redis_url, decode_responses=True)
             client.ping()
             return client
         except Exception as exc:

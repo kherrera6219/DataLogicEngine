@@ -23,6 +23,12 @@ are removed. Exact build/CI evidence is in
 `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. This does not disposition Phase A or
 replace CR-A0's required commit-bound remediation baseline.
 
+**November 16 owner sequencing decision:** Kevin authorized Phase B to proceed
+while Phase A remains open. This is an exception to the Phase A prerequisite for
+executing Phase B, not a disposition of Phase A or a relaxation of either phase's
+exit gates. The required Windows status check on `main` and formal Phase A
+disposition remain open. Other phase dependencies and human gates are unchanged.
+
 **Assumption stated in the open:** this program remains a separate gate to
 unblocking the current 4.4.6 release. The original v4.4.4 target above is
 historical plan provenance, not a statement that the product is still at
@@ -84,10 +90,10 @@ Estimates are in **agent sessions** (one focused Codex run ending at a gate), no
 
 ---
 
-## 1. Phase ordering and why it is not negotiable
+## 1. Phase ordering and owner-approved exception
 
 ```
-Phase A  Trustworthy test harness      ← BLOCKS EVERYTHING
+Phase A  Trustworthy test harness      ← OPEN; Phase B sequencing excepted
    │
    ├──▶ Phase B  Egress proof              (highest product value)
    ├──▶ Phase C  Local API hardening       (depends on A2 Windows CI)
@@ -100,7 +106,7 @@ Phase A  Trustworthy test harness      ← BLOCKS EVERYTHING
                      └──▶ Phase G  Documentation artifacts (depends on B, C, D, E, F)
 ```
 
-**Phase A blocks the remediation phases and this is the whole point.** The review baseline reported forty Windows setup errors. The 2026-08-27 4.4.3 qualification later completed 3,317 Windows tests with 19 skipped and zero failures or setup errors, so the historical count is not a current finding. CR-A0 must capture a fresh commit-bound baseline and CR-A1 must reproduce its premise before modifying fixtures. Running Phases B–G before Phase A is formally dispositioned would still produce evidence without the program's approved baseline.
+**Phase A remains a prerequisite except for the owner-authorized Phase B sequencing exception above.** The review baseline reported forty Windows setup errors; subsequent Windows evidence does not reproduce that historical finding. CR-A0 and CR-A3 evidence is recorded under `reports/remediation/`; Phase A remains open pending the required check and owner disposition.
 
 Phases B, C, D, and E are mutually independent once A is green and may be run concurrently in separate worktrees. Phase G is last because it documents what the others built; writing it earlier guarantees it documents intent rather than fact.
 
@@ -114,7 +120,7 @@ Phases B, C, D, and E are mutually independent once A is green and may be run co
 
 ## PHASE A — Make the test harness trustworthy
 
-**Blocks:** every other phase.
+**Blocks:** later phases except Phase B execution under the November 16 owner sequencing decision.
 **Branch:** `remediation/phase-a`
 **Sessions:** 3–5
 
@@ -240,7 +246,7 @@ python -m pytest tests/security/test_phase1_anonymous_mutations.py \
 # Gate: all pass, zero errors, and reports/remediation/A3_TRIAGE.md exists
 ```
 
-**PHASE A EXIT GATE.** Full suite green on Windows CI with zero collection errors; collected count ≥ baseline; `A3_TRIAGE.md` written. **No other phase begins until this is true.**
+**PHASE A EXIT GATE.** Full suite green on Windows CI with zero collection errors; collected count ≥ baseline; `A3_TRIAGE.md` written. Phase B may proceed under the November 16 owner sequencing exception; Phase A remains open.
 
 ---
 
@@ -248,7 +254,7 @@ python -m pytest tests/security/test_phase1_anonymous_mutations.py \
 
 **Why this phase exists.** DataLogicEngine's compliance position rests on an enforceable boundary around owner-configured model endpoints and explicitly enabled connectors. Converting that boundary from an unproved claim into an enforced, tested, logged property is among the highest-value engineering work available: it supports US buyer security and privacy reviews, including HIPAA risk analysis where applicable and NIST 800-53 SC-7 and AC-4 for a customer's ATO. EU AI Act and GDPR obligations are out of scope under the recorded US-only market decision. Include packaged-renderer URL loads, such as the existing CSP `img-src https:` allowance, in discovery; this document does not approve that destination.
 
-**Depends on:** Phase A complete
+**Depends on:** Phase A complete for formal program disposition; execution may proceed under the November 16 owner sequencing exception.
 **Branch:** `remediation/phase-b`
 **Sessions:** 5–7
 
@@ -275,7 +281,7 @@ The inventory's call-site count must be ≥ this number. **If any call site targ
 ### CR-B1 · Single egress chokepoint with a default-deny allowlist
 
 **Depends on:** CR-B0
-**Allowed paths:** new `core/security/egress_guard.py` (or the equivalent location established by CR-B0), plus the call sites the inventory identified
+**Allowed paths:** `core/security/egress_guard.py`, the call sites the inventory identified, `core/mcp/process_containment.py`, `core/mcp/isolated_process.py`, `backend/routes/mcp_routes.py`, `tests/security/`, `tests/mcp/`, `tests/phase_g/`, `tests/fixtures/`, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 2
 
 **Design requirements**
@@ -302,18 +308,26 @@ New tests must cover: allowed host succeeds; denied host raises the typed except
 ### CR-B2 · Route every call site through the guard
 
 **Depends on:** CR-B1
-**Allowed paths:** call sites from `EGRESS_INVENTORY.md`
+**Allowed paths:** call sites from `EGRESS_INVENTORY.md`, `core/security/egress_guard.py`, `core/mcp/process_containment.py`, `core/mcp/isolated_process.py`, `backend/routes/mcp_routes.py`, `app.py` for access-journal recovery and database boundary enforcement, `tests/security/`, `tests/mcp/`, `tests/phase_g/`, `tests/unit/test_runtime_lifecycle.py`, `tests/fixtures/`, the Python SDK package and its tests, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 1–2
 
 Migrate each inventoried call site to the guarded transport. Include MCP client transports — **each MCP server is a second egress path, and an unguarded one silently falsifies the product's one-outbound-flow claim.**
 
+**Owner-authorized connector scope, 2026-11-16.** The owner directed autonomous completion of Phase B and authorized connector-specific Windows permission grants to approved files and folders. The additional paths above permit implementing and testing child-process network isolation, passing the actual approved scopes to containment, and preserving existing connector tests and cleanup guarantees. Grants must be limited to the connector identity and approved access, removed on shutdown, and recovered after interruption. This does not establish isolation, relax the exit gates, or authorize a new network destination.
+
+**Legacy database finding, 2026-11-16.** A nonproduction legacy app could construct an SQLAlchemy engine for a non-loopback `DATABASE_URL`; a configuration-only check demonstrated the accepted host without connecting. Managed production requires the supervised local data plane. CR-B2 includes enforcing and testing the local database boundary for the legacy path as well.
+
+**Owner-approved gate correction, 2026-11-16.** The installed application and the separately distributed SDK are different processes. The SDK wheel packages only `ukg_sdk`, so it cannot import the application's `core` module. Scan the installed backend and core for direct HTTP-client imports, and separately test the SDK's own client-to-DataLogicEngine boundary. Do not exclude any installed application path or relax the MCP, air-gap, audit, or full-suite requirements. Keep the SDK's existing tests. The SDK gate must verify its built wheel works without the application package, its owned clients contact only the explicitly configured API origin, and redirects and environment proxies cannot change that destination. If an SDK caller supplies its own HTTP client, document and test that its transport is controlled by that caller; do not claim the SDK enforces a policy over an injected transport.
+
 **Exit gate**
 
 ```bash
-# No direct HTTP client usage outside the guard module
-! grep -rEn "^\s*(import requests|import httpx|from requests|from httpx|import aiohttp)" \
-  backend/ core/ sdk/ --include="*.py" | grep -v "egress_guard.py"
-python -m pytest tests/ --no-cov -q 2>&1 | tail -2
+# Installed application: no direct HTTP client imports outside the guard.
+! grep -rEn "^[[:space:]]*(import requests|import httpx|from requests|from httpx|import aiohttp|from aiohttp)" \
+  backend/ core/ --include="*.py" | grep -v "core/security/egress_guard.py"
+# Separate SDK boundary and standalone wheel; these tests must exist and pass.
+(cd sdk/UKG_Python_SDK && python -m pytest tests/ --no-cov -q --tb=short -rE && python tools/verify_standalone_wheel.py)
+python -m pytest tests/ --no-cov -q --tb=short -rE
 ```
 
 ---

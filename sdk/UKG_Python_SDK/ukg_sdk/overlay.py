@@ -14,6 +14,7 @@ import os
 
 import httpx
 
+from .egress import async_client
 
 class UKGOverlay:
     """Compatibility facade over the canonical DataLogicEngine gateway."""
@@ -85,8 +86,8 @@ class UKGOverlay:
                 "legacy_provider_argument_ignored": self._legacy_provider_supplied,
             },
         }
-        client = self._client or httpx.AsyncClient(
-            base_url=self.base_url,
+        client = self._client or async_client(
+            self.base_url,
             timeout=self.timeout_s,
             verify=self.verify_tls,
         )

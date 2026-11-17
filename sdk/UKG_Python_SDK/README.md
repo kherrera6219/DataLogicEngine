@@ -54,10 +54,24 @@ compatibility-only and rejects work that requires an exact reviewed plan.
 pip install -e .
 ```
 
+For an offline standalone-wheel check, install the declared build backend and
+runtime dependencies in the test environment, then run
+`python tools/verify_standalone_wheel.py` from this directory. The check builds
+without a package index and imports the installed wheel from a temporary path.
+
 ## Quick start
 
 Start and configure DataLogicEngine first. Provider credentials belong to the
 installed service, not the SDK process.
+
+SDK-owned HTTP clients connect only to the scheme, host, and port of their
+configured DataLogicEngine API endpoint. They do not follow redirects or use
+proxy settings from the environment. An invalid or different destination raises
+`SDKDestinationDenied` from `ukg_sdk.exceptions`. If an application supplies
+its own HTTP client to `UKGOverlay`, that caller owns the client's destination,
+proxy, redirect, and TLS controls; the SDK cannot enforce its transport policy
+on the supplied client. This client-to-server policy is separate from the
+installed application's provider-egress policy.
 
 ```python
 import asyncio

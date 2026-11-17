@@ -20,6 +20,8 @@ import {
   desktopSecretVaultDir,
 } from './paths';
 import { envFlag } from './env-flag';
+import { isLocalServiceRequest } from './local-request-origin';
+import { desktopContentSecurityPolicy } from './content-security-policy';
 
 // GUI launches do not guarantee that inherited stdout/stderr handles remain
 // writable. A closed parent pipe must never crash the Electron main process.
@@ -1036,17 +1038,11 @@ app.on('ready', async () => {
   // Tag desktop-originated requests so Next middleware can bypass web login redirects.
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     const requestHeaders = { ...details.requestHeaders };
-    if (
-      details.url.startsWith('http://localhost:3000') ||
-      details.url.startsWith('http://127.0.0.1:3000')
-    ) {
+    if (isLocalServiceRequest(details.url, 3000)) {
       setHeaderValue(requestHeaders, 'X-DataLogic-Desktop', 'true');
     }
 
-    if (
-      details.url.startsWith('http://localhost:5000') ||
-      details.url.startsWith('http://127.0.0.1:5000')
-    ) {
+    if (isLocalServiceRequest(details.url, 5000)) {
       setHeaderValue(requestHeaders, 'X-DataLogic-Desktop', 'true');
       const timestamp = Math.floor(Date.now() / 1000).toString();
       const requestNonce = crypto.randomBytes(24).toString('base64url');
@@ -1074,20 +1070,10 @@ app.on('ready', async () => {
   // styles in the packaged renderer. Mitigations: contextIsolation, sandbox,
   // no nodeIntegration, navigation lock, IPC allowlist. See docs/DESKTOP_CSP.md.
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    const scriptSrc = "'self' 'unsafe-inline' app:";
-    const styleSrc = "'self' 'unsafe-inline' app:";
-
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': [
-          "default-src 'self' app:; " +
-          `script-src ${scriptSrc}; ` +
-          `style-src ${styleSrc}; ` +
-          "img-src 'self' data: https: app:; " +
-          "connect-src 'self' http://localhost:5000 http://127.0.0.1:5000 app:; " +
-          "font-src 'self' data: app:;"
-        ]
+        'Content-Security-Policy': [desktopContentSecurityPolicy()]
       }
     });
   });

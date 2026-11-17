@@ -2,6 +2,8 @@
 from authlib.integrations.flask_client import OAuth
 from flask import url_for, session, current_app
 
+from core.security.egress_guard import EgressDenied
+
 oauth = OAuth()
 
 def configure_sso(app):
@@ -13,17 +15,11 @@ def configure_sso(app):
         # SSO not configured
         return
 
-    oauth.init_app(app)
-    
-    # Register Azure AD / Entra ID
-    oauth.register(
-        name='azure',
-        client_id=app.config.get('OIDC_CLIENT_ID'),
-        client_secret=app.config.get('OIDC_CLIENT_SECRET'),
-        server_metadata_url=app.config.get('OIDC_DISCOVERY_URL'),
-        client_kwargs={
-            'scope': 'openid profile email'
-        }
+    # OIDC discovery and token/JWKS requests are not governed model traffic.
+    # Refuse this configuration until those requests have an approved boundary.
+    raise EgressDenied(
+        "OIDC SSO is unavailable: identity-provider egress is not approved. "
+        "Remove OIDC_CLIENT_ID to start without SSO."
     )
 
 def login_sso():

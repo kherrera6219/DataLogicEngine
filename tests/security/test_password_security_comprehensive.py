@@ -127,7 +127,7 @@ class TestPasswordStrengthValidation:
 class TestPasswordBreachDetection:
     """Test password breach detection using Have I Been Pwned API"""
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_breached_password_detected(self, mock_get):
         """Test detection of breached password"""
         # Mock API response for a breached password
@@ -146,7 +146,7 @@ class TestPasswordBreachDetection:
         assert mock_get.called
         # Result depends on actual hash, but method should execute
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_non_breached_password(self, mock_get):
         """Test password not found in breaches"""
         # Mock API response without matching hash
@@ -163,7 +163,7 @@ class TestPasswordBreachDetection:
         assert is_breached is False
         assert count == 0
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_api_timeout_fails_open(self, mock_get):
         """Test API timeout fails open (doesn't block user)"""
         mock_get.side_effect = requests.exceptions.Timeout()
@@ -175,7 +175,7 @@ class TestPasswordBreachDetection:
         assert is_breached is False
         assert count is None
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_api_error_fails_open(self, mock_get):
         """Test API error fails open"""
         mock_response = Mock()
@@ -189,7 +189,7 @@ class TestPasswordBreachDetection:
         assert is_breached is False
         assert count is None
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_network_exception_fails_open(self, mock_get):
         """Test network exception fails open"""
         mock_get.side_effect = requests.exceptions.ConnectionError()
@@ -201,7 +201,7 @@ class TestPasswordBreachDetection:
         assert is_breached is False
         assert count is None
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_breach_check_uses_k_anonymity(self, mock_get):
         """Test that breach check uses k-anonymity (only sends hash prefix)"""
         mock_response = Mock()
@@ -219,7 +219,7 @@ class TestPasswordBreachDetection:
         hash_prefix = called_url.split("/range/")[1]
         assert len(hash_prefix) == 5
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_custom_timeout_parameter(self, mock_get):
         """Test custom timeout parameter is used"""
         mock_response = Mock()
@@ -236,7 +236,7 @@ class TestPasswordBreachDetection:
         call_kwargs = mock_get.call_args[1]
         assert call_kwargs['timeout'] == custom_timeout
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_breach_count_parsed_correctly(self, mock_get):
         """Test breach count is parsed correctly from API response"""
         # Create a password and its expected hash
@@ -510,7 +510,7 @@ class TestPasswordSecurityEdgeCases:
         # Should handle long passwords
         assert isinstance(is_valid, bool)
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_malformed_api_response(self, mock_get):
         """Test handling of malformed API response"""
         mock_response = Mock()
@@ -557,7 +557,7 @@ class TestPasswordSecurityEdgeCases:
 
     def test_concurrent_breach_checks(self):
         """Test multiple concurrent breach checks don't interfere"""
-        with patch('backend.security.password_security.requests.get') as mock_get:
+        with patch('backend.security.password_security.breach_http.get') as mock_get:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.text = ""
@@ -601,7 +601,7 @@ class TestPasswordPolicyConstants:
 class TestPasswordSecurityIntegration:
     """Integration tests combining multiple password security features"""
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_complete_password_validation_workflow(self, mock_get):
         """Test complete password validation workflow"""
         # Mock breach API

@@ -12,6 +12,11 @@ from backend.llm_gateway.completion import (
 )
 from backend.llm_gateway.provider_manifest import validate_provider_model
 from backend.llm_gateway.providers.base import LLMProvider, LLMResponse
+from core.security.egress_guard import (
+    EgressPolicy,
+    GuardedAsyncHTTPTransport,
+    GuardedHTTPTransport,
+)
 
 
 class GoogleProvider(LLMProvider):
@@ -24,9 +29,28 @@ class GoogleProvider(LLMProvider):
         from google import genai
         from google.genai import types
 
+        endpoint = (
+            os.environ.get("GOOGLE_GEMINI_BASE_URL")
+            or "https://generativelanguage.googleapis.com/"
+        )
+        self.egress_policy = EgressPolicy.for_endpoint(endpoint)
         self.client = genai.Client(
             api_key=resolved_key,
-            http_options=types.HttpOptions(timeout=int(timeout_seconds * 1000)),
+            vertexai=False,
+            http_options=types.HttpOptions(
+                base_url=endpoint,
+                timeout=int(timeout_seconds * 1000),
+                client_args={
+                    "transport": GuardedHTTPTransport(self.egress_policy),
+                    "trust_env": False,
+                    "follow_redirects": False,
+                },
+                async_client_args={
+                    "transport": GuardedAsyncHTTPTransport(self.egress_policy),
+                    "trust_env": False,
+                    "follow_redirects": False,
+                },
+            ),
         )
         self.types = types
 

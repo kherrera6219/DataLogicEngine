@@ -17,6 +17,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from abc import ABC, abstractmethod
 
+from core.security.egress_guard import EgressDenied, loopback_s3_client
+
 logger = logging.getLogger(__name__)
 
 
@@ -355,22 +357,13 @@ class S3Backend(ObjectBackend):
         """Lazy initialization of S3 client."""
         if self._client is None:
             try:
-                import boto3
-                from botocore.config import Config
-                
-                self._client = boto3.client(
-                    's3',
-                    endpoint_url=self.endpoint_url,
-                    aws_access_key_id=self._access_key,
-                    aws_secret_access_key=self._secret_key,
-                    region_name=self.region,
-                    config=Config(
-                        signature_version="s3v4",
-                        s3={"addressing_style": "path"},
-                        connect_timeout=3,
-                        read_timeout=15,
-                        retries={"max_attempts": 3, "mode": "standard"},
-                    ),
+                self._client = loopback_s3_client(
+                    self.endpoint_url,
+                    access_key=self._access_key,
+                    secret_key=self._secret_key,
+                    region=self.region,
+                    read_timeout=15,
+                    max_attempts=3,
                 )
                 logger.info(f"S3 client initialized for {self.endpoint_url or 'AWS S3'}")
             except ImportError:
@@ -428,6 +421,8 @@ class S3Backend(ObjectBackend):
         try:
             self.client.delete_object(Bucket=bucket, Key=key)
             return True
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"S3 delete failed for {bucket}/{key}: {e}")
             return False
@@ -437,6 +432,8 @@ class S3Backend(ObjectBackend):
         try:
             self.client.head_object(Bucket=bucket, Key=key)
             return True
+        except EgressDenied:
+            raise
         except Exception:
             return False
     
@@ -478,6 +475,8 @@ class S3Backend(ObjectBackend):
                 etag=response.get('ETag', '').strip('"'),
                 metadata=response.get('Metadata', {})
             )
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"S3 head failed for {bucket}/{key}: {e}")
             return None
@@ -499,6 +498,8 @@ class S3Backend(ObjectBackend):
         try:
             self.client.head_bucket(Bucket=bucket)
             return True
+        except EgressDenied:
+            raise
         except Exception:
             pass
         try:
@@ -510,6 +511,8 @@ class S3Backend(ObjectBackend):
                     CreateBucketConfiguration={'LocationConstraint': self.region}
                 )
             return True
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"Failed to create bucket {bucket}: {e}")
             return False

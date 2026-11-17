@@ -12,6 +12,7 @@ from backend.llm_gateway.completion import (
 )
 from backend.llm_gateway.provider_manifest import provider_model_definition
 from backend.llm_gateway.providers.base import LLMProvider, LLMResponse
+from core.security.egress_guard import EgressDenied, EgressPolicy, model_async_client
 
 
 class OpenAIProvider(LLMProvider):
@@ -29,12 +30,27 @@ class OpenAIProvider(LLMProvider):
             raise ValueError("Missing OPENAI_API_KEY")
         from openai import AsyncOpenAI
 
+        endpoint = (
+            base_url or os.environ.get("OPENAI_BASE_URL") or "https://api.openai.com/v1"
+        )
+        self.egress_policy = EgressPolicy.for_endpoint(endpoint)
         self.client = AsyncOpenAI(
             api_key=resolved_key,
-            base_url=base_url or os.environ.get("OPENAI_BASE_URL"),
+            base_url=endpoint,
+            http_client=model_async_client(self.egress_policy, timeout=timeout_seconds),
             timeout=timeout_seconds,
             max_retries=0,
         )
+
+    async def _create_response(self, **request: Any) -> Any:
+        from openai import APIConnectionError
+
+        try:
+            return await self.client.responses.create(**request)
+        except APIConnectionError as exc:
+            if isinstance(exc.__cause__, EgressDenied):
+                raise exc.__cause__ from None
+            raise
 
     @staticmethod
     def _request(
@@ -66,7 +82,7 @@ class OpenAIProvider(LLMProvider):
         max_tokens: int = 1024,
     ) -> LLMResponse:
         request = self._request(messages, model, temperature, max_tokens)
-        response = await self.client.responses.create(**request)
+        response = await self._create_response(**request)
         completion = self._completion_metadata(response)
         text = str(getattr(response, "output_text", "") or "")
         if not text and completion.disposition not in {
@@ -131,7 +147,7 @@ class OpenAIProvider(LLMProvider):
         max_tokens: int = 1024,
     ) -> AsyncIterator[str]:
         request = self._request(messages, model, temperature, max_tokens)
-        stream = await self.client.responses.create(**request, stream=True)
+        stream = await self._create_response(**request, stream=True)
         async for event in stream:
             if getattr(event, "type", "") == "response.output_text.delta":
                 delta = str(getattr(event, "delta", "") or "")
