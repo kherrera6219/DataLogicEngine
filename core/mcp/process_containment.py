@@ -374,6 +374,30 @@ def _profile_sid(name: str) -> str:
             advapi.FreeSid(sid)
 
 
+def _appcontainer_folder(sid: str) -> Path:
+    if not _APP_CONTAINER_SID.fullmatch(sid):
+        raise ConnectorIsolationError("Invalid connector identity")
+    userenv = ctypes.WinDLL("userenv", use_last_error=True)
+    ole = ctypes.OleDLL("ole32")
+    userenv.GetAppContainerFolderPath.argtypes = [
+        wintypes.LPCWSTR,
+        ctypes.POINTER(ctypes.c_void_p),
+    ]
+    userenv.GetAppContainerFolderPath.restype = ctypes.c_long
+    ole.CoTaskMemFree.argtypes = [ctypes.c_void_p]
+    result_path = ctypes.c_void_p()
+    result = userenv.GetAppContainerFolderPath(sid, ctypes.byref(result_path))
+    if result:
+        raise ConnectorIsolationError(
+            f"Cannot locate connector profile: {result & 0xFFFFFFFF:#x}"
+        )
+    try:
+        return Path(ctypes.wstring_at(result_path.value))
+    finally:
+        if result_path.value:
+            ole.CoTaskMemFree(result_path)
+
+
 @contextmanager
 def _lease_lock(directory: Path):
     import msvcrt
@@ -419,6 +443,8 @@ def _validate_lease(lease: Any) -> None:
         raise ConnectorIsolationError("Invalid connector access journal identity")
     if _profile_sid(lease["profile"]) != lease["sid"]:
         raise ConnectorIsolationError("Connector access journal identity mismatch")
+    if not isinstance(lease.get("preserve_profile", False), bool):
+        raise ConnectorIsolationError("Invalid connector profile retention state")
     if (
         type(lease.get("owner_pid")) is not int
         or lease["owner_pid"] <= 0
@@ -452,7 +478,12 @@ def _remove_lease(path: Path, lease: dict[str, Any]) -> None:
             revoke=True,
             expected_id=tuple(item["id"]),
         )
-    _delete_appcontainer_profile(lease["profile"])
+    if lease.get("preserve_profile", False):
+        retained = path.parent / "retained"
+        retained.mkdir(exist_ok=True)
+        _save_lease(retained / path.name, lease)
+    else:
+        _delete_appcontainer_profile(lease["profile"])
     path.unlink()
 
 
@@ -520,6 +551,7 @@ class ConnectorAccessLease:
                 "sid": sid,
                 "owner_pid": os.getpid(),
                 "owner_start": owner_start,
+                "preserve_profile": False,
                 "paths": [],
             }
             try:
@@ -542,6 +574,14 @@ class ConnectorAccessLease:
                     _delete_appcontainer_profile(profile)
                 raise
         return cls(directory, path, lease)
+
+    def preserve_profile(self) -> None:
+        """Retain a profile that may contain connector-created files."""
+        with _lease_lock(self.directory):
+            if not self.path.exists():
+                raise ConnectorIsolationError("Connector access journal is missing")
+            self.lease["preserve_profile"] = True
+            _save_lease(self.path, self.lease)
 
     def close(self) -> None:
         with _lease_lock(self.directory):
