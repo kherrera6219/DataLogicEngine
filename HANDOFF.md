@@ -65,7 +65,8 @@ connected to a loopback listener. This proves the Job Object does not deny all
 child network activity; it is not an observation of external traffic. The
 owner directed Phase B to continue and authorized the additional containment
 implementation, connector tests and fixture paths. Preserve the existing real-
-process tests; customer filesystem permission changes are not authorized.
+process tests. Kevin subsequently authorized connector-specific file access
+grants to approved paths and autonomous completion of Phase B.
 Audit integration, air-gap proof, renewable egress attestation, and the
 remaining CR-B exit gates also remain open.
 
@@ -78,11 +79,11 @@ start in the same kind of container with Windows status `0xc0000135`, while
 `cmd.exe` completed. These bounded probes show a viable isolation direction and
 a compatibility issue; they do not qualify the product, prove all child egress
 paths, or demonstrate the cause of the Python load failure. No customer file
-permissions were modified. Obtain owner direction before implementing
-connector-specific access grants to user-owned executables or approved data
-folders; preserve existing tests and fail closed if isolation is unavailable.
+permissions were modified. Kevin subsequently authorized the connector-specific
+access grants described below; preserve existing tests and fail closed if
+isolation is unavailable.
 
-**Proposed file-access approach, pending owner authorization:** create an
+**Owner-approved file-access approach, not yet implemented:** create an
 isolated connector identity with no network capabilities, grant that identity
 only the access needed for the explicitly approved executable and its approved
 runtime files, and grant its approved data roots only the read/write rights

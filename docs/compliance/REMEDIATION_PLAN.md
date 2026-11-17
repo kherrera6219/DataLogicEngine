@@ -281,7 +281,7 @@ The inventory's call-site count must be ≥ this number. **If any call site targ
 ### CR-B1 · Single egress chokepoint with a default-deny allowlist
 
 **Depends on:** CR-B0
-**Allowed paths:** `core/security/egress_guard.py`, the call sites the inventory identified, `core/mcp/process_containment.py`, `tests/security/`, `tests/mcp/`, `tests/fixtures/`, the Phase B plan and task definitions, and `HANDOFF.md`.
+**Allowed paths:** `core/security/egress_guard.py`, the call sites the inventory identified, `core/mcp/process_containment.py`, `backend/routes/mcp_routes.py`, `tests/security/`, `tests/mcp/`, `tests/phase_g/`, `tests/fixtures/`, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 2
 
 **Design requirements**
@@ -308,12 +308,12 @@ New tests must cover: allowed host succeeds; denied host raises the typed except
 ### CR-B2 · Route every call site through the guard
 
 **Depends on:** CR-B1
-**Allowed paths:** call sites from `EGRESS_INVENTORY.md`, `core/mcp/process_containment.py`, `tests/security/`, `tests/mcp/`, `tests/fixtures/`, the Python SDK package and its tests, the Phase B plan and task definitions, and `HANDOFF.md`.
+**Allowed paths:** call sites from `EGRESS_INVENTORY.md`, `core/mcp/process_containment.py`, `backend/routes/mcp_routes.py`, `tests/security/`, `tests/mcp/`, `tests/phase_g/`, `tests/fixtures/`, the Python SDK package and its tests, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 1–2
 
 Migrate each inventoried call site to the guarded transport. Include MCP client transports — **each MCP server is a second egress path, and an unguarded one silently falsifies the product's one-outbound-flow claim.**
 
-**Owner-authorized connector scope, 2026-11-16.** The owner directed continued Phase B work after the identified connector-isolation gap. The additional paths above permit implementing and testing child-process network isolation while retaining existing connector tests and their cleanup guarantees. This does not establish isolation, relax the exit gates, authorize a new network destination, or approve changes to customer filesystem permissions.
+**Owner-authorized connector scope, 2026-11-16.** The owner directed autonomous completion of Phase B and authorized connector-specific Windows permission grants to approved files and folders. The additional paths above permit implementing and testing child-process network isolation, passing the actual approved scopes to containment, and preserving existing connector tests and cleanup guarantees. Grants must be limited to the connector identity and approved access, removed on shutdown, and recovered after interruption. This does not establish isolation, relax the exit gates, or authorize a new network destination.
 
 **Owner-approved gate correction, 2026-11-16.** The installed application and the separately distributed SDK are different processes. The SDK wheel packages only `ukg_sdk`, so it cannot import the application's `core` module. Scan the installed backend and core for direct HTTP-client imports, and separately test the SDK's own client-to-DataLogicEngine boundary. Do not exclude any installed application path or relax the MCP, air-gap, audit, or full-suite requirements. Keep the SDK's existing tests. The SDK gate must verify its built wheel works without the application package, its owned clients contact only the explicitly configured API origin, and redirects and environment proxies cannot change that destination. If an SDK caller supplies its own HTTP client, document and test that its transport is controlled by that caller; do not claim the SDK enforces a policy over an injected transport.
 
