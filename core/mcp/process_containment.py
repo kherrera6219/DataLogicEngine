@@ -97,6 +97,14 @@ class _ExplicitAccess(ctypes.Structure):
     ]
 
 
+class _AclSizeInformation(ctypes.Structure):
+    _fields_ = [
+        ("ace_count", wintypes.DWORD),
+        ("bytes_in_use", wintypes.DWORD),
+        ("bytes_free", wintypes.DWORD),
+    ]
+
+
 def _windows_acl_change(
     path: Path,
     sid_string: str,
@@ -263,6 +271,143 @@ def _windows_acl_change(
             if allocation.value:
                 kernel.LocalFree(allocation)
         kernel.CloseHandle(handle)
+
+
+def _windows_acl_contains_sid(path: Path, sid_string: str) -> tuple[bool, bool, bool]:
+    """Inspect an object's DACL without following its final reparse point."""
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    advapi = ctypes.WinDLL("advapi32", use_last_error=True)
+    kernel.CreateFileW.argtypes = [
+        wintypes.LPCWSTR,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        ctypes.c_void_p,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.HANDLE,
+    ]
+    kernel.CreateFileW.restype = wintypes.HANDLE
+    kernel.GetFileInformationByHandle.argtypes = [
+        wintypes.HANDLE,
+        ctypes.POINTER(_FileInformation),
+    ]
+    kernel.GetFileInformationByHandle.restype = wintypes.BOOL
+    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel.LocalFree.argtypes = [ctypes.c_void_p]
+    advapi.ConvertStringSidToSidW.argtypes = [
+        wintypes.LPCWSTR,
+        ctypes.POINTER(ctypes.c_void_p),
+    ]
+    advapi.ConvertStringSidToSidW.restype = wintypes.BOOL
+    advapi.GetSecurityInfo.argtypes = [
+        wintypes.HANDLE,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.POINTER(ctypes.c_void_p),
+        ctypes.c_void_p,
+        ctypes.POINTER(ctypes.c_void_p),
+    ]
+    advapi.GetSecurityInfo.restype = wintypes.DWORD
+    advapi.GetAclInformation.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        wintypes.DWORD,
+        ctypes.c_int,
+    ]
+    advapi.GetAclInformation.restype = wintypes.BOOL
+    advapi.GetAce.argtypes = [
+        ctypes.c_void_p,
+        wintypes.DWORD,
+        ctypes.POINTER(ctypes.c_void_p),
+    ]
+    advapi.GetAce.restype = wintypes.BOOL
+    advapi.EqualSid.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    advapi.EqualSid.restype = wintypes.BOOL
+    handle = kernel.CreateFileW(
+        str(path),
+        _READ_CONTROL | _FILE_READ_ATTRIBUTES,
+        _FILE_SHARE_ALL,
+        None,
+        _OPEN_EXISTING,
+        _FILE_FLAG_BACKUP_SEMANTICS | _FILE_FLAG_OPEN_REPARSE_POINT,
+        None,
+    )
+    if not handle or handle == INVALID_HANDLE_VALUE:
+        raise ConnectorIsolationError(
+            "Cannot verify connector access cleanup"
+        ) from ctypes.WinError(ctypes.get_last_error())
+    sid = ctypes.c_void_p()
+    security = ctypes.c_void_p()
+    acl = ctypes.c_void_p()
+    try:
+        info = _FileInformation()
+        if not kernel.GetFileInformationByHandle(handle, ctypes.byref(info)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        if not advapi.ConvertStringSidToSidW(sid_string, ctypes.byref(sid)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        result = advapi.GetSecurityInfo(
+            handle,
+            _SE_FILE_OBJECT,
+            _DACL_SECURITY_INFORMATION,
+            None,
+            None,
+            ctypes.byref(acl),
+            None,
+            ctypes.byref(security),
+        )
+        if result:
+            raise ctypes.WinError(result)
+        if not acl:
+            raise ConnectorIsolationError(
+                "Cannot verify an unrestricted connector path"
+            )
+        size = _AclSizeInformation()
+        if not advapi.GetAclInformation(
+            acl, ctypes.byref(size), ctypes.sizeof(size), 2
+        ):
+            raise ctypes.WinError(ctypes.get_last_error())
+        found = False
+        for index in range(size.ace_count):
+            ace = ctypes.c_void_p()
+            if not advapi.GetAce(acl, index, ctypes.byref(ace)):
+                raise ctypes.WinError(ctypes.get_last_error())
+            if ctypes.c_ubyte.from_address(ace.value).value == 0 and advapi.EqualSid(
+                sid, ace.value + 8
+            ):
+                found = True
+                break
+        return (
+            found,
+            bool(info.attributes & 0x10),
+            bool(info.attributes & _FILE_ATTRIBUTE_REPARSE_POINT),
+        )
+    finally:
+        for allocation in (security, sid):
+            if allocation.value:
+                kernel.LocalFree(allocation)
+        kernel.CloseHandle(handle)
+
+
+def _verify_connector_access_removed(root: Path, sid: str) -> None:
+    """Fail if any reachable approved object retains this connector's grant."""
+    pending = [root]
+    while pending:
+        current = pending.pop()
+        found, is_directory, is_reparse = _windows_acl_contains_sid(current, sid)
+        if found:
+            raise ConnectorIsolationError(
+                "Connector access remains on an approved path"
+            )
+        if is_directory and not is_reparse:
+            try:
+                with os.scandir(current) as entries:
+                    pending.extend(Path(entry.path) for entry in entries)
+            except OSError as exc:
+                raise ConnectorIsolationError(
+                    "Cannot verify connector access cleanup"
+                ) from exc
 
 
 def _process_start_time(pid: int) -> int | None:
@@ -518,6 +663,15 @@ def _remove_lease(path: Path, lease: dict[str, Any]) -> None:
             execute=item.get("execute", True),
             expected_id=tuple(item["id"]),
         )
+    for item in lease["paths"]:
+        _windows_acl_change(
+            Path(item["path"]),
+            lease["sid"],
+            write=item["write"],
+            revoke=None,
+            expected_id=tuple(item["id"]),
+        )
+        _verify_connector_access_removed(Path(item["path"]), lease["sid"])
     if lease.get("preserve_profile", False):
         retained = path.parent / "retained"
         retained.mkdir(exist_ok=True)
