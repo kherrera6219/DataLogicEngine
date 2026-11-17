@@ -20,7 +20,7 @@ from flask import Blueprint, current_app, jsonify, request
 from backend.auth.api_decorators import api_session_login_required
 from backend.runtime import get_application_runtime
 from backend.security.desktop_ipc import require_desktop_ipc_capability
-from core.security.egress_guard import loopback_s3_client
+from core.security.egress_guard import EgressDenied, loopback_s3_client, require_loopback_host
 
 storage_api = Blueprint('storage_api', __name__, url_prefix='/api/v1/storage')
 logger = logging.getLogger(__name__)
@@ -483,6 +483,7 @@ def _test_postgres(data: dict) -> dict:
     port = int(data.get('port', 5432))
     
     try:
+        host = require_loopback_host(host)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(3)
         result = sock.connect_ex((host, port))
@@ -500,6 +501,12 @@ def _test_postgres(data: dict) -> dict:
                 'connected': False,
                 'message': f'Cannot connect to PostgreSQL at {host}:{port}'
             }
+    except EgressDenied:
+        return {
+            'service': 'postgres',
+            'connected': False,
+            'message': 'External database targets are blocked by the egress policy',
+        }
     except Exception:
         logger.exception("PostgreSQL connection test failed")
         return {
@@ -517,6 +524,7 @@ def _test_redis(data: dict) -> dict:
     port = int(data.get('port', 6379))
     
     try:
+        host = require_loopback_host(host)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(3)
         result = sock.connect_ex((host, port))
@@ -534,6 +542,12 @@ def _test_redis(data: dict) -> dict:
                 'connected': False,
                 'message': f'Cannot connect to Redis at {host}:{port}'
             }
+    except EgressDenied:
+        return {
+            'service': 'redis',
+            'connected': False,
+            'message': 'External database targets are blocked by the egress policy',
+        }
     except Exception:
         logger.exception("Redis connection test failed")
         return {
@@ -551,6 +565,7 @@ def _test_neo4j(data: dict) -> dict:
     port = int(data.get('port', 7687))
     
     try:
+        host = require_loopback_host(host)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(3)
         result = sock.connect_ex((host, port))
@@ -568,6 +583,12 @@ def _test_neo4j(data: dict) -> dict:
                 'connected': False,
                 'message': f'Cannot connect to Neo4j at {host}:{port}'
             }
+    except EgressDenied:
+        return {
+            'service': 'neo4j',
+            'connected': False,
+            'message': 'External database targets are blocked by the egress policy',
+        }
     except Exception:
         logger.exception("Neo4j connection test failed")
         return {
@@ -600,29 +621,11 @@ def _test_vector(data: dict) -> dict:
                 'message': 'ChromaDB path access failed'
             }
     elif provider == 'pinecone':
-        api_key = data.get('api_key')
-        if not api_key:
-            return {
-                'service': 'vector',
-                'connected': False,
-                'message': 'Pinecone API key required'
-            }
-        try:
-            from pinecone import Pinecone
-            pc = Pinecone(api_key=api_key)
-            indexes = pc.list_indexes()
-            return {
-                'service': 'vector',
-                'connected': True,
-                'message': f'Connected to Pinecone. Found {len(indexes)} indexes.'
-            }
-        except Exception:
-            logger.exception("Pinecone connection test failed")
-            return {
-                'service': 'vector',
-                'connected': False,
-                'message': 'Pinecone connection test failed'
-            }
+        return {
+            'service': 'vector',
+            'connected': False,
+            'message': 'External vector storage is blocked by the egress policy',
+        }
     else:
         return {
             'service': 'vector',
@@ -676,6 +679,12 @@ def _test_object(data: dict) -> dict:
                 'service': 'object',
                 'connected': True,
                 'message': f'Connected to S3-compatible storage at {endpoint or "AWS"}'
+            }
+        except EgressDenied:
+            return {
+                'service': 'object',
+                'connected': False,
+                'message': 'External object storage is blocked by the egress policy',
             }
         except Exception:
             logger.exception("S3 connection test failed")
