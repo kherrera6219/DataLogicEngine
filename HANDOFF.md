@@ -69,6 +69,19 @@ process tests; customer filesystem permission changes are not authorized.
 Audit integration, air-gap proof, renewable egress attestation, and the
 remaining CR-B exit gates also remain open.
 
+**Connector isolation feasibility check:** temporary Windows AppContainer
+profiles were created and removed for local probes. A system `curl --version`
+process completed inside a profile with no network capabilities; a subsequent
+attempt to reach a local listener timed out and the listener accepted no
+connection. A Python executable installed in the user's profile failed to
+start in the same kind of container with Windows status `0xc0000135`, while
+`cmd.exe` completed. These bounded probes show a viable isolation direction and
+a compatibility issue; they do not qualify the product, prove all child egress
+paths, or demonstrate the cause of the Python load failure. No customer file
+permissions were modified. Obtain owner direction before implementing
+connector-specific access grants to user-owned executables or approved data
+folders; preserve existing tests and fail closed if isolation is unavailable.
+
 ## November 16 Phase B sequencing decision
 
 Kevin authorized Phase B to proceed while Phase A remains open. This is a
