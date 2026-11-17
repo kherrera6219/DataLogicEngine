@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-14 |
+| Last reviewed | 2026-11-16 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.7 (release program) |
@@ -29,11 +29,11 @@
 ## November 16 Phase B egress checkpoint
 
 Owner authorized Phase B sequencing before Phase A disposition. On the local
-`remediation/phase-b` branch, CR-B1 now confines the legacy blockchain RPC and
-S3 clients to loopback, and legacy storage diagnostics reject external targets.
-The full Windows suite at `d23e254f` passed 3,670 tests with 18 skipped and zero
-errors; the subsequent storage-diagnostic change passed 77 targeted tests but
-has not had another full-suite run. Phase B remains incomplete.
+`remediation/phase-b` branch, CR-B1 confines legacy blockchain RPC, object
+storage and syslog to loopback, and rejects external vector storage and legacy
+storage diagnostics. The full Windows suite at `591943e2` passed 3,697 tests,
+18 skipped, 35 warnings, and zero failures or setup/collection errors. Phase B
+remains incomplete; this is source evidence, not installed acceptance.
 
 Source review found an unrecorded conditional syslog egress path:
 `backend/logging_config.py` creates a network SysLogHandler when
@@ -42,9 +42,17 @@ test mode. `backend/security/audit_logger.py` also exposes a remote syslog
 forwarding method, although no production caller was found in this review.
 No remote log transmission was performed or observed. The CR-B0 inventory
 listed the logging module only for its socket import and missed these paths.
-Stop for owner direction before changing the logging behavior or its existing
-remote-forwarding test. MCP child-process network isolation and the remaining
-CR-B gates are not yet established.
+Kevin authorized restricting both forwarding paths to loopback and updating the
+affected tests; those changes are committed and included in the suite above.
+
+MCP child-process network isolation remains open. A local Windows check attached
+the existing Job Object before releasing a child process, and that child then
+connected to a loopback listener. This proves the Job Object does not deny all
+child network activity; it is not an observation of external traffic. The
+existing process-containment implementation and real-process tests lie outside
+the current CR-B1/CR-B2 allowed paths. Obtain owner authorization to extend the
+task scope before modifying them. Audit integration, air-gap proof, renewable
+egress attestation, and the remaining CR-B exit gates also remain open.
 
 ## November 16 Phase B sequencing decision
 
