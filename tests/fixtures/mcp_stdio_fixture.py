@@ -123,9 +123,9 @@ def main() -> None:
             elif name == "spawn_child":
                 child = subprocess.Popen(
                     [sys.executable, "-c", "import time; time.sleep(60)"],
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                 )
                 result(message, {"content": [{"type": "text", "text": str(child.pid)}]})
             elif name == "local_network_probe":
