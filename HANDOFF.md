@@ -36,8 +36,9 @@ The advisory requires a specific combination of root parameters, `use cache`,
 and `unstable_cache`. A first-party frontend source search found no references
 to those cache APIs; that search is not proof that every runtime or packaged
 usage is unaffected. No dependency update or installed qualification was run.
-The owner must direct disposition of this newly discovered finding before
-continuing under `AGENTS.md`.
+Kevin authorized Phase B to continue while this advisory remains open for a
+separate dependency update. The alert has not been dispositioned as safe and
+remains relevant to release review.
 
 ## November 16 Phase B egress checkpoint
 
