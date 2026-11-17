@@ -17,6 +17,8 @@ from typing import Dict, List, Any, Optional
 import threading
 import uuid
 
+from core.security.egress_guard import require_loopback_host
+
 logger = logging.getLogger("UKG-Audit")
 
 class AuditLogger:
@@ -650,7 +652,7 @@ class AuditLogger:
 
     def enable_syslog_forwarding(self, host: str, port: int = 514, facility: int = logging.handlers.SysLogHandler.LOG_USER) -> bool:
         """
-        Enable forwarding audit logs to a remote Syslog server (SIEM).
+        Enable forwarding audit logs to a local Syslog server.
         
         Args:
             host: Syslog server hostname or IP
@@ -660,6 +662,7 @@ class AuditLogger:
         Returns:
             True if configured successfully
         """
+        host = require_loopback_host(host)
         try:
             handler = logging.handlers.SysLogHandler(address=(host, port), facility=facility)
             formatter = logging.Formatter('%(name)s: [%(levelname)s] %(message)s')

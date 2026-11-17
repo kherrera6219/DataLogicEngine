@@ -17,6 +17,7 @@ from flask import Flask
 
 
 from backend.observability.redaction import is_sensitive_key, redact_text, redact_value
+from core.security.egress_guard import require_loopback_host
 
 
 _PYTHON_JSON_LOGGER_SPEC = importlib.util.find_spec("pythonjsonlogger")
@@ -146,6 +147,9 @@ def _build_formatter(log_format: str):
 
 
 def _configure_root_handlers(*, log_level: int, log_format: str, log_file: str) -> None:
+    log_aggregation_host = os.environ.get("LOG_AGGREGATION_HOST")
+    if log_aggregation_host:
+        log_aggregation_host = require_loopback_host(log_aggregation_host)
     log_parent = os.path.dirname(os.path.abspath(log_file))
     os.makedirs(log_parent, exist_ok=True)
 
@@ -170,7 +174,6 @@ def _configure_root_handlers(*, log_level: int, log_format: str, log_file: str) 
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
 
-    log_aggregation_host = os.environ.get("LOG_AGGREGATION_HOST")
     if log_aggregation_host:
         log_aggregation_port = int(os.environ.get("LOG_AGGREGATION_PORT", 514))
         log_aggregation_protocol = os.environ.get("LOG_AGGREGATION_PROTOCOL", "udp").lower()
