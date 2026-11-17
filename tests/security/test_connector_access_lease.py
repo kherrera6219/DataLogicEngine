@@ -159,3 +159,33 @@ def test_recovery_rejects_a_journal_with_an_unrelated_identity(tmp_path):
     finally:
         lease.path.write_text(original, encoding="utf-8")
         lease.close()
+
+
+def test_started_connector_profile_is_retained_after_permissions_are_revoked(tmp_path):
+    if os.name != "nt":
+        with pytest.raises(ConnectorIsolationError, match="Windows"):
+            ConnectorAccessLease.create(tmp_path / "journal", [(tmp_path, False)])
+        return
+    target = tmp_path / "approved.txt"
+    target.write_text("fixture", encoding="utf-8")
+    journal = tmp_path / "journal"
+    lease = ConnectorAccessLease.create(journal, [(target, False)])
+    sid = lease.lease["sid"]
+    profile = lease.lease["profile"]
+    profile_folder = containment._appcontainer_folder(sid)
+    marker = profile_folder / "phase-b-test-owned-marker.txt"
+    marker.write_text("preserve", encoding="utf-8")
+    try:
+        lease.preserve_profile()
+        lease.close()
+        assert sid not in _acl(target)
+        assert not lease.path.exists()
+        retained = journal / "retained" / f"{profile}.json"
+        assert json.loads(retained.read_text(encoding="utf-8"))["profile"] == profile
+        assert marker.read_text(encoding="utf-8") == "preserve"
+    finally:
+        if lease.path.exists():
+            lease.close()
+        marker.unlink(missing_ok=True)
+        # This test profile was created solely for this test and holds no user data.
+        containment._delete_appcontainer_profile(profile)
