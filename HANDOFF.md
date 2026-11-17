@@ -74,7 +74,15 @@ suite passed 53 tests and its built wheel imported without the application
 package after installing the SDK's declared build and runtime dependencies in
 an isolated development environment. GitHub's earlier Windows run at `57273910`
 failed one governed-execution assertion; its log did not identify the cause.
-The GitHub run on `bee22819` was still in progress at this checkpoint.
+GitHub CI on `bee22819` failed: Windows found connector ACL inheritance
+changes in three tests and an AppContainer null-device failure in a child
+fixture; the Linux core coverage gate was 77.95% against the 80% minimum.
+The isolated child fixture now uses pipes instead of the null device and its
+targeted Windows test passes locally. The ACL behavior remains unresolved;
+the affected objects were GitHub-runner test fixtures, not customer files.
+Windows local suite on `f9fdf3ea` passed 3,724 tests, 18 skipped, 35 warnings,
+and zero failures or setup/collection errors. The GitHub run on `f9fdf3ea`
+was still running when these results were recorded.
 
 A configuration-only probe found that a nonproduction legacy app could
 construct a database engine for a remote host; no remote connection was made.
@@ -83,7 +91,13 @@ the application database URL before initializing the engine, permits local
 SQLite and loopback PostgreSQL, and rejects remote hosts and connection
 overrides that could redirect PostgreSQL. The targeted Windows database and
 runtime suite passed 61 tests, with three warnings and zero errors. A fresh
-full suite on the final source revision remains necessary.
+full suite passed locally as recorded above; GitHub CI and the remaining phase
+gates still require passing evidence.
+
+The optional immutable audit chain also failed a bounded two-logger restart
+probe: the second record broke verification. CR-B3 must address restart
+continuity and report write failures explicitly before treating that chain as
+evidence. The probe used only temporary local audit files.
 
 A previous local Windows check attached
 the existing Job Object before releasing a child process, and that child then
