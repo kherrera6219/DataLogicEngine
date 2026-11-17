@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import socket
 import subprocess
 import sys
 import time
@@ -38,24 +39,74 @@ def main() -> None:
                 message,
                 {
                     "tools": [
-                        {"name": "echo", "description": "Echo", "inputSchema": {"type": "object"}},
-                        {"name": "delay", "description": "Delay", "inputSchema": {"type": "object"}},
-                        {"name": "oversized", "description": "Oversized", "inputSchema": {"type": "object"}},
-                        {"name": "malformed", "description": "Malformed", "inputSchema": {"type": "object"}},
-                        {"name": "spawn_child", "description": "Spawn", "inputSchema": {"type": "object"}},
+                        {
+                            "name": "echo",
+                            "description": "Echo",
+                            "inputSchema": {"type": "object"},
+                        },
+                        {
+                            "name": "delay",
+                            "description": "Delay",
+                            "inputSchema": {"type": "object"},
+                        },
+                        {
+                            "name": "oversized",
+                            "description": "Oversized",
+                            "inputSchema": {"type": "object"},
+                        },
+                        {
+                            "name": "malformed",
+                            "description": "Malformed",
+                            "inputSchema": {"type": "object"},
+                        },
+                        {
+                            "name": "spawn_child",
+                            "description": "Spawn",
+                            "inputSchema": {"type": "object"},
+                        },
+                        {
+                            "name": "local_network_probe",
+                            "description": "Test local network",
+                            "inputSchema": {"type": "object"},
+                        },
+                        {
+                            "name": "file_probe",
+                            "description": "Test file access",
+                            "inputSchema": {"type": "object"},
+                        },
                     ]
                 },
             )
         elif method == "resources/list":
-            result(message, {"resources": [{"uri": "fixture://real", "name": "Real fixture"}]})
+            result(
+                message,
+                {"resources": [{"uri": "fixture://real", "name": "Real fixture"}]},
+            )
         elif method == "prompts/list":
-            result(message, {"prompts": [{"name": "fixture_prompt", "description": "Fixture prompt"}]})
+            result(
+                message,
+                {
+                    "prompts": [
+                        {"name": "fixture_prompt", "description": "Fixture prompt"}
+                    ]
+                },
+            )
         elif method == "resources/read":
-            result(message, {"contents": [{"uri": params.get("uri"), "text": "real resource"}]})
+            result(
+                message,
+                {"contents": [{"uri": params.get("uri"), "text": "real resource"}]},
+            )
         elif method == "prompts/get":
             result(
                 message,
-                {"messages": [{"role": "user", "content": {"type": "text", "text": "real prompt"}}]},
+                {
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": {"type": "text", "text": "real prompt"},
+                        }
+                    ]
+                },
             )
         elif method == "tools/call":
             name = params.get("name")
@@ -77,6 +128,48 @@ def main() -> None:
                     stderr=subprocess.DEVNULL,
                 )
                 result(message, {"content": [{"type": "text", "text": str(child.pid)}]})
+            elif name == "local_network_probe":
+                arguments = params.get("arguments") or {}
+                port = int(arguments.get("port", 0))
+                if not 1 <= port <= 65535:
+                    raise ValueError("invalid local test port")
+                try:
+                    with socket.create_connection(("127.0.0.1", port), timeout=1):
+                        connected = True
+                except OSError:
+                    connected = False
+                result(
+                    message,
+                    {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "connected" if connected else "blocked",
+                            }
+                        ]
+                    },
+                )
+            elif name == "file_probe":
+                arguments = params.get("arguments") or {}
+                try:
+                    with open(
+                        str(arguments.get("path")), "r", encoding="utf-8"
+                    ) as file:
+                        file.read(1)
+                    readable = True
+                except OSError:
+                    readable = False
+                result(
+                    message,
+                    {
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "readable" if readable else "blocked",
+                            }
+                        ]
+                    },
+                )
             else:
                 send(
                     {

@@ -8,7 +8,7 @@ import socket
 import pytest
 
 import core.mcp.isolated_process as isolated
-from core.mcp.isolated_process import launch_isolated_connector
+from core.mcp.isolated_process import connector_grants, launch_isolated_connector
 from core.mcp.process_containment import (
     ConnectorIsolationError,
     ConnectorPathGrant,
@@ -35,6 +35,35 @@ def _cleanup_test_profile(guard):
     guard.close()
     # Only this test-created profile is removed; no customer profile is touched.
     _delete_appcontainer_profile(profile)
+
+
+def test_connector_grants_follow_approved_scopes(tmp_path):
+    executable = tmp_path / "connector.exe"
+    executable.write_bytes(b"fixture")
+    root = tmp_path / "approved"
+    root.mkdir()
+    grants = connector_grants(
+        [str(executable)],
+        cwd=str(root),
+        file_roots=[str(root)],
+        approved_scopes=["connector:demo:read"],
+    )
+    assert grants[0] == ConnectorPathGrant(executable, read=True, execute=True)
+    assert grants[1] == ConnectorPathGrant(root, read=True)
+
+
+def test_connector_grants_reject_unapproved_working_directory(tmp_path):
+    executable = tmp_path / "connector.exe"
+    executable.write_bytes(b"fixture")
+    root = tmp_path / "approved"
+    root.mkdir()
+    with pytest.raises(ConnectorIsolationError, match="outside approved roots"):
+        connector_grants(
+            [str(executable)],
+            cwd=str(tmp_path),
+            file_roots=[str(root)],
+            approved_scopes=["connector:demo:read"],
+        )
 
 
 @pytest.mark.asyncio
@@ -103,3 +132,14 @@ async def test_failure_to_attach_job_revokes_grants_before_returning(
         await _launch(tmp_path, [executable, "/d", "/c", "echo must-not-run"])
     assert not list((tmp_path / "journal").glob("*.json"))
     assert not (tmp_path / "journal" / "retained").exists()
+
+
+@pytest.mark.asyncio
+async def test_process_creation_failure_revokes_grants(tmp_path):
+    if os.name != "nt":
+        with pytest.raises(ConnectorIsolationError, match="Windows"):
+            await _launch(tmp_path, ["fixture"])
+        return
+    with pytest.raises(OSError):
+        await _launch(tmp_path, [str(tmp_path / "missing.exe")])
+    assert not list((tmp_path / "journal").glob("*.json"))
