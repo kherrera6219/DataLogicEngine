@@ -9,6 +9,7 @@ from typing import NoReturn
 from urllib.parse import unquote, urlsplit
 
 import httpx
+import requests
 from requests import exceptions
 
 GuardedHTTPError = httpx.HTTPError
@@ -164,6 +165,49 @@ class GuardedAsyncHTTPTransport(httpx.AsyncHTTPTransport):
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
         self.policy.check(request)
         return await super().handle_async_request(request)
+
+
+class _LoopbackRequestsAdapter(requests.adapters.HTTPAdapter):
+    """Enforce one local origin for libraries that require requests.Session."""
+
+    def __init__(self, policy: EgressPolicy) -> None:
+        self.policy = policy
+        super().__init__()
+
+    def send(
+        self, request: requests.PreparedRequest, **kwargs: object
+    ) -> requests.Response:
+        try:
+            target = httpx.URL(request.url or "")
+            if _origin(target) not in self.policy.allowed_origins:
+                raise EgressDenied()
+            host = request.headers.get("Host")
+            if host is not None and host != target.netloc.decode("ascii"):
+                raise EgressDenied()
+        except httpx.InvalidURL as exc:
+            raise EgressDenied() from exc
+        kwargs["proxies"] = {}
+        return super().send(request, **kwargs)
+
+
+class _LocalRequestsSession(requests.Session):
+    def send(
+        self, request: requests.PreparedRequest, **kwargs: object
+    ) -> requests.Response:
+        kwargs["allow_redirects"] = False
+        return super().send(request, **kwargs)
+
+
+def loopback_requests_session(endpoint: str) -> tuple[str, requests.Session]:
+    """Bind a third-party requests client to one loopback HTTP origin."""
+    local_endpoint = loopback_service_url(endpoint, schemes=frozenset({"http"}))
+    policy = EgressPolicy.for_endpoint(local_endpoint)
+    session = _LocalRequestsSession()
+    session.trust_env = False
+    adapter = _LoopbackRequestsAdapter(policy)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    return local_endpoint, session
 
 
 def loopback_http_client(

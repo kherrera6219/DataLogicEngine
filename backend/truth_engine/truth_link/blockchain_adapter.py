@@ -10,6 +10,8 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, UTC
 from web3 import Web3
 
+from core.security.egress_guard import loopback_requests_session
+
 logger = logging.getLogger(__name__)
 
 class MerkleTree:
@@ -52,10 +54,11 @@ class BlockchainAdapter:
     """
     
     def __init__(self, rpc_url: Optional[str] = None, private_key: Optional[str] = None):
-        self.rpc_url = rpc_url or os.getenv("BLOCKCHAIN_RPC_URL", "http://127.0.0.1:8545")
+        configured_url = rpc_url or os.getenv("BLOCKCHAIN_RPC_URL", "http://127.0.0.1:8545")
+        self.rpc_url, session = loopback_requests_session(configured_url)
         self.private_key = private_key or os.getenv("BLOCKCHAIN_PRIVATE_KEY")
         
-        self.w3 = Web3(Web3.HTTPProvider(self.rpc_url))
+        self.w3 = Web3(Web3.HTTPProvider(self.rpc_url, session=session))
         self.account = None
         if self.private_key:
             self.account = self.w3.eth.account.from_key(self.private_key)
