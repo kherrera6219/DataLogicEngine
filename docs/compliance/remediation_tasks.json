@@ -342,7 +342,13 @@
       "allowed_paths": [
         "core/security/egress_guard.py",
         "tests/security/",
-        "call sites from EGRESS_INVENTORY.md"
+        "call sites from EGRESS_INVENTORY.md",
+        "core/mcp/process_containment.py",
+        "tests/mcp/",
+        "tests/fixtures/",
+        "docs/compliance/REMEDIATION_PLAN.md",
+        "docs/compliance/remediation_tasks.json",
+        "HANDOFF.md"
       ],
       "design_requirements": [
         "One module all outbound HTTP passes through. Default deny.",
@@ -379,11 +385,15 @@
         "call sites from EGRESS_INVENTORY.md",
         "sdk/UKG_Python_SDK/",
         "tests/security/",
+        "core/mcp/process_containment.py",
+        "tests/mcp/",
+        "tests/fixtures/",
         "docs/compliance/REMEDIATION_PLAN.md",
-        "docs/compliance/remediation_tasks.json"
+        "docs/compliance/remediation_tasks.json",
+        "HANDOFF.md"
       ],
       "steps": [
-        "Migrate each inventoried call site to the guarded transport, including MCP client transports. Each MCP server is a second egress path that silently falsifies the one-outbound-flow claim if unguarded.",
+        "Migrate each inventoried call site to the guarded transport, including MCP client transports. Each MCP server is a second egress path that silently falsifies the one-outbound-flow claim if unguarded. Owner authorized the additional connector containment and real-process test paths on 2026-11-16; preserve existing tests and do not change customer filesystem permissions without authorization.",
         "Owner-approved 2026-11-16: verify the independently packaged SDK against its configured API origin and standalone wheel, retaining SDK tests; the installed-application import scan covers backend and core only. Injected SDK clients remain caller-controlled. No other Phase B gate is relaxed."
       ],
       "exit_gate": "! grep -rEn '^[[:space:]]*(import requests|import httpx|from requests|from httpx|import aiohttp|from aiohttp)' backend/ core/ --include='*.py' | grep -v core/security/egress_guard.py && (cd sdk/UKG_Python_SDK && python -m pytest tests/ --no-cov -q --tb=short -rE && python tools/verify_standalone_wheel.py) && python -m pytest tests/ --no-cov -q --tb=short -rE"

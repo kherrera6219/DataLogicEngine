@@ -49,10 +49,11 @@ MCP child-process network isolation remains open. A local Windows check attached
 the existing Job Object before releasing a child process, and that child then
 connected to a loopback listener. This proves the Job Object does not deny all
 child network activity; it is not an observation of external traffic. The
-existing process-containment implementation and real-process tests lie outside
-the current CR-B1/CR-B2 allowed paths. Obtain owner authorization to extend the
-task scope before modifying them. Audit integration, air-gap proof, renewable
-egress attestation, and the remaining CR-B exit gates also remain open.
+owner directed Phase B to continue and authorized the additional containment
+implementation, connector tests and fixture paths. Preserve the existing real-
+process tests; customer filesystem permission changes are not authorized.
+Audit integration, air-gap proof, renewable egress attestation, and the
+remaining CR-B exit gates also remain open.
 
 ## November 16 Phase B sequencing decision
 
