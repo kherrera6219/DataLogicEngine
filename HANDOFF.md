@@ -18,13 +18,20 @@
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.7 (release program) |
-| Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
+| Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Phase A remains open; owner authorized Phase B to proceed before its disposition on 2026-11-16. CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`. Its post-merge CI/CD, Deploy and Security workflows pass. Installed acceptance, signing, lifecycle, Phase A and CP19-M remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
+
+## November 16 Phase B sequencing decision
+
+Kevin authorized Phase B to proceed while Phase A remains open. This is a
+sequencing exception, not completion of Phase A or a waiver of Phase B's exit
+gates. The required Windows status check and Phase A disposition remain open.
+Continue from the existing `remediation/phase-b` branch and its CR-B0 inventory.
 
 ## November 14 dependency repair and Phase A checkpoint
 
@@ -44,7 +51,8 @@ installer build, and portable launch smoke passed. [CI/CD](https://github.com/kh
 PR #108's post-merge CI/CD, Deploy, and Security workflows passed at
 `b69577c6`. The required **Windows Backend Tests** check on `main` is still
 an owner action. Once the check is in force, verify it and record the owner's
-Phase A disposition before beginning CR-B. See the [Phase A checkpoint](docs/compliance/README.md).
+Phase A disposition. The November 16 owner decision permits CR-B to proceed
+in parallel. See the [Phase A checkpoint](docs/compliance/README.md).
 
 Installed preflight found the registered Windows 4.4.6 desktop executable and
 its packaged UI and backend. The earlier November 6 recovery copy is present.
@@ -2291,10 +2299,10 @@ installed software. What does apply: NIST SSDF 800-218 and 800-218A, NIST
 (2026), HIPAA as a deployable product, SR 11-7, and the Colorado ADMTA from
 2027-01-01.
 
-### Phase order — not negotiable
+### Historical phase order (updated November 16)
 
 ```
-Phase A  Trustworthy test harness      <- BLOCKS EVERYTHING
+Phase A  Trustworthy test harness      <- open; Phase B sequencing excepted
    +-> Phase B  Egress proof            (highest product value)
    +-> Phase C  Local API hardening
    +-> Phase D  Truth in claims
@@ -2303,9 +2311,9 @@ Phase A  Trustworthy test harness      <- BLOCKS EVERYTHING
              +-> Phase G  Documentation artifacts
 ```
 
-Phase A blocks the rest until its fresh baseline and dispositions are recorded.
-The current full Windows pass removes the review's setup-error count as a live
-fact but does not itself complete CR-A0 or Windows CI parity.
+Phase A remains open; the owner authorized Phase B to proceed in parallel.
+See the current checkpoint at the top of this handoff for the recorded baseline
+and the remaining Windows check and disposition.
 
 ### Verified status as of 2026-08-20 at `fd24536d`
 

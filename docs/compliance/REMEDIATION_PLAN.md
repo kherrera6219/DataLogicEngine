@@ -23,6 +23,12 @@ are removed. Exact build/CI evidence is in
 `docs/audits/CI_CHAT_REPAIR_2026-10-26.md`. This does not disposition Phase A or
 replace CR-A0's required commit-bound remediation baseline.
 
+**November 16 owner sequencing decision:** Kevin authorized Phase B to proceed
+while Phase A remains open. This is an exception to the Phase A prerequisite for
+executing Phase B, not a disposition of Phase A or a relaxation of either phase's
+exit gates. The required Windows status check on `main` and formal Phase A
+disposition remain open. Other phase dependencies and human gates are unchanged.
+
 **Assumption stated in the open:** this program remains a separate gate to
 unblocking the current 4.4.6 release. The original v4.4.4 target above is
 historical plan provenance, not a statement that the product is still at
@@ -84,10 +90,10 @@ Estimates are in **agent sessions** (one focused Codex run ending at a gate), no
 
 ---
 
-## 1. Phase ordering and why it is not negotiable
+## 1. Phase ordering and owner-approved exception
 
 ```
-Phase A  Trustworthy test harness      ← BLOCKS EVERYTHING
+Phase A  Trustworthy test harness      ← OPEN; Phase B sequencing excepted
    │
    ├──▶ Phase B  Egress proof              (highest product value)
    ├──▶ Phase C  Local API hardening       (depends on A2 Windows CI)
@@ -100,7 +106,7 @@ Phase A  Trustworthy test harness      ← BLOCKS EVERYTHING
                      └──▶ Phase G  Documentation artifacts (depends on B, C, D, E, F)
 ```
 
-**Phase A blocks the remediation phases and this is the whole point.** The review baseline reported forty Windows setup errors. The 2026-08-27 4.4.3 qualification later completed 3,317 Windows tests with 19 skipped and zero failures or setup errors, so the historical count is not a current finding. CR-A0 must capture a fresh commit-bound baseline and CR-A1 must reproduce its premise before modifying fixtures. Running Phases B–G before Phase A is formally dispositioned would still produce evidence without the program's approved baseline.
+**Phase A remains a prerequisite except for the owner-authorized Phase B sequencing exception above.** The review baseline reported forty Windows setup errors; subsequent Windows evidence does not reproduce that historical finding. CR-A0 and CR-A3 evidence is recorded under `reports/remediation/`; Phase A remains open pending the required check and owner disposition.
 
 Phases B, C, D, and E are mutually independent once A is green and may be run concurrently in separate worktrees. Phase G is last because it documents what the others built; writing it earlier guarantees it documents intent rather than fact.
 
@@ -114,7 +120,7 @@ Phases B, C, D, and E are mutually independent once A is green and may be run co
 
 ## PHASE A — Make the test harness trustworthy
 
-**Blocks:** every other phase.
+**Blocks:** later phases except Phase B execution under the November 16 owner sequencing decision.
 **Branch:** `remediation/phase-a`
 **Sessions:** 3–5
 
@@ -240,7 +246,7 @@ python -m pytest tests/security/test_phase1_anonymous_mutations.py \
 # Gate: all pass, zero errors, and reports/remediation/A3_TRIAGE.md exists
 ```
 
-**PHASE A EXIT GATE.** Full suite green on Windows CI with zero collection errors; collected count ≥ baseline; `A3_TRIAGE.md` written. **No other phase begins until this is true.**
+**PHASE A EXIT GATE.** Full suite green on Windows CI with zero collection errors; collected count ≥ baseline; `A3_TRIAGE.md` written. Phase B may proceed under the November 16 owner sequencing exception; Phase A remains open.
 
 ---
 
@@ -248,7 +254,7 @@ python -m pytest tests/security/test_phase1_anonymous_mutations.py \
 
 **Why this phase exists.** DataLogicEngine's compliance position rests on an enforceable boundary around owner-configured model endpoints and explicitly enabled connectors. Converting that boundary from an unproved claim into an enforced, tested, logged property is among the highest-value engineering work available: it supports US buyer security and privacy reviews, including HIPAA risk analysis where applicable and NIST 800-53 SC-7 and AC-4 for a customer's ATO. EU AI Act and GDPR obligations are out of scope under the recorded US-only market decision. Include packaged-renderer URL loads, such as the existing CSP `img-src https:` allowance, in discovery; this document does not approve that destination.
 
-**Depends on:** Phase A complete
+**Depends on:** Phase A complete for formal program disposition; execution may proceed under the November 16 owner sequencing exception.
 **Branch:** `remediation/phase-b`
 **Sessions:** 5–7
 
