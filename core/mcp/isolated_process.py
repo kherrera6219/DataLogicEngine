@@ -83,7 +83,12 @@ class _NativeProcess:
     """Small Popen-compatible owner of an AppContainer process and its pipes."""
 
     def __init__(
-        self, command: list[str], env: dict[str, str], cwd: str | None, sid_text: str
+        self,
+        command: list[str],
+        env: dict[str, str],
+        cwd: str | None,
+        sid_text: str,
+        lease: ConnectorAccessLease,
     ):
         import _winapi
         from asyncio import windows_utils
@@ -252,9 +257,13 @@ class _NativeProcess:
                 pipe.close()
             if process_info is not None:
                 _winapi.TerminateProcess(process_info.process, 1)
-                _winapi.WaitForSingleObject(process_info.process, 5000)
+                if _winapi.WaitForSingleObject(process_info.process, 5000) != 0:
+                    raise ConnectorIsolationError(
+                        "Cannot stop failed isolated connector"
+                    )
                 _winapi.CloseHandle(process_info.thread)
                 _winapi.CloseHandle(process_info.process)
+            lease.cleanup_safe = True
             raise
         finally:
             for handle in handles:
@@ -391,6 +400,7 @@ class IsolatedConnectorGuard:
                         "Connector child processes are still active"
                     )
                 time.sleep(0.02)
+            self.lease.cleanup_safe = True
             self.lease.close()
         finally:
             self.tree_guard.handle = None
@@ -400,13 +410,72 @@ class IsolatedConnectorGuard:
                 ) from ctypes.WinError(ctypes.get_last_error())
 
 
+def connector_journal_dir(runtime_root: Path) -> Path:
+    """Keep access journals in the application's owned security directory."""
+    return Path(runtime_root).resolve() / "security" / "connector-access"
+
+
+def connector_grants(
+    command: list[str],
+    *,
+    cwd: str | None,
+    file_roots: list[str],
+    approved_scopes: list[str],
+) -> list[ConnectorPathGrant]:
+    """Map the approved connector executable and scopes to explicit path rights."""
+    if not command or not Path(command[0]).is_absolute():
+        raise ConnectorIsolationError("An absolute connector executable is required")
+    executable = Path(command[0]).resolve(strict=True)
+    if not executable.is_file():
+        raise ConnectorIsolationError("Connector executable is unavailable")
+    roots = [Path(item).resolve(strict=True) for item in file_roots]
+    if not roots or any(not root.is_dir() for root in roots):
+        raise ConnectorIsolationError("Approved connector file roots are required")
+    if cwd is None:
+        raise ConnectorIsolationError(
+            "An approved connector working directory is required"
+        )
+    working = Path(cwd).resolve(strict=True)
+    if not any(working == root or working.is_relative_to(root) for root in roots):
+        raise ConnectorIsolationError(
+            "Connector working directory is outside approved roots"
+        )
+    capabilities = {scope.rsplit(":", 1)[-1].lower() for scope in approved_scopes}
+    if not capabilities or not capabilities <= {"read", "write", "execute"}:
+        raise ConnectorIsolationError("Approved connector scopes are required")
+    grants = [
+        ConnectorPathGrant(
+            root,
+            read="read" in capabilities,
+            write="write" in capabilities,
+            execute="execute" in capabilities,
+        )
+        for root in roots
+    ]
+    # System-managed executables already have an AppContainer-readable ACL;
+    # never modify a system installation merely to start a connector.
+    system_roots = [
+        Path(value).resolve()
+        for value in (
+            os.environ.get("SystemRoot"),
+            os.environ.get("ProgramFiles"),
+            os.environ.get("ProgramFiles(x86)"),
+        )
+        if value
+    ]
+    if not any(executable.is_relative_to(root) for root in system_roots):
+        grants.insert(0, ConnectorPathGrant(executable, read=True, execute=True))
+    return grants
+
+
 class _IsolatedTransport(base_subprocess.BaseSubprocessTransport):
     def _start(self, args, shell, stdin, stdout, stderr, bufsize, **kwargs):
         if shell or (stdin, stdout, stderr) != (subprocess.PIPE,) * 3 or bufsize != 0:
             raise ConnectorIsolationError("Unsupported isolated connector transport")
         lease = kwargs["lease"]
+        lease.cleanup_safe = False
         self._proc = _NativeProcess(
-            list(args), kwargs["env"], kwargs["cwd"], lease.lease["sid"]
+            list(args), kwargs["env"], kwargs["cwd"], lease.lease["sid"], lease
         )
         tree_guard = None
         wait_future = None
@@ -431,6 +500,9 @@ class _IsolatedTransport(base_subprocess.BaseSubprocessTransport):
             self._proc.close_unstarted()
             if tree_guard is not None:
                 self.connector_guard.close()
+            else:
+                lease.cleanup_safe = True
+                lease.close()
             raise
 
 
@@ -480,13 +552,12 @@ async def launch_isolated_connector(
             await waiter
         except BaseException:
             transport.close()
-            await transport._wait()
             transport.connector_guard.close()
             raise
         return asyncio.subprocess.Process(
             transport, protocol, loop
         ), transport.connector_guard
     except BaseException:
-        if lease.path.exists():
+        if lease.cleanup_safe and lease.path.exists():
             lease.close()
         raise

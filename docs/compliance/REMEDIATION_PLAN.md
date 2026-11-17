@@ -308,7 +308,7 @@ New tests must cover: allowed host succeeds; denied host raises the typed except
 ### CR-B2 · Route every call site through the guard
 
 **Depends on:** CR-B1
-**Allowed paths:** call sites from `EGRESS_INVENTORY.md`, `core/mcp/process_containment.py`, `core/mcp/isolated_process.py`, `backend/routes/mcp_routes.py`, `tests/security/`, `tests/mcp/`, `tests/phase_g/`, `tests/fixtures/`, the Python SDK package and its tests, the Phase B plan and task definitions, and `HANDOFF.md`.
+**Allowed paths:** call sites from `EGRESS_INVENTORY.md`, `core/mcp/process_containment.py`, `core/mcp/isolated_process.py`, `backend/routes/mcp_routes.py`, `app.py` for access-journal recovery, `tests/security/`, `tests/mcp/`, `tests/phase_g/`, `tests/unit/test_runtime_lifecycle.py`, `tests/fixtures/`, the Python SDK package and its tests, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 1–2
 
 Migrate each inventoried call site to the guarded transport. Include MCP client transports — **each MCP server is a second egress path, and an unguarded one silently falsifies the product's one-outbound-flow claim.**

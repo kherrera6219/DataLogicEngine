@@ -712,6 +712,7 @@ class ConnectorAccessLease:
         self.directory = directory
         self.path = path
         self.lease = lease
+        self.cleanup_safe = True
 
     @classmethod
     def create(
