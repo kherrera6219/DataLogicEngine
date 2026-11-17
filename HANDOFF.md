@@ -82,6 +82,18 @@ permissions were modified. Obtain owner direction before implementing
 connector-specific access grants to user-owned executables or approved data
 folders; preserve existing tests and fail closed if isolation is unavailable.
 
+**Proposed file-access approach, pending owner authorization:** create an
+isolated connector identity with no network capabilities, grant that identity
+only the access needed for the explicitly approved executable and its approved
+runtime files, and grant its approved data roots only the read/write rights
+corresponding to the connector's approved scopes. Do not grant access to all
+application packages or to unapproved folders. Track exactly the entries the
+application adds, remove only those entries on shutdown, and reconcile stale
+entries after an interrupted run. An interruption may leave an added entry in
+place until recovery. If necessary access cannot be granted or isolation
+cannot be verified, deny connector start with a clear error. This is a proposed
+design, not implemented or qualified behavior.
+
 ## November 16 Phase B sequencing decision
 
 Kevin authorized Phase B to proceed while Phase A remains open. This is a
