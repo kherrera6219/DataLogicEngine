@@ -26,6 +26,19 @@
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
 
+## November 16 Next.js advisory checkpoint
+
+After the Phase B checkpoint was pushed, GitHub reported open Dependabot alert
+[#741](https://github.com/kherrera6219/DataLogicEngine/security/dependabot/741),
+`CVE-2026-119790` / `GHSA-mfr8-8qww-v76h`, medium severity. The frontend lock
+selects Next.js 16.4.3; the alert lists 16.4.5 as the first patched version.
+The advisory requires a specific combination of root parameters, `use cache`,
+and `unstable_cache`. A first-party frontend source search found no references
+to those cache APIs; that search is not proof that every runtime or packaged
+usage is unaffected. No dependency update or installed qualification was run.
+The owner must direct disposition of this newly discovered finding before
+continuing under `AGENTS.md`.
+
 ## November 16 Phase B egress checkpoint
 
 Owner authorized Phase B sequencing before Phase A disposition. On the local
