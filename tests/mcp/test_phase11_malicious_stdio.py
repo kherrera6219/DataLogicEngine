@@ -21,6 +21,7 @@ from core.mcp.process_containment import (
     _delete_appcontainer_profile,
     _descendant_process_ids,
 )
+from tests.fixtures.connector_acl import prepare_compatible_acl
 
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "mcp_stdio_fixture.py"
@@ -43,6 +44,7 @@ def stdio_runtime(tmp_path_factory):
         shutil.copy2(FIXTURE, script)
         return sys.executable, script, fixtures, [str(fixtures)]
     root = tmp_path_factory.mktemp("isolated-mcp-runtime")
+    prepare_compatible_acl(root)
     runtime = root / "python"
     runtime.mkdir()
     base = Path(sys.base_prefix)
