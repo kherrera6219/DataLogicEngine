@@ -9,13 +9,13 @@ part of the runtime model.
 
 import os
 import logging
-import json
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Dict, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from urllib.parse import unquote, urlparse
-import urllib.request
+
+from core.security.egress_guard import EgressDenied, local_http_get, loopback_s3_client, require_loopback_host
 
 logger = logging.getLogger(__name__)
 
@@ -296,6 +296,8 @@ class ConnectionManager:
             else:
                 logger.warning(f"Unknown service: {service}")
                 return False
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"Health check failed for {service}: {e}")
             return False
@@ -308,11 +310,12 @@ class ConnectionManager:
     
     def _check_postgres_health(self) -> bool:
         """Check authenticated PostgreSQL identity and query execution."""
+        config = replace(self.config.postgres, host=require_loopback_host(self.config.postgres.host))
         try:
             import psycopg2
 
             with psycopg2.connect(
-                self.config.postgres.connection_url,
+                config.connection_url,
                 connect_timeout=3,
             ) as connection:
                 with connection.cursor() as cursor:
@@ -325,11 +328,12 @@ class ConnectionManager:
     
     def _check_redis_health(self) -> bool:
         """Check authenticated Redis command execution."""
+        config = replace(self.config.redis, host=require_loopback_host(self.config.redis.host))
         try:
             import redis
 
             client = redis.Redis.from_url(
-                self.config.redis.connection_url,
+                config.connection_url,
                 socket_connect_timeout=3,
                 socket_timeout=3,
             )
@@ -340,11 +344,12 @@ class ConnectionManager:
     
     def _check_neo4j_health(self) -> bool:
         """Check authenticated Neo4j connectivity."""
+        config = replace(self.config.neo4j, host=require_loopback_host(self.config.neo4j.host))
         try:
             from neo4j import GraphDatabase
 
             driver = GraphDatabase.driver(
-                self.config.neo4j.connection_url,
+                config.connection_url,
                 auth=self.config.neo4j.credentials,
                 connection_timeout=3,
             )
@@ -365,12 +370,9 @@ class ConnectionManager:
                     f"http://{self.config.vector.host}:"
                     f"{self.config.vector.port}/api/v2/heartbeat"
                 )
-                # The app-owned data-plane configuration fixes this endpoint to loopback.
-                with urllib.request.urlopen(  # noqa: S310  # nosec B310
-                    url,
-                    timeout=3,
-                ) as response:
-                    payload = json.loads(response.read().decode("utf-8"))
+                response = local_http_get(url, timeout=3)
+                response.raise_for_status()
+                payload = response.json()
                 return "nanosecond heartbeat" in payload
             from backend.storage.vector_store import ChromaDBBackend
 
@@ -378,6 +380,8 @@ class ConnectionManager:
             collection = backend._get_collection("healthcheck")
             collection.count()
             return True
+        except EgressDenied:
+            raise
         except Exception as exc:
             logger.warning("Vector health check failed: %s", exc)
             return False
@@ -386,22 +390,11 @@ class ConnectionManager:
         """Check the app-owned S3 contract or the bounded development backend."""
         try:
             if self.config.object_storage.endpoint_url:
-                import boto3
-                from botocore.config import Config
-
-                client = boto3.client(
-                    "s3",
-                    endpoint_url=self.config.object_storage.endpoint_url,
-                    aws_access_key_id=self.config.object_storage.access_key,
-                    aws_secret_access_key=self.config.object_storage.secret_key,
-                    region_name=self.config.object_storage.region,
-                    config=Config(
-                        signature_version="s3v4",
-                        s3={"addressing_style": "path"},
-                        connect_timeout=3,
-                        read_timeout=3,
-                        retries={"max_attempts": 1},
-                    ),
+                client = loopback_s3_client(
+                    self.config.object_storage.endpoint_url,
+                    access_key=self.config.object_storage.access_key,
+                    secret_key=self.config.object_storage.secret_key,
+                    region=self.config.object_storage.region,
                 )
                 for bucket in self.config.object_storage.buckets:
                     client.list_objects_v2(Bucket=bucket, MaxKeys=1)
@@ -412,6 +405,8 @@ class ConnectionManager:
             probe.write_bytes(b"ok")
             probe.unlink()
             return True
+        except EgressDenied:
+            raise
         except Exception as exc:
             logger.warning("Object storage health check failed: %s", exc)
             return False

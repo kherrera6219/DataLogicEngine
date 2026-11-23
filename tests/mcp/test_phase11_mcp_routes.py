@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 from extensions import db
 from models import (
@@ -145,9 +146,8 @@ def test_approved_start_persists_live_discovery(app, authenticated_client, tmp_p
             "approved_scopes": ["connector:safe-test:read"],
         },
     )
-    manager = SimpleNamespace(
-        external_clients={},
-        start_external_server_sync=lambda *_args, **_kwargs: {
+    start = Mock(
+        return_value={
             "initialized": {
                 "capabilities": {"tools": {}, "resources": {}, "prompts": {}},
             },
@@ -164,8 +164,9 @@ def test_approved_start_persists_live_discovery(app, authenticated_client, tmp_p
                 "prompts": [],
                 "errors": [],
             },
-        },
+        }
     )
+    manager = SimpleNamespace(external_clients={}, start_external_server_sync=start)
     monkeypatch.setattr("backend.routes.mcp_routes.get_mcp_manager", lambda: manager)
 
     response = authenticated_client.post(
@@ -173,6 +174,7 @@ def test_approved_start_persists_live_discovery(app, authenticated_client, tmp_p
     )
 
     assert response.status_code == 200
+    assert start.call_args.args[3] == ["connector:safe-test:read"]
     assert response.get_json()["server"]["health_status"] == "healthy"
     with app.app_context():
         server = MCPServer.query.filter_by(server_id=registered["server_id"]).one()

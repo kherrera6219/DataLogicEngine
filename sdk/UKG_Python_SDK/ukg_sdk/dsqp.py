@@ -8,6 +8,9 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .egress import sync_client
+from .exceptions import SDKDestinationDenied
+
 
 COMPONENT_KEYS = [
     "job_role",
@@ -49,6 +52,8 @@ class DSQPClient:
                     axis_number=axis_number,
                     coordinate_path=coordinate_path,
                 )
+            except SDKDestinationDenied:
+                raise
             except Exception as exc:
                 return {
                     **self._construct_offline(query, coordinate or {}, axis_number, coordinate_path),
@@ -64,13 +69,14 @@ class DSQPClient:
         axis_number: int,
         coordinate_path: str,
     ) -> dict[str, Any]:
-        import httpx
-
-        response = httpx.post(
-            f"{self.backend_url.rstrip('/')}/api/v1/gateway/dsqp-persona-profiles",
-            json={"query": query, "coordinate": coordinate, "axis_number": axis_number, "coordinate_path": coordinate_path},
-            timeout=10,
-        )
+        backend_url = self.backend_url
+        if not backend_url:
+            raise SDKDestinationDenied("DataLogicEngine API endpoint is required")
+        with sync_client(backend_url, timeout=10) as client:
+            response = client.post(
+                f"{backend_url.rstrip('/')}/api/v1/gateway/dsqp-persona-profiles",
+                json={"query": query, "coordinate": coordinate, "axis_number": axis_number, "coordinate_path": coordinate_path},
+            )
         response.raise_for_status()
         payload = response.json()
         if not isinstance(payload, dict):

@@ -12,13 +12,15 @@ import json
 import logging
 import inspect
 import os
+from pathlib import Path
 from typing import Dict, List, Optional, Any, Callable
 
 from backend.mcp_server.policy import (
     SUPPORTED_MCP_PROTOCOL_VERSION,
     redact_sensitive_text,
 )
-from .process_containment import ProcessTreeGuard, attach_process_tree_guard
+from .process_containment import ConnectorIsolationError, ProcessTreeGuard, attach_process_tree_guard
+from .isolated_process import IsolatedConnectorGuard, connector_grants, launch_isolated_connector
 
 from .mcp_protocol import (
     MCPMessage, MCPClientInfo, MCPMethod,
@@ -40,11 +42,14 @@ class MCPClient(MCPRequestHandler):
     def __init__(
         self,
         name: str = "DataLogicEngine",
-        version: str = "1.0.0"
+        version: str = "1.0.0",
+        *,
+        journal_dir: Optional[Path] = None,
     ):
         super().__init__()
         self.name = name
         self.version = version
+        self.journal_dir = journal_dir
         self.client_id = str(uuid.uuid4())
 
         # Connection state
@@ -63,7 +68,7 @@ class MCPClient(MCPRequestHandler):
         self.process: Optional[asyncio.subprocess.Process] = None
         self.read_task: Optional[asyncio.Task] = None
         self.stderr_task: Optional[asyncio.Task] = None
-        self.process_guard: Optional[ProcessTreeGuard] = None
+        self.process_guard: Optional[ProcessTreeGuard | IsolatedConnectorGuard] = None
         self._disconnect_task: Optional[asyncio.Task] = None
         self.request_timeout_seconds = 30
         self.max_message_bytes = 65_536
@@ -89,6 +94,8 @@ class MCPClient(MCPRequestHandler):
         *,
         cwd: Optional[str] = None,
         limits: Optional[Dict[str, int]] = None,
+        file_roots: Optional[List[str]] = None,
+        approved_scopes: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Connect to an owner-approved external server without a shell."""
         if not command or not os.path.isabs(str(command[0])):
@@ -118,16 +125,37 @@ class MCPClient(MCPRequestHandler):
             creationflags = getattr(__import__("subprocess"), "CREATE_NEW_PROCESS_GROUP", 0)
 
         try:
-            self.process = await asyncio.create_subprocess_exec(
-                *command,
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                env=sub_env,
-                cwd=cwd,
-                limit=self.max_message_bytes + 1,
-                creationflags=creationflags,
-            )
+            if os.name == "nt":
+                if self.journal_dir is None:
+                    raise ConnectorIsolationError("Connector access journal is not configured")
+                grants = connector_grants(
+                    command, cwd=cwd, file_roots=file_roots or [],
+                    approved_scopes=approved_scopes or [],
+                )
+                self.process, self.process_guard = await launch_isolated_connector(
+                    command, env=sub_env, cwd=cwd, grants=grants,
+                    journal_dir=self.journal_dir,
+                    max_process_memory_mb=max_process_memory_mb,
+                    limit=self.max_message_bytes + 1,
+                )
+                self.containment_status = self.process_guard.status
+            else:
+                self.process = await asyncio.create_subprocess_exec(
+                    *command,
+                    stdin=asyncio.subprocess.PIPE,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    env=sub_env,
+                    cwd=cwd,
+                    limit=self.max_message_bytes + 1,
+                    creationflags=creationflags,
+                )
+        except ConnectorIsolationError as exc:
+            raise MCPError(
+                MCPErrorCode.INTERNAL_ERROR,
+                "Process containment could not be established",
+                {"reason": "MCP_PROCESS_CONTAINMENT_FAILED"},
+            ) from exc
         except Exception as e:
             logger.error(f"Failed to spawn external MCP server process: {e}")
             raise MCPError(
@@ -136,23 +164,24 @@ class MCPClient(MCPRequestHandler):
                 {"reason": "MCP_PROCESS_SPAWN_FAILED"},
             ) from e
 
-        try:
-            self.process_guard = attach_process_tree_guard(
-                self.process,
-                max_process_memory_mb=max_process_memory_mb,
-            )
-            self.containment_status = self.process_guard.status
-        except Exception as exc:
+        if os.name != "nt":
             try:
-                self.process.terminate()
-            except Exception:
-                pass
-            self.process = None
-            raise MCPError(
-                MCPErrorCode.INTERNAL_ERROR,
-                "Process containment could not be established",
-                {"reason": "MCP_PROCESS_CONTAINMENT_FAILED"},
-            ) from exc
+                self.process_guard = attach_process_tree_guard(
+                    self.process,
+                    max_process_memory_mb=max_process_memory_mb,
+                )
+                self.containment_status = self.process_guard.status
+            except Exception as exc:
+                try:
+                    self.process.terminate()
+                except Exception:
+                    pass
+                self.process = None
+                raise MCPError(
+                    MCPErrorCode.INTERNAL_ERROR,
+                    "Process containment could not be established",
+                    {"reason": "MCP_PROCESS_CONTAINMENT_FAILED"},
+                ) from exc
 
         self.connected = True
         
@@ -605,6 +634,7 @@ class MCPClient(MCPRequestHandler):
             self.stderr_task = None
         process = self.process
         guard = self.process_guard
+        guard_error = None
         self.process = None
         self.process_guard = None
         if guard:
@@ -628,6 +658,7 @@ class MCPClient(MCPRequestHandler):
                 guard.close()
             except Exception as exc:
                 logger.error("MCP process-tree containment shutdown failed: %s", exc)
+                guard_error = exc
         if process:
             try:
                 termination = process.terminate()
@@ -654,6 +685,12 @@ class MCPClient(MCPRequestHandler):
         self.pending_requests.clear()
 
         logger.info("Disconnected from MCP server and terminated all active subprocesses")
+        if guard_error is not None:
+            raise MCPError(
+                MCPErrorCode.INTERNAL_ERROR,
+                "Connector containment cleanup failed",
+                {"reason": "MCP_PROCESS_CONTAINMENT_FAILED"},
+            ) from guard_error
 
     async def disconnect_async(self) -> None:
         task = self._disconnect_task

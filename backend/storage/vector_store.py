@@ -13,6 +13,7 @@ from abc import ABC, abstractmethod
 
 from backend.storage.chroma_http import ChromaHttpClient
 from backend.storage.chroma_security import safe_get_collection, safe_get_or_create_collection
+from core.security.egress_guard import EgressDenied
 
 logger = logging.getLogger(__name__)
 
@@ -323,15 +324,7 @@ class PineconeBackend(VectorBackend):
     def index(self):
         """Lazy initialization of Pinecone index."""
         if self._index is None:
-            try:
-                from pinecone import Pinecone
-                
-                pc = Pinecone(api_key=self.api_key)
-                self._index = pc.Index(self.index_name)
-                logger.info(f"Connected to Pinecone index: {self.index_name}")
-            except ImportError:
-                logger.warning("Pinecone not installed. Install with: pip install pinecone-client")
-                raise
+            raise EgressDenied("External vector storage is blocked by the egress policy")
         return self._index
     
     def add_embeddings(
@@ -357,6 +350,8 @@ class PineconeBackend(VectorBackend):
             
             self.index.upsert(vectors=vectors)
             return ids
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"Pinecone upsert failed: {e}")
             return []
@@ -389,6 +384,8 @@ class PineconeBackend(VectorBackend):
                 )
                 for match in results.get('matches', [])
             ]
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"Pinecone search failed: {e}")
             return []
@@ -399,6 +396,8 @@ class PineconeBackend(VectorBackend):
             prefixed_ids = [f"{collection}_{id_}" for id_ in ids]
             self.index.delete(ids=prefixed_ids)
             return True
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"Pinecone delete failed: {e}")
             return False
@@ -412,6 +411,8 @@ class PineconeBackend(VectorBackend):
                 "total_count": stats.get('total_vector_count', 0),
                 "backend": "pinecone"
             }
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"Failed to get Pinecone stats: {e}")
             return {"name": collection, "count": 0, "error": str(e)}
@@ -429,6 +430,8 @@ class PineconeBackend(VectorBackend):
         try:
             self.index.delete(filter={"collection": collection})
             return True
+        except EgressDenied:
+            raise
         except Exception as e:
             logger.error(f"Failed to delete collection: {e}")
             return False

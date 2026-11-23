@@ -12,8 +12,6 @@ import socket
 import subprocess
 import sys
 import tempfile
-import urllib.error
-import urllib.request
 import zipfile
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -22,6 +20,7 @@ from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 
 from backend.product_version import PRODUCT_VERSION
+from core.security.egress_guard import GuardedHTTPError, local_http_get
 
 from backend.observability.redaction import redact_text, redact_value
 
@@ -313,33 +312,26 @@ def probe_http_endpoint(url: str, timeout_seconds: int = 5) -> dict[str, Any]:
             "status_code": None,
             "error": "endpoint_not_loopback_http",
         }
-    request = urllib.request.Request(url=url, method="GET")
     try:
-        # The target has been restricted to loopback HTTP above.
-        with urllib.request.urlopen(  # noqa: S310  # nosec B310
-            request,
-            timeout=timeout_seconds,
-        ) as response:
-            body = response.read().decode("utf-8", errors="replace")
-            return {
-                "ok": True,
-                "status_code": int(response.status),
-                "headers": safe_http_headers(dict(response.headers.items())),
-                "body_preview": redact_support_text(body[:20_000]),
-            }
-    except urllib.error.HTTPError as exc:
-        try:
-            body = exc.read().decode("utf-8", errors="replace")
-        except Exception:  # noqa: BLE001
-            body = ""
+        response = local_http_get(url, timeout=timeout_seconds)
+    except GuardedHTTPError as exc:
+        return {"ok": False, "error": redact_support_text(str(exc))}
+    body = response.content.decode("utf-8", errors="replace")
+    if response.status_code >= 300:
         return {
             "ok": False,
-            "status_code": int(exc.code),
-            "error": redact_support_text(str(exc)),
+            "status_code": int(response.status_code),
+            "error": redact_support_text(
+                f"HTTP Error {response.status_code}: {response.reason_phrase}"
+            ),
             "body_preview": redact_support_text(body[:20_000]),
         }
-    except Exception as exc:  # noqa: BLE001
-        return {"ok": False, "error": redact_support_text(str(exc))}
+    return {
+        "ok": True,
+        "status_code": int(response.status_code),
+        "headers": safe_http_headers(dict(response.headers.items())),
+        "body_preview": redact_support_text(body[:20_000]),
+    }
 
 
 def copy_recent_redacted_logs(

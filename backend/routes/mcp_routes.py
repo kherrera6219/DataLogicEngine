@@ -49,6 +49,7 @@ from backend.mcp_server.scope_enforcement import (
     parse_execution_context,
 )
 from core.mcp import MCPManager
+from core.mcp.isolated_process import connector_journal_dir
 from extensions import db
 from models import (
     AuditLog,
@@ -98,7 +99,9 @@ mcp_manager = None
 def init_mcp_manager(app_orchestrator=None):
     """Initialize the MCP manager"""
     if has_app_context():
-        manager = MCPManager(app_orchestrator=app_orchestrator)
+        runtime = current_app.extensions.get("dle_runtime")
+        journal_dir = connector_journal_dir(runtime.runtime_root) if runtime else None
+        manager = MCPManager(app_orchestrator=app_orchestrator, journal_dir=journal_dir)
         current_app.extensions["dle_mcp_manager"] = manager
         logger.info("MCP Manager initialized")
         return manager
@@ -113,7 +116,9 @@ def get_mcp_manager():
     if has_app_context():
         manager = current_app.extensions.get("dle_mcp_manager")
         if manager is None:
-            manager = MCPManager()
+            runtime = current_app.extensions.get("dle_runtime")
+            journal_dir = connector_journal_dir(runtime.runtime_root) if runtime else None
+            manager = MCPManager(journal_dir=journal_dir)
             current_app.extensions["dle_mcp_manager"] = manager
         return manager
     return get_fallback_mcp_manager()
@@ -1771,6 +1776,7 @@ def start_dynamic_server(server_id):
             server_id,
             validated['definition'],
             resolved_env,
+            list(consent.approved_scopes or []),
         )
         discovery = runtime.get('discovery', {})
         _sync_discovery(server, discovery)

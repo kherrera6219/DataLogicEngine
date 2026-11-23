@@ -12,6 +12,8 @@ from datetime import datetime, UTC
 from typing import Dict, Any, List, Callable, Optional
 from collections import defaultdict
 
+from core.security.egress_guard import loopback_service_url
+
 logger = logging.getLogger(__name__)
 
 
@@ -163,13 +165,16 @@ class TruthLinkBus:
             ).lower() in {"1", "true", "yes", "on"}
         if not enable_redis_streams:
             return None
+        from backend.storage.runtime_endpoints import runtime_redis_url
+
+        redis_url = loopback_service_url(
+            runtime_redis_url(), schemes=frozenset({"redis", "rediss"})
+        )
         try:
             import redis
 
-            from backend.storage.runtime_endpoints import runtime_redis_url
-
             client = redis.Redis.from_url(
-                runtime_redis_url(),
+                redis_url,
                 socket_connect_timeout=0.5,
                 socket_timeout=0.5,
             )

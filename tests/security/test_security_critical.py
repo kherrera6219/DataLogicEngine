@@ -22,7 +22,7 @@ class TestPasswordSecurity:
         assert valid is True
         assert len(errors) == 0
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_breach_check_safe(self, mock_get):
         # Mock HIBP API returning Not Found (safe)
         mock_response = Mock()
@@ -34,7 +34,7 @@ class TestPasswordSecurity:
         is_breached, count = PasswordSecurity.check_password_breach("MySecurePassword123!")
         assert is_breached is False
 
-    @patch('backend.security.password_security.requests.get')
+    @patch('backend.security.password_security.breach_http.get')
     def test_breach_check_pwned(self, mock_get):
         # Calculate hash prefix for "password"
         # SHA1("password") = 5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8

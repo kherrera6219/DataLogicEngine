@@ -625,17 +625,18 @@ class TestSyslogForwarding:
     @patch('backend.security.audit_logger.logging.handlers.SysLogHandler')
     def test_enable_syslog_forwarding_success(self, mock_handler, audit_logger):
         """Test enabling Syslog forwarding"""
-        result = audit_logger.enable_syslog_forwarding("syslog.example.com", 514)
+        result = audit_logger.enable_syslog_forwarding("localhost", 514)
 
         assert result is True
         mock_handler.assert_called_once()
+        assert mock_handler.call_args.kwargs["address"] == ("127.0.0.1", 514)
 
     @patch('backend.security.audit_logger.logging.handlers.SysLogHandler')
     def test_enable_syslog_forwarding_failure(self, mock_handler, audit_logger):
         """Test handling Syslog forwarding failure"""
         mock_handler.side_effect = Exception("Connection refused")
 
-        result = audit_logger.enable_syslog_forwarding("invalid.example.com")
+        result = audit_logger.enable_syslog_forwarding("127.0.0.1")
 
         assert result is False
 

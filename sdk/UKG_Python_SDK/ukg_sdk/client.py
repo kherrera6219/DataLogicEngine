@@ -7,6 +7,7 @@ import httpx
 import time
 
 from .auth import Auth
+from .egress import sync_client
 from .exceptions import UKGHTTPError, UKGConfigError
 from .models import UKGEnvelope
 
@@ -31,8 +32,8 @@ class UKGClient:
             raise UKGConfigError("base_url is required")
         self.config = config
         self.auth = auth or Auth()
-        self._client = httpx.Client(
-            base_url=config.base_url.rstrip("/"),
+        self._client = sync_client(
+            config.base_url.rstrip("/"),
             timeout=config.timeout_s,
             verify=config.verify_tls,
             headers=config.default_headers or {},

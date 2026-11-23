@@ -8,12 +8,15 @@ import os
 from pathlib import Path
 from typing import Any
 
+from core.security.egress_guard import require_local_tracking_uri
+
 
 class DMRFMLflowTracker:
     """Track DMRF runs without making MLflow a hard desktop dependency."""
 
     def __init__(self, tracking_uri: str | None = None):
         self.tracking_uri = tracking_uri or self.default_tracking_uri()
+        require_local_tracking_uri(self.tracking_uri)
 
     @staticmethod
     def default_tracking_uri() -> str:
@@ -24,6 +27,7 @@ class DMRFMLflowTracker:
         return str(base / "DataLogicEngine" / "mlruns")
 
     def record(self, result: Any) -> dict[str, Any]:
+        require_local_tracking_uri(self.tracking_uri)
         payload = {
             "run_id": result.run_id,
             "tier": result.tier,

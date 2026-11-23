@@ -14,17 +14,135 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-14 |
+| Last reviewed | 2026-11-16 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
 | Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.7 (release program) |
-| Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Engineering-integrity workstream; Phase A open and blocking; CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
+| Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Phase A remains open; owner authorized Phase B to proceed before its disposition on 2026-11-16. CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
 | Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`. Its post-merge CI/CD, Deploy and Security workflows pass. Installed acceptance, signing, lifecycle, Phase A and CP19-M remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
+
+## November 16 Next.js advisory checkpoint
+
+After the Phase B checkpoint was pushed, GitHub reported open Dependabot alert
+[#741](https://github.com/kherrera6219/DataLogicEngine/security/dependabot/741),
+`CVE-2026-119790` / `GHSA-mfr8-8qww-v76h`, medium severity. The frontend lock
+selects Next.js 16.4.3; the alert lists 16.4.5 as the first patched version.
+The advisory requires a specific combination of root parameters, `use cache`,
+and `unstable_cache`. A first-party frontend source search found no references
+to those cache APIs; that search is not proof that every runtime or packaged
+usage is unaffected. No dependency update or installed qualification was run.
+Kevin authorized Phase B to continue while this advisory remains open for a
+separate dependency update. The alert has not been dispositioned as safe and
+remains relevant to release review.
+
+## November 16 Phase B egress checkpoint
+
+Owner authorized Phase B sequencing before Phase A disposition. On the local
+`remediation/phase-b` branch, CR-B1 confines legacy blockchain RPC, object
+storage and syslog to loopback, and rejects external vector storage and legacy
+storage diagnostics. The full Windows suite at `591943e2` passed 3,697 tests,
+18 skipped, 35 warnings, and zero failures or setup/collection errors. Phase B
+remains incomplete; this is source evidence, not installed acceptance.
+
+Source review found an unrecorded conditional syslog egress path:
+`backend/logging_config.py` creates a network SysLogHandler when
+`LOG_AGGREGATION_HOST` is set, and `app.py` normally enables that logging outside
+test mode. `backend/security/audit_logger.py` also exposes a remote syslog
+forwarding method, although no production caller was found in this review.
+No remote log transmission was performed or observed. The CR-B0 inventory
+listed the logging module only for its socket import and missed these paths.
+Kevin authorized restricting both forwarding paths to loopback and updating the
+affected tests; those changes are committed and included in the suite above.
+
+MCP child-process containment is experimental and must not be considered
+qualified: GitHub Windows tests exposed changes to other ACL entries during
+grant cleanup. CR-B2 remains open. The implementation launches Windows
+AppContainers with no network capabilities, attempts connector-specific file
+grants, and includes stale-grant recovery at application startup. The real
+connector fixture verified an
+approved file is readable, an unapproved file is inaccessible, and a loopback
+connection is denied. The targeted Windows connector, lifecycle and security
+suite passed 96 tests with one warning and zero errors on 2026-11-16. These
+checks do not establish the Phase B exit gate or installed acceptance.
+
+The full Windows suite on `bee22819` passed 3,715 tests, with 18 skipped,
+35 warnings, and zero failures or setup/collection errors. The separate SDK
+suite passed 53 tests and its built wheel imported without the application
+package after installing the SDK's declared build and runtime dependencies in
+an isolated development environment. GitHub's earlier Windows run at `57273910`
+failed one governed-execution assertion; its log did not identify the cause.
+GitHub CI on `bee22819` failed: Windows found connector ACL inheritance
+changes in three tests and an AppContainer null-device failure in a child
+fixture; the Linux core coverage gate was 77.95% against the 80% minimum.
+The isolated child fixture now uses pipes instead of the null device and its
+targeted Windows test passes locally. The ACL behavior remains unresolved;
+the affected objects were GitHub-runner test fixtures, not customer files.
+Windows local suite on `f9fdf3ea` passed 3,724 tests, 18 skipped, 35 warnings,
+and zero failures or setup/collection errors. The GitHub run on `f9fdf3ea`
+was still running when these results were recorded.
+
+A configuration-only probe found that a nonproduction legacy app could
+construct a database engine for a remote host; no remote connection was made.
+Managed production requires the supervised local data plane. CR-B2 now checks
+the application database URL before initializing the engine, permits local
+SQLite and loopback PostgreSQL, and rejects remote hosts and connection
+overrides that could redirect PostgreSQL. The targeted Windows database and
+runtime suite passed 61 tests, with three warnings and zero errors. A fresh
+full suite passed locally as recorded above; GitHub CI and the remaining phase
+gates still require passing evidence.
+
+The optional immutable audit chain also failed a bounded two-logger restart
+probe: the second record broke verification. CR-B3 must address restart
+continuity and report write failures explicitly before treating that chain as
+evidence. The probe used only temporary local audit files.
+
+A previous local Windows check attached
+the existing Job Object before releasing a child process, and that child then
+connected to a loopback listener. This proves the Job Object does not deny all
+child network activity; it is not an observation of external traffic. The
+owner directed Phase B to continue and authorized the additional containment
+implementation, connector tests and fixture paths. Preserve the existing real-
+process tests. Kevin subsequently authorized connector-specific file access
+grants to approved paths and autonomous completion of Phase B.
+Audit integration, air-gap proof, renewable egress attestation, and the
+remaining CR-B exit gates also remain open.
+
+**Connector isolation feasibility check:** temporary Windows AppContainer
+profiles were created and removed for local probes. A system `curl --version`
+process completed inside a profile with no network capabilities; a subsequent
+attempt to reach a local listener timed out and the listener accepted no
+connection. A Python executable installed in the user's profile failed to
+start in the same kind of container with Windows status `0xc0000135`, while
+`cmd.exe` completed. These bounded probes show a viable isolation direction and
+a compatibility issue; they do not qualify the product, prove all child egress
+paths, or demonstrate the cause of the Python load failure. No customer file
+permissions were modified. Kevin subsequently authorized the connector-specific
+access grants described below; preserve existing tests and fail closed if
+isolation is unavailable.
+
+**Owner-approved file-access approach, not yet implemented:** create an
+isolated connector identity with no network capabilities, grant that identity
+only the access needed for the explicitly approved executable and its approved
+runtime files, and grant its approved data roots only the read/write rights
+corresponding to the connector's approved scopes. Do not grant access to all
+application packages or to unapproved folders. Track exactly the entries the
+application adds, remove only those entries on shutdown, and reconcile stale
+entries after an interrupted run. An interruption may leave an added entry in
+place until recovery. If necessary access cannot be granted or isolation
+cannot be verified, deny connector start with a clear error. This is a proposed
+design, not implemented or qualified behavior.
+
+## November 16 Phase B sequencing decision
+
+Kevin authorized Phase B to proceed while Phase A remains open. This is a
+sequencing exception, not completion of Phase A or a waiver of Phase B's exit
+gates. The required Windows status check and Phase A disposition remain open.
+Continue from the existing `remediation/phase-b` branch and its CR-B0 inventory.
 
 ## November 14 dependency repair and Phase A checkpoint
 
@@ -44,7 +162,8 @@ installer build, and portable launch smoke passed. [CI/CD](https://github.com/kh
 PR #108's post-merge CI/CD, Deploy, and Security workflows passed at
 `b69577c6`. The required **Windows Backend Tests** check on `main` is still
 an owner action. Once the check is in force, verify it and record the owner's
-Phase A disposition before beginning CR-B. See the [Phase A checkpoint](docs/compliance/README.md).
+Phase A disposition. The November 16 owner decision permits CR-B to proceed
+in parallel. See the [Phase A checkpoint](docs/compliance/README.md).
 
 Installed preflight found the registered Windows 4.4.6 desktop executable and
 its packaged UI and backend. The earlier November 6 recovery copy is present.
@@ -2291,10 +2410,10 @@ installed software. What does apply: NIST SSDF 800-218 and 800-218A, NIST
 (2026), HIPAA as a deployable product, SR 11-7, and the Colorado ADMTA from
 2027-01-01.
 
-### Phase order — not negotiable
+### Historical phase order (updated November 16)
 
 ```
-Phase A  Trustworthy test harness      <- BLOCKS EVERYTHING
+Phase A  Trustworthy test harness      <- open; Phase B sequencing excepted
    +-> Phase B  Egress proof            (highest product value)
    +-> Phase C  Local API hardening
    +-> Phase D  Truth in claims
@@ -2303,9 +2422,9 @@ Phase A  Trustworthy test harness      <- BLOCKS EVERYTHING
              +-> Phase G  Documentation artifacts
 ```
 
-Phase A blocks the rest until its fresh baseline and dispositions are recorded.
-The current full Windows pass removes the review's setup-error count as a live
-fact but does not itself complete CR-A0 or Windows CI parity.
+Phase A remains open; the owner authorized Phase B to proceed in parallel.
+See the current checkpoint at the top of this handoff for the recorded baseline
+and the remaining Windows check and disposition.
 
 ### Verified status as of 2026-08-20 at `fd24536d`
 
