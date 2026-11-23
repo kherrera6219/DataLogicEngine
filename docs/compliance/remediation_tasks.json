@@ -392,6 +392,7 @@
         "core/mcp/process_containment.py",
         "core/mcp/isolated_process.py",
         "backend/routes/mcp_routes.py",
+        ".github/workflows/ci.yml",
         "app.py",
         "tests/mcp/",
         "tests/phase_g/",
@@ -404,7 +405,8 @@
       "steps": [
         "Migrate each inventoried call site to the guarded transport, including MCP client transports. Each MCP server is a second egress path that silently falsifies the one-outbound-flow claim if unguarded. Owner authorized autonomous Phase B completion and connector-specific filesystem grants on 2026-11-16; preserve existing tests, enforce approved scopes, remove only the app's grants on shutdown, and recover stale grants after interruption.",
         "Owner-approved 2026-11-16: verify the independently packaged SDK against its configured API origin and standalone wheel, retaining SDK tests; the installed-application import scan covers backend and core only. Injected SDK clients remain caller-controlled. No other Phase B gate is relaxed.",
-        "Enforce the local database boundary for the legacy SQLAlchemy engine; a nonproduction configuration-only check accepted a remote database host before this enforcement."
+        "Enforce the local database boundary for the legacy SQLAlchemy engine; a nonproduction configuration-only check accepted a remote database host before this enforcement.",
+        "Owner authorized 2026-11-22: combine coverage reports from the complete Windows and Linux CI suites, requiring both suites to pass and retaining the full source denominator and 80% threshold."
       ],
       "exit_gate": "! grep -rEn '^[[:space:]]*(import requests|import httpx|from requests|from httpx|import aiohttp|from aiohttp)' backend/ core/ --include='*.py' | grep -v core/security/egress_guard.py && (cd sdk/UKG_Python_SDK && python -m pytest tests/ --no-cov -q --tb=short -rE && python tools/verify_standalone_wheel.py) && python -m pytest tests/ --no-cov -q --tb=short -rE"
     },

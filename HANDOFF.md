@@ -42,6 +42,16 @@ remains relevant to release review.
 
 ## November 16 Phase B egress checkpoint
 
+On November 22, Kevin authorized a new repair attempt and approved combining
+the complete Windows and Linux CI coverage reports without lowering the 80%
+threshold. A focused cross-platform comparison showed that Windows exercised
+connector code unavailable to the Linux run. The workflow change requires both
+suites to pass and has not yet been qualified in GitHub CI. A new local Windows
+check also detected that connector ACL changes set the automatic-inheritance
+control bit on a folder even when its visible access entries appear unchanged.
+The ACL repair remains open; do not use the experimental connector on real
+files.
+
 Owner authorized Phase B sequencing before Phase A disposition. On the local
 `remediation/phase-b` branch, CR-B1 confines legacy blockchain RPC, object
 storage and syslog to loopback, and rejects external vector storage and legacy
