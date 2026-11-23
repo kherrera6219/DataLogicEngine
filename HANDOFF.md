@@ -46,11 +46,19 @@ On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%
 threshold. A focused cross-platform comparison showed that Windows exercised
 connector code unavailable to the Linux run. The workflow change requires both
-suites to pass and has not yet been qualified in GitHub CI. A new local Windows
-check also detected that connector ACL changes set the automatic-inheritance
-control bit on a folder even when its visible access entries appear unchanged.
-The ACL repair remains open; do not use the experimental connector on real
-files.
+suites to pass and has not yet been qualified in GitHub CI. Windows checks also
+found that connector ACL updates can change the automatic-inheritance control
+bit even when visible entries look unchanged. Kevin authorized refusing
+incompatible paths and returning HTTP 409 for that specific start failure.
+The candidate checks every reachable approved object before grants and cleanup,
+rejects incompatible inheritance and reparse points, and retains the recovery
+journal if cleanup cannot safely proceed. Windows fixture checks cover
+compatible access, refusal without changes, recovery and existing denial rules;
+the API retains its existing response fields. These checks are not yet GitHub
+CI or installed qualification. The traversal and ACL update are not one atomic
+filesystem operation, so concurrent external filesystem or permission changes
+remain unqualified. Keep the connector experimental; do not use it on real
+files until that concern and the remaining Phase B gates are resolved.
 
 Owner authorized Phase B sequencing before Phase A disposition. On the local
 `remediation/phase-b` branch, CR-B1 confines legacy blockchain RPC, object

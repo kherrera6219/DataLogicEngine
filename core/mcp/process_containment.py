@@ -33,6 +33,7 @@ _FILE_FLAG_BACKUP_SEMANTICS = 0x02000000
 _FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000
 _FILE_ATTRIBUTE_REPARSE_POINT = 0x0400
 _DACL_SECURITY_INFORMATION = 0x00000004
+_SE_DACL_AUTO_INHERITED = 0x0400
 _SE_FILE_OBJECT = 1
 _GRANT_ACCESS = 1
 _REVOKE_ACCESS = 4
@@ -49,6 +50,10 @@ _APP_CONTAINER_SID = re.compile(r"^S-1-15-2-(?:[0-9]+-){6}[0-9]+$")
 
 class ConnectorIsolationError(RuntimeError):
     """An isolated connector could not be safely started or cleaned up."""
+
+
+class ConnectorPermissionsIncompatible(ConnectorIsolationError):
+    """Windows would rewrite unrelated access rules on an approved path."""
 
 
 @dataclass(frozen=True)
@@ -153,6 +158,12 @@ def _windows_acl_change(
         ctypes.POINTER(ctypes.c_void_p),
     ]
     advapi.GetSecurityInfo.restype = wintypes.DWORD
+    advapi.GetSecurityDescriptorControl.argtypes = [
+        ctypes.c_void_p,
+        ctypes.POINTER(wintypes.WORD),
+        ctypes.POINTER(wintypes.DWORD),
+    ]
+    advapi.GetSecurityDescriptorControl.restype = wintypes.BOOL
     advapi.SetEntriesInAclW.argtypes = [
         wintypes.DWORD,
         ctypes.POINTER(_ExplicitAccess),
@@ -220,6 +231,18 @@ def _windows_acl_change(
             raise ConnectorIsolationError(
                 "Connector path has an unrestricted access list"
             )
+        control = wintypes.WORD()
+        revision = wintypes.DWORD()
+        if not advapi.GetSecurityDescriptorControl(
+            security, ctypes.byref(control), ctypes.byref(revision)
+        ):
+            raise ctypes.WinError(ctypes.get_last_error())
+        if not control.value & _SE_DACL_AUTO_INHERITED:
+            raise ConnectorPermissionsIncompatible(
+                "Connector path has incompatible permission inheritance"
+            )
+        if info.attributes & 0x10:
+            _require_compatible_acl_tree(path)
         trustee = _Trustee(None, 0, 0, 0, sid.value)
         entries = []
         if revoke:
@@ -273,7 +296,9 @@ def _windows_acl_change(
         kernel.CloseHandle(handle)
 
 
-def _windows_acl_contains_sid(path: Path, sid_string: str) -> tuple[bool, bool, bool]:
+def _inspect_connector_acl(
+    path: Path, sid_string: str | None
+) -> tuple[bool, bool, bool, bool]:
     """Inspect an object's DACL without following its final reparse point."""
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
     advapi = ctypes.WinDLL("advapi32", use_last_error=True)
@@ -310,6 +335,12 @@ def _windows_acl_contains_sid(path: Path, sid_string: str) -> tuple[bool, bool, 
         ctypes.POINTER(ctypes.c_void_p),
     ]
     advapi.GetSecurityInfo.restype = wintypes.DWORD
+    advapi.GetSecurityDescriptorControl.argtypes = [
+        ctypes.c_void_p,
+        ctypes.POINTER(wintypes.WORD),
+        ctypes.POINTER(wintypes.DWORD),
+    ]
+    advapi.GetSecurityDescriptorControl.restype = wintypes.BOOL
     advapi.GetAclInformation.argtypes = [
         ctypes.c_void_p,
         ctypes.c_void_p,
@@ -345,7 +376,9 @@ def _windows_acl_contains_sid(path: Path, sid_string: str) -> tuple[bool, bool, 
         info = _FileInformation()
         if not kernel.GetFileInformationByHandle(handle, ctypes.byref(info)):
             raise ctypes.WinError(ctypes.get_last_error())
-        if not advapi.ConvertStringSidToSidW(sid_string, ctypes.byref(sid)):
+        if sid_string is not None and not advapi.ConvertStringSidToSidW(
+            sid_string, ctypes.byref(sid)
+        ):
             raise ctypes.WinError(ctypes.get_last_error())
         result = advapi.GetSecurityInfo(
             handle,
@@ -363,25 +396,33 @@ def _windows_acl_contains_sid(path: Path, sid_string: str) -> tuple[bool, bool, 
             raise ConnectorIsolationError(
                 "Cannot verify an unrestricted connector path"
             )
-        size = _AclSizeInformation()
-        if not advapi.GetAclInformation(
-            acl, ctypes.byref(size), ctypes.sizeof(size), 2
+        control = wintypes.WORD()
+        revision = wintypes.DWORD()
+        if not advapi.GetSecurityDescriptorControl(
+            security, ctypes.byref(control), ctypes.byref(revision)
         ):
             raise ctypes.WinError(ctypes.get_last_error())
         found = False
-        for index in range(size.ace_count):
-            ace = ctypes.c_void_p()
-            if not advapi.GetAce(acl, index, ctypes.byref(ace)):
-                raise ctypes.WinError(ctypes.get_last_error())
-            if ctypes.c_ubyte.from_address(ace.value).value == 0 and advapi.EqualSid(
-                sid, ace.value + 8
+        if sid_string is not None:
+            size = _AclSizeInformation()
+            if not advapi.GetAclInformation(
+                acl, ctypes.byref(size), ctypes.sizeof(size), 2
             ):
-                found = True
-                break
+                raise ctypes.WinError(ctypes.get_last_error())
+            for index in range(size.ace_count):
+                ace = ctypes.c_void_p()
+                if not advapi.GetAce(acl, index, ctypes.byref(ace)):
+                    raise ctypes.WinError(ctypes.get_last_error())
+                if ctypes.c_ubyte.from_address(
+                    ace.value
+                ).value == 0 and advapi.EqualSid(sid, ace.value + 8):
+                    found = True
+                    break
         return (
             found,
             bool(info.attributes & 0x10),
             bool(info.attributes & _FILE_ATTRIBUTE_REPARSE_POINT),
+            bool(control.value & _SE_DACL_AUTO_INHERITED),
         )
     finally:
         for allocation in (security, sid):
@@ -390,12 +431,36 @@ def _windows_acl_contains_sid(path: Path, sid_string: str) -> tuple[bool, bool, 
         kernel.CloseHandle(handle)
 
 
+def _require_compatible_acl_tree(root: Path) -> None:
+    """Refuse trees Windows would convert while propagating a connector ACE."""
+    pending = [root]
+    while pending:
+        current = pending.pop()
+        _, is_directory, is_reparse, compatible = _inspect_connector_acl(current, None)
+        if is_reparse:
+            raise ConnectorIsolationError(
+                "Connector paths cannot contain reparse points"
+            )
+        if not compatible:
+            raise ConnectorPermissionsIncompatible(
+                "Connector path has incompatible permission inheritance"
+            )
+        if is_directory:
+            try:
+                with os.scandir(current) as entries:
+                    pending.extend(Path(entry.path) for entry in entries)
+            except OSError as exc:
+                raise ConnectorIsolationError(
+                    "Cannot verify connector path permissions"
+                ) from exc
+
+
 def _verify_connector_access_removed(root: Path, sid: str) -> None:
     """Fail if any reachable approved object retains this connector's grant."""
     pending = [root]
     while pending:
         current = pending.pop()
-        found, is_directory, is_reparse = _windows_acl_contains_sid(current, sid)
+        found, is_directory, is_reparse, _ = _inspect_connector_acl(current, sid)
         if found:
             raise ConnectorIsolationError(
                 "Connector access remains on an approved path"
@@ -654,8 +719,13 @@ def _validate_lease(lease: Any) -> None:
 def _remove_lease(path: Path, lease: dict[str, Any]) -> None:
     _validate_lease(lease)
     for item in reversed(lease["paths"]):
+        target = Path(item["path"])
+        found, _, _, _ = _inspect_connector_acl(target, lease["sid"])
+        if not found:
+            continue
+        _require_compatible_acl_tree(target)
         _windows_acl_change(
-            Path(item["path"]),
+            target,
             lease["sid"],
             write=item["write"],
             revoke=True,
@@ -752,6 +822,8 @@ class ConnectorAccessLease:
             )
         if not normalized or len(normalized) > 64:
             raise ConnectorIsolationError("Invalid connector access grant count")
+        for target in normalized:
+            _require_compatible_acl_tree(target)
         profile = _PROFILE_PREFIX + uuid.uuid4().hex
         with _lease_lock(directory):
             sid = _create_appcontainer_profile(profile)
@@ -772,6 +844,7 @@ class ConnectorAccessLease:
             try:
                 _save_lease(path, lease)
                 for target, grant in normalized.items():
+                    _require_compatible_acl_tree(target)
                     identity = _windows_acl_change(
                         target,
                         sid,
@@ -790,6 +863,7 @@ class ConnectorAccessLease:
                         }
                     )
                     _save_lease(path, lease)
+                    _require_compatible_acl_tree(target)
                     _windows_acl_change(
                         target,
                         sid,
