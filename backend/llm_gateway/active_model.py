@@ -7,7 +7,7 @@ model — OpenAI ``gpt-6-sol`` or Google ``gemini-3.8-flash``.
 
 Design contract
 ---------------
-- **Best-effort, never raises.** Returns ``None`` when no cloud provider/key is
+- **Best-effort except policy denial.** Returns ``None`` when no cloud provider/key is
   configured or the call fails, so optional DSQP assistance falls back to its
   deterministic behavior.
 - **Synchronous.** Callers run inside the async gateway pipeline, so the async
@@ -22,6 +22,8 @@ import concurrent.futures
 import logging
 import os
 from typing import Optional
+
+from core.security.egress_guard import EgressDenied
 
 logger = logging.getLogger(__name__)
 
@@ -153,8 +155,8 @@ def generate_with_active_model(
 ) -> Optional[str]:
     """Run one completion on the active cloud model. Returns text or ``None``.
 
-    Never raises — any resolution/SDK/network failure returns ``None`` so the
-    caller can fall back to its deterministic / fail-open path.
+    Policy denials propagate; other resolution/SDK/network failures return
+    ``None`` so the caller can fall back to its deterministic path.
     """
     resolved = resolve_active_cloud_model()
     if not resolved:
@@ -188,6 +190,8 @@ def generate_with_active_model(
         response = _run_coro_sync(_call())
         text = getattr(response, "text", None)
         return text if text else None
+    except EgressDenied:
+        raise
     except Exception as exc:  # noqa: BLE001
         logger.debug("generate_with_active_model failed: %s", exc)
         return None

@@ -33,6 +33,8 @@ import os
 import re
 from typing import Any
 
+from core.security.egress_guard import EgressDenied
+
 logger = logging.getLogger(__name__)
 
 # Per-component "primary" field that must be present and non-empty for the
@@ -122,6 +124,8 @@ class DSQPAnswerGenerator:
                     logger.debug("DSQP generation unavailable: %s", result.get("error"))
                     return None
                 return result.get("response", "")
+            except EgressDenied:
+                raise
             except Exception as exc:  # noqa: BLE001
                 logger.debug("DSQP injected client failed open: %s", exc)
                 return None
@@ -131,6 +135,8 @@ class DSQPAnswerGenerator:
             return generate_with_active_model(
                 prompt, system=_SYSTEM_PROMPT, temperature=0.2, max_tokens=900
             )
+        except EgressDenied:
+            raise
         except Exception as exc:  # noqa: BLE001
             logger.debug("DSQP answer generation failed open: %s", exc)
             return None

@@ -49,6 +49,24 @@ remains relevant to release review.
 
 ## November 16 Phase B egress checkpoint
 
+On November 23, [PR #114](https://github.com/kherrera6219/DataLogicEngine/pull/114)
+merged the CI and Windows connector repair into main at `7d98301c`. The PR's
+Windows, Linux, coverage, packaging, frontend, security and Docker checks
+passed on `ca71b44e`; post-merge checks are separate and were still running at
+this checkpoint. The merge-triggered Deploy workflow was cancelled because it
+could publish artifacts; this is not a deployment or installed qualification.
+
+CR-B4 is in progress. An experimental setting restricts guarded model endpoints
+to loopback IP literals and detects invalid configuration. A local source test
+completed one governed request through the real provider client to a loopback
+mock, with provider selection supplied by the fixture; the targeted Windows
+suite passed 35 tests and the full Windows suite passed 3,750 tests, with 18
+skipped, 35 warnings and zero failures or setup/collection errors. Two optional model-call layers now propagate policy
+denials instead of silently returning a fallback. This is partial evidence:
+other egress paths, complete denial propagation, observed network behavior,
+and installed operation remain unverified. Do not treat the setting or the
+bounded test as proof of air-gap operation or completion of CR-B4.
+
 On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%
 threshold. A focused cross-platform comparison showed that Windows exercised

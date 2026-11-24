@@ -361,10 +361,22 @@ Tests must prove: an allowed call produces exactly one audit event; a denied cal
 ### CR-B4 · Air-gap mode
 
 **Depends on:** CR-B1
-**Allowed paths:** config module, `core/security/egress_guard.py`, docs
+**Allowed paths:** config module, `core/security/egress_guard.py`, `backend/llm_gateway/active_model.py`, `backend/dsqp/dsqp_answer_generator.py`, docs, `tests/security/`, `HANDOFF.md`
 **Sessions:** 1
 
 A single explicit setting that disables all egress and requires a locally-reachable model endpoint (Ollama, vLLM, LM Studio, or a customer-hosted OpenAI-compatible service). In this mode the product must be fully functional against a local model, and any code path that would require a remote call must fail with a clear, actionable error rather than degrade.
+
+The owner directed autonomous completion and authorized proceeding past
+blocking scope restrictions on 2026-11-23. The two optional model-call files
+above are included so that a policy denial cannot be converted into a silent
+fallback. The experimental loopback-only model restriction is partial evidence:
+it does not establish system-wide air-gap operation or the Phase B exit gate.
+`DLE_EXPERIMENTAL_AIR_GAP=true` restricts guarded model origins to loopback IP
+literals and denies invalid setting values; an existing remote policy is checked
+again when used. A source test exercises one governed request against a local
+mock model, with provider selection supplied by the fixture. Network observation,
+all other egress paths, installed operation, and complete policy-denial handling
+remain to be verified. The experimental setting is not a deployment claim.
 
 This is the strongest single compliance feature the product has: it removes the HIPAA Business Associate question, the EU transfer question, and the federal data-egress objection in one move.
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import ipaddress
+import os
 import re
 from typing import Any, NoReturn
 from urllib.parse import unquote, urlsplit
@@ -136,6 +137,25 @@ def _origin(url: httpx.URL) -> tuple[str, bytes, int]:
     return url.scheme, url.raw_host, port
 
 
+def _require_airgap_origin(origin: tuple[str, bytes, int]) -> None:
+    """Fail closed on remote model origins when the experimental mode is set."""
+    setting = os.environ.get("DLE_EXPERIMENTAL_AIR_GAP", "false").strip().lower()
+    if setting in {"0", "false", "no", "off"}:
+        return
+    if setting not in {"1", "true", "yes", "on"}:
+        raise EgressDenied("Invalid DLE_EXPERIMENTAL_AIR_GAP setting")
+    try:
+        address = ipaddress.ip_address(origin[1].decode("ascii"))
+    except ValueError as exc:
+        raise EgressDenied(
+            "Air-gap mode requires a loopback IP address for the model endpoint"
+        ) from exc
+    if not address.is_loopback:
+        raise EgressDenied(
+            "Air-gap mode requires a loopback IP address for the model endpoint"
+        )
+
+
 @dataclass(frozen=True, slots=True)
 class EgressPolicy:
     """Allow only the exact scheme, host and port of configured endpoints."""
@@ -150,10 +170,14 @@ class EgressPolicy:
             raise EgressDenied() from exc
         if url.query or url.fragment:
             raise EgressDenied()
-        return cls(frozenset({_origin(url)}))
+        origin = _origin(url)
+        _require_airgap_origin(origin)
+        return cls(frozenset({origin}))
 
     def check(self, request: httpx.Request) -> None:
-        if _origin(request.url) not in self.allowed_origins:
+        origin = _origin(request.url)
+        _require_airgap_origin(origin)
+        if origin not in self.allowed_origins:
             raise EgressDenied()
         if request.headers.get_list("host") != [request.url.netloc.decode("ascii")]:
             raise EgressDenied()
