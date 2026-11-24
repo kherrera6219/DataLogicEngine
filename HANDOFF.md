@@ -86,8 +86,8 @@ guarded provider clients while preserving the existing three-field resolver;
 3,759 passed, 18 skipped, 35 warnings and zero failures or setup/collection
 errors. The correction passed GitHub checks at `c53e73ec` and merged through
 [PR #115](https://github.com/kherrera6219/DataLogicEngine/pull/115) at
-`ce5255e0`. Post-merge checks are running and do not erase the earlier failed
-Windows result or prove its cause. The merge-triggered Deploy workflow was
+`ce5255e0`. Post-merge CI/CD and Security passed; those later results do not
+erase the earlier failed Windows result or prove its cause. The merge-triggered Deploy workflow was
 cancelled to avoid publication; no release or installed acceptance is claimed.
 
 CR-B3 audit-chain recovery is in progress under the owner's authorization to
@@ -104,11 +104,19 @@ open.
 
 A candidate strict egress-event writer accepts only destination host, byte
 counts, allow/deny and a correlation ID, and fails explicitly if its replica is
-disabled or cannot be written. The writer is not yet connected to outbound
-transports; its focused tests do not establish the CR-B3 exit gate. The full
+disabled or cannot be written. Opt-in HTTPX instrumentation now exercises that
+writer on allowed, denied, failed, streamed and real loopback requests. It counts
+body bytes, not network wire bytes. The application does not yet supply the
+sink or correlation ID, and other transports, unclosed streams and interrupted
+processes are unqualified; these tests do not establish the CR-B3 exit gate. The full
 Windows suite passed 3,775 tests with 18 skipped before a final disabled-replica
 race refinement; 71 focused audit tests passed on Windows and Linux after that
 refinement.
+
+The opt-in HTTPX audit prototype passed a later full Windows suite (3,790
+passed, 18 skipped, zero failures or setup/collection errors). After a further
+concurrent-finalization refinement, 48 focused tests passed on both Windows and
+Linux. It is not connected to normal application execution.
 
 On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%

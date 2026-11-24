@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 import ipaddress
 import os
 import re
-from typing import Any, NoReturn
+import threading
+from typing import Any, Callable, NoReturn
 from urllib.parse import unquote, urlsplit
 
 import httpx
@@ -25,6 +27,10 @@ class EgressDenied(RuntimeError):
         message: str = "Blocked by security policy: unapproved outbound HTTP destination",
     ) -> None:
         super().__init__(message)
+
+
+class EgressAuditStateError(RuntimeError):
+    """An HTTP body cannot continue after its audit record was finalized."""
 
 
 class _DisabledPasswordBreachHTTP:
@@ -190,33 +196,211 @@ class EgressPolicy:
         )
 
 
+class _AuditAttempt:
+    """Track body bytes and emit one metadata-only event for an HTTP attempt."""
+
+    def __init__(
+        self, sink: Callable[..., object], request: httpx.Request, request_id: str
+    ) -> None:
+        self.sink = sink
+        self.host = request.url.raw_host.decode("ascii")
+        self.request_id = request_id
+        self.bytes_out = 0
+        self.bytes_in = 0
+        self.emitted = False
+        self._lock = threading.Lock()
+        self._completed = threading.Condition(self._lock)
+        self._writing = False
+        self._failure: BaseException | None = None
+
+    def count(self, *, outgoing: bool, size: int) -> None:
+        with self._lock:
+            if self.emitted:
+                raise EgressAuditStateError(
+                    "HTTP body continued after audit finalization"
+                )
+            if outgoing:
+                self.bytes_out += size
+            else:
+                self.bytes_in += size
+
+    def emit(self, result: str) -> None:
+        with self._completed:
+            while self._writing:
+                self._completed.wait()
+            if self.emitted:
+                if self._failure is not None:
+                    raise self._failure
+                return
+            # A failed durable write must not be retried automatically: the
+            # record may already have reached the filesystem.
+            self.emitted = True
+            self._writing = True
+            bytes_out, bytes_in = self.bytes_out, self.bytes_in
+        try:
+            self.sink(
+                destination_host=self.host,
+                bytes_out=bytes_out,
+                bytes_in=bytes_in,
+                result=result,
+                request_id=self.request_id,
+            )
+        except BaseException as exc:
+            with self._completed:
+                self._failure = exc
+            raise
+        finally:
+            with self._completed:
+                self._writing = False
+                self._completed.notify_all()
+
+
+class _CountingSyncRequest(httpx.SyncByteStream):
+    def __init__(self, stream: httpx.SyncByteStream, audit: _AuditAttempt) -> None:
+        self.stream, self.audit = stream, audit
+
+    def __iter__(self):
+        for chunk in self.stream:
+            self.audit.count(outgoing=True, size=len(chunk))
+            yield chunk
+
+    def close(self) -> None:
+        self.stream.close()
+
+
+class _CountingSyncResponse(httpx.SyncByteStream):
+    def __init__(self, stream: httpx.SyncByteStream, audit: _AuditAttempt) -> None:
+        self.stream, self.audit = stream, audit
+
+    def __iter__(self):
+        try:
+            for chunk in self.stream:
+                self.audit.count(outgoing=False, size=len(chunk))
+                yield chunk
+        finally:
+            self.audit.emit("allow")
+
+    def close(self) -> None:
+        try:
+            self.stream.close()
+        finally:
+            self.audit.emit("allow")
+
+
+class _CountingAsyncRequest(httpx.AsyncByteStream):
+    def __init__(self, stream: httpx.AsyncByteStream, audit: _AuditAttempt) -> None:
+        self.stream, self.audit = stream, audit
+
+    async def __aiter__(self):
+        async for chunk in self.stream:
+            self.audit.count(outgoing=True, size=len(chunk))
+            yield chunk
+
+    async def aclose(self) -> None:
+        await self.stream.aclose()
+
+
+class _CountingAsyncResponse(httpx.AsyncByteStream):
+    def __init__(self, stream: httpx.AsyncByteStream, audit: _AuditAttempt) -> None:
+        self.stream, self.audit = stream, audit
+
+    async def __aiter__(self):
+        try:
+            async for chunk in self.stream:
+                self.audit.count(outgoing=False, size=len(chunk))
+                yield chunk
+        finally:
+            await asyncio.to_thread(self.audit.emit, "allow")
+
+    async def aclose(self) -> None:
+        try:
+            await self.stream.aclose()
+        finally:
+            await asyncio.to_thread(self.audit.emit, "allow")
+
+
 class GuardedHTTPTransport(httpx.HTTPTransport):
     """Check the request before HTTPX resolves or connects to the destination."""
 
     def __init__(
-        self, policy: EgressPolicy, *, limits: httpx.Limits | None = None
+        self,
+        policy: EgressPolicy,
+        *,
+        limits: httpx.Limits | None = None,
+        audit_sink: Callable[..., object] | None = None,
+        request_id: str | None = None,
     ) -> None:
         if limits is None:
             super().__init__(trust_env=False)
         else:
             super().__init__(trust_env=False, limits=limits)
         self.policy = policy
+        if audit_sink is not None and not request_id:
+            raise ValueError("An audit request ID is required")
+        self.audit_sink, self.request_id = audit_sink, request_id
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
-        self.policy.check(request)
-        return super().handle_request(request)
+        if self.audit_sink is None:
+            self.policy.check(request)
+            return super().handle_request(request)
+        audit = _AuditAttempt(self.audit_sink, request, self.request_id or "")
+        try:
+            self.policy.check(request)
+        except EgressDenied:
+            audit.emit("deny")
+            raise
+        request.stream = _CountingSyncRequest(request.stream, audit)
+        try:
+            response = super().handle_request(request)
+        except BaseException:
+            audit.emit("allow")
+            raise
+        if response.is_stream_consumed:
+            audit.count(outgoing=False, size=len(response.content))
+            audit.emit("allow")
+        else:
+            response.stream = _CountingSyncResponse(response.stream, audit)
+        return response
 
 
 class GuardedAsyncHTTPTransport(httpx.AsyncHTTPTransport):
     """Check each async request at the same boundary as synchronous requests."""
 
-    def __init__(self, policy: EgressPolicy) -> None:
+    def __init__(
+        self,
+        policy: EgressPolicy,
+        *,
+        audit_sink: Callable[..., object] | None = None,
+        request_id: str | None = None,
+    ) -> None:
         super().__init__(trust_env=False)
         self.policy = policy
+        if audit_sink is not None and not request_id:
+            raise ValueError("An audit request ID is required")
+        self.audit_sink, self.request_id = audit_sink, request_id
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
-        self.policy.check(request)
-        return await super().handle_async_request(request)
+        if self.audit_sink is None:
+            self.policy.check(request)
+            return await super().handle_async_request(request)
+        audit = _AuditAttempt(self.audit_sink, request, self.request_id or "")
+        try:
+            self.policy.check(request)
+        except EgressDenied:
+            await asyncio.to_thread(audit.emit, "deny")
+            raise
+        request.stream = _CountingAsyncRequest(request.stream, audit)
+        try:
+            response = await super().handle_async_request(request)
+        except BaseException:
+            await asyncio.to_thread(audit.emit, "allow")
+            raise
+        if response.is_stream_consumed:
+            audit.count(outgoing=False, size=len(response.content))
+            await asyncio.to_thread(audit.emit, "allow")
+        else:
+            response.stream = _CountingAsyncResponse(response.stream, audit)
+        return response
 
 
 class _LoopbackRequestsAdapter(requests.adapters.HTTPAdapter):

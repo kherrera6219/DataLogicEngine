@@ -366,8 +366,12 @@ events. CR-B3 remains open.
 
 The candidate also has a strict metadata-only egress-event writer. It requires
 an enabled replica, validates its host, byte counts, decision and correlation
-ID, and propagates replica errors. It is not yet connected to outbound
-transports and does not change the legacy API's error handling.
+ID, and propagates replica errors. The HTTPX transports have opt-in audit
+instrumentation tested with synthetic and real loopback requests. Counts are
+body bytes presented to or consumed from the transport, not network wire bytes.
+The application does not yet supply the sink and correlation ID; other
+transport types, unclosed streams, interrupted processes and the legacy API's
+error handling remain unqualified. This does not close CR-B3.
 
 Every outbound attempt — allowed or denied — becomes an audit event: timestamp, destination host, byte count out, byte count in, allow/deny, and the correlation ID of the governed request that caused it. **Content is never logged**; this is the metadata record that lets a customer verify the egress claim without exposing what was sent.
 
