@@ -28,6 +28,13 @@
 
 ## November 16 Next.js advisory checkpoint
 
+On November 23, GitHub also listed open Next.js Dependabot alerts
+[#742](https://github.com/kherrera6219/DataLogicEngine/security/dependabot/742)
+through [#747](https://github.com/kherrera6219/DataLogicEngine/security/dependabot/747).
+Their applicability to this application has not been assessed. Kevin authorized
+finishing the current CI repair while these advisories remain open for a
+separate dependency review; they are not dispositioned as safe.
+
 After the Phase B checkpoint was pushed, GitHub reported open Dependabot alert
 [#741](https://github.com/kherrera6219/DataLogicEngine/security/dependabot/741),
 `CVE-2026-119790` / `GHSA-mfr8-8qww-v76h`, medium severity. The frontend lock
@@ -46,7 +53,7 @@ On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%
 threshold. A focused cross-platform comparison showed that Windows exercised
 connector code unavailable to the Linux run. The workflow change requires both
-suites to pass and has not yet been qualified in GitHub CI. Windows checks also
+suites to pass. Windows checks also
 found that connector ACL updates can change the automatic-inheritance control
 bit even when visible entries look unchanged. Kevin authorized refusing
 incompatible paths and returning HTTP 409 for that specific start failure.
@@ -54,11 +61,23 @@ The candidate checks every reachable approved object before grants and cleanup,
 rejects incompatible inheritance and reparse points, and retains the recovery
 journal if cleanup cannot safely proceed. Windows fixture checks cover
 compatible access, refusal without changes, recovery and existing denial rules;
-the API retains its existing response fields. These checks are not yet GitHub
-CI or installed qualification. The traversal and ACL update are not one atomic
+the API retains its existing response fields. GitHub CI passed these checks at
+`4cee3f27`; this is not installed qualification. The traversal and ACL update are not one atomic
 filesystem operation, so concurrent external filesystem or permission changes
 remain unqualified. Keep the connector experimental; do not use it on real
 files until that concern and the remaining Phase B gates are resolved.
+
+GitHub CI at `4cee3f27` passed the full Windows suite (3,735 passed, 19
+skipped), Linux suite (3,728 passed, 26 skipped), and the combined coverage
+gate: backend 81.30%, backend/security 81.02%, core 81.35%. The security scan
+passed. Two full local Windows runs each had one separate documentation
+verification failure; the failed test passed alone. A bounded diagnostic
+reproduced the local cause: restoring an environment containing empty
+`GIT_CONFIG_VALUE_*` values with `unittest.mock.patch.dict` left Git's inherited
+process environment incomplete on Windows. Passing a copy of `os.environ`
+explicitly to the Git subprocess preserved those values in the diagnostic.
+No documentation verifier or test was changed for this finding as of this
+checkpoint. CI results do not qualify installed operation or close Phase B.
 
 Owner authorized Phase B sequencing before Phase A disposition. On the local
 `remediation/phase-b` branch, CR-B1 confines legacy blockchain RPC, object
