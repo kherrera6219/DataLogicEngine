@@ -49,6 +49,43 @@ remains relevant to release review.
 
 ## November 16 Phase B egress checkpoint
 
+On November 23, [PR #114](https://github.com/kherrera6219/DataLogicEngine/pull/114)
+merged the CI and Windows connector repair into main at `7d98301c`. The PR's
+Windows, Linux, coverage, packaging, frontend, security and Docker checks
+passed on `ca71b44e`; post-merge checks are separate and were still running at
+this checkpoint. The subsequent [main Windows run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45334671212)
+failed two tests: KA-1046 maintenance failed at KA-005, and the gateway
+failover test observed no provider. Each passes locally, including in the full
+Windows suite recorded below; the cause remains unknown. Main is not green.
+In a separate local diagnostic, adding a 500 ms delay to KA-005 (whose
+configured per-node execution budget is 300 ms) reproduced both the KA-005
+lifecycle error and a gateway routing failure with no selected provider. This
+establishes a plausible shared timing mechanism, not the cause of the main
+run. Bounded CI diagnostics were added to capture status and failure codes if
+either test fails again; neither test nor the execution budget was weakened.
+The merge-triggered Deploy workflow was cancelled because it
+could publish artifacts; this is not a deployment or installed qualification.
+
+CR-B4 is in progress. An experimental setting restricts guarded model endpoints
+to loopback IP literals and detects invalid configuration. A local source test
+completed one governed request through the real provider client to a loopback
+mock, with provider selection supplied by the fixture; the targeted Windows
+suite passed 35 tests and the full Windows suite passed 3,750 tests, with 18
+skipped, 35 warnings and zero failures or setup/collection errors. Two optional model-call layers now propagate policy
+denials instead of silently returning a fallback. This is partial evidence:
+other egress paths, complete denial propagation, observed network behavior,
+and installed operation remain unverified. Do not treat the setting or the
+bounded test as proof of air-gap operation or completion of CR-B4.
+
+A configuration-only probe found the optional active-model helper discarded a
+selected saved OpenAI endpoint and constructed the default provider client. No
+request was sent. Review also found the Google gateway adapter did not pass the
+saved endpoint. The candidate now carries the selected endpoint into both
+guarded provider clients while preserving the existing three-field resolver;
+86 focused tests and the full local Windows suite passed after this correction:
+3,759 passed, 18 skipped, 35 warnings and zero failures or setup/collection
+errors. GitHub validation and integration of this correction remain open.
+
 On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%
 threshold. A focused cross-platform comparison showed that Windows exercised

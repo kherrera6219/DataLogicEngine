@@ -22,7 +22,10 @@ from core.security.egress_guard import (
 class GoogleProvider(LLMProvider):
     provider_type = "google"
 
-    def __init__(self, *, api_key: str | None = None, timeout_seconds: float = 30.0) -> None:
+    def __init__(
+        self, *, api_key: str | None = None, base_url: str | None = None,
+        timeout_seconds: float = 30.0,
+    ) -> None:
         resolved_key = api_key or os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
         if not resolved_key:
             raise ValueError("Missing GOOGLE_API_KEY/GEMINI_API_KEY")
@@ -30,7 +33,7 @@ class GoogleProvider(LLMProvider):
         from google.genai import types
 
         endpoint = (
-            os.environ.get("GOOGLE_GEMINI_BASE_URL")
+            base_url or os.environ.get("GOOGLE_GEMINI_BASE_URL")
             or "https://generativelanguage.googleapis.com/"
         )
         self.egress_policy = EgressPolicy.for_endpoint(endpoint)

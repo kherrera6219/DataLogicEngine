@@ -395,6 +395,8 @@
         ".github/workflows/ci.yml",
         "scripts/verify_document_replacement_closure.py",
         "tests/unit/test_documentation_authority.py",
+        "scripts/gateway_failure_diagnostics.py",
+        "tests/unit/test_gateway_failure_diagnostics.py",
         "app.py",
         "tests/mcp/",
         "tests/phase_g/",
@@ -450,8 +452,13 @@
       "allowed_paths": [
         "config module",
         "core/security/egress_guard.py",
+        "backend/llm_gateway/active_model.py",
+        "backend/llm_gateway/gateway.py",
+        "backend/llm_gateway/providers/google.py",
+        "backend/dsqp/dsqp_answer_generator.py",
         "docs/",
-        "tests/security/"
+        "tests/security/",
+        "HANDOFF.md"
       ],
       "steps": [
         "Single explicit setting disabling all egress, requiring a locally-reachable model endpoint (Ollama, vLLM, LM Studio, customer-hosted OpenAI-compatible). Fully functional in this mode. Any path requiring a remote call fails with a clear actionable error rather than degrading."

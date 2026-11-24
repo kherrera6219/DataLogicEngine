@@ -308,7 +308,7 @@ New tests must cover: allowed host succeeds; denied host raises the typed except
 ### CR-B2 · Route every call site through the guard
 
 **Depends on:** CR-B1
-**Allowed paths:** call sites from `EGRESS_INVENTORY.md`, `core/security/egress_guard.py`, `core/mcp/process_containment.py`, `core/mcp/isolated_process.py`, `backend/routes/mcp_routes.py`, `app.py` for access-journal recovery and database boundary enforcement, `tests/security/`, `tests/mcp/`, `tests/phase_g/`, `tests/unit/test_runtime_lifecycle.py`, `tests/fixtures/`, the Python SDK package and its tests, `.github/workflows/ci.yml` for the owner-approved cross-platform coverage gate, `scripts/verify_document_replacement_closure.py` and `tests/unit/test_documentation_authority.py` for the owner-approved Windows Git environment repair, the Phase B plan and task definitions, and `HANDOFF.md`.
+**Allowed paths:** call sites from `EGRESS_INVENTORY.md`, `core/security/egress_guard.py`, `core/mcp/process_containment.py`, `core/mcp/isolated_process.py`, `backend/routes/mcp_routes.py`, `app.py` for access-journal recovery and database boundary enforcement, `tests/security/`, `tests/mcp/`, `tests/phase_g/`, `tests/unit/test_runtime_lifecycle.py`, `tests/fixtures/`, the Python SDK package and its tests, `.github/workflows/ci.yml` for the owner-approved cross-platform coverage gate, `scripts/verify_document_replacement_closure.py` and `tests/unit/test_documentation_authority.py` for the owner-approved Windows Git environment repair, `scripts/gateway_failure_diagnostics.py` and `tests/unit/test_gateway_failure_diagnostics.py` for bounded CI failure diagnostics, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 1–2
 
 Migrate each inventoried call site to the guarded transport. Include MCP client transports — **each MCP server is a second egress path, and an unguarded one silently falsifies the product's one-outbound-flow claim.**
@@ -322,6 +322,13 @@ Migrate each inventoried call site to the guarded transport. Include MCP client 
 **Owner-approved incompatible-ACL handling, 2026-11-22.** Kevin authorized refusing connector paths whose existing permissions cannot be updated without rewriting unrelated Windows access rules. Preserve successful access and cleanup tests for compatible paths, and add explicit tests proving incompatible paths are rejected without modification. Kevin also approved HTTP 409 for this specific connector-start refusal, retaining the existing response fields. A rejection must be visible to the caller; it is not evidence that every customer folder is supported.
 
 **Owner-approved local Git check repair, 2026-11-23.** Kevin authorized updating the document replacement verifier and its tests after two full local Windows suites failed when empty Git configuration environment values were lost after an environment reset. GitHub's Windows suite passed. Preserve the effective Git configuration when invoking Git and test the empty-value case without weakening the document evidence check.
+
+**Post-merge Windows failure, 2026-11-23.** The owner directed autonomous
+completion and authorized proceeding past blockers. After PR #114 passed its
+checks and merged, the Windows suite on main failed two retrieval/gateway
+tests; both pass locally. The diagnostic plugin and its tests may be updated to
+report bounded failure status and codes without exposing input or changing test
+results. This instrumentation is not a fix or a waiver of the failed check.
 
 **Owner-approved gate correction, 2026-11-16.** The installed application and the separately distributed SDK are different processes. The SDK wheel packages only `ukg_sdk`, so it cannot import the application's `core` module. Scan the installed backend and core for direct HTTP-client imports, and separately test the SDK's own client-to-DataLogicEngine boundary. Do not exclude any installed application path or relax the MCP, air-gap, audit, or full-suite requirements. Keep the SDK's existing tests. The SDK gate must verify its built wheel works without the application package, its owned clients contact only the explicitly configured API origin, and redirects and environment proxies cannot change that destination. If an SDK caller supplies its own HTTP client, document and test that its transport is controlled by that caller; do not claim the SDK enforces a policy over an injected transport.
 
@@ -361,10 +368,27 @@ Tests must prove: an allowed call produces exactly one audit event; a denied cal
 ### CR-B4 · Air-gap mode
 
 **Depends on:** CR-B1
-**Allowed paths:** config module, `core/security/egress_guard.py`, docs
+**Allowed paths:** config module, `core/security/egress_guard.py`, `backend/llm_gateway/active_model.py`, `backend/llm_gateway/gateway.py`, `backend/llm_gateway/providers/google.py`, `backend/dsqp/dsqp_answer_generator.py`, docs, `tests/security/`, `HANDOFF.md`
 **Sessions:** 1
 
 A single explicit setting that disables all egress and requires a locally-reachable model endpoint (Ollama, vLLM, LM Studio, or a customer-hosted OpenAI-compatible service). In this mode the product must be fully functional against a local model, and any code path that would require a remote call must fail with a clear, actionable error rather than degrade.
+
+The owner directed autonomous completion and authorized proceeding past
+blocking scope restrictions on 2026-11-23. The two optional model-call files
+above are included so that a policy denial cannot be converted into a silent
+fallback. The experimental loopback-only model restriction is partial evidence:
+it does not establish system-wide air-gap operation or the Phase B exit gate.
+`DLE_EXPERIMENTAL_AIR_GAP=true` restricts guarded model origins to loopback IP
+literals and denies invalid setting values; an existing remote policy is checked
+again when used. A source test exercises one governed request against a local
+mock model, with provider selection supplied by the fixture. Network observation,
+all other egress paths, installed operation, and complete policy-denial handling
+remain to be verified. The experimental setting is not a deployment claim.
+Configuration-only review on 2026-11-23 found that the optional active-model
+call dropped a saved provider endpoint and the Google gateway adapter did not
+pass one through. No network request was made by that review. The owner
+authorized autonomous remediation; preserve the existing public resolver tuple
+while passing the selected saved endpoint to the corresponding guarded client.
 
 This is the strongest single compliance feature the product has: it removes the HIPAA Business Associate question, the EU transfer question, and the federal data-egress objection in one move.
 
