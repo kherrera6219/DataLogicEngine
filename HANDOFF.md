@@ -74,10 +74,13 @@ passed. Two full local Windows runs each had one separate documentation
 verification failure; the failed test passed alone. A bounded diagnostic
 reproduced the local cause: restoring an environment containing empty
 `GIT_CONFIG_VALUE_*` values with `unittest.mock.patch.dict` left Git's inherited
-process environment incomplete on Windows. Passing a copy of `os.environ`
-explicitly to the Git subprocess preserved those values in the diagnostic.
-No documentation verifier or test was changed for this finding as of this
-checkpoint. CI results do not qualify installed operation or close Phase B.
+process environment incomplete on Windows. Kevin authorized repairing the
+document verifier and its tests. The verifier now supplies a copy of
+`os.environ` to its Git subprocesses; a controlled Windows reproduction showed
+the prior verifier fail and the updated verifier return the expected hash. The
+new regression and existing document evidence test passed locally. A full
+suite and GitHub CI for that follow-up revision remain pending. CI results do
+not qualify installed operation or close Phase B.
 
 Owner authorized Phase B sequencing before Phase A disposition. On the local
 `remediation/phase-b` branch, CR-B1 confines legacy blockchain RPC, object
