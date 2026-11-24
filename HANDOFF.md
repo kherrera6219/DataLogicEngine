@@ -53,7 +53,11 @@ On November 23, [PR #114](https://github.com/kherrera6219/DataLogicEngine/pull/1
 merged the CI and Windows connector repair into main at `7d98301c`. The PR's
 Windows, Linux, coverage, packaging, frontend, security and Docker checks
 passed on `ca71b44e`; post-merge checks are separate and were still running at
-this checkpoint. The merge-triggered Deploy workflow was cancelled because it
+this checkpoint. The subsequent [main Windows run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45334671212)
+failed two tests: KA-1046 maintenance failed at KA-005, and the gateway
+failover test observed no provider. Each passes locally, including in the full
+Windows suite recorded below; the cause remains unknown. Main is not green.
+The merge-triggered Deploy workflow was cancelled because it
 could publish artifacts; this is not a deployment or installed qualification.
 
 CR-B4 is in progress. An experimental setting restricts guarded model endpoints

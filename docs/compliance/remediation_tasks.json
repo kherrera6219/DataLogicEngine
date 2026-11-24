@@ -395,6 +395,8 @@
         ".github/workflows/ci.yml",
         "scripts/verify_document_replacement_closure.py",
         "tests/unit/test_documentation_authority.py",
+        "scripts/gateway_failure_diagnostics.py",
+        "tests/unit/test_gateway_failure_diagnostics.py",
         "app.py",
         "tests/mcp/",
         "tests/phase_g/",
