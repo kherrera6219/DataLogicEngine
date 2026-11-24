@@ -83,8 +83,8 @@ def test_optional_model_call_does_not_hide_airgap_denial(monkeypatch):
     monkeypatch.setenv("OPENAI_BASE_URL", "https://models.example/v1")
     monkeypatch.setattr(
         active_model,
-        "resolve_active_cloud_model",
-        lambda: ("openai", "test-key", "gpt-6-sol"),
+        "_resolve_active_cloud_configuration",
+        lambda: ("openai", "test-key", "gpt-6-sol", None),
     )
     with pytest.raises(EgressDenied, match="loopback IP"):
         active_model.generate_with_active_model("test")
