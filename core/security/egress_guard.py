@@ -329,21 +329,34 @@ class GuardedHTTPTransport(httpx.HTTPTransport):
         limits: httpx.Limits | None = None,
         audit_sink: Callable[..., object] | None = None,
         request_id: str | None = None,
+        audit_resolver: Callable[[], tuple[Callable[..., object], str] | None]
+        | None = None,
     ) -> None:
         if limits is None:
             super().__init__(trust_env=False)
         else:
             super().__init__(trust_env=False, limits=limits)
         self.policy = policy
-        if audit_sink is not None and not request_id:
+        if audit_sink is not None and (not request_id or audit_resolver is not None):
             raise ValueError("An audit request ID is required")
         self.audit_sink, self.request_id = audit_sink, request_id
+        self.audit_resolver = audit_resolver
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
-        if self.audit_sink is None:
+        binding = (
+            self.audit_resolver()
+            if self.audit_resolver is not None
+            else (
+                (self.audit_sink, self.request_id or "")
+                if self.audit_sink is not None
+                else None
+            )
+        )
+        if binding is None:
             self.policy.check(request)
             return super().handle_request(request)
-        audit = _AuditAttempt(self.audit_sink, request, self.request_id or "")
+        sink, request_id = binding
+        audit = _AuditAttempt(sink, request, request_id)
         try:
             self.policy.check(request)
         except EgressDenied:
@@ -372,18 +385,31 @@ class GuardedAsyncHTTPTransport(httpx.AsyncHTTPTransport):
         *,
         audit_sink: Callable[..., object] | None = None,
         request_id: str | None = None,
+        audit_resolver: Callable[[], tuple[Callable[..., object], str] | None]
+        | None = None,
     ) -> None:
         super().__init__(trust_env=False)
         self.policy = policy
-        if audit_sink is not None and not request_id:
+        if audit_sink is not None and (not request_id or audit_resolver is not None):
             raise ValueError("An audit request ID is required")
         self.audit_sink, self.request_id = audit_sink, request_id
+        self.audit_resolver = audit_resolver
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
-        if self.audit_sink is None:
+        binding = (
+            self.audit_resolver()
+            if self.audit_resolver is not None
+            else (
+                (self.audit_sink, self.request_id or "")
+                if self.audit_sink is not None
+                else None
+            )
+        )
+        if binding is None:
             self.policy.check(request)
             return await super().handle_async_request(request)
-        audit = _AuditAttempt(self.audit_sink, request, self.request_id or "")
+        sink, request_id = binding
+        audit = _AuditAttempt(sink, request, request_id)
         try:
             self.policy.check(request)
         except EgressDenied:
@@ -549,9 +575,15 @@ def local_http_get(url: str, *, timeout: float) -> httpx.Response:
         return client.get(request_url)
 
 
-def model_async_client(policy: EgressPolicy, *, timeout: float) -> httpx.AsyncClient:
+def model_async_client(
+    policy: EgressPolicy,
+    *,
+    timeout: float,
+    audit_resolver: Callable[[], tuple[Callable[..., object], str] | None]
+    | None = None,
+) -> httpx.AsyncClient:
     return httpx.AsyncClient(
-        transport=GuardedAsyncHTTPTransport(policy),
+        transport=GuardedAsyncHTTPTransport(policy, audit_resolver=audit_resolver),
         follow_redirects=False,
         trust_env=False,
         timeout=timeout,

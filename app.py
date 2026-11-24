@@ -1764,18 +1764,20 @@ def _configure_caching_and_extensions(app: Flask) -> None:
 def _configure_owned_security_services(app: Flask, runtime: ApplicationRuntime) -> None:
     """Create key and audit services under this application's runtime root."""
     from backend.security.audit_logger import AuditLogger
+    from backend.security.egress_audit_context import experimental_egress_audit_enabled
     from backend.security.encryption_manager import EncryptionManager
 
     audit_root = runtime.runtime_root / "logs" / "audit"
     immutable_root = runtime.runtime_root / "logs" / "audit_immutable"
     key_root = _runtime_encryption_key_root(runtime.runtime_root)
-    audit_logger = AuditLogger(
-        {
-            "log_dir": str(audit_root),
-            "immutable_replica_dir": str(immutable_root),
-        },
-        auto_start=False,
-    )
+    audit_config: dict[str, object] = {
+        "log_dir": str(audit_root),
+        "immutable_replica_dir": str(immutable_root),
+    }
+    app.config["DLE_EXPERIMENTAL_EGRESS_AUDIT"] = experimental_egress_audit_enabled()
+    if app.config["DLE_EXPERIMENTAL_EGRESS_AUDIT"]:
+        audit_config["immutable_replica_enabled"] = True
+    audit_logger = AuditLogger(audit_config, auto_start=False)
     encryption_manager = EncryptionManager(
         key_dir=str(key_root),
         audit_logger=audit_logger,

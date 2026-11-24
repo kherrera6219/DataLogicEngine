@@ -22,12 +22,12 @@ import threading
 import time
 import uuid
 
-from core.security.egress_guard import require_loopback_host
+from core.security.egress_guard import EgressDenied, require_loopback_host
 
 logger = logging.getLogger("UKG-Audit")
 
 
-class AuditReplicaError(RuntimeError):
+class AuditReplicaError(EgressDenied):
     """The audit replica could not be safely verified or written."""
 
 

@@ -428,6 +428,9 @@
       "allowed_paths": [
         "core/security/egress_guard.py",
         "backend/security/audit_logger.py",
+        "backend/security/egress_audit_context.py",
+        "backend/llm_gateway/providers/",
+        "app.py",
         "tests/security/",
         "docs/compliance/REMEDIATION_PLAN.md",
         "docs/compliance/remediation_tasks.json",

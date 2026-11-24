@@ -12,6 +12,7 @@ from backend.llm_gateway.completion import (
 )
 from backend.llm_gateway.provider_manifest import validate_provider_model
 from backend.llm_gateway.providers.base import LLMProvider, LLMResponse
+from backend.security.egress_audit_context import resolve_model_egress_audit
 from core.security.egress_guard import (
     EgressPolicy,
     GuardedAsyncHTTPTransport,
@@ -44,12 +45,16 @@ class GoogleProvider(LLMProvider):
                 base_url=endpoint,
                 timeout=int(timeout_seconds * 1000),
                 client_args={
-                    "transport": GuardedHTTPTransport(self.egress_policy),
+                    "transport": GuardedHTTPTransport(
+                        self.egress_policy, audit_resolver=resolve_model_egress_audit
+                    ),
                     "trust_env": False,
                     "follow_redirects": False,
                 },
                 async_client_args={
-                    "transport": GuardedAsyncHTTPTransport(self.egress_policy),
+                    "transport": GuardedAsyncHTTPTransport(
+                        self.egress_policy, audit_resolver=resolve_model_egress_audit
+                    ),
                     "trust_env": False,
                     "follow_redirects": False,
                 },

@@ -104,11 +104,14 @@ open.
 
 A candidate strict egress-event writer accepts only destination host, byte
 counts, allow/deny and a correlation ID, and fails explicitly if its replica is
-disabled or cannot be written. Opt-in HTTPX instrumentation now exercises that
-writer on allowed, denied, failed, streamed and real loopback requests. It counts
-body bytes, not network wire bytes. The application does not yet supply the
-sink or correlation ID, and other transports, unclosed streams and interrupted
-processes are unqualified; these tests do not establish the CR-B3 exit gate. The full
+disabled or cannot be written. With `DLE_EXPERIMENTAL_EGRESS_AUDIT=true`, the
+application enables its owned replica and OpenAI and Google model adapters bind
+the current request correlation to the HTTPX audit sink. Tests cover a governed
+request, local mock model requests, denial and error paths. Counts are body
+bytes, not network wire bytes. Other transports, policy rejection during client
+construction, unclosed streams and interrupted processes remain unqualified. A
+write failure after sending is reported but cannot undo that request. These
+tests do not establish the CR-B3 exit gate. The full
 Windows suite passed 3,775 tests with 18 skipped before a final disabled-replica
 race refinement; 71 focused audit tests passed on Windows and Linux after that
 refinement.
@@ -116,7 +119,15 @@ refinement.
 The opt-in HTTPX audit prototype passed a later full Windows suite (3,790
 passed, 18 skipped, zero failures or setup/collection errors). After a further
 concurrent-finalization refinement, 48 focused tests passed on both Windows and
-Linux. It is not connected to normal application execution.
+Linux. Application and model-adapter wiring has focused local tests. A subsequent full Windows run
+passed 3,806 tests with 18 skipped before the new test module's event-loop
+cleanup was refined. A Linux combined run twice reached 89 passing tests but
+exited with a pytest-asyncio implicit-loop cleanup error; a bounded allocation
+trace identified the framework-created loop. The test module now closes only
+the loop it created, preserving existing loops. The combined 89-test selection
+then passed on Linux and Windows with successful process exit. The full Windows
+suite after that refinement passed 3,806 tests, with 18 skipped, 35 warnings and
+zero failures or setup/collection errors. GitHub validation remains open.
 
 On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%

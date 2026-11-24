@@ -12,6 +12,7 @@ from backend.llm_gateway.completion import (
 )
 from backend.llm_gateway.provider_manifest import provider_model_definition
 from backend.llm_gateway.providers.base import LLMProvider, LLMResponse
+from backend.security.egress_audit_context import resolve_model_egress_audit
 from core.security.egress_guard import EgressDenied, EgressPolicy, model_async_client
 
 
@@ -37,7 +38,10 @@ class OpenAIProvider(LLMProvider):
         self.client = AsyncOpenAI(
             api_key=resolved_key,
             base_url=endpoint,
-            http_client=model_async_client(self.egress_policy, timeout=timeout_seconds),
+            http_client=model_async_client(
+                self.egress_policy, timeout=timeout_seconds,
+                audit_resolver=resolve_model_egress_audit,
+            ),
             timeout=timeout_seconds,
             max_retries=0,
         )
