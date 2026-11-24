@@ -12,6 +12,8 @@ import logging.handlers
 import json
 import hashlib
 import hmac
+import ipaddress
+import re
 from contextlib import contextmanager
 from datetime import datetime, UTC, timedelta
 from pathlib import Path
@@ -248,8 +250,10 @@ class AuditLogger:
             raise AuditReplicaError("audit_replica_read_failed") from exc
         return previous
 
-    def _append_immutable_replica(self, audit_event: Dict[str, Any]) -> None:
+    def _append_immutable_replica(self, audit_event: Dict[str, Any], *, required: bool = False) -> None:
         if not self.immutable_replica_enabled:
+            if required:
+                raise AuditReplicaError("egress_audit_replica_disabled")
             return
 
         path = Path(self._immutable_log_file_path()).resolve()
@@ -278,6 +282,47 @@ class AuditLogger:
             except OSError as exc:
                 raise AuditReplicaError("audit_replica_write_failed") from exc
             self._immutable_last_hash = replica_hash
+
+    def log_egress_event(
+        self,
+        *,
+        destination_host: str,
+        bytes_out: int,
+        bytes_in: int,
+        result: str,
+        request_id: str,
+    ) -> str:
+        """Write a metadata-only event to the verified replica or fail visibly."""
+        if not self.immutable_replica_enabled:
+            raise AuditReplicaError("egress_audit_replica_disabled")
+        if not isinstance(destination_host, str) or not destination_host or len(destination_host) > 253:
+            raise AuditReplicaError("egress_audit_invalid_host")
+        try:
+            ipaddress.ip_address(destination_host)
+        except ValueError:
+            if not re.fullmatch(r"[A-Za-z0-9.-]+", destination_host):
+                raise AuditReplicaError("egress_audit_invalid_host") from None
+        if not isinstance(request_id, str) or not re.fullmatch(r"[A-Za-z0-9._:-]{1,128}", request_id):
+            raise AuditReplicaError("egress_audit_invalid_request_id")
+        if not isinstance(result, str) or result not in {"allow", "deny"}:
+            raise AuditReplicaError("egress_audit_invalid_result")
+        if any(type(count) is not int or count < 0 for count in (bytes_out, bytes_in)):
+            raise AuditReplicaError("egress_audit_invalid_byte_count")
+        event: Dict[str, Any] = {
+            "id": str(uuid.uuid4()),
+            "timestamp": datetime.now(UTC).isoformat(),
+            "event_type": "egress",
+            "status": result,
+            "request_id": request_id,
+            "details": {
+                "destination_host": destination_host,
+                "bytes_out": bytes_out,
+                "bytes_in": bytes_in,
+            },
+        }
+        event["hash"] = self._hash_json(event)
+        self._append_immutable_replica(event, required=True)
+        return event["id"]
 
     def log_audit_event(self, 
                          event_type: str,

@@ -102,6 +102,14 @@ public audit method still catches replica failures, the replica remains optional
 and no egress-event integration is complete. CR-B3 and the Phase B gate remain
 open.
 
+A candidate strict egress-event writer accepts only destination host, byte
+counts, allow/deny and a correlation ID, and fails explicitly if its replica is
+disabled or cannot be written. The writer is not yet connected to outbound
+transports; its focused tests do not establish the CR-B3 exit gate. The full
+Windows suite passed 3,775 tests with 18 skipped before a final disabled-replica
+race refinement; 71 focused audit tests passed on Windows and Linux after that
+refinement.
+
 On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%
 threshold. A focused cross-platform comparison showed that Windows exercised

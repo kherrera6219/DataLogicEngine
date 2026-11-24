@@ -364,6 +364,11 @@ each append, so growth and throughput need qualification. The legacy
 optional; neither this work nor the recovery tests integrate or qualify egress
 events. CR-B3 remains open.
 
+The candidate also has a strict metadata-only egress-event writer. It requires
+an enabled replica, validates its host, byte counts, decision and correlation
+ID, and propagates replica errors. It is not yet connected to outbound
+transports and does not change the legacy API's error handling.
+
 Every outbound attempt — allowed or denied — becomes an audit event: timestamp, destination host, byte count out, byte count in, allow/deny, and the correlation ID of the governed request that caused it. **Content is never logged**; this is the metadata record that lets a customer verify the egress claim without exposing what was sent.
 
 This converts "trust us" into "verify us," which is the product's own thesis applied to itself.
