@@ -84,7 +84,23 @@ saved endpoint. The candidate now carries the selected endpoint into both
 guarded provider clients while preserving the existing three-field resolver;
 86 focused tests and the full local Windows suite passed after this correction:
 3,759 passed, 18 skipped, 35 warnings and zero failures or setup/collection
-errors. GitHub validation and integration of this correction remain open.
+errors. The correction passed GitHub checks at `c53e73ec` and merged through
+[PR #115](https://github.com/kherrera6219/DataLogicEngine/pull/115) at
+`ce5255e0`. Post-merge checks are running and do not erase the earlier failed
+Windows result or prove its cause. The merge-triggered Deploy workflow was
+cancelled to avoid publication; no release or installed acceptance is claimed.
+
+CR-B3 audit-chain recovery is in progress under the owner's authorization to
+proceed past sequencing restrictions. The candidate verifies the existing daily
+immutable replica before each append and serializes cooperating writers across
+threads and processes; 61 focused tests passed on Windows and Linux, covering
+restart, rotation, concurrent writers, tampering and write errors. The full local Windows suite passed 3,767
+tests, with 18 skipped, 35 warnings and zero failures or setup/collection
+errors. Verification rereads the entire daily chain
+on each append, so its growth and throughput are unqualified. The existing
+public audit method still catches replica failures, the replica remains optional,
+and no egress-event integration is complete. CR-B3 and the Phase B gate remain
+open.
 
 On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%

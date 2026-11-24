@@ -348,8 +348,21 @@ python -m pytest tests/ --no-cov -q --tb=short -rE
 ### CR-B3 · Egress events into the hash-chained audit log
 
 **Depends on:** CR-B2
-**Allowed paths:** `core/security/egress_guard.py`, `backend/security/audit_logger.py`
+**Allowed paths:** `core/security/egress_guard.py`, `backend/security/audit_logger.py`, `tests/security/`, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 1
+
+The owner authorized autonomous Phase B completion and proceeding past
+blocking sequencing and scope restrictions on 2026-11-23. Audit-chain recovery
+can therefore proceed while CR-B2 remains open; its tests and the actual audit
+and egress exit gates are not waived.
+
+Partial source work verifies the daily immutable replica before appending and
+serializes cooperating writers across threads and processes. The append method
+reports integrity and write failures explicitly. It rereads the daily chain on
+each append, so growth and throughput need qualification. The legacy
+`log_audit_event` method still catches replica failures and the replica is
+optional; neither this work nor the recovery tests integrate or qualify egress
+events. CR-B3 remains open.
 
 Every outbound attempt — allowed or denied — becomes an audit event: timestamp, destination host, byte count out, byte count in, allow/deny, and the correlation ID of the governed request that caused it. **Content is never logged**; this is the metadata record that lets a customer verify the egress claim without exposing what was sent.
 

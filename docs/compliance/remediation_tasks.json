@@ -428,7 +428,10 @@
       "allowed_paths": [
         "core/security/egress_guard.py",
         "backend/security/audit_logger.py",
-        "tests/security/"
+        "tests/security/",
+        "docs/compliance/REMEDIATION_PLAN.md",
+        "docs/compliance/remediation_tasks.json",
+        "HANDOFF.md"
       ],
       "steps": [
         "Every outbound attempt (allowed or denied) becomes an audit event: timestamp, destination host, bytes out, bytes in, allow/deny, correlation ID of the causing governed request. Content is NEVER logged."
