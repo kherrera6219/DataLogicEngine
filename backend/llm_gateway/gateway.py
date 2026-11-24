@@ -722,7 +722,11 @@ class LLMGateway:
                 timeout_seconds=timeout_seconds,
             )
         if provider_type == "google":
-            return GoogleProvider(api_key=api_key, timeout_seconds=timeout_seconds)
+            return GoogleProvider(
+                api_key=api_key,
+                base_url=getattr(provider_record, "endpoint", None),
+                timeout_seconds=timeout_seconds,
+            )
         raise ValueError(f"Unsupported provider: {provider_type}")
 
     async def _get_eligible_providers(

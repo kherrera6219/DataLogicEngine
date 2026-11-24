@@ -368,7 +368,7 @@ Tests must prove: an allowed call produces exactly one audit event; a denied cal
 ### CR-B4 · Air-gap mode
 
 **Depends on:** CR-B1
-**Allowed paths:** config module, `core/security/egress_guard.py`, `backend/llm_gateway/active_model.py`, `backend/dsqp/dsqp_answer_generator.py`, docs, `tests/security/`, `HANDOFF.md`
+**Allowed paths:** config module, `core/security/egress_guard.py`, `backend/llm_gateway/active_model.py`, `backend/llm_gateway/gateway.py`, `backend/llm_gateway/providers/google.py`, `backend/dsqp/dsqp_answer_generator.py`, docs, `tests/security/`, `HANDOFF.md`
 **Sessions:** 1
 
 A single explicit setting that disables all egress and requires a locally-reachable model endpoint (Ollama, vLLM, LM Studio, or a customer-hosted OpenAI-compatible service). In this mode the product must be fully functional against a local model, and any code path that would require a remote call must fail with a clear, actionable error rather than degrade.
@@ -384,6 +384,11 @@ again when used. A source test exercises one governed request against a local
 mock model, with provider selection supplied by the fixture. Network observation,
 all other egress paths, installed operation, and complete policy-denial handling
 remain to be verified. The experimental setting is not a deployment claim.
+Configuration-only review on 2026-11-23 found that the optional active-model
+call dropped a saved provider endpoint and the Google gateway adapter did not
+pass one through. No network request was made by that review. The owner
+authorized autonomous remediation; preserve the existing public resolver tuple
+while passing the selected saved endpoint to the corresponding guarded client.
 
 This is the strongest single compliance feature the product has: it removes the HIPAA Business Associate question, the EU transfer question, and the federal data-egress objection in one move.
 

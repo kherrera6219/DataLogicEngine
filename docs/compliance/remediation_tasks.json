@@ -453,6 +453,8 @@
         "config module",
         "core/security/egress_guard.py",
         "backend/llm_gateway/active_model.py",
+        "backend/llm_gateway/gateway.py",
+        "backend/llm_gateway/providers/google.py",
         "backend/dsqp/dsqp_answer_generator.py",
         "docs/",
         "tests/security/",

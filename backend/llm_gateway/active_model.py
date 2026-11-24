@@ -42,8 +42,8 @@ def _preferred_env_provider() -> str | None:
     return preferred if preferred in {"openai", "google"} else None
 
 
-def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
-    """Return ``(provider_type, api_key, model)`` for the active cloud provider.
+def _resolve_active_cloud_configuration() -> Optional[tuple[str, str, str, str | None]]:
+    """Resolve the active provider and its configured endpoint together.
 
     Resolution order:
     1. The first active ``LLMProvider`` DB record of a cloud type with a stored
@@ -68,7 +68,7 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
     try:
         from models import LLMProvider
 
-        def _query() -> Optional[tuple[str, str, str]]:
+        def _query() -> Optional[tuple[str, str, str, str | None]]:
             rows = (
                 LLMProvider.query.filter_by(is_active=True)
                 .order_by(LLMProvider.priority)
@@ -99,7 +99,10 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
                     ptype,
                     str(getattr(row, "model_id", "") or "") or default_model_for_provider(ptype),
                 )
-                return (ptype, key, model)
+                endpoint = getattr(row, "endpoint", None)
+                if endpoint is not None and not isinstance(endpoint, str):
+                    raise EgressDenied("Configured model endpoint must be text")
+                return (ptype, key, model, endpoint)
             return None
 
         from flask import current_app as _cur_app
@@ -115,6 +118,8 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
             hit = _query()
         if hit:
             return hit
+    except EgressDenied:
+        raise
     except Exception as exc:  # noqa: BLE001
         logger.debug("Active cloud model resolution (DB) failed: %s", exc)
 
@@ -130,8 +135,14 @@ def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
     for provider in provider_order:
         provider_type, api_key, model = providers[provider]
         if api_key:
-            return (provider_type, api_key, model)
+            return (provider_type, api_key, model, None)
     return None
+
+
+def resolve_active_cloud_model() -> Optional[tuple[str, str, str]]:
+    """Return the established provider, key and model tuple for callers."""
+    configured = _resolve_active_cloud_configuration()
+    return configured[:3] if configured else None
 
 
 def _run_coro_sync(coro):
@@ -158,18 +169,18 @@ def generate_with_active_model(
     Policy denials propagate; other resolution/SDK/network failures return
     ``None`` so the caller can fall back to its deterministic path.
     """
-    resolved = resolve_active_cloud_model()
+    resolved = _resolve_active_cloud_configuration()
     if not resolved:
         return None
-    provider_type, api_key, model = resolved
+    provider_type, api_key, model, endpoint = resolved
 
     try:
         from backend.llm_gateway.providers import GoogleProvider, OpenAIProvider
 
         if provider_type == "google":
-            provider = GoogleProvider(api_key=api_key)
+            provider = GoogleProvider(api_key=api_key, base_url=endpoint)
         else:
-            provider = OpenAIProvider(api_key=api_key)
+            provider = OpenAIProvider(api_key=api_key, base_url=endpoint)
 
         messages: list[dict[str, str]] = []
         if system:

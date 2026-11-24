@@ -57,6 +57,12 @@ this checkpoint. The subsequent [main Windows run](https://github.com/kherrera62
 failed two tests: KA-1046 maintenance failed at KA-005, and the gateway
 failover test observed no provider. Each passes locally, including in the full
 Windows suite recorded below; the cause remains unknown. Main is not green.
+In a separate local diagnostic, adding a 500 ms delay to KA-005 (whose
+configured per-node execution budget is 300 ms) reproduced both the KA-005
+lifecycle error and a gateway routing failure with no selected provider. This
+establishes a plausible shared timing mechanism, not the cause of the main
+run. Bounded CI diagnostics were added to capture status and failure codes if
+either test fails again; neither test nor the execution budget was weakened.
 The merge-triggered Deploy workflow was cancelled because it
 could publish artifacts; this is not a deployment or installed qualification.
 
@@ -70,6 +76,15 @@ denials instead of silently returning a fallback. This is partial evidence:
 other egress paths, complete denial propagation, observed network behavior,
 and installed operation remain unverified. Do not treat the setting or the
 bounded test as proof of air-gap operation or completion of CR-B4.
+
+A configuration-only probe found the optional active-model helper discarded a
+selected saved OpenAI endpoint and constructed the default provider client. No
+request was sent. Review also found the Google gateway adapter did not pass the
+saved endpoint. The candidate now carries the selected endpoint into both
+guarded provider clients while preserving the existing three-field resolver;
+86 focused tests and the full local Windows suite passed after this correction:
+3,759 passed, 18 skipped, 35 warnings and zero failures or setup/collection
+errors. GitHub validation and integration of this correction remain open.
 
 On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%
