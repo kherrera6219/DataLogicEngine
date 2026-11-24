@@ -4,6 +4,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 
+from core.mcp.mcp_protocol import MCPError, MCPErrorCode
+from core.mcp.process_containment import ConnectorPermissionsIncompatible
 from extensions import db
 from models import (
     AuditLog,
@@ -184,6 +186,35 @@ def test_approved_start_persists_live_discovery(app, authenticated_client, tmp_p
             "connector:safe-test:read",
         ]
         assert MCPLifecycleEvent.query.filter_by(server_id=server.id, event_type="started").count() == 1
+
+
+def test_incompatible_permissions_are_reported_on_start(authenticated_client, tmp_path, monkeypatch):
+    registered = authenticated_client.post(
+        "/api/v1/mcp/servers", json=_connector_payload(tmp_path)
+    ).get_json()["server"]
+    authenticated_client.post(
+        f"/api/v1/mcp/servers/{registered['server_id']}/consent",
+        json={
+            "command_fingerprint": registered["command_fingerprint"],
+            "approved_scopes": ["connector:safe-test:read"],
+        },
+    )
+    error = MCPError(MCPErrorCode.INTERNAL_ERROR, "isolated start failed")
+    error.__cause__ = ConnectorPermissionsIncompatible("incompatible inheritance")
+    manager = SimpleNamespace(
+        external_clients={}, start_external_server_sync=Mock(side_effect=error)
+    )
+    monkeypatch.setattr("backend.routes.mcp_routes.get_mcp_manager", lambda: manager)
+
+    response = authenticated_client.post(
+        f"/api/v1/mcp/servers/{registered['server_id']}/start"
+    )
+
+    assert response.status_code == 409
+    assert response.get_json() == {
+        "success": False,
+        "error": "Connector path permissions are incompatible with safe isolation",
+    }
 
 
 def test_repository_config_update_is_retired(authenticated_client):

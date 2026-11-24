@@ -81,6 +81,9 @@ def test_startup_recovers_stale_connector_access_before_readiness(tmp_path):
         runtime.shutdown()
         return
     journal = root / "security" / "connector-access"
+    from tests.fixtures.connector_acl import prepare_compatible_acl
+
+    prepare_compatible_acl(target)
     lease = ConnectorAccessLease.create(journal, [(target, False)])
     try:
         record = json.loads(lease.path.read_text(encoding="utf-8"))

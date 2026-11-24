@@ -50,6 +50,8 @@ from backend.mcp_server.scope_enforcement import (
 )
 from core.mcp import MCPManager
 from core.mcp.isolated_process import connector_journal_dir
+from core.mcp.mcp_protocol import MCPError
+from core.mcp.process_containment import ConnectorPermissionsIncompatible
 from extensions import db
 from models import (
     AuditLog,
@@ -1815,6 +1817,14 @@ def start_dynamic_server(server_id):
     except MCPPolicyError as exc:
         db.session.rollback()
         return _policy_error(exc, status=409)
+    except MCPError as exc:
+        db.session.rollback()
+        if isinstance(exc.__cause__, ConnectorPermissionsIncompatible):
+            return _mcp_error(
+                'Connector path permissions are incompatible with safe isolation', 409
+            )
+        logger.exception("Error starting dynamic server")
+        return _mcp_error('MCP dynamic server could not be started', 500)
     except Exception:
         logger.exception("Error starting dynamic server")
         db.session.rollback()

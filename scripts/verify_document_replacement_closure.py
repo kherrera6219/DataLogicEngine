@@ -69,6 +69,7 @@ def _git_blob(path: str, root: Path) -> str | None:
         result = subprocess.run(
             ["git", "rev-parse", f"HEAD:{path}"],
             cwd=root,
+            env=os.environ.copy(),
             capture_output=True,
             text=True,
             check=False,
@@ -95,6 +96,7 @@ def _git_worktree_blob(path: Path, root: Path) -> str | None:
         result = subprocess.run(
             ["git", "hash-object", f"--path={relative}", str(path)],
             cwd=root,
+            env=os.environ.copy(),
             capture_output=True,
             text=True,
             check=False,
@@ -149,7 +151,12 @@ def freeze_baseline(
             }
         )
     head = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=True
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        env=os.environ.copy(),
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.strip()
     baseline = {
         "schema_version": "dle.document-replacement-baseline.v1",

@@ -14,6 +14,12 @@ from core.mcp.process_containment import (
     ConnectorPathGrant,
     _delete_appcontainer_profile,
 )
+from tests.fixtures.connector_acl import prepare_compatible_acl
+
+
+@pytest.fixture(autouse=True)
+def compatible_test_root(tmp_path):
+    prepare_compatible_acl(tmp_path)
 
 
 async def _launch(tmp_path, command):

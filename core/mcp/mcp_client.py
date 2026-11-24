@@ -19,7 +19,12 @@ from backend.mcp_server.policy import (
     SUPPORTED_MCP_PROTOCOL_VERSION,
     redact_sensitive_text,
 )
-from .process_containment import ConnectorIsolationError, ProcessTreeGuard, attach_process_tree_guard
+from .process_containment import (
+    ConnectorIsolationError,
+    ConnectorPermissionsIncompatible,
+    ProcessTreeGuard,
+    attach_process_tree_guard,
+)
 from .isolated_process import IsolatedConnectorGuard, connector_grants, launch_isolated_connector
 
 from .mcp_protocol import (
@@ -153,7 +158,11 @@ class MCPClient(MCPRequestHandler):
         except ConnectorIsolationError as exc:
             raise MCPError(
                 MCPErrorCode.INTERNAL_ERROR,
-                "Process containment could not be established",
+                (
+                    "Connector path permissions are incompatible with safe isolation"
+                    if isinstance(exc, ConnectorPermissionsIncompatible)
+                    else "Process containment could not be established"
+                ),
                 {"reason": "MCP_PROCESS_CONTAINMENT_FAILED"},
             ) from exc
         except Exception as e:

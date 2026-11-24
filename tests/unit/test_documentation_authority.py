@@ -105,3 +105,38 @@ def test_cp16f_document_replacement_sources_links_and_retained_evidence_close():
     assert result["summary"]["verified_target_count"] == 18
     assert result["summary"]["unmigrated_link_count"] == 0
     assert result["summary"]["retained_evidence_pass_count"] == 72
+
+
+def test_document_git_checks_preserve_empty_configuration_values():
+    import os
+    import subprocess
+    import sys
+
+    program = """
+import json
+import os
+from pathlib import Path
+from unittest.mock import patch
+from scripts.verify_document_replacement_closure import (
+    DEFAULT_BASELINE, _git_blob, _git_worktree_blob,
+)
+root = Path.cwd()
+record = json.loads(DEFAULT_BASELINE.read_text(encoding='utf-8'))['records'][0]
+relative = record['archive_path']
+with patch.dict(os.environ, {
+    'GIT_CONFIG_COUNT': '1',
+    'GIT_CONFIG_KEY_0': 'credential.helper',
+    'GIT_CONFIG_VALUE_0': '',
+}):
+    assert _git_worktree_blob(root / relative, root) == record['git_blob']
+    assert _git_blob(relative, root) == record['git_blob']
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", program],
+        cwd=ROOT,
+        env=os.environ.copy(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
