@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-001 |
 | Title | Product entry point |
-| Document version | v1.13.15 |
+| Document version | v1.13.16 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Users, evaluators, integrators, and professional reviewers |
@@ -14,7 +14,7 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `config/product-versions.json`, and release evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-13 |
+| Last reviewed | 2026-11-25 |
 | Next-review trigger | Product scope, supported workflow, packaging, or release-status change |
 | Requirements and evidence | Root plan, `TODO.md`, and `reports/production-readiness/2026/` |
 
@@ -49,6 +49,12 @@ update check, crash-reporting egress, or phone-home.
 > production or public release.** The current build is unsigned and final
 > installed-system, accessibility, provider, recovery, independent-review,
 > pilot, and soak acceptance remain release gates.
+
+The Windows connector and CI repairs and the experimental loopback model
+restriction are merged into main. Phase B still requires whole-product
+air-gap evidence and outbound network observation. Experimental model auditing
+is under review in draft PR #116. The current commits, test results, and
+restart steps are in the [project handoff](HANDOFF.md#november-25-restart-point).
 
 An owner-requested chat/provider source update adds an
 opt-in desktop fallback between configured providers and clearer recorded-model,

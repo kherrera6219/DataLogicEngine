@@ -12,14 +12,80 @@ import logging.handlers
 import json
 import hashlib
 import hmac
+import ipaddress
+import re
+from contextlib import contextmanager
 from datetime import datetime, UTC, timedelta
+from pathlib import Path
 from typing import Dict, List, Any, Optional
 import threading
+import time
 import uuid
 
-from core.security.egress_guard import require_loopback_host
+from core.security.egress_guard import EgressDenied, require_loopback_host
 
 logger = logging.getLogger("UKG-Audit")
+
+
+class AuditReplicaError(EgressDenied):
+    """The audit replica could not be safely verified or written."""
+
+
+_replica_registry_lock = threading.Lock()
+_replica_thread_locks: dict[str, threading.Lock] = {}
+
+
+@contextmanager
+def _replica_guard(directory: str):
+    """Serialize replica changes across threads and local processes."""
+    lock_path = Path(directory).resolve() / ".audit-replica.lock"
+    with _replica_registry_lock:
+        thread_lock = _replica_thread_locks.setdefault(str(lock_path), threading.Lock())
+    if not thread_lock.acquire(timeout=5):
+        raise AuditReplicaError("audit_replica_lock_unavailable")
+    stream = None
+    locked = False
+    try:
+        try:
+            stream = lock_path.open("a+b")
+        except OSError as exc:
+            raise AuditReplicaError("audit_replica_lock_unavailable") from exc
+        stream.seek(0, os.SEEK_END)
+        if stream.tell() == 0:
+            stream.write(b"\0")
+            stream.flush()
+        deadline = time.monotonic() + 5
+        while not locked:
+            try:
+                stream.seek(0)
+                if os.name == "nt":
+                    import msvcrt
+                    msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                locked = True
+            except OSError as exc:
+                if time.monotonic() >= deadline:
+                    raise AuditReplicaError("audit_replica_lock_unavailable") from exc
+                time.sleep(0.05)
+        yield
+    finally:
+        try:
+            if stream is not None:
+                try:
+                    if locked:
+                        stream.seek(0)
+                        if os.name == "nt":
+                            import msvcrt
+                            msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+                        else:
+                            import fcntl
+                            fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+                finally:
+                    stream.close()
+        finally:
+            thread_lock.release()
 
 class AuditLogger:
     """
@@ -154,30 +220,109 @@ class AuditLogger:
             ).hexdigest()
         return hashlib.sha256(seed.encode()).hexdigest()
 
-    def _append_immutable_replica(self, audit_event: Dict[str, Any]) -> None:
+    def _verified_replica_tail(self, path: Path) -> str:
+        """Verify the on-disk chain before continuing an externally changed file."""
+        if not path.exists():
+            return ""
+        previous = ""
+        try:
+            with path.open("r", encoding="utf-8") as stream:
+                for line in stream:
+                    if not line.endswith("\n"):
+                        raise AuditReplicaError("audit_replica_incomplete_record")
+                    if not line.strip():
+                        continue
+                    entry = json.loads(line)
+                    event = dict(entry["event"])
+                    event.pop("hash", None)
+                    event_hash = self._hash_json(event)
+                    if entry["event_hash"] != event_hash or entry["previous_replica_hash"] != previous:
+                        raise AuditReplicaError("audit_replica_integrity_failure")
+                    expected = self._compute_immutable_replica_hash(
+                        event_hash, previous, entry["replica_timestamp"]
+                    )
+                    if entry["replica_hash"] != expected:
+                        raise AuditReplicaError("audit_replica_integrity_failure")
+                    previous = expected
+        except (ValueError, TypeError, KeyError, UnicodeError) as exc:
+            raise AuditReplicaError("audit_replica_integrity_failure") from exc
+        except OSError as exc:
+            raise AuditReplicaError("audit_replica_read_failed") from exc
+        return previous
+
+    def _append_immutable_replica(self, audit_event: Dict[str, Any], *, required: bool = False) -> None:
         if not self.immutable_replica_enabled:
+            if required:
+                raise AuditReplicaError("egress_audit_replica_disabled")
             return
 
-        event_hash = str(audit_event.get("hash") or self._hash_json(audit_event))
-        replica_timestamp = datetime.now(UTC).isoformat()
-        previous_replica_hash = self._immutable_last_hash
-        replica_hash = self._compute_immutable_replica_hash(
-            event_hash=event_hash,
-            previous_replica_hash=previous_replica_hash,
-            replica_timestamp=replica_timestamp,
-        )
-        replica_event: Dict[str, Any] = {
-            "replica_timestamp": replica_timestamp,
-            "event_id": audit_event.get("id"),
-            "event_hash": event_hash,
-            "previous_replica_hash": previous_replica_hash,
-            "replica_hash": replica_hash,
-            "event": audit_event,
-        }
+        path = Path(self._immutable_log_file_path()).resolve()
+        event = dict(audit_event)
+        supplied_hash = event.pop("hash", None)
+        event_hash = self._hash_json(event)
+        if supplied_hash is not None and supplied_hash != event_hash:
+            raise AuditReplicaError("audit_event_hash_mismatch")
+        with _replica_guard(self.immutable_replica_dir):
+            previous = self._verified_replica_tail(path)
+            timestamp = datetime.now(UTC).isoformat()
+            replica_hash = self._compute_immutable_replica_hash(event_hash, previous, timestamp)
+            replica_event = {
+                "replica_timestamp": timestamp,
+                "event_id": audit_event.get("id"),
+                "event_hash": event_hash,
+                "previous_replica_hash": previous,
+                "replica_hash": replica_hash,
+                "event": audit_event,
+            }
+            try:
+                with path.open("a", encoding="utf-8") as replica_file:
+                    replica_file.write(json.dumps(replica_event) + "\n")
+                    replica_file.flush()
+                    os.fsync(replica_file.fileno())
+            except OSError as exc:
+                raise AuditReplicaError("audit_replica_write_failed") from exc
+            self._immutable_last_hash = replica_hash
 
-        with open(self._immutable_log_file_path(), 'a') as replica_file:
-            replica_file.write(json.dumps(replica_event) + "\n")
-        self._immutable_last_hash = replica_hash
+    def log_egress_event(
+        self,
+        *,
+        destination_host: str,
+        bytes_out: int,
+        bytes_in: int,
+        result: str,
+        request_id: str,
+    ) -> str:
+        """Write a metadata-only event to the verified replica or fail visibly."""
+        if not self.immutable_replica_enabled:
+            raise AuditReplicaError("egress_audit_replica_disabled")
+        if not isinstance(destination_host, str) or not destination_host or len(destination_host) > 253:
+            raise AuditReplicaError("egress_audit_invalid_host")
+        try:
+            ipaddress.ip_address(destination_host)
+        except ValueError:
+            if not re.fullmatch(r"[A-Za-z0-9.-]+", destination_host):
+                raise AuditReplicaError("egress_audit_invalid_host") from None
+        if not isinstance(request_id, str) or not re.fullmatch(r"[A-Za-z0-9._:-]{1,128}", request_id):
+            raise AuditReplicaError("egress_audit_invalid_request_id")
+        if not isinstance(result, str) or result not in {"allow", "deny"}:
+            raise AuditReplicaError("egress_audit_invalid_result")
+        if any(type(count) is not int or count < 0 for count in (bytes_out, bytes_in)):
+            raise AuditReplicaError("egress_audit_invalid_byte_count")
+        event: Dict[str, Any] = {
+            "id": str(uuid.uuid4()),
+            "timestamp": datetime.now(UTC).isoformat(),
+            "event_type": "egress",
+            "status": result,
+            "request_id": request_id,
+            "details": {
+                "destination_host": destination_host,
+                "bytes_out": bytes_out,
+                "bytes_in": bytes_in,
+            },
+        }
+        event["hash"] = self._hash_json(event)
+        self._append_immutable_replica(event, required=True)
+        return event["id"]
 
     def log_audit_event(self, 
                          event_type: str,

@@ -29,6 +29,12 @@ executing Phase B, not a disposition of Phase A or a relaxation of either phase'
 exit gates. The required Windows status check on `main` and formal Phase A
 disposition remain open. Other phase dependencies and human gates are unchanged.
 
+**November 25 restart:** Main includes the connector and CI repair and the
+experimental loopback model restriction. The current audit work is in draft
+PR #116, with a Linux failure at implementation commit `71dcd9e5`.
+See the [restart handoff](../../HANDOFF.md#november-25-restart-point) before
+continuing. Phase A disposition and the Phase B exit gate remain open.
+
 **Assumption stated in the open:** this program remains a separate gate to
 unblocking the current 4.4.6 release. The original v4.4.4 target above is
 historical plan provenance, not a statement that the product is still at
@@ -348,8 +354,33 @@ python -m pytest tests/ --no-cov -q --tb=short -rE
 ### CR-B3 · Egress events into the hash-chained audit log
 
 **Depends on:** CR-B2
-**Allowed paths:** `core/security/egress_guard.py`, `backend/security/audit_logger.py`
+**Allowed paths:** `core/security/egress_guard.py`, `backend/security/audit_logger.py`, `backend/security/egress_audit_context.py`, `backend/llm_gateway/providers/`, `app.py`, `tests/security/`, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 1
+
+The owner authorized autonomous Phase B completion and proceeding past
+blocking sequencing and scope restrictions on 2026-11-23. Audit-chain recovery
+can therefore proceed while CR-B2 remains open; its tests and the actual audit
+and egress exit gates are not waived.
+
+Partial source work verifies the daily immutable replica before appending and
+serializes cooperating writers across threads and processes. The append method
+reports integrity and write failures explicitly. It rereads the daily chain on
+each append, so growth and throughput need qualification. The legacy
+`log_audit_event` method still catches replica failures and the replica is
+optional; neither this work nor the recovery tests integrate or qualify egress
+events. CR-B3 remains open.
+
+The candidate also has a strict metadata-only egress-event writer. It requires
+an enabled replica, validates its host, byte counts, decision and correlation
+ID, and propagates replica errors. With `DLE_EXPERIMENTAL_EGRESS_AUDIT=true`,
+the application enables its owned replica and the OpenAI and Google adapters
+bind the current correlation ID to the HTTPX audit sink. Tests cover real local
+mock model requests and a governed request. Counts are body bytes presented to
+or consumed from the transport, not network wire bytes. Other transport types,
+unclosed streams, interrupted processes, policy rejection during provider
+construction, and the legacy API's error handling remain unqualified. A write
+failure after a request is sent is reported but cannot undo that request. This
+does not close CR-B3.
 
 Every outbound attempt — allowed or denied — becomes an audit event: timestamp, destination host, byte count out, byte count in, allow/deny, and the correlation ID of the governed request that caused it. **Content is never logged**; this is the metadata record that lets a customer verify the egress claim without exposing what was sent.
 
@@ -405,8 +436,19 @@ Tests must prove a full governed request completes end-to-end with air-gap enabl
 ### CR-B5 · CI egress test — the renewable evidence artifact
 
 **Depends on:** CR-B2, CR-B4
-**Allowed paths:** `.github/workflows/`, `tests/security/`
+**Allowed paths:** `.github/workflows/`, `tests/security/`, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 1–2
+
+The owner authorized proceeding past Phase B sequencing restrictions on
+2026-11-23. A Windows-only feasibility workflow tests whether system audit
+events can observe two synthetic loopback connections, one from a parent and
+one from a child. It is not a product egress test or attestation. The local
+account could not read the system audit policy or Packet Monitor driver due to
+missing privileges; the feasibility workflow uses an isolated hosted runner.
+The prototype workflow and its tests are local to the checkout, and the
+privileged runner portion has yet to run. The CR-B5 dependencies and exit
+gate remain open until product-wide observation and the renewable attestation
+are demonstrated.
 
 This is the task that turns the egress claim into an artifact you can hand a customer's security team.
 

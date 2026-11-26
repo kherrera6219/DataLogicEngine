@@ -12,7 +12,7 @@
       "DataLogicEngine_External_Review_2026-08-16.md",
       "UKG_Standards_Compliance_Blueprint_2026-08-17.md"
     ],
-    "revision_note": "US-only market decision applied 2026-08-18. Original target_version 4.4.4 is plan provenance; current product 4.4.6 remains release_blocked. Phase A evidence is recorded but its required Windows status check and formal disposition remain open. On 2026-11-16 Kevin authorized Phase B execution before Phase A disposition; no exit gate or other human decision is waived. HD-3 resolved.",
+    "revision_note": "US-only market decision applied 2026-08-18. Original target_version 4.4.4 is plan provenance. Product 4.4.6 remains release_blocked. Phase A still needs its required Windows status check and formal disposition. Kevin authorized Phase B execution before Phase A disposition on 2026-11-16. On 2026-11-25 the Phase B restart snapshot records main ce5255e0, draft audit PR #116 with a Linux failure at 71dcd9e5, and the unpublished Windows observer prototype in HANDOFF.md. All exit gates still apply. HD-3 resolved.",
     "market": "United States only. Product is NOT placed on the EU market (decision 2026-08-18)."
   },
   "out_of_scope": {
@@ -428,7 +428,13 @@
       "allowed_paths": [
         "core/security/egress_guard.py",
         "backend/security/audit_logger.py",
-        "tests/security/"
+        "backend/security/egress_audit_context.py",
+        "backend/llm_gateway/providers/",
+        "app.py",
+        "tests/security/",
+        "docs/compliance/REMEDIATION_PLAN.md",
+        "docs/compliance/remediation_tasks.json",
+        "HANDOFF.md"
       ],
       "steps": [
         "Every outbound attempt (allowed or denied) becomes an audit event: timestamp, destination host, bytes out, bytes in, allow/deny, correlation ID of the causing governed request. Content is NEVER logged."
@@ -482,7 +488,10 @@
       "allowed_paths": [
         ".github/workflows/",
         "tests/security/",
-        "reports/egress/"
+        "reports/egress/",
+        "docs/compliance/REMEDIATION_PLAN.md",
+        "docs/compliance/remediation_tasks.json",
+        "HANDOFF.md"
       ],
       "steps": [
         "CI job running the full governed path under network observation (deny-all environment with a single logging proxy, or socket-level recorder).",

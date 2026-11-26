@@ -26,9 +26,16 @@ An independent code review on August 16, 2026 reported three things that matter:
 **2026-11-16 owner decision:** Phase B may proceed while Phase A remains open.
 This changes sequencing only; no exit gate or other human decision is waived.
 
+**2026-11-25 restart:** Main `ce5255e0` passed CI and security after the
+connector and loopback-model repairs. Draft PR #116 remains open after a
+Linux governed-execution failure. Phase B also needs audit coverage,
+whole-product air-gap proof, a dated outbound observation artifact, and the
+configuration readout. The [handoff](../../HANDOFF.md#november-25-restart-point)
+records the exact evidence and the local observer prototype.
+
 **2026-11-14 checkpoint:** PR #108 merged at `b69577c6` with the CR-A0/CR-A3
 evidence and the CR-A2 Windows job. Its post-merge CI/CD, Deploy, and Security
-runs passed. The latest [PR #112 Windows result](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43544900982/job/132293823638)
+runs passed. The [PR #112 Windows result](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43544900982/job/132293823638)
 records 3,549 passing tests, 19 skipped, and zero setup or collection errors
 on `b9fe82e1`. [PR #108 CI/CD](https://github.com/kherrera6219/DataLogicEngine/actions/runs/41944785265) · [Deploy](https://github.com/kherrera6219/DataLogicEngine/actions/runs/41944785131) · [Security](https://github.com/kherrera6219/DataLogicEngine/actions/runs/41944785169)
 
