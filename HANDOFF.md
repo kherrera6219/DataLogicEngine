@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-006 |
 | Title | Current checkpoint and next action |
-| Document version | v1.22.15 |
+| Document version | v1.22.16 |
 | Product version | 4.4.6 |
 | Status | active |
 | Audience | Product owner, maintainers, release reviewers, and the next execution session |
@@ -14,17 +14,54 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md`, `TODO.md`, and validated evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-16 |
+| Last reviewed | 2026-11-25 |
 | Next-review trigger | Every checkpoint, handoff, blocker, or release-decision change |
 | Requirements and evidence | Active plan, open-work ledger, and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.7 (release program) |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.8 (release program) |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12). Phase A remains open; owner authorized Phase B to proceed before its disposition on 2026-11-16. CR-E1/CR-E4 already satisfied. Agent entry point: `AGENTS.md`. |
 | Supporting update plan | `docs/audits/DataLogicEngine_Consolidated_Update_Plan_2026-08-18.md` (CU-2 4.4.3 exact-source portable engineering rebuild is complete while fresh-installed/provider/signing proof remains open; CU-3 decision-gated; CU-4 copy-only scope owner-approved and deferred until after CU-2; CU-5 source/publication partial) |
 | Supporting installed-chat repair plan | `docs/audits/INSTALLED_GOVERNED_CHAT_REPAIR_PLAN_2026-08-26.md` (source work through CHAT-QC-05 and the 4.4.6 clean-commit engineering rebuild are complete; installed CHAT-QC-06 acceptance remains open) |
 | Completed phase | Phase 18 closed incomplete with unresolved integration transferred without waiver |
-| Current phase | Phase 19; review-repair PR #101 merged at `ff2a03b0`. Its post-merge CI/CD, Deploy and Security workflows pass. Installed acceptance, signing, lifecycle, Phase A and CP19-M remain open. |
+| Current phase | Phase 19 release program and Phase B compliance remediation. Main is at `ce5255e0`; audit PR #116 is open. Installed acceptance, signing, lifecycle, Phase A and CP19-M remain open. |
 | Release verdict | Production/public release: **NO-GO** |
 | Historical handoff | `docs/archive/session-history/HANDOFF_through_2026-07-12.md` |
+
+## November 25 restart point
+
+Work in `C:\software\DataLogicEngine` on `remediation/phase-b`. Read the
+[production plan](PRODUCTION_COMPLETION_PLAN_2026.md), [open-work ledger](TODO.md),
+this section, and the [Phase B work orders](docs/compliance/REMEDIATION_PLAN.md#phase-b--prove-the-egress-claim).
+Check live Git and GitHub state before editing because later runs can supersede
+the snapshot below.
+
+| Where | Verified state |
+|---|---|
+| Main | `ce5255e006f1b435addcf7ce704afbc550e93df6` includes [PRs #113](https://github.com/kherrera6219/DataLogicEngine/pull/113), [#114](https://github.com/kherrera6219/DataLogicEngine/pull/114) and [#115](https://github.com/kherrera6219/DataLogicEngine/pull/115). [Main CI](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45343727984) and [security](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45343727973) passed. Deploy runs for #114 and #115 were cancelled before publication. |
+| Draft audit PR | [PR #116](https://github.com/kherrera6219/DataLogicEngine/pull/116) is open and unmerged. Audit implementation and tests were pushed through `71dcd9e5`. The [last green implementation](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45347482169) was `79ff8d8a` and predates application wiring. |
+| Audit CI at `71dcd9e5` | [Windows](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45352535298/job/138302262311) passed 3,805 tests with 19 skips. Packaging, frontend, lint, governance and security passed. [Linux](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45352535298/job/138302262265) reported 1 failure, 3,797 passes and 26 skips. `test_l9_blocks_forged_uncommitted_ka_trace` expected `policy_block` and got `internal_failure`. The cause is unconfirmed. The coverage gate and Docker job were skipped. |
+| Local evidence | Final audit wiring passed 3,806 Windows tests with 18 skips and no setup/collection errors. A focused 89-test selection passed on both Windows and Linux. The subsequent working tree with the observer prototype passed 3,811 Windows tests with 18 skips and no setup/collection errors. |
+| Local-only observer prototype | `.github/workflows/phase-b-network-observer-probe.yml`, `tests/security/probe_windows_connection_audit.ps1`, `tests/security/windows_connection_probe.py`, and `tests/security/test_windows_connection_probe.py` are in the checkout. Five focused tests passed. The privileged hosted run has not been attempted. Leave the unrelated `.codex/` directory alone. |
+
+1. Resume at PR #116. Review the Linux failure at `71dcd9e5`, capture bounded
+   stage diagnostics, and compare the failing path with `79ff8d8a`. Preserve
+   the policy assertion and follow the repository's three-failure stop rule.
+   Verify the current head and post-merge CI separately before closing the
+   repair.
+2. Finish CR-B2 through CR-B6 using the work orders. CR-B2 still needs the
+   outbound call-site review and connector isolation evidence. CR-B3 has
+   experimental HTTP model auditing and needs coverage of other outbound
+   paths, denial before client creation, and interruption behavior. CR-B4 has
+   a governed loopback-model test and still needs whole-product air-gap proof.
+   CR-B5 needs a hosted observer check followed by a dated attestation of
+   actual product activity. CR-B6 still needs the runtime configuration
+   endpoint and CLI.
+3. Preserve the owner's sequencing decision. Phase B may proceed while
+   Phase A remains open. The active main rules expose no required Windows
+   status check. Formal Phase A disposition, installed acceptance, signing,
+   CP19-M and release approval remain open. Next.js advisories #741–747 were
+   still open on November 25 and are tracked for separate dependency review.
+
+The dated notes below retain the evidence available at each earlier checkpoint.
 
 ## November 16 Next.js advisory checkpoint
 
@@ -47,7 +84,7 @@ Kevin authorized Phase B to continue while this advisory remains open for a
 separate dependency update. The alert has not been dispositioned as safe and
 remains relevant to release review.
 
-## November 16 Phase B egress checkpoint
+## November 16–24 Phase B egress history
 
 On November 23, [PR #114](https://github.com/kherrera6219/DataLogicEngine/pull/114)
 merged the CI and Windows connector repair into main at `7d98301c`. The PR's
@@ -56,7 +93,7 @@ passed on `ca71b44e`; post-merge checks are separate and were still running at
 this checkpoint. The subsequent [main Windows run](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45334671212)
 failed two tests: KA-1046 maintenance failed at KA-005, and the gateway
 failover test observed no provider. Each passes locally, including in the full
-Windows suite recorded below; the cause remains unknown. Main is not green.
+Windows suite recorded below. The cause remains unknown and that run failed.
 In a separate local diagnostic, adding a 500 ms delay to KA-005 (whose
 configured per-node execution budget is 300 ms) reproduced both the KA-005
 lifecycle error and a gateway routing failure with no selected provider. This
@@ -128,6 +165,16 @@ the loop it created, preserving existing loops. The combined 89-test selection
 then passed on Linux and Windows with successful process exit. The full Windows
 suite after that refinement passed 3,806 tests, with 18 skipped, 35 warnings and
 zero failures or setup/collection errors. GitHub validation remains open.
+
+CR-B5 observation research is in progress. In local loopback-only probes, a
+Python audit hook observed the parent process's connection but did not observe
+a child process's connection, so it cannot establish the whole-product egress
+claim. The local account lacks privileges to read the Windows connection-audit
+policy or use Packet Monitor. A candidate hosted-Windows feasibility workflow
+enables connection auditing only on its disposable runner and checks for two
+synthetic loopback connections, one parent and one child. This is not an
+installed-product observation or an egress attestation; its runner result and
+the CR-B5 exit gate remain open.
 
 On November 22, Kevin authorized a new repair attempt and approved combining
 the complete Windows and Linux CI coverage reports without lowering the 80%
@@ -245,7 +292,7 @@ permissions were modified. Kevin subsequently authorized the connector-specific
 access grants described below; preserve existing tests and fail closed if
 isolation is unavailable.
 
-**Owner-approved file-access approach, not yet implemented:** create an
+**Historical owner-approved file-access design:** create an
 isolated connector identity with no network capabilities, grant that identity
 only the access needed for the explicitly approved executable and its approved
 runtime files, and grant its approved data roots only the read/write rights
@@ -254,8 +301,8 @@ application packages or to unapproved folders. Track exactly the entries the
 application adds, remove only those entries on shutdown, and reconcile stale
 entries after an interrupted run. An interruption may leave an added entry in
 place until recovery. If necessary access cannot be granted or isolation
-cannot be verified, deny connector start with a clear error. This is a proposed
-design, not implemented or qualified behavior.
+cannot be verified, deny connector start with a clear error. The current
+implementation, evidence and remaining limits are recorded above.
 
 ## November 16 Phase B sequencing decision
 
@@ -278,6 +325,10 @@ audit reported zero known vulnerabilities. The Windows suite passed 3,549
 tests with 19 skipped and zero failures or setup/collection errors. Linux
 passed 3,542 tests with 26 skipped. Frontend and Docker builds, Windows
 installer build, and portable launch smoke passed. [CI/CD](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43544900982) · [Security Scan](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43544901000)
+
+PR #112 later merged at `c18ae6a9` and its
+[post-merge CI](https://github.com/kherrera6219/DataLogicEngine/actions/runs/43549697926)
+passed.
 
 PR #108's post-merge CI/CD, Deploy, and Security workflows passed at
 `b69577c6`. The required **Windows Backend Tests** check on `main` is still

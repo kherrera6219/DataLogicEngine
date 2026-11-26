@@ -29,6 +29,12 @@ executing Phase B, not a disposition of Phase A or a relaxation of either phase'
 exit gates. The required Windows status check on `main` and formal Phase A
 disposition remain open. Other phase dependencies and human gates are unchanged.
 
+**November 25 restart:** Main includes the connector and CI repair and the
+experimental loopback model restriction. The current audit work is in draft
+PR #116, with a Linux failure at implementation commit `71dcd9e5`.
+See the [restart handoff](../../HANDOFF.md#november-25-restart-point) before
+continuing. Phase A disposition and the Phase B exit gate remain open.
+
 **Assumption stated in the open:** this program remains a separate gate to
 unblocking the current 4.4.6 release. The original v4.4.4 target above is
 historical plan provenance, not a statement that the product is still at
@@ -430,8 +436,19 @@ Tests must prove a full governed request completes end-to-end with air-gap enabl
 ### CR-B5 · CI egress test — the renewable evidence artifact
 
 **Depends on:** CR-B2, CR-B4
-**Allowed paths:** `.github/workflows/`, `tests/security/`
+**Allowed paths:** `.github/workflows/`, `tests/security/`, the Phase B plan and task definitions, and `HANDOFF.md`.
 **Sessions:** 1–2
+
+The owner authorized proceeding past Phase B sequencing restrictions on
+2026-11-23. A Windows-only feasibility workflow tests whether system audit
+events can observe two synthetic loopback connections, one from a parent and
+one from a child. It is not a product egress test or attestation. The local
+account could not read the system audit policy or Packet Monitor driver due to
+missing privileges; the feasibility workflow uses an isolated hosted runner.
+The prototype workflow and its tests are local to the checkout, and the
+privileged runner portion has yet to run. The CR-B5 dependencies and exit
+gate remain open until product-wide observation and the renewable attestation
+are demonstrated.
 
 This is the task that turns the egress claim into an artifact you can hand a customer's security team.
 

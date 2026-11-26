@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-002 |
 | Title | Verification and validation plan and report |
-| Document version | v1.8.8 |
+| Document version | v1.8.9 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, quality, engineering, security, release authority, independent reviewers, and evaluators |
@@ -14,11 +14,24 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Approved requirements, tests/workflows, phase evidence, candidate artifacts, human rubric, and release gates |
 | Confidentiality | Public |
-| Last reviewed | 2026-10-29 |
+| Last reviewed | 2026-11-25 |
 | Next-review trigger | Requirement, test method/result, candidate artifact, finding, risk acceptance, or release decision change |
 | Requirements and evidence | Requirements traceability, test suites, CI/release workflows, Phase 0-16 reports, and final release record |
 
 ## Purpose
+
+The November 25 Phase B verification snapshot distinguishes the merged source,
+the draft audit revision, and an unpublished observer prototype:
+
+| Scope | Result |
+|---|---|
+| Main `ce5255e0` | [Post-merge CI](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45343727984) passed, including 3,758 Windows tests with 19 skips and the combined 80% coverage gate. [Security scan](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45343727973) passed. |
+| Audit implementation `71dcd9e5` | Local Windows passed 3,806 tests with 18 skips and no failures or setup/collection errors. A focused 89-test selection passed on Windows and Linux. [Hosted Windows](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45352535298/job/138302262311) passed 3,805 tests with 19 skips, and security passed. [Hosted Linux](https://github.com/kherrera6219/DataLogicEngine/actions/runs/45352535298/job/138302262265) failed one governed-execution test, with 3,797 passed and 26 skipped. Combined coverage and Docker checks were skipped. |
+| Local observer prototype | Five focused tests passed. The local working tree with the prototype passed 3,811 Windows tests, with 18 skips and no failures or setup/collection errors. The privileged Windows observer and actual product traffic have yet to be observed by the hosted workflow. |
+
+Source and CI results leave the Phase B exit gate and installed qualification
+open. The [handoff](../HANDOFF.md#november-25-restart-point) records the next
+diagnostic and the audit, air-gap and network observation limits.
 
 The October 29 R-3 Windows source run passed **3,534 tests, 19 skipped,
 35 warnings, zero failures/setup/collection errors**, without coverage

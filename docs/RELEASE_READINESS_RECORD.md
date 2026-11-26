@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ASR-008 |
 | Title | Release readiness and go-no-go record |
-| Document version | v1.8.9 |
+| Document version | v1.8.10 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, release authority, engineering, quality, security/legal reviewers, operators, and professional evaluators |
@@ -14,16 +14,25 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | Production completion plan, TODO, traceability/V&V records, release manifests, phase evidence, and owner decisions |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-14 |
+| Last reviewed | 2026-11-25 |
 | Next-review trigger | Candidate artifact, gate result, finding, authority, risk acceptance, reviewer disposition, or go-no-go change |
 | Requirements and evidence | Product requirements, Phase 0-19 gates, exact artifact records, independent/manual acceptance, and signed owner decision |
 
 ## Current decision
 
+**Production/public release: NO-GO.**
+
+The November 25 checkpoint records passing main CI and security scans at
+`ce5255e0` after the connector and model-endpoint fixes. The Deploy workflow
+was cancelled before publication. Audit PR #116 remains open after a Linux
+backend failure. Phase B egress verification, installed acceptance, signing,
+and CP19-M remain open. The separate Next.js dependency review is pending.
+See the [current handoff](../HANDOFF.md#november-25-restart-point).
+
 The dependency repair in [PR #112](https://github.com/kherrera6219/DataLogicEngine/pull/112)
-has a passing locked Python audit, full Windows/Linux backend suites, and
-installer/portable launch smoke at `b9fe82e1`. This is source and portable
-build evidence. The patched artifact still needs installed acceptance,
+passed locked Python audit, full Windows/Linux backend suites, and
+installer/portable launch smoke at `b9fe82e1`. It merged at `c18ae6a9`
+with passing post-merge CI. The patched artifact still needs installed acceptance,
 coordinated backup and restore proof, and signing. Phase A remains open until
 the owner sets the required Windows check on `main` and records disposition.
 
@@ -31,8 +40,6 @@ The owner-requested chat/provider candidate remains under source and installed
 validation. Its optional cross-provider fallback and presentation changes do
 not close the existing recovery, signing, provider, or release gates. See
 `docs/audits/CHAT_PROVIDER_EXPERIENCE_2026-11-02.md` for status.
-
-**Production/public release: NO-GO.**
 
 The October 29 R-3 source checkpoint verifies model-sized ingestion spans
 against canonical SQL authority and supplies approved parent/offset citation

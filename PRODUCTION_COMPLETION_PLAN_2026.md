@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Document version | v1.83.7 |
+| Document version | v1.83.8 |
 | Plan date | 2026-07-12 |
 | Status | Active production completion program |
 | Product target | Local-first Windows 11 x64 governed LLM middleware with a desktop control, administration, audit, and validation application |
@@ -19,16 +19,18 @@
 
 ### Current execution checkpoint
 
-November 14: [PR #112](https://github.com/kherrera6219/DataLogicEngine/pull/112)
-qualifies the Soup Sieve 4.0 and dnspython 2.9.2 upgrades at candidate
-`b9fe82e1`. Hosted dependency scan reports zero known vulnerabilities, the
-Windows backend suite passed 3,549 tests with 19 skipped and zero setup or
-collection errors, and the installer build and portable launch smoke passed.
-Source integration and post-merge verification are still open. The installed
-4.4.6 payload is present and the patched candidate needs exact-artifact
-installed qualification after current recovery verification. The owner must
-enable the Windows required check on `main` and record Phase A disposition.
-See [the current handoff](HANDOFF.md) for the linked runs and next steps.
+As of November 25, the Windows connector and CI repairs and the experimental
+loopback model restriction are merged at `ce5255e0`. The post-merge CI and
+security runs passed. Phase B remains open. Draft PR #116 contains experimental
+model egress auditing and its latest implementation revision has a Linux
+governed-execution test failure. Resume with the exact commits, evidence and
+remaining gates in the [current handoff](HANDOFF.md#november-25-restart-point).
+
+The Soup Sieve and dnspython dependency repair from PR #112 merged at
+`c18ae6a9` and its post-merge CI passed. The patched 4.4.6 candidate still
+needs recovery evidence and exact-artifact installed qualification. The owner
+must enable the required Windows status check on `main` and record the Phase A
+disposition. Phase B can proceed under the recorded sequencing decision.
 
 The post-merge Windows suite at `7351b3d5` failed the governed-trace
 integration test despite its passing PR and subsequent local full Windows run.

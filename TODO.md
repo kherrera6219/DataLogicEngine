@@ -6,7 +6,7 @@
 |---|---|
 | Document ID | DLE-ROOT-005 |
 | Title | Open production work and release blockers |
-| Document version | v1.20.15 |
+| Document version | v1.20.16 |
 | Product version | 4.4.6 |
 | Status | release_blocked |
 | Audience | Product owner, engineering, assurance, and release reviewers |
@@ -14,25 +14,37 @@
 | Approver | Kevin Herrera, Product Owner |
 | Source of authority | `PRODUCTION_COMPLETION_PLAN_2026.md` and validated phase evidence |
 | Confidentiality | Public |
-| Last reviewed | 2026-11-14 |
+| Last reviewed | 2026-11-25 |
 | Next-review trigger | Phase checkpoint, blocker disposition, or release-decision change |
 | Requirements and evidence | Active plan and `reports/production-readiness/2026/` |
-| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.7 |
+| Active plan | `PRODUCTION_COMPLETION_PLAN_2026.md` v1.83.8 |
 | Supporting compliance program | `docs/compliance/REMEDIATION_PLAN.md` (CR-A0 … CR-G12); agent entry point `AGENTS.md` |
 | Completed phase | Phase 18 closed incomplete with all unresolved integration transferred without waiver |
-| Current phase | Phase 19; PR #101 merged at `ff2a03b0` with CI/CD, Deploy and Security passing. Local R-3 source qualification passed 3,534 Windows tests in an environment not fully matched to the dependency lock; staging is disabled. Installed acceptance, Phase A and CP19-M remain open |
+| Current phase | Phase 19 release program and Phase B compliance remediation. Main CI and security passed at `ce5255e0`. Audit PR #116 remains open after a Linux test failure. Installed acceptance, signing, Phase A and CP19-M remain open. |
 | Release decision | Production/public release: **NO-GO** |
 | Historical backlog | `docs/archive/session-history/TODO_through_2026-07-12.md` |
 
 This file contains current open work only. Detailed requirements, stop
 conditions, and exit gates remain authoritative in the active root plan.
 
-## Dependency repair and next release gates
+## Phase B restart
 
-- [ ] Review and integrate [PR #112](https://github.com/kherrera6219/DataLogicEngine/pull/112).
-      Candidate `b9fe82e1` passes hosted Windows, Linux, packaging/portable
-      smoke, frontend, Docker, and security checks. Verify the checks on the
-      final PR head and verify post-merge CI and dependency audit on `main`.
+- [ ] Diagnose the Linux governed-execution failure on draft
+      [PR #116](https://github.com/kherrera6219/DataLogicEngine/pull/116).
+      Preserve the assertion and verify both platform suites and the 80%
+      combined coverage gate before merge.
+- [ ] Complete CR-B2 outbound call-site and connector proof. Resolve the
+      non-atomic Windows permission update concern before qualifying real files.
+- [ ] Complete CR-B3 audit coverage and CR-B4 whole-product air-gap proof.
+      Existing model-audit and loopback-model tests cover bounded source paths.
+- [ ] Validate the CR-B5 observer prototype on a disposable Windows runner,
+      observe actual product paths, and generate the dated egress attestation.
+      Complete the CR-B6 runtime configuration endpoint and CLI.
+- [ ] Review the open Next.js Dependabot advisories #741–747 separately.
+      See the [restart handoff](HANDOFF.md#november-25-restart-point) for the
+      commits, local files, owner decisions, and run links.
+
+## Remaining release gates
 - [ ] Require **Windows Backend Tests** on `main`, verify the effective rule,
       and record the owner's Phase A disposition. PR #108's post-merge CI/CD,
       Deploy, and Security runs passed. [Phase A checkpoint](docs/compliance/README.md)
